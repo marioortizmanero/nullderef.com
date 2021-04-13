@@ -1,0 +1,73 @@
+baseURL: https://nullderef.com
+title: NullDeref
+languageCode: en-us
+theme: "PaperMod"
+
+copyright: "See this site's source code [here](https://github.com/marioortizmanero/nullderef.com)."
+
+enableInlineShortcodes: true
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+enableEmoji: true
+# googleAnalytics: UA-123-45
+
+paginate: 5
+
+languages:
+  en:
+    languageName: "English"
+    subtitle: "☄️ Fast | ☁️ Fluent | 🌙 Smooth | 📱 Responsive"
+    weight: 1
+    menu:
+      main:
+        - name: Archive
+          url: archives
+          weight: 5
+        - name: Search
+          url: search/
+          weight: 10
+        - name: Tags
+          url: tags/
+          weight: 10
+        - name: Categories
+          url: categories/
+          weight: 10
+
+params:
+  env: production # to enable google analytics, opengraph, twitter-cards and schema.
+  description: "NullDeref - Yet Another Programming Blog"
+  author: Mario Ortiz Manero
+
+  defaultTheme: auto
+  # disableThemeToggle: true
+  ShowShareButtons: true
+  ShowReadingTime: true
+  # disableSpecial1stPost: true
+  displayFullLangName: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowToc: true
+
+  homeInfoParams:
+    Title: "unsafe{*ptr::null()}"
+    Content: >
+      Yet Another Programming Blog
+
+      - Written by Mario Ortiz Manero
+
+  socialIcons:
+    - name: github
+      url: "https://github.com/marioortizmanero/"
+    - name: linkedin
+      url: "https://www.linkedin.com/in/mario-ortiz-manero-3b0472186/"
+
+minify:
+    disableXML: true
+    minifyOutput: true
+
+taxonomies:
+  category: categories
+  tag: tags
+  series: series
