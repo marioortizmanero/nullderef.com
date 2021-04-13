@@ -49,6 +49,7 @@ params:
   ShowPostNavLinks: true
   ShowBreadCrumbs: true
   ShowToc: true
+  comments: true
 
   homeInfoParams:
     Title: "unsafe{*ptr::null()}"
@@ -66,6 +67,12 @@ params:
 minify:
     disableXML: true
     minifyOutput: true
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON # is necessary
 
 taxonomies:
   category: categories
