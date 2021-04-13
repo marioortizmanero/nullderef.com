@@ -6,7 +6,7 @@
     <description>Recent content on NullDeref</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com).</copyright>
+    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3</copyright>
     <lastBuildDate>Tue, 13 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>GSoC Proposal: Implementing a Plugin Development Kit for Tremor</title>
