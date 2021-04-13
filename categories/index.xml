@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on NullDeref</title>
+    <link>https://nullderef.com/categories/</link>
+    <description>Recent content in Categories on NullDeref</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com).</copyright><atom:link href="https://nullderef.com/categories/index.xml" rel="self" type="application/rss+xml" />
+  </channel>
+</rss>

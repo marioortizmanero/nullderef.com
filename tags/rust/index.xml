@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>rust on NullDeref</title>
+    <link>https://nullderef.com/tags/rust/</link>
+    <description>Recent content in rust on NullDeref</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com).</copyright>
+    <lastBuildDate>Tue, 13 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/rust/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>GSoC Proposal: Implementing a Plugin Development Kit for Tremor</title>
+      <link>https://nullderef.com/blog/gsoc-proposal/</link>
+      <pubDate>Tue, 13 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/blog/gsoc-proposal/</guid>
+      <description>My proposal for 2021&amp;#39;s GSoC</description>
+    </item>
+    
+    <item>
+      <title>Optional parameters in Rust</title>
+      <link>https://nullderef.com/blog/rust-parameters/</link>
+      <pubDate>Sat, 10 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/blog/rust-parameters/</guid>
+      <description>Analyzing different approaches for optional parameters in Rust</description>
+    </item>
+    
+  </channel>
+</rss>

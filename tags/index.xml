@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on NullDeref</title>
+    <link>https://nullderef.com/tags/</link>
+    <description>Recent content in Tags on NullDeref</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com).</copyright>
+    <lastBuildDate>Tue, 13 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>gsoc</title>
+      <link>https://nullderef.com/tags/gsoc/</link>
+      <pubDate>Tue, 13 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/tags/gsoc/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>rust</title>
+      <link>https://nullderef.com/tags/rust/</link>
+      <pubDate>Tue, 13 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/tags/rust/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
