@@ -6,6 +6,9 @@
     <lastmod>2021-04-13T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url><url>
+    <loc>https://nullderef.com/categories/</loc>
+    <lastmod>2021-04-13T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/tags/gsoc/</loc>
     <lastmod>2021-04-13T00:00:00+00:00</lastmod>
   </url><url>
@@ -15,18 +18,22 @@
     <loc>https://nullderef.com/</loc>
     <lastmod>2021-04-13T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://nullderef.com/categories/project/</loc>
+    <lastmod>2021-04-13T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/tags/rust/</loc>
     <lastmod>2021-04-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/</loc>
     <lastmod>2021-04-13T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://nullderef.com/categories/guide/</loc>
+    <lastmod>2020-10-10T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/blog/rust-parameters/</loc>
     <lastmod>2020-10-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/archives/</loc>
-  </url><url>
-    <loc>https://nullderef.com/categories/</loc>
   </url><url>
     <loc>https://nullderef.com/search/</loc>
   </url><url>

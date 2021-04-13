@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>guide on NullDeref</title>
+    <link>https://nullderef.com/categories/guide/</link>
+    <description>Recent content in guide on NullDeref</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com).</copyright>
+    <lastBuildDate>Sat, 10 Oct 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/categories/guide/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Optional parameters in Rust</title>
+      <link>https://nullderef.com/blog/rust-parameters/</link>
+      <pubDate>Sat, 10 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/blog/rust-parameters/</guid>
+      <description>Analyzing different approaches for optional parameters in Rust</description>
+    </item>
+    
+  </channel>
+</rss>
