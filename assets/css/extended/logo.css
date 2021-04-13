@@ -1,0 +1,14 @@
+/* The logo */
+.indexlogo .darktheme,
+.indexlogo .lighttheme {
+ display: none;
+}
+
+[data-theme="dark"] .indexlogo .darktheme {
+  display: inline;
+}
+
+[data-theme="light"] .indexlogo .lighttheme {
+  display: inline;
+}
+

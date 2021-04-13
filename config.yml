@@ -52,7 +52,8 @@ params:
   comments: true
 
   homeInfoParams:
-    Title: "unsafe{*ptr::null()}"
+    LogoLight: /logo-light-theme.svg
+    LogoDark: /logo-dark-theme.svg
     Content: >
       Yet Another Programming Blog
 
