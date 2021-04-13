@@ -11,14 +11,14 @@ buildDrafts: false
 buildFuture: false
 buildExpired: false
 enableEmoji: true
-# googleAnalytics: UA-123-45
+googleAnalytics: G-MVVGNX70LX
 
 paginate: 5
 
 languages:
   en:
     languageName: "English"
-    subtitle: "☄️ Fast | ☁️ Fluent | 🌙 Smooth | 📱 Responsive"
+    subtitle: "Yet Another Programming Blog"
     weight: 1
     menu:
       main:
@@ -72,7 +72,7 @@ outputs:
   home:
     - HTML
     - RSS
-    - JSON # is necessary
+    - JSON # necessary for the search
 
 taxonomies:
   category: categories

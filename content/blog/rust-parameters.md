@@ -3,6 +3,7 @@ title: "Optional parameters in Rust"
 description: "Analyzing different approaches for optional parameters in Rust"
 author: "Mario Ortiz Manero"
 tags: ["rust"]
+categories: ["guide"]
 date: 2020-10-10
 ---
 
