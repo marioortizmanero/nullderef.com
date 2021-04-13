@@ -7,15 +7,22 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="125.23187mm"
-   height="9.7260523mm"
-   viewBox="0 0 125.23186 9.7260526"
+   width="128.99947mm"
+   height="10.490282mm"
+   viewBox="0 0 128.99945 10.490282"
    version="1.1"
    id="svg8"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15, custom)"
-   sodipodi:docname="logo-light.svg">
+   sodipodi:docname="logo-dark-theme.svg">
   <defs
-     id="defs2" />
+     id="defs2">
+    <rect
+       x="171.36037"
+       y="207.86232"
+       width="141.24275"
+       height="64.067612"
+       id="rect1097" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -24,8 +31,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="103.09651"
-     inkscape:cy="48.252788"
+     inkscape:cx="102.80307"
+     inkscape:cy="51.333254"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -34,7 +41,7 @@
      inkscape:window-height="1047"
      inkscape:window-x="0"
      inkscape:window-y="0"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -43,7 +50,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -51,7 +58,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-34.126601,-131.72147)">
+     transform="translate(-34.204239,-130.90644)">
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.264583"
@@ -62,16 +69,20 @@
          id="tspan833-2"
          x="33.470436"
          y="139.5002"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro Bold';fill:#ff0000;stroke-width:0.264583"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro Bold';fill:#a45649;fill-opacity:1"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'SF Mono';-inkscape-font-specification:'SF Mono Bold';fill:#ff0000;stroke-width:0.264583"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'SF Mono';-inkscape-font-specification:'SF Mono Bold';fill:#a45649;fill-opacity:1"
            id="tspan837-5">unsafe</tspan><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro Bold';fill:#494b53;fill-opacity:1"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'SF Mono';-inkscape-font-specification:'SF Mono Bold';fill:#494b53;fill-opacity:1"
            id="tspan915-8">{</tspan><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro Bold';fill:#c18401;fill-opacity:1"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'SF Mono';-inkscape-font-specification:'SF Mono Bold';fill:#c18401;fill-opacity:1"
            id="tspan933-6">*</tspan><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro Bold';fill:#4078f2;fill-opacity:1"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'SF Mono';-inkscape-font-specification:'SF Mono Bold';fill:#4078f2;fill-opacity:1"
            id="tspan949-2">ptr::null()</tspan><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro Bold';fill:#494b53;fill-opacity:1"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'SF Mono';-inkscape-font-specification:'SF Mono Bold';fill:#494b53;fill-opacity:1"
            id="tspan931-8">}</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       id="text1095"
+       style="font-weight:bold;font-size:10.5833px;line-height:1.25;font-family:Inconsolata;-inkscape-font-specification:'Inconsolata Bold';letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect1097);" />
   </g>
 </svg>

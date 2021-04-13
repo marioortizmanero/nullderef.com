@@ -52,8 +52,8 @@ params:
   comments: true
 
   homeInfoParams:
-    LogoLight: /logo-light-theme.svg
-    LogoDark: /logo-dark-theme.svg
+    LogoLight: /logo-light-theme.png
+    LogoDark: /logo-dark-theme.png
     Content: >
       Yet Another Programming Blog
 
