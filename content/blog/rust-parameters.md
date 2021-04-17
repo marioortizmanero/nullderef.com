@@ -495,8 +495,5 @@ This was one of my first blog posts, so please let me know what you think about
 the writing, the structure and just your overall rating, or if you found any
 errors or things that could be improved about the Rust code.
 
-If you're interested in more blog posts, you can follow us on [Twitter
-](https://twitter.com/glow_apps) for now.
-
 *Disclaimer: this post was originally in
 https://vidify.org/blog/rust-parameters/.*

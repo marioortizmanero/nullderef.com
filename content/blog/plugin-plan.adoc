@@ -1,0 +1,14 @@
+---
+title: "Research on plugins"
+description: "TODO"
+author: "Mario Ortiz Manero"
+tags: ["rust", "gsoc"]
+categories: ["project"]
+date: 2021-04-13
+draft: true
+---
+
+[bibliography]
+== References
+
+- [[michael,1]] https://adventures.michaelfbryan.com/posts/plugins-in-rust/
