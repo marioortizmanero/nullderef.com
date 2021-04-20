@@ -1,0 +1,68 @@
+---
+title: "Modernizing a Rust Web API: My Experience with Rspotify"
+description: "TODO"
+author: "Mario Ortiz Manero"
+tags: ["rust", "open-source"]
+categories: ["project"]
+date: 2021-04-13
+draft: true
+---
+
+== The Plan
+
+* Prior state of the library
+* Rust projects using the Spotify API but no bindings
+
+== New Features
+
+* HTTP-client agnostic: Rspotify now works with both
+  https://docs.rs/ureq[`ureq`] (synchronous) and
+  https://docs.rs/reqwest[`reqwest`] (asynchronous) <<gh-clients>>.
+* More clear documentation, getting started should be more straightforward.
+* Greater test coverage.
+* More idiomatic code: type safety, less `unwrap`s, macros, error handling <<gh-auth>>.
+* Automatic pagination <<gh-pagination>>.
+* Simple/Cached/Refreshing tokens.
+* PKCE Authentication <<gh-pkce>>.
+* Saner and more lightweight defaults<<gh-cleanup>>, more consistent interface <<gh-meta>>.
+
+== The Good
+
+TODO: make graphs and similars
+
+* async code has dropped from 206 (!!) compilation units (~1 min 29s on my machine) to 154 (~1min 10s)
+* blocking code has dropped from 207 compilation units (~1min 34s) to 103 (~1 min 1s) and now uses ureq
+* LoC? Not really fair
+* Benchmarks
+
+== The Bad
+
+* New bugs! Probably lots of 'em!
+* Lots of work: I started in ~August of 2020.
+* Somewhat more complex codebase.
+
+
+== Thanks to
+
+* https://github.com/ramsayleung[@ramsayleung]
+* https://github.com/kstep[@kstep]
+* https://github.com/hellbound22[@hellbound22]
+* https://github.com/Qluxzz[@Qluxzz]
+* https://github.com/icewind1991[@icewind1991]
+* https://github.com/aramperes[@aramperes]
+* https://github.com/Sydpy[@Sydpy]
+* https://github.com/arlyon[@arlyon]
+
+[bibliography]
+== References
+
+- [[[gh-clients,1]]] https://github.com/ramsayleung/rspotify/pull/129[#129 - Multiple clients via features]
+- [[[gh-pagination,2]]] https://github.com/ramsayleung/rspotify/issues/124[#124 - Add unlimited endpoints]
+- [[[gh-auth,2]]] https://github.com/ramsayleung/rspotify/issues/173[#173 - Restructure the authentication process]
+- [[[gh-errors,2]]] https://github.com/ramsayleung/rspotify/issues/137[#137 - Clean up and re-structure the errors]
+- [[[gh-cleanup,2]]] https://github.com/ramsayleung/rspotify/issues/108[#108 - Reducing rspotify's core dependencies]
+- [[[gh-wrappers,2]]] https://github.com/ramsayleung/rspotify/issues/149[#149 - The way to reduce wrapper object]
+- [[[gh-derive-builder,2]]] https://github.com/ramsayleung/rspotify/issues/109[#109 - Using `derive_builder` to avoid repetition with the builder pattern]
+- [[[gh-pkce,3]]] https://github.com/ramsayleung/rspotify/issues/150[#150 - Authorization Code Flow with Proof Key for Code Exchange (PKCE) is missing]
+- [[[gh-meta,4]]] https://github.com/ramsayleung/rspotify/issues/127[#127 - Meta-Issue]
+- [[[gh-opt,5]]] https://github.com/ramsayleung/rspotify/issues/134[#134 - Optional Parameters] and http://localhost:1313/blog/rust-parameters/[Optional Parameters In Rust (nullderef.com)].
