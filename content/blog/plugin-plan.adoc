@@ -11,4 +11,5 @@ draft: true
 [bibliography]
 == References
 
-- [[michael,1]] https://adventures.michaelfbryan.com/posts/plugins-in-rust/
+- [[[michael,1]]] https://adventures.michaelfbryan.com/posts/plugins-in-rust/
+- [[[wasi,2]]] https://github.com/bytecodealliance/wasmtime/blob/main/docs/WASI-tutorial.md#from-rust
