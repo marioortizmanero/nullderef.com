@@ -8,8 +8,69 @@ date: 2021-04-13
 draft: true
 ---
 
+== Introduction
+
+Already discussed in the https://nullderef.com/blog/gsoc-proposal/[proposal],
+but more in-depth investigation, and new ideas I found.
+
+== Requirements
+
+- No need for multiple languages. It should be able to use Rust, at least.
+
+== Possible Approaches
+
+=== Scripting Languages
+
+=== WASM Interface
+
+WASM isn't limited to web development anymore; it's a portable binary-code
+format.
+
+https://github.com/bytecodealliance/wasmtime/blob/main/docs/WASI-tutorial.md#from-rust[WASI]
+
+https://freemasen.com/blog/wasmer-plugin-pt-1/[Wasmer Tutorial]
+
+https://github.com/FreeMasen/wasmer-plugin/[`wasmer-plugin`]
+
+=== RPC
+
+=== FFI
+
+https://docs.rs/libloading/[`libloading`]
+
+https://github.com/emoon/dynamic_reload[`dynamic_reload`]
+
+==== C
+
+==== Rust
+
+https://github.com/dtolnay/inventory[`inventory`]
+
+https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`]
+
+- It only supports native dynamic libraries right now,since AFAIK extern "C" fn
+  with arbitrary types is not supported in the WASM abi.
+- It requires that you use some types from abi_stable instead of stdlib ones for
+  the values you'll pass through ffi.
+- It's still immature,lacking a Map<K,V> type for example,since I've had to
+  reinvent the wheel for many Rust types.
+
+== Existing Implementations
+
+- https://github.com/zellij-org/zellij[`zellij`]
+- https://github.com/xi-editor/xi-editor[`xi`] (JSON RPC)
+- https://lib.rs/crates/plugin-system[`plugin-system`] (2019, obsolete)
+
+== Safety Concerns
+
+Remote Code Execution on the Tremor machine via a plugin
+
+Memory Leaks
+
+Unsafe Code
+
 [bibliography]
 == References
 
 - [[[michael,1]]] https://adventures.michaelfbryan.com/posts/plugins-in-rust/
-- [[[wasi,2]]] https://github.com/bytecodealliance/wasmtime/blob/main/docs/WASI-tutorial.md#from-rust
+- [[[fasterthanlime,2]]] https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
