@@ -1,0 +1,138 @@
+---
+title: "Designing a Web API Wrapper in Rust"
+description: "Inspired by the Rspotify rewrite, a guide on how to make a solid wrapper for most web APIs"
+author: "Mario Ortiz Manero"
+tags: ["rust", "open-source", "rspotify", "web-api"]
+categories: ["project"]
+date: 2021-04-13
+---
+
+== The Story
+
+This article describes my journey of basically rewriting the entirety of
+Rspotify; around X months of work, starting at September of 2020, up until XXXX
+of 2021. I think this has given me enough experience for an article regarding
+Web API Wrapper Design on Rust, and hopefully it'll be useful for those who
+attempt the same in the future. Specially considering how much I've gone in
+circles and how much time I've "wasted" implementing things that ended up being
+discarded.
+
+This is also going to be quite lengthy because I would like to give my reasoning
+for every decision taken; every one of them isn't necessarily the most
+appropiate one for your case, or you might just disagree. Most times there isn't
+a perfect solution and you just have to pick whichever you consider is the best
+one for your project's goals.
+
+If you don't care about Rspotify's specific story, you can jump to the <<TODO>>
+section, but I think knowing a bit the motives for this rewrite is interesting
+for other open source maintainers in the same situation as me. This all started
+when I wanted to use a Rust Spotify API wrapper for one of my projects,
+https://vidify.org/[Vidify]. I went to https://crates.io/[crates.io] and looked
+for "Spotify", and all I found was `rspotify`, the most popular one, `aspotify`,
+an asynchronous-only alternative, and a bunch of other outdated or incomplete
+libraries.
+
+The author of `aspotify` had made a brand new library, because as he commented
+in its release, "`[rspotify's] API in general I found hard to use and
+confusing`" <<aspotify-release>>. Depending on the state of the original library
+this is the easiest choice because you don't have to worry about backwards
+compatibility, old code, etc.
+
+A year back I had also helped with the first steps of
+https://github.com/felix-hilden/tekore[`tekore`], an alternative to
+https://github.com/plamere/spotipy[`spotipy`], the most popular Spotify library
+for Python out there. The problem was that back then Paul, spotipy's creator and
+maintainer, was absent <<spotipy-absent>>, and the library really needed a push
+to upgrade from Python 2 and improve the overall interface and
+user-friendliness.
+
+So Felix and a few more devs tried to start from scratch. Felix was the most
+dedicated one and eventually got permissions from Paul to upload new spotipy
+releases, meaning that he could rewrite the entire thing and upload it to PyPi
+(Python's official third-party repositories) if he wanted to. The difference in
+this case was that spotipy had a good amount of users at that point, and a
+couple of them ended up stopping Felix from completely breaking backward
+compatibility, so he made it into a brand new library instead and left the
+maintainance tasks to the new devs in charge. Tekore still is, in my very biased
+opinion, a much nicer to use library than spotipy, but it has taken a lot of
+time to get a user base starting from scratch, and it's still not as popular as
+spotipy by far.
+
+Having gone through this, I also wanted to see if it would be possible to give
+Rspotify a face wash without anyone complaining. Rspotify was still in beta --
+version 0.10 -- so you can't expect to have a stable API, but you still wouldn't
+want to completely rewrite every appeareance of the library in your project just
+to bump its version number. At the very least I wanted to talk with Ramsay, the
+original Rspotify developer, and see what his thoughts were.
+
+TODO
+
+So, in my opinion, the library was essentially doomed without a big rewrite. I
+admit that said breaking changes could've been smaller, but I thought that while
+I'm at it I might as well make it as close as possible to my perfect Rust
+interface.
+
+But I wanted to revive Rspotify because it was pretty well established and had a
+pretty neat name in reference to spotipy.
+
+== The Plan
+
+* Prior state of the library
+* Rust projects using the Spotify API but no bindings
+
+== New Features
+
+* HTTP-client agnostic: Rspotify now works with both
+  https://docs.rs/ureq[`ureq`] (synchronous) and
+  https://docs.rs/reqwest[`reqwest`] (asynchronous) <<gh-clients>>.
+* More clear documentation, getting started should be more straightforward.
+* Greater test coverage.
+* More idiomatic code: type safety <<gh-ids>><<gh-derive-builder>>, less `unwrap`s, macros, error handling <<gh-errors>>.
+* Automatic pagination <<gh-pagination>>.
+* Simple/Cached/Refreshing tokens.
+* PKCE Authentication <<gh-pkce>>.
+* Saner <<gh-wrappers>> and more lightweight defaults <<gh-cleanup>>, more consistent interface <<gh-meta>> <<gh-opt>>.
+
+== The Good
+
+TODO: make graphs and similars
+
+* async code has dropped from 206 (!!) compilation units (~1 min 29s on my machine) to 154 (~1min 10s)
+* blocking code has dropped from 207 compilation units (~1min 34s) to 103 (~1 min 1s) and now uses ureq
+* LoC? Not really fair
+* Benchmarks
+
+== The Bad
+
+* New bugs! Probably lots of 'em!
+* Lots of work: I started in ~August of 2020.
+* Somewhat more complex codebase.
+
+
+== Thanks to
+
+* https://github.com/ramsayleung[@ramsayleung]
+* https://github.com/kstep[@kstep]
+* https://github.com/hellbound22[@hellbound22]
+* https://github.com/Qluxzz[@Qluxzz]
+* https://github.com/icewind1991[@icewind1991]
+* https://github.com/aramperes[@aramperes]
+* https://github.com/Sydpy[@Sydpy]
+* https://github.com/arlyon[@arlyon]
+
+[bibliography]
+== References
+
+- [[[gh-clients,1]]] https://github.com/ramsayleung/rspotify/pull/129[#129 - Multiple clients via features]
+- [[[gh-pagination,2]]] https://github.com/ramsayleung/rspotify/issues/124[#124 - Add unlimited endpoints]
+- [[[gh-auth,2]]] https://github.com/ramsayleung/rspotify/issues/173[#173 - Restructure the authentication process]
+- [[[gh-ids,3]]] https://github.com/ramsayleung/rspotify/pull/161[#161 - Initial id type proposal]
+- [[[gh-errors,3]]] https://github.com/ramsayleung/rspotify/issues/137[#137 - Clean up and re-structure the errors]
+- [[[gh-cleanup,4]]] https://github.com/ramsayleung/rspotify/issues/108[#108 - Reducing rspotify's core dependencies]
+- [[[gh-wrappers,5]]] https://github.com/ramsayleung/rspotify/issues/149[#149 - The way to reduce wrapper object]
+- [[[gh-derive-builder,6]]] https://github.com/ramsayleung/rspotify/issues/109[#109 - Using `derive_builder` to avoid repetition with the builder pattern]
+- [[[gh-pkce,7]]] https://github.com/ramsayleung/rspotify/issues/150[#150 - Authorization Code Flow with Proof Key for Code Exchange (PKCE) is missing]
+- [[[gh-meta,8]]] https://github.com/ramsayleung/rspotify/issues/127[#127 - Meta-Issue]
+- [[[gh-opt,9]]] https://github.com/ramsayleung/rspotify/issues/134[#134 - Optional Parameters] and http://localhost:1313/blog/rust-parameters/[Optional Parameters In Rust (nullderef.com)].
+- [[[spotipy-absent,10]]] https://github.com/plamere/spotipy/issues/387
+- [[[aspotify-release,11]]] https://www.reddit.com/r/rust/comments/ehz66s/aspotify_an_asynchronous_rust_spotify_web_api/[aspotify: An asynchronous Rust Spotify web API client - r/rust]
