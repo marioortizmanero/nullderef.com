@@ -43,11 +43,29 @@ Besides that, the rest of the main points to consider remain the same:
 [[safety]]
 == Safety Concerns
 
-Remote Code Execution on the Tremor machine via a plugin -> sandboxing?
+I hadn't taken a look at the possible safety concerns a PDK could bring to
+Tremor:
 
-Memory Leaks
-
-Unsafe Code
+* *Unsafe code*: many of the technologies that can be used to implement a plugin
+  system work with unsafe code. This isn't necessarily a problem if it's
+  self-contained and thoroughly reviewed, but it definitely increases the
+  maintenance cost of the library and we lose some of the safety guarantees Rust
+  provides us.
+* *Memory Leaks*: 
+* *Remote Code Execution via Plugins*: the final approach taken may allow ... if
+  there is no sandboxing.
++
+https://en.wikipedia.org/wiki/Component_Object_Model#Security[This was a problem
+with Internet Explorer], for example. It used COM and ActiveX, which implement
+no sandboxing at all and were ran directly on the user's machine, allowing
+malware to be included in plugins and execute arbitrary code. This can be less
+of a problem installing only trusted plugins with digital signatures, but is
+still quite a big risk.
++
+In the case of Tremor this isn't such a big problem. Depending on the approach
+that is taken, properly implementing a sandbox can be a lot of work and might be
+left for the future instead of this initial proposal, but it's something we have
+to be aware of.
 
 == Possible Approaches
 
@@ -56,32 +74,31 @@ of the PDK. Some of the won't match the requirements I mentioned earlier, but
 it's a good idea to at least _consider_ all of them. I will rate each of the
 options in a scale from 1 to 5 in order to take the final decision.
 
+// TODO: is the ranking ok?
+
 So, roughly ranked from worse to best for Tremor's usage:
-
-[[middleware]]
-=== Middleware
-
-// TODO: Redis? Is it worth analyzing?
 
 [[scripting-langs]]
 === Scripting Languages
 
 Plently of projects use scripting languages to extend their functionality at
-runtime, like Python, Ruby, Perl, Bash or JavaScript. Some games for example use
-http://www.lua.org/[Lua], a quite simple language with a very performant JIT
-implementation, which in any case I think would be the best option. It could be
-embedded into Tremor (it's only 247 kB compiled! <<lua-wiki>>) and used to load
-plugins at either start-time or run-time. And knowing it's used in games, which
-are _obsessed_ with performance, I don't think this is that much of a big deal
-in that regard.
+runtime, like Python, Ruby, Perl, Bash or JavaScript. Most notably, Vim created
+its own scripting language, Vimscript, in order to be fully customizable, and
+NeoVim is now pushing http://www.lua.org/[Lua] as a first-class language for
+configuration. Lua is also seen in game development; it's a quite simple
+language with a very performant JIT implementation, which in any case I think
+would be the best option. It could be embedded into Tremor (it's only 247 kB
+compiled! <<lua-wiki>>) and used to load plugins at either start-time or
+run-time. And knowing it's used in games, which are _obsessed_ with performance,
+I don't think this is that much of a big deal in that regard.
 
 There are libraries in Rust like https://github.com/amethyst/rlua[`rlua`] which
-provide bindings for interoperability with Lua. This one in particular seems to
-focus on having an idiomatic and sound interface, which is rare for a bindings
-library and good news. It seems to be currently semi-abandoned, and forked by
-https://github.com/khvzak/mlua[`mlua`]. But unfortunately, the Rust ecosystem
-for Lua bindings doesn't seem to be as mature as I'd like for a project this
-big.
+provide bindings for interoperability with Lua. `rlua` in particular seems to
+focus on having an idiomatic and safe interface, which is rare for a bindings
+library and good news, though it seems to be currently semi-abandoned, and
+forked by https://github.com/khvzak/mlua[`mlua`]. Unfortunately, after digging a
+bit the Rust ecosystem for Lua bindings doesn't seem to be as mature as I'd like
+for a project this big; there's still some work to do to reach more stability.
 
 The main deal breaker with scripting languages in this case is that it would be
 extremely complicated to port everything in Tremor so that it can be used from
@@ -105,24 +122,37 @@ use.
 
 Another possibility for plugins is to define a protocol for Inter-Process
 Communication, turning Tremor into a server that extends its capabilities by
-connecting to external plugins. This would make it possible to write a plugin in
-any language as well, as long as the protocol is implemented in there as well,
-including Rust.
+connecting to external plugins. For instance, most text editors use this method
+to support the https://microsoft.github.io/language-server-protocol/[Language
+Server Protocol], which uses JSON-RPC. This would make it possible to write a
+plugin in any language as well -- including Rust -- as long as there's an
+implementation of the protocol available.
 
-There are of course multiple ways to do IPC:
+The main issue with this alternative is shared with <<scripting-langs>>; we
+would have to declare a protocol to communicate between the Tremor core and its
+plugins, which is a lot of work most times, making this a not really feasible
+option.
+
+There are of course multiple ways to do IPC, which I'll briefly list below.
+Performance-wise, <<ipc-wisc>> shows a comparison of the overhead of each of
+them:
+
+image::/blog/plugin-tech/ipc-comparison.png[IPC comparison, width=50%, align=center]
 
 ==== Based on Sockets
 
-One of the most performant options would be to use something based on Protocol
-Buffers<<protobuf>>, or maybe RPC. JSON would probably not make that big of a
-difference in terms of performance either. But there's still noticeable overhead
-in this case as well; sending and receiving the messages can be much costlier
-than just calling a function.
-https://google.github.io/flatbuffers/flatbuffers_benchmarks.html[Here's a more
-precise article] about the performance differences between a few protocols.
+Sockets are the worst-performing alternative in the previous chart, but they're
+so common and easy to use in most languages that it's worth taking a look at.
+Using relatively lightweight protocols like Protocol Buffers<<protobuf>>, the
+performance would be close to passing raw structs, but with improved
+backwards/forwards compatibility <<protobuf-perf>>. JSON would probably not make
+that big of a difference in terms of performance either. But there's still
+noticeable overhead in this case as well; sending and receiving the messages can
+be much costlier than just calling a function, even if this happens in
+localhost.
 
 Overall, this seems like a more feasible option than <<scripting-langs>>. It
-does require a lot of work, but it helps a lot in terms of <<safety>>
+does require a lot of work, but it helps a lot in terms of <<safety>>.
 
 . *Loading at start-time and run-time*:  5/5
 . *Cross-platform support*: 5/5
@@ -131,6 +161,15 @@ does require a lot of work, but it helps a lot in terms of <<safety>>
 . *No `unsafe` usage*: 5/5
 . *Binary compatibility*: 5/5
 . *Ease of porting current implementations*: 0/5
+
+==== Based on Pipes
+
+Named Pipes are really popular on Linux, specifically, and enable Inter-Process
+Communication with less overhead than sockets. They are made to be ran on the
+same machine, which is what we need, so if anything. The terminal file manager
+https://github.com/jarun/nnn[nnn] uses this approach: plugins can use a FIFO
+(Named Pipe) to receive selections from nnn (lists of files or directories) and
+act accordingly.
 
 ==== Based on Memory-Mapped files
 
@@ -173,15 +212,18 @@ https://github.com/emoon/dynamic_reload[`dynamic_reload`]
 
 ==== Rust
 
+Using Rust FFI is the easiest because it doesn't force Tremor to define a strict
+internal ABI, which can be a lot of work, as discussed in the previous section.
+
 https://github.com/dtolnay/inventory[`inventory`]
 
 https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`]
 
-- It only supports native dynamic libraries right now,since AFAIK extern "C" fn
+* It only supports native dynamic libraries right now,since AFAIK extern "C" fn
   with arbitrary types is not supported in the WASM abi.
-- It requires that you use some types from abi_stable instead of stdlib ones for
+* It requires that you use some types from abi_stable instead of stdlib ones for
   the values you'll pass through ffi.
-- It's still immature,lacking a Map<K,V> type for example,since I've had to
+* It's still immature,lacking a Map<K,V> type for example,since I've had to
   reinvent the wheel for many Rust types.
 
 === Webassembly Interface
@@ -210,14 +252,35 @@ https://github.com/FreeMasen/wasmer-plugin/[`wasmer-plugin`]
 
 It's very important to take a look at projects that have already done this in
 the past in order to learn from their mistakes and not start from scratch.
+
+Rust is relatively new, so I also took a look at similar languages that also
+don't 
+
 Here's a list of some of the libraries I found with PDKs, specifically written
 in Rust:
 
 * https://github.com/zellij-org/zellij[`zellij`]
 * https://github.com/xi-editor/xi-editor[`xi`] (JSON RPC), described
   https://raphlinus.github.io/xi/2020/06/27/xi-retrospective.html#json[here in
-  detail]
+  detail].
++
+--
+
+Text editors specifically are very interesting, because they must be built with
+extensibility in mind and thus have to implement some kind of plugin system.
+
+* Visual Studio is based on Electron, so it has a renderer process for the
+  frontend, and a main process with Node. Its extensions share the same event
+  loop,
+  https://github.com/microsoft/vscode/issues/75627#issuecomment-519125065[which
+  has been an issue for a long time in case an extension blocks temporarily],
+  causing lag.
+* Eclipse's plugin architecture is based on Java classes <<eclipse>> loaded at
+  runtime and configured with XML manifests.
+
+--
 * https://lib.rs/crates/plugin-system[`plugin-system`] (2019, obsolete)
+* Firefox?
 
 [bibliography]
 == References
@@ -226,4 +289,7 @@ in Rust:
 - [[[fasterthanlime,2]]] https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
 - [[[lua-wiki,3]]] https://en.wikipedia.org/wiki/Lua_(programming_language)
 - [[[protobuf,4]]] https://developers.google.com/protocol-buffers
-- [[[serde,5]]] https://serde.rs/
+- [[[protobuf-perf,5]]] https://google.github.io/flatbuffers/flatbuffers_benchmarks.html
+- [[[serde,6]]] https://serde.rs/
+- [[[ipc-wisc,7]]] http://pages.cs.wisc.edu/~adityav/Evaluation_of_Inter_Process_Communication_Mechanisms.pdf
+- [[[eclipse,8]]] http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html

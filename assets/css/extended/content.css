@@ -1,0 +1,16 @@
+/* Fixes for asciidoc-generated content */
+
+.post-content .imageblock > .content {
+  margin-bottom: var(--content-gap);
+}
+
+.post-content .imageblock.text-center > .content > img {
+  margin: 0 auto;
+}
+.post-content .imageblock.text-right > .content > img {
+  margin-left: auto;
+}
+
+li > .paragraph {
+  margin-top: 7px;
+}
