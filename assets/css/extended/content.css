@@ -14,3 +14,43 @@
 li > .paragraph {
   margin-top: 7px;
 }
+
+/* Basic colors: https://en.wikipedia.org/wiki/Web_colors#HTML_color_names */
+.white { color: white; }
+.silver { color: silver; }
+.gray { color: gray; }
+.black { color: black; }
+.red { color: red; }
+.yellow { color: yellow; }
+.olive { color: olive; }
+.lime { color: lime; }
+.green { color: green; }
+.aqua { color: aqua; }
+.teal { color: teal; }
+.blue { color: blue; }
+.navy { color: navy; }
+.fuchsia { color: fuchsia; }
+.purple { color: purple; }
+.white-background { background-color: white; }
+.silver-background { background-color: silver; }
+.gray-background { background-color: gray; }
+.black-background { background-color: black; }
+.red-background { background-color: red; }
+.yellow-background { background-color: yellow; }
+.olive-background { background-color: olive; }
+.lime-background { background-color: lime; }
+.green-background { background-color: green; }
+.aqua-background { background-color: aqua; }
+.teal-background { background-color: teal; }
+.blue-background { background-color: blue; }
+.navy-background { background-color: navy; }
+.fuchsia-background { background-color: fuchsia; }
+.purple-background { background-color: purple; }
+
+/* Custom classes */
+.txt-round {
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+.txt-margin-right { margin-right: 5px; }
+.txt-margin-left { margin-left: 5px; }

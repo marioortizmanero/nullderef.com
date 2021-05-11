@@ -95,8 +95,11 @@ own projects -- but the truth is that it isn't any better.
 I would compare the situation more specifically to how package managers like
 https://www.npmjs.com/[npm] work (or anything that deals with dependencies). The
 entire infrastructure is usually based on trust; noone's really stopping you
-from uploading a malicious package/crate for remote code execution
-<<npm-trust>>. An improved approach would be something like
+from uploading a malicious package/crate for remote code execution or to steal
+data <<npm-trust>>. Plugins are like dependencies in this case, which may be
+malicious and have full access to the host's computer.
+
+An improved approach would be something like
 https://github.com/denoland/deno[Deno], which is a secure by default
 JavaScript/TypeScript runtime. This is enabled thanks to sandboxing, and
 requires the developer to manually toggle e.g. access to the filesystem or to
@@ -107,14 +110,20 @@ might mess up.
 
 == Possible Approaches
 
-The following are absolutely all the technologies that could be used as the base
+The following are the most sensible technologies that could be used as the base
 of the PDK. Some of the won't match the requirements I mentioned earlier, but
-it's a good idea to at least _consider_ all of them. I will rate each of the
-options in a scale from 1 to 5 in order to take the final decision.
+it's a good idea to at least _consider_ all of them. I haven't implemented
+anything yet, so if an approach were to catch a Tremor developer's eye we could
+investigate more about it.
 
 // TODO: is the ranking ok?
 
-So, roughly ranked from worse to best for Tremor's usage:
+I will rate each of the options in a scale from 1 to 5 in order to take the
+final decision. So, roughly ranked from worse to best for Tremor's usage:
+
+:rank-same: olive white-background txt-margin-right txt-round
+:rank-up: green white-background txt-margin-right txt-round
+:rank-down: red white-background txt-margin-right txt-round
 
 [[scripting-langs]]
 === Scripting Languages
@@ -123,12 +132,15 @@ Plently of projects use scripting languages to extend their functionality at
 runtime, like Python, Ruby, Perl, Bash or JavaScript. Most notably, Vim created
 its own scripting language, Vimscript, in order to be fully customizable, and
 NeoVim is now pushing http://www.lua.org/[Lua] as a first-class language for
-configuration. Lua is also seen in game development; it's a quite simple
-language with a very performant JIT implementation, which in any case I think
-would be the best option. It could be embedded into Tremor (it's only 247 kB
-compiled! <<lua-wiki>>) and used to load plugins at either start-time or
-run-time. And knowing it's used in games, which are _obsessed_ with performance,
-I don't think this is that much of a big deal in that regard.
+configuration. Even Tremor itself has the interpreted query language
+https://docs.tremor.rs/tremor-query/[`tremor-query`] for configuration.
+
+Lua is seen in game development; it's a quite simple language with a very
+performant JIT implementation, which in any case I think would be the best
+option. It could be embedded into Tremor (it's only 247 kB compiled!
+<<lua-wiki>>) and used to load plugins at either start-time or run-time. And
+knowing it's used in games, which are _obsessed_ with performance, it might not
+be that much of a big deal in that regard.
 
 There are libraries in Rust like https://github.com/amethyst/rlua[`rlua`] which
 provide bindings for interoperability with Lua. `rlua` in particular seems to
@@ -138,22 +150,22 @@ forked by https://github.com/khvzak/mlua[`mlua`]. Unfortunately, after digging a
 bit the Rust ecosystem for Lua bindings doesn't seem to be as mature as I'd like
 for a project this big; there's still some work to do to reach more stability.
 
-The main deal breaker with scripting languages in this case is that it would be
-extremely complicated to port everything in Tremor so that it can be used from
-Lua. For new projects this could perhaps be something interesting, but not if
-the entirety of the already existing plugins have to be rewritten.
+Anyhow, the main deal breaker with scripting languages in this case is that it
+would be extremely complicated to port everything in Tremor so that it can be
+used from Lua. For new projects this could perhaps be something interesting, but
+not if the entirety of the already existing plugins have to be rewritten.
 
 Still, it's a pretty interesting option for new projects, as you have ABI
 stability guarantees, don't need unsafe code, and is very straightforward to
 use.
 
-. *Loading at start-time and run-time*:  5/5
-. *Cross-platform support*: 5/5
-. *Low overhead*: 4/5
-. *Rust availability*: 3/5
-. *No `unsafe` usage*: 5/5
-. *Binary compatibility*: 5/5
-. *Ease of porting current implementations*: 0/5
+. [{rank-same}]*5/5* *Loading at start-time and run-time*
+. [{rank-same}]*5/5* *Cross-platform support*
+. [{rank-same}]*4/5* *Low overhead*
+. [{rank-same}]*3/5* *Rust availability*
+. [{rank-same}]*5/5* *No `unsafe` usage*
+. [{rank-same}]*5/5* *Binary compatibility*
+. [{rank-same}]*0/5* *Ease of porting current implementations*
 
 [[ipc]]
 === Inter-Process Communication
@@ -162,21 +174,15 @@ Another possibility for plugins is to define a protocol for Inter-Process
 Communication, turning Tremor into a server that extends its capabilities by
 connecting to external plugins. For instance, most text editors use this method
 to support the https://microsoft.github.io/language-server-protocol/[Language
-Server Protocol], which uses JSON-RPC. This would make it possible to write a
-plugin in any language as well -- including Rust -- as long as there's an
-implementation of the protocol available.
-
-The main issue with this alternative is shared with <<scripting-langs>>; we
-would have to declare a protocol to communicate between the Tremor core and its
-plugins, which is a lot of work most times, making this a not really feasible
-option.
+Server Protocol], which uses JSON-RPC.
 
 There are of course multiple ways to do IPC, which I'll briefly list below.
 Performance-wise, <<ipc-wisc>> shows a comparison of the overhead of each of
 them:
 
-image::/blog/plugin-tech/ipc-comparison.png[IPC comparison, width=50%, align=center]
+image::/blog/plugin-tech/ipc-comparison.png[IPC comparison, width=60%, align=center]
 
+[[sockets]]
 ==== Based on Sockets
 
 Sockets are the worst-performing alternative in the previous chart, but they're
@@ -184,30 +190,54 @@ so common and easy to use in most languages that it's worth taking a look at.
 Using relatively lightweight protocols like Protocol Buffers<<protobuf>>, the
 performance would be close to passing raw structs, but with improved
 backwards/forwards compatibility <<protobuf-perf>>. JSON would probably not make
-that big of a difference in terms of performance either. But there's still
-noticeable overhead in this case as well; sending and receiving the messages can
-be much costlier than just calling a function, even if this happens in
-localhost.
+that big of a difference in terms of performance either. This would make it
+possible to write a plugin in any language as well -- including Rust -- as long
+as there's an implementation of the protocol available. But there's still
+noticeable overhead when communicating via sockets; sending and receiving the
+messages can be much costlier than just calling a function, even if this happens
+on localhost.
 
-Overall, this seems like a more feasible option than <<scripting-langs>>. It
-does require a lot of work, but it helps a lot in terms of <<safety>>.
+The main issue with this alternative is shared with <<scripting-langs>>. In this
+case at least we don't have to completely rewrite everything, since we could
+still use Rust, but Tremor would have to declare a protocol to communicate
+between the Tremor core and its plugins, which is a lot of work and makes this a
+not really feasible option.
 
-. *Loading at start-time and run-time*:  5/5
-. *Cross-platform support*: 5/5
-. *Low overhead*: 4/5
-. *Rust availability*: 5/5
-. *No `unsafe` usage*: 5/5
-. *Binary compatibility*: 5/5
-. *Ease of porting current implementations*: 0/5
+Overall, though, it seems more reasonable than <<scripting-langs>>. It does
+require a lot of work, but it helps a lot in terms of <<safety>>. Separate
+processes imply that malfunctioning plugins don't affect Tremor, and it
+basically consists on implementing basic servers, which require no `unsafe` at
+all and means that there's much more support for that in Rust.
 
+. [{rank-same}]*5/5* *Loading at startdowntime and rundowntime*
+. [{rank-same}]*5/5* *Crossdownplatform support*
+. [{rank-down}]#*3/5* (-1)# *Low overhead*
+. [{rank-up}]#*5/5* (+1)# *Rust availability*
+. [{rank-same}]*5/5* *No `unsafe` usage*
+. [{rank-same}]*5/5* *Binary compatibility*
+. [{rank-same}]*2/5* *Ease of porting current implementations*
+
+[[pipes]]
 ==== Based on Pipes
 
-Named Pipes are really popular on Linux, specifically, and enable Inter-Process
+Named Pipes are really popular specifically on Linux, and enable Inter-Process
 Communication with less overhead than sockets. They are made to be ran on the
-same machine, which is what we need, so if anything. The terminal file manager
+same machine, which is exactly what we need. The terminal file manager
 https://github.com/jarun/nnn[nnn] uses this approach: plugins can use a FIFO
 (Named Pipe) to receive selections from nnn (lists of files or directories) and
 act accordingly.
+
+The rest is basically the same as with <<sockets, Sockets>>, maybe with extra
+points for performance, and less for Rust availability, since there don't seem
+to be any reliable libraries for pipes, besides `std`.
+
+. [{rank-same}]*5/5* *Loading at start-time and run-time*
+. [{rank-same}]*5/5* *Cross-platform support*
+. [{rank-up}]#*4/5* (+1)# *Low overhead*
+. [{rank-down}]#*3/5* (-2)# *Rust availability*
+. [{rank-same}]*5/5* *No `unsafe` usage*
+. [{rank-same}]*5/5* *Binary compatibility*
+. [{rank-same}]*2/5* *Ease of porting current implementations*
 
 [[memory-sharing]]
 ==== Based on Memory Sharing
