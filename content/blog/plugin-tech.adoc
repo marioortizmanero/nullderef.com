@@ -223,9 +223,9 @@ all and means that there's much more support for that in Rust.
 Named Pipes are really popular specifically on Linux, and enable Inter-Process
 Communication with less overhead than sockets. They are made to be ran on the
 same machine, which is exactly what we need. The terminal file manager
-https://github.com/jarun/nnn[nnn] uses this approach: plugins can use a FIFO
-(Named Pipe) to receive selections from nnn (lists of files or directories) and
-act accordingly.
+https://github.com/jarun/nnn[nnn] uses this approach: plugins can read from a
+FIFO (Named Pipe) to receive selections from nnn (lists of files or directories)
+and act accordingly.
 
 The rest is basically the same as with <<sockets, Sockets>>, maybe with extra
 points for performance, and less for Rust availability, since there don't seem
@@ -244,26 +244,33 @@ to be any reliable libraries for pipes, besides `std`.
 
 Knowing that the plugins are intended to be on the same machine as the core of
 Tremor, there's no need to actually send and receive messages. One can share
-memory between multiple processes and send notifications to receive updates.
+memory between multiple processes and send notifications to receive updates. The
+performance is comparable to using a <<ffi>>, since the only overhead is the
+initial cost from setting up the shared pages, having regular memory memory
+access <<memory-share-so>>.
 
-// TODO: find a source for "the performance may vary depending on how the system
-// is configured"
-
-This feature depends on the Operating System, though, so it may hurt the
-"Cross-Compatibility" requirement. While there are ways to create a common
-interface for all the OS we want to support, the performance may vary depending
-on how the system is configured. But overall, the overhead is probably
-comparable to using a <<ffi>>, as the overhead is minimal.
-
-There are libraries like https://docs.rs/shared_memory[`shared_memory`] +
-https://docs.rs/raw_sync[`raw_sync`] in Rust that allow us to do this, but they
-don't seem to be nowhere near as popular as most of the other alternatives.
-While the wrapper itself is quite simple, there isn't that much information
-about IPC shared memory for Rust. And the examples for `shared_memory` _do_ use
-`unsafe`.
+This feature heavily depends on the system's kernel, so it may hurt the
+"Cross-Compatibility" requirement. But we have libraries like
+https://docs.rs/shared_memory[`shared_memory`] pass:[+]
+https://docs.rs/raw_sync[`raw_sync`] in Rust that wrap all the OS
+implementations under the same interface. Admittedly, they don't seem anywhere
+near as popular as most of the other alternatives. While the wrapper itself is
+quite simple, there isn't that much information about IPC shared memory for
+Rust. Not to mention that the examples for `shared_memory` _do_ use `unsafe`,
+and a lot of it.
 
 Maybe if it was easier to use this would be a good idea, but IPC shared memory
-doesn't seem to be any better than <<ffi>.
+doesn't seem to be any better than <<ffi>> or <<pipes,Pipes>>.
+
+. [{rank-same}]*5/5* *Loading at start-time and run-time*
+. [{rank-same}]*5/5* *Cross-platform support*
+. [{rank-up}]#*5/5* (+1)# *Low overhead*
+. [{rank-down}]#*2/5* (-1)# *Rust availability*
+. [{rank-down}]#*1/5* (-4)# *No `unsafe` usage*
+. [{rank-same}]*5/5* *Binary compatibility*
+. [{rank-up}]#*4/5* (+2)# *Ease of porting current implementations*
+
+// TODO: add sum of points
 
 [[ffi]]
 === FFI
@@ -365,3 +372,4 @@ extensibility in mind and thus have to implement some kind of plugin system.
 - [[[ipc-wisc,7]]] http://pages.cs.wisc.edu/~adityav/Evaluation_of_Inter_Process_Communication_Mechanisms.pdf
 - [[[eclipse,8]]] http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html
 - [[[npm-trust,9]]] https://jamie.build/how-to-build-an-npm-worm
+- [[[memory-share-so,10]]] https://stackoverflow.com/a/14512554/11488352
