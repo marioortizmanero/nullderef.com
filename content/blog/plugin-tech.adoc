@@ -43,29 +43,67 @@ Besides that, the rest of the main points to consider remain the same:
 [[safety]]
 == Safety Concerns
 
-I hadn't taken a look at the possible safety concerns a PDK could bring to
-Tremor:
+I've been wanting to take a look at the possible safety concerns a PDK could
+bring to Tremor since the initial proposal.
 
-* *Unsafe code*: many of the technologies that can be used to implement a plugin
-  system work with unsafe code. This isn't necessarily a problem if it's
-  self-contained and thoroughly reviewed, but it definitely increases the
-  maintenance cost of the library and we lose some of the safety guarantees Rust
-  provides us.
-* *Memory Leaks*: 
-* *Remote Code Execution via Plugins*: the final approach taken may allow ... if
-  there is no sandboxing.
-+
+Depending on the approach that is taken for the Plugin System, implementing
+solutions to some of the points I make below can be really complex, so I don't
+plan on implementing them for the initial proposal. Hopefully, though, this will
+serve for future upgrades to the PDK. For now, it's something we have to be
+aware of.
+
+=== Unsafe code
+
+Many of the technologies that can be used to implement a plugin system work with
+unsafe code, like <<ffi,FFIs>> or <<memory-sharing,Memory Sharing>>. This isn't
+necessarily a problem if it's self-contained and thoroughly reviewed, but it
+definitely increases the maintenance cost of the library and we lose some of the
+safety guarantees Rust provides us.
+
+It takes much more work to make sure the implementation is sound, even with
+tools like https://github.com/rust-lang/miri[MIRI], which I plan on integrating
+into Tremor if I do end up having to use `unsafe`.
+
+=== Error resilience
+
+Rust doesn't protect its users from leaking memory. In fact, it's as easy as
+calling `mem::forget`. The thing is that if a plugin leaks memory, the entire
+process also does, meaning that Tremor's performance could be affected by
+incorrectly developed plugins.
+
+This doesn't happen just with memory leaks; a plugin could panic and crash the
+entire thing very easily, and I'm not sure if `catch_unwind` can be used for
+e.g. dynamically loaded libraries.
+
+Ideally, Tremor could detect plugins that aren't performing well and stop them
+before it's too late. The rest of the setup could continue running, and perhaps
+warn the user about its malfunctioning, for optimal error resilience.
+
+=== Remote Code Execution via Plugins
+
 https://en.wikipedia.org/wiki/Component_Object_Model#Security[This was a problem
 with Internet Explorer], for example. It used COM and ActiveX, which implement
 no sandboxing at all and were ran directly on the user's machine, allowing
 malware to be included in plugins and execute arbitrary code. This can be less
-of a problem installing only trusted plugins with digital signatures, but is
-still quite a big risk.
-+
-In the case of Tremor this isn't such a big problem. Depending on the approach
-that is taken, properly implementing a sandbox can be a lot of work and might be
-left for the future instead of this initial proposal, but it's something we have
-to be aware of.
+of a problem installing only trusted plugins with digital signatures, but it's
+still a huge risk.
+
+In the case of Tremor plugins this is a similar problem. The end user in this
+case is developers, who should be more wary of what they're including in their
+own projects -- but the truth is that it isn't any better.
+
+I would compare the situation more specifically to how package managers like
+https://www.npmjs.com/[npm] work (or anything that deals with dependencies). The
+entire infrastructure is usually based on trust; noone's really stopping you
+from uploading a malicious package/crate for remote code execution
+<<npm-trust>>. An improved approach would be something like
+https://github.com/denoland/deno[Deno], which is a secure by default
+JavaScript/TypeScript runtime. This is enabled thanks to sandboxing, and
+requires the developer to manually toggle e.g. access to the filesystem or to
+the network. This is no panacea because people might end up enabling whatever
+permission is required by the dependency they want to install without thinking
+about it, but it's similar to `unsafe`: at least it makes you aware that you
+might mess up.
 
 == Possible Approaches
 
@@ -171,7 +209,8 @@ https://github.com/jarun/nnn[nnn] uses this approach: plugins can use a FIFO
 (Named Pipe) to receive selections from nnn (lists of files or directories) and
 act accordingly.
 
-==== Based on Memory-Mapped files
+[[memory-sharing]]
+==== Based on Memory Sharing
 
 Knowing that the plugins are intended to be on the same machine as the core of
 Tremor, there's no need to actually send and receive messages. One can share
@@ -285,6 +324,8 @@ extensibility in mind and thus have to implement some kind of plugin system.
 [bibliography]
 == References
 
+// TODO: sort
+
 - [[[michael,1]]] https://adventures.michaelfbryan.com/posts/plugins-in-rust/
 - [[[fasterthanlime,2]]] https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
 - [[[lua-wiki,3]]] https://en.wikipedia.org/wiki/Lua_(programming_language)
@@ -293,3 +334,4 @@ extensibility in mind and thus have to implement some kind of plugin system.
 - [[[serde,6]]] https://serde.rs/
 - [[[ipc-wisc,7]]] http://pages.cs.wisc.edu/~adityav/Evaluation_of_Inter_Process_Communication_Mechanisms.pdf
 - [[[eclipse,8]]] http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html
+- [[[npm-trust,9]]] https://jamie.build/how-to-build-an-npm-worm
