@@ -8,6 +8,7 @@ date: 2021-04-13
 draft: true
 ---
 
+:stem: latexmath
 :sectnums:
 
 == Introduction
@@ -289,8 +290,6 @@ doesn't seem to be any better than <<ffi>> or <<pipes,Pipes>>.
 [[ffi]]
 === FFI
 
-// TODO
-
 This is possibly the _least weird_ way to implement a Plugin Development Kit,
 i.e. it's the most popular method I've seen. A Foreign Function Interface can
 allow us to directly access resources in separately compiled objects, and also
@@ -321,7 +320,7 @@ inconvenients:
 
 ==== Improving Binary Compatibility
 
-// TODO: move this somewhere else
+// TODO: move this somewhere else and add conclusion
 
 . [{rank-meh}]*5/5* *Loading at start-time and run-time*
 . [{rank-meh}]*5/5* *Cross-platform support*
@@ -420,6 +419,10 @@ your native program, while wasmtime is more focused on executing standalone wasm
 programs using WASI. Both are capable of both, it just seems a matter of
 emphasis.
 ____
+
+The article also includes a [.line-through]#not reliable at all# benchmark,
+which can serve us as a way to compare its performance with the native code
+you'd get with e.g. <<ffi>>, which estimates that Wasm is stem:[\lt] 10
 
 https://freemasen.com/blog/wasmer-plugin-pt-1/[Wasmer Tutorial]
 
