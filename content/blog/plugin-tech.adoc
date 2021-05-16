@@ -10,19 +10,24 @@ draft: true
 
 :sectnums:
 
-== Abstract
-
-Summary + best options. Maybe this should be a conclusion section at the end
-instead?
-
 == Introduction
 
-In this article I will futher analyze how a Plugin Development Kit could be
-implemented in Rust with more investigation and other ideas I've found. This is
-all based on the Google Summer of Code proposal <<proposal>> for
-https://www.tremor.rs/[Tremor] I started with.
+In this article I will futher analyze how a Plugin Development Kit (PDK) could
+be implemented in Rust. Note that I'm no expert in the topic; my objective is to
+merely collect all the information I've found so far and present it as a
+summary, with enough resources for the reader to learn more on their own and
+make their own decisions.
 
-== Requirements
+[[requirements]]
+== The Problem
+
+This is actually part of my Google Summer of Code project for
+https://www.tremor.rs/[Tremor]. My first article about a Plugin System in Rust
+was in the proposal <<proposal>>, which serves as a full introduction and may be
+interesting as well. While this will specifically cover Tremor's use case, I'm
+sure many other applications in the future will have similar requirements for
+their own program. And considering the few articles I found about plugins in
+Rust, this may be more helpful to the community.
 
 After showing the proposal to the Tremor team, I was given an important
 suggestion: in this case there isn't really a need to be able to write plugins
@@ -48,37 +53,37 @@ I've been wanting to take a look at the possible safety concerns a PDK could
 bring to Tremor since the initial proposal.
 
 Depending on the approach that is taken for the Plugin System, implementing
-solutions to some of the points I make below can be really complex, so I don't
-plan on implementing them for the initial proposal. Hopefully, though, this will
-serve for future upgrades to the PDK. For now, it's something we have to be
-aware of.
+solutions to some of the points I make below can be really complex, so I
+wouldn't implement them for the initial deadline. For now, it's something we
+have to be aware of.
 
-=== Unsafe code
+=== Unsafe Code
 
-Many of the technologies that can be used to implement a plugin system work with
-unsafe code, like <<ffi,FFIs>> or <<memory-sharing,Memory Sharing>>. This isn't
-necessarily a problem if it's self-contained and thoroughly reviewed, but it
-definitely increases the maintenance cost of the library and we lose some of the
-safety guarantees Rust provides us.
+Many of the technologies that can be used to implement a Plugin System work with
+unsafe code, like <<ffi,FFIs>> or <<memory-sharing,IPC Memory Sharing>>. This
+isn't necessarily a problem if it's self-contained and thoroughly reviewed, but
+we lose some of the safety guarantees Rust provides us, increasing the
+maintenance cost of the library.
 
-It takes much more work to make sure the implementation is sound, even with
-tools like https://github.com/rust-lang/miri[MIRI], which I plan on integrating
-into Tremor if I do end up having to use `unsafe`.
+It takes considerably more work to make sure the implementation is sound, even
+with tools like https://github.com/rust-lang/miri[MIRI], which I plan on
+integrating into Tremor if I do end up having to use `unsafe`.
 
-=== Error resilience
+=== Error Resilience
 
 Rust doesn't protect its users from leaking memory. In fact, it's as easy as
 calling `mem::forget`. The thing is that if a plugin leaks memory, the entire
 process also does, meaning that Tremor's performance could be affected by
 incorrectly developed plugins.
 
-This doesn't happen just with memory leaks; a plugin could panic and crash the
-entire thing very easily, and I'm not sure if `catch_unwind` can be used for
-e.g. dynamically loaded libraries.
+This doesn't happen just with memory leaks; a plugin could abort or panic and
+crash the entire thing very easily (I'm not sure if `catch_unwind` can be used
+for e.g. dynamically loaded libraries).
 
 Ideally, Tremor could detect plugins that aren't performing well and stop them
-before it's too late. The rest of the setup could continue running, and perhaps
-warn the user about its malfunctioning, for optimal error resilience.
+before it's too late. The core of the program could continue running even when a
+plugin fails, and perhaps warn the user about its malfunctioning, for optimal
+error resilience.
 
 === Remote Code Execution via Plugins
 
@@ -86,12 +91,13 @@ https://en.wikipedia.org/wiki/Component_Object_Model#Security[This was a problem
 with Internet Explorer], for example. It used COM and ActiveX, which implement
 no sandboxing at all and were ran directly on the user's machine, allowing
 malware to be included in plugins and execute arbitrary code. This can be less
-of a problem installing only trusted plugins with digital signatures, but it's
-still a huge risk.
+of a problem when installing only trusted plugins via digital signatures, but
+it's still a huge risk.
 
-In the case of Tremor plugins this is a similar problem. The end user in this
-case is developers, who should be more wary of what they're including in their
-own projects -- but the truth is that it isn't any better.
+In the case of Tremor plugins this is a similar problem. The end user -- those
+who will add plugins to their configuration -- in this case is developers, who
+should be more wary of what they're including in their own projects -- but the
+truth is that it isn't any better.
 
 I would compare the situation more specifically to how package managers like
 https://www.npmjs.com/[npm] work (or anything that deals with dependencies). The
@@ -111,16 +117,12 @@ might mess up.
 
 == Possible Approaches
 
-The following are the most sensible technologies that could be used as the base
-of the PDK. Some of the won't match the requirements I mentioned earlier, but
-it's a good idea to at least _consider_ all of them. I haven't implemented
-anything yet, so if an approach were to catch a Tremor developer's eye we could
-investigate more about it.
-
-// TODO: is the ranking ok?
-
-I will now rate each of the options in a scale from 1 to 5 in order to take the
-final decision:
+The following are the most viable technologies that could be used as the base of
+a PDK. Some of the won't match the requirements I <<requirements,mentioned
+earlier>>, but it's a good idea to at least _consider_ all of them. I haven't
+written a line of code yet, so if an approach were to catch someone's eye we
+could investigate more about it. I will rate each of the alternatives in a scale
+from 1 to 5 in order to easen the decision-taking.
 
 :rank-meh: olive white-background txt-margin-right txt-round
 :rank-good: green white-background txt-margin-right txt-round
@@ -138,10 +140,10 @@ https://docs.tremor.rs/tremor-query/[`tremor-query`] for configuration.
 
 Lua is seen in game development; it's a quite simple language with a very
 performant JIT implementation, which in any case I think would be the best
-option. It could be embedded into Tremor (it's only 247 kB compiled!
-<<lua-wiki>>) and used to load plugins at either start-time or run-time. And
-knowing it's used in games, which are _obsessed_ with performance, it might not
-be that much of a big deal in that regard.
+option. It could be embedded into the main proram's core (it's only 247 kB
+compiled! <<lua-wiki>>) and used to load plugins at either start-time or
+run-time. And knowing it's used in games, which are _obsessed_ with performance,
+it might not be that much of a big deal in that regard.
 
 There are libraries in Rust like https://github.com/amethyst/rlua[`rlua`] which
 provide bindings for interoperability with Lua. `rlua` in particular seems to
@@ -192,9 +194,9 @@ image::/blog/plugin-tech/ipc-comparison.png[IPC comparison, width=60%, align=cen
 [[sockets]]
 ==== Based on Sockets
 
-Sockets are the worst-performing alternative in the previous chart, but they're
+Sockets are the "`worst`"-performing alternative in the previous chart, but they're
 so common and easy to use in most languages that it's worth taking a look at.
-Using relatively lightweight protocols like Protocol Buffers<<protobuf>>, the
+Using relatively lightweight protocols like Protocol Buffers <<protobuf>>, the
 performance would be close to passing raw structs, but with improved
 backwards/forwards compatibility <<protobuf-perf>>. JSON would probably not make
 that big of a difference in terms of performance either. This would make it
@@ -463,7 +465,7 @@ extensibility in mind and thus have to implement some kind of plugin system.
 
 // TODO: sort
 
-- [[[proposal,0]]] {{< ref "gsoc-proposal.adoc" >}}
+- [[[proposal,0]]] https://nullderef.com/blog/gsoc-proposal/
 - [[[michael,1]]] https://adventures.michaelfbryan.com/posts/plugins-in-rust/
   and https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html
 - [[[fasterthanlime,2]]] https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
