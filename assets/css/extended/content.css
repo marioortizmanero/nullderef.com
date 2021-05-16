@@ -15,6 +15,23 @@ li > .paragraph {
   margin-top: 7px;
 }
 
+/* Fixing captions */
+.post-content .title {
+  font-style: italic;
+}
+
+/* Fixing quote margins */
+.quoteblock {
+  margin: 20px 0;
+}
+blockquote, blockquote p {
+  margin: 0 !important;
+}
+.quoteblock .attribution {
+  margin-top: 10px;
+  font-style: italic;
+}
+
 /* Basic colors: https://en.wikipedia.org/wiki/Web_colors#HTML_color_names */
 .white { color: white; }
 .silver { color: silver; }

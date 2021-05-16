@@ -97,8 +97,8 @@ I would compare the situation more specifically to how package managers like
 https://www.npmjs.com/[npm] work (or anything that deals with dependencies). The
 entire infrastructure is usually based on trust; noone's really stopping you
 from uploading a malicious package/crate for remote code execution or to steal
-data <<npm-trust>>. Plugins are like dependencies in this case, which may be
-malicious and have full access to the host's computer.
+data <<npm-trust>> <<npm-trust-2>>. Plugins are like dependencies in this case,
+which may be malicious and have full access to the host's computer.
 
 An improved approach would be something like
 https://github.com/denoland/deno[Deno], which is a secure by default
@@ -319,6 +319,16 @@ inconvenients:
 
 ==== Improving Binary Compatibility
 
+// TODO: move this somewhere else
+
+. [{rank-meh}]*5/5* *Loading at start-time and run-time*
+. [{rank-meh}]*5/5* *Cross-platform support*
+. [{rank-good}]*5/5* *Low overhead*
+. [{rank-bad}]*2/5* *Rust availability*
+. [{rank-bad}]*1/5* *Safety*
+. [{rank-meh}]*5/5* *Backwards compatibility*
+. [{rank-good}]*4/5* *Ease of porting current implementations*
+
 I recently discovered the
 https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`] crate, which
 guarantees Rust ABI's stability unofficially.
@@ -343,40 +353,71 @@ If I've understood it correctly, some of its inconvenients are the following:
   Plugin Development Kit.
 * It's worth mentioning that library unloading is a non-feature; although it's
   not going to be implemented for this project, it might in the future.
+// TODO: check?
 * It seems
   https://github.com/rodrimati1992/abi_stable_crates/issues/25[incomplete] (?)
-  for async primitives.
+  for async primitives, which is a requirement for Tremor's interface.
 
-While it's a really nice concept and look forward to seeing how it evolves, I
-personally don't think it's at a point where Tremor should use it. 
+While it's a really interesting concept and look forward to seeing how it
+evolves, I personally don't think it's at a point where Tremor should use it.
+The fact that it's unofficial and not that popular doesn't give me full
+confidence that this will still work in 5 years, or that it won't be
+outdated/abandoned.
 
-==== Improving Safety
+=== WebAssembly Interface
 
-. [{rank-meh}]*5/5* *Loading at start-time and run-time*
-. [{rank-meh}]*5/5* *Cross-platform support*
-. [{rank-good}]*5/5* *Low overhead*
-. [{rank-bad}]*2/5* *Rust availability*
-. [{rank-bad}]*1/5* *Safety*
-. [{rank-meh}]*5/5* *Backwards compatibility*
-. [{rank-good}]*4/5* *Ease of porting current implementations*
+Now, this is what I wanted to emphasize in this article! Turns out WebAssembly
+isn't limited to web development anymore; it's slowly evolving into a portable
+binary-code format. As far as I know, this should be like <<ffi>, but with a
+stronger focus in stability and portability. Here's what Wikipedia has to say
+about it:
 
-=== Webassembly Interface
-
-// TODO
-
-Now, this is what I wanted to emphasize in this article! Turns out Wasm isn't
-limited to web development anymore; it's slowly evolving into a portable
-binary-code format. This is how it's described in their official website:
-
-[quote, https://webassembly.org/]
+[quote, https://en.wikipedia.org/wiki/WebAssembly]
 ____
-WebAssembly (abbreviated Wasm) is a binary instruction format for a stack-based
-virtual machine. Wasm is designed as a portable compilation target for
-programming languages, enabling deployment on the web for client and server
-applications.
+WebAssembly (sometimes abbreviated Wasm) is an open standard that defines a
+portable binary-code format for executable programs, and a corresponding textual
+assembly language, as well as interfaces for facilitating interactions between
+such programs and their host environment. The main goal of WebAssembly is to
+enable high-performance applications on web pages, #but the format is designed to
+be executed and integrated in other environments as well, including standalone
+ones.#
 ____
 
-https://github.com/bytecodealliance/wasmtime/blob/main/docs/WASI-tutorial.md#from-rust[WASI]
+So to clear it up, *Wasm* is an _assembly language_, and
+https://wasi.dev/[*WASI*] is a _system interface_ to run it outside the web. The
+latter is extremely well explained
+https://hacks.mozilla.org/2019/03/standardizing-wasi-a-webassembly-system-interface/[in
+this article by Mozilla], I suggest giving it a read for more details.
+https://bytecodealliance.org/articles/announcing-the-bytecode-alliance[This one]
+is also very nice to read and explains the isolation system it provides,
+specifically.
+
+The two main points WebAssembly offers are, in a nutshell:
+
+* When compiled, it doesn’t need to know what system is being targeted. This is
+  handled by the runtime, and the binary itself is fully portable.
+* In order to handle untrustworthy programs, it implements a sandbox. With that,
+  the host can limit exactly what a program has access to.
+
+WASI is just a standard, so there's multiple implementations of its defined
+runtime available. The most popular ones are coincidentally implemented in Rust
+as well: https://github.com/bytecodealliance/wasmtime[*wasmtime*] and
+https://github.com/wasmerio/wasmer[*wasmer*]. . Both use the
+https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md[Cranelift]
+backend to generate the WebAssembly machine code. Then, its runtime can be used
+to run the actual program in different ways (say, as a CLI or a library).
+
+The differences between these aren't that big. You can read
+https://wiki.alopex.li/ActuallyUsingWasm[this wiki article for more details,
+including examples], but I particularly liked this quote:
+
+[quote]
+____
+Just based on what they demonstrate, wasmer is more focused on embedding wasm in
+your native program, while wasmtime is more focused on executing standalone wasm
+programs using WASI. Both are capable of both, it just seems a matter of
+emphasis.
+____
 
 https://freemasen.com/blog/wasmer-plugin-pt-1/[Wasmer Tutorial]
 
@@ -433,5 +474,6 @@ extensibility in mind and thus have to implement some kind of plugin system.
 - [[[ipc-wisc,7]]] http://pages.cs.wisc.edu/~adityav/Evaluation_of_Inter_Process_Communication_Mechanisms.pdf
 - [[[eclipse,8]]] http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html
 - [[[npm-trust,9]]] https://jamie.build/how-to-build-an-npm-worm
+- [[[npm-trust-2,9]]] https://snyk.io/blog/yet-another-malicious-package-found-in-npm-targeting-cryptocurrency-wallets/
 - [[[memory-share-so,10]]] https://stackoverflow.com/a/14512554/11488352
 - [[[lua-sandbox,11]]] http://lua-users.org/wiki/SandBoxes
