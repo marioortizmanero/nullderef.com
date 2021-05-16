@@ -304,35 +304,53 @@ This would be useful for plugin development, since it also handles unloading the
 _same plugin_ seamlessly, but that's not a goal for this project so I don't plan
 on using it.
 
-==== With C
+I already discussed Rust-to-C FFIs in detail in the proposal <<proposal>> and
+came to the conclusion that, the same way as with <<scripting-langs>>, it's not
+viable to create an internal interface for Tremor through C. This leaves us with
+Rust-to-Rust as the only option, which is the easiest, but still has important
+inconvenients:
 
-I already discussed this quite a bit in the proposal <<proposal>> and came to
-the conclusion that, the same way as with <<scripting-langs>>, it's not viable
-to create an internal interface for Tremor through C.
-
-==== With Rust
-
-Using Rust FFI is the easiest, but it still has a couple of inconvenients:
-
-. Awful safety: lots of `unsafe` usage is required. No sandboxing either. And
-  plugins can abort Tremor's core execution when panicking/leaking
-  memory/similars (I haven't been able to find information about using
-  `catch_unwind` with Rust-to-Rust FFIs).
+. Awful safety: lots of `unsafe` usage is required with plenty of caveats. No
+  sandboxing either. And plugins can abort Tremor's core execution when
+  panicking/leaking memory/similars (I haven't been able to find information
+  about using `catch_unwind` with Rust-to-Rust FFIs).
 . Binary compatibility is not good. Any minor change to either Tremor's
   interface or the version it was compiled with will break the plugin.
 
-As a way to improve the binary compatibility aspect, one can use the
+==== Improving Binary Compatibility
+
+I recently discovered the
 https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`] crate, which
-supposedly guarantee Rust ABI's stability unofficially.
+guarantees Rust ABI's stability unofficially.
 
-Its own author lists the following inconvenients:
+It includes ffi-safe alternatives to many of the types in `std`, and even
+external ones (namely `crossbeam`, `parking_lot` and `serde_json`). This works
+by implementing a
+https://docs.rs/abi_stable/*/abi_stable/abi_stability/stable_abi_trait/trait.StableAbi.html[`StableAbi`]
+trait that guarantees its ffi-safety, which may be done automatically with one
+of its procedural macros. Internal ABI stability is also guaranteed with macros
+like `#[sabi(last_prefix_field)]`, which would allow Tremor to add fields to
+existing structs without breaking backwards compatibility. Fortunately, it has a
+https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples[few very
+detailed examples] one can look at to better understand how it works, and it's
+exceptionally well documented.
 
-* It only supports native dynamic libraries right now,since AFAIK extern "C" fn
-  with arbitrary types is not supported in the WASM abi.
-* It requires that you use some types from abi_stable instead of stdlib ones for
-  the values you'll pass through ffi.
-* It's still immature,lacking a Map<K,V> type for example,since I've had to
-  reinvent the wheel for many Rust types.
+If I've understood it correctly, some of its inconvenients are the following:
+
+* Tremor would have to use the types from `abi_stable` instead of `std` for the
+  values passed through FFI.
+* The whole crate seems huge and would probably add a lot of complexity to this
+  Plugin Development Kit.
+* It's worth mentioning that library unloading is a non-feature; although it's
+  not going to be implemented for this project, it might in the future.
+* It seems
+  https://github.com/rodrimati1992/abi_stable_crates/issues/25[incomplete] (?)
+  for async primitives.
+
+While it's a really nice concept and look forward to seeing how it evolves, I
+personally don't think it's at a point where Tremor should use it. 
+
+==== Improving Safety
 
 . [{rank-meh}]*5/5* *Loading at start-time and run-time*
 . [{rank-meh}]*5/5* *Cross-platform support*
