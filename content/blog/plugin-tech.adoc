@@ -447,6 +447,8 @@ just about 3 times slower than native code. Do note that this depends on the
 runtime that's being used, and it may improve in the future (WebAssembly is just
 4 years old).
 
+So, in order to develop a Plugin System in Rust we can use the 
+
 https://freemasen.com/blog/wasmer-plugin-pt-1/[Wasmer Tutorial]
 
 https://github.com/FreeMasen/wasmer-plugin/[`wasmer-plugin`]
