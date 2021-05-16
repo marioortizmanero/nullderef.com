@@ -186,7 +186,6 @@ Still, it's a pretty interesting option for new projects, as you have ABI
 stability guarantees, don't need unsafe code, and is very straightforward to
 use.
 
-. [{rank-good}]*5/5* *Loading at start-time and run-time*
 . [{rank-good}]*5/5* *Cross-platform support*
 . [{rank-good}]*4/5* *Low overhead*
 . [{rank-meh}]*3/5* *Rust availability*
@@ -241,7 +240,6 @@ so I would love to create a quick benchmark when I get to implement the first
 prototypes to see if it's actually the best choice, if Tremor devs agree with me
 on this one.
 
-. [{rank-good}]*5/5* *Loading at start-time and run-time*
 . [{rank-good}]*5/5* *Cross-platform support*
 . [{rank-meh}]*3/5* *Low overhead*
 . [{rank-good}]*5/5* *Rust availability*
@@ -265,7 +263,6 @@ to be any reliable libraries for pipes, besides `std` (maybe
 https://docs.rs/interprocess/1.1.1/interprocess/[`interprocess`] or
 https://crates.io/crates/ipipe[`ipipe`]).
 
-. [{rank-good}]*5/5* *Loading at start-time and run-time*
 . [{rank-good}]*5/5* *Cross-platform support*
 . [{rank-good}]*4/5* *Low overhead*
 . [{rank-meh}]*3/5* *Rust availability*
@@ -294,7 +291,6 @@ the examples for `shared_memory` _do_ use `unsafe`, and a lot of it.
 Maybe if it was easier to use this would be a good idea, but IPC shared memory
 doesn't seem to be any better than <<ffi>> or <<pipes,Pipes>>.
 
-. [{rank-good}]*5/5* *Loading at start-time and run-time*
 . [{rank-good}]*5/5* *Cross-platform support*
 . [{rank-good}]*5/5* *Low overhead*
 . [{rank-bad}]*2/5* *Rust availability*
@@ -328,7 +324,8 @@ not viable to create an internal interface for Tremor through C. This leaves us
 with Rust-to-Rust as the only option, which is the easiest, but still has
 important inconvenients:
 
-. Awful safety: lots of `unsafe` usage is required with plenty of caveats. No
+. Awful safety: lots of `unsafe` usage is required with plenty of caveats,
+  including subtle differences in the interface between Operating Systems. No
   sandboxing either. And plugins can abort Tremor's core execution when
   panicking/leaking memory/similars (I haven't been able to find information
   about using `catch_unwind` with Rust-to-Rust FFIs).
@@ -373,14 +370,14 @@ outdated/abandoned.
 
 // TODO: research about backwards compatibility via other methods
 
-. [{rank-good}]*5/5* *Loading at start-time and run-time*
-. [{rank-good}]*5/5* *Cross-platform support*
+. [{rank-good}]*4/5* *Cross-platform support*
 . [{rank-good}]*5/5* *Low overhead*
 . [{rank-good}]*5/5* *Rust availability*
 . [{rank-bad}]*0/5* *Safety*
 . [{rank-bad}]*0/5* *Backwards compatibility*
 . [{rank-good}]*5/5* *Ease of porting current implementations*
 
+[[wasm]]
 === WebAssembly Interface
 
 Now, this is what I wanted to emphasize in this article! Turns out WebAssembly
@@ -447,23 +444,31 @@ just about 3 times slower than native code. Do note that this depends on the
 runtime that's being used, and it may improve in the future (WebAssembly is just
 4 years old).
 
-So, in order to develop a Plugin System in Rust we can use the 
-
-https://freemasen.com/blog/wasmer-plugin-pt-1/[Wasmer Tutorial]
-
-https://github.com/FreeMasen/wasmer-plugin/[`wasmer-plugin`]
+There's a whole series on how to make a Plugins System with Wasmer
+https://freemasen.com/blog/wasmer-plugin-pt-1/[here], which will come in handy
+to know what to expect. The usability doesn't seem to be that good, since by
+default you can only use integers, floating-point or vectors <<wasmer-types>> as
+parameters when calling Wasm plugins. For more complex types, you have to resort
+to encoding and decoding via a crate like
+https://github.com/bincode-org/bincode[`bincode`], although most of the
+boilerplate can be reduced with procedural macros, and it opens up the
+possibility of using a serialization method that supports backwards
+compatibility between Tremor versions (e.g. JSON or Protobuf). The
+https://freemasen.com//blog/wasmer-plugin-pt-4/index.html[last part] of the
+series is the most interesting one, as it includes a real-world example, with a
+version of the final code in https://github.com/FreeMasen/wasmer-plugin[this
+repository].
 
 All in all, WebAssembly seems to win against <<ffi>> in terms of security by not
 needing `unsafe` at all and including sandboxing by default, at the cost of
 efficiency. This is up to the managers of the project and what they consider
 more important.
 
-. [{rank-good}]*5/5* *Loading at start-time and run-time*
 . [{rank-good}]*5/5* *Cross-platform support*
-. [{rank-good}]*4/5* *Low overhead*
+. [{rank-meh}]*3/5* *Low overhead*
 . [{rank-good}]*5/5* *Rust availability*
 . [{rank-good}]*5/5* *Safety*
-. [{rank-bad}]*0/5* *Backwards compatibility*
+. [{rank-good}]*4/5* *Backwards compatibility*
 . [{rank-good}]*5/5* *Ease of porting current implementations*
 
 == Prior Art
@@ -474,29 +479,75 @@ the past in order to learn from their mistakes and not start from scratch.
 Here's a list of some of the libraries I found with PDKs, specifically written
 in Rust:
 
-* https://github.com/zellij-org/zellij[`zellij`]
-* https://github.com/xi-editor/xi-editor[`xi`]
-  (https://docs.rs/xi-rpc/0.3.0/xi_rpc/[JSON RPC]), described
-  https://raphlinus.github.io/xi/2020/06/27/xi-retrospective.html#json[here in
-  detail].
+* https://github.com/rust-lang/cargo[`cargo`],
+  https://github.com/rust-lang/mdBook[`mdbook`]: both of these have an extension
+  system via CLI commands. Adding a subcommand to either of these utilities is
+  as easy as creating a binary with a fixed prefix (e.g. `cargo-expand`), and if
+  it's available in the PATH when running `cargo`, it will be possible to run
+  the plugin with `cargo expand` as well.
 +
---
-
-Text editors specifically are very interesting, because they must be built with
+// TODO: maybe make a section out of this?
+Although this is a very interesting approach, specially because of how simple it
+is to use, I don't think it's suitable for <<requirements,the problem>>
+described at the beginning.
+* https://github.com/zellij-org/zellij[`zellij`]: a terminal workspace with "`a
+  plugin system allowing one to create plugins in any language that compiles to
+  WebAssembly`".
++
+This is an extremely valuable resource in case the <<wasm>> option is chosen, as
+it's very similar to what Tremor needs. One can even subscribe to events in
+order to simulate the traits in Tremor that currently use `async`.
+* https://github.com/xi-editor/xi-editor[`xi`]: a now abandoned modern text
+  editor. Its plugins, described
+  https://raphlinus.github.io/xi/2020/06/27/xi-retrospective.html#json[here in
+  detail], are based on https://docs.rs/xi-rpc/0.3.0/xi_rpc/[JSON RPC].
++
+Text editors overall are very interesting, because they must be built with
 extensibility in mind and thus have to implement some kind of plugin system.
 
-* Visual Studio is based on Electron, so it has a renderer process for the
-  frontend, and a main process with Node. Its extensions share the same event
-  loop,
-  https://github.com/microsoft/vscode/issues/75627#issuecomment-519125065[which
-  has been an issue for a long time in case an extension blocks temporarily],
-  causing lag.
-* Eclipse's plugin architecture is based on Java classes <<eclipse>> loaded at
-  runtime and configured with XML manifests.
-
---
-* https://lib.rs/crates/plugin-system[`plugin-system`] (2019, obsolete)
+** Visual Studio is based on Electron, so it has a renderer process for the
+   frontend, and a main process with Node. Its extensions share the same event
+   loop,
+   https://github.com/microsoft/vscode/issues/75627#issuecomment-519125065[which
+   has been an issue for a long time in case an extension blocks temporarily],
+   causing lag.
+** Eclipse's plugin architecture is based on Java classes <<eclipse>> loaded at
+   runtime and configured with XML manifests.
 * Firefox?
+
+== Conclusion
+
+This article has covered quite a few ways to approach a Plugin System. The final
+choice depends on what tradeoffs the project wants to make. The most viable
+options are the following:
+
+|===
+| |FFI |WebAssembly |Sockets IPC |Scripting
+
+|
+|
+|
+|
+|
+
+|WebAssembly
+|
+|
+|
+|
+
+|Sockets IPC
+|
+|
+|
+|
+
+|Scripting
+|
+|
+|
+|
+|===
 
 [bibliography]
 == References
@@ -518,3 +569,4 @@ extensibility in mind and thus have to implement some kind of plugin system.
 - [[[npm-trust-2,9]]] https://snyk.io/blog/yet-another-malicious-package-found-in-npm-targeting-cryptocurrency-wallets/
 - [[[memory-share-so,10]]] https://stackoverflow.com/a/14512554/11488352
 - [[[lua-sandbox,11]]] http://lua-users.org/wiki/SandBoxes
+- [[[wasmer-types,12]]] https://wasmerio.github.io/wasmer/crates/wasmer/types/type.Val.html
