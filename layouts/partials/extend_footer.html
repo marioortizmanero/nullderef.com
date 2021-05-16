@@ -1,20 +1,23 @@
 <!--
   MathJax, taken from
   https://github.com/asciidoctor/jekyll-asciidoc#adding-the-stem-assets-to-the-page
+  and upgraded to >= v3.
 -->
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  messageStyle: "none",
-  tex2jax: {
+<script>
+MathJax = {
+  tex: {
     inlineMath: [["\\(", "\\)"]],
     displayMath: [["\\[", "\\]"]],
-    ignoreClass: "nostem|nolatexmath"
+    tags: "none"
   },
-  asciimath2jax: {
-    delimiters: [["\\$", "\\$"]],
-    ignoreClass: "nostem|noasciimath"
+  options: {
+    ignoreHtmlClass: "nostem|noasciimath"
   },
-  TeX: { equationNumbers: { autoNumber: "none" } }
-});
+  asciimath: {
+    delimiters: [["\\$", "\\$"]]
+  }
+};
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+</script>

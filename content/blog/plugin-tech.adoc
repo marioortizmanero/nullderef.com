@@ -422,7 +422,7 @@ ____
 
 The article also includes a [.line-through]#not reliable at all# benchmark,
 which can serve us as a way to compare its performance with the native code
-you'd get with e.g. <<ffi>>, which estimates that Wasm is stem:[\lt] 10
+you'd get with e.g. <<ffi>>, which estimates that Wasm is stem:[\le 10]
 
 https://freemasen.com/blog/wasmer-plugin-pt-1/[Wasmer Tutorial]
 
