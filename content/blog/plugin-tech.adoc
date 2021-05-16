@@ -289,32 +289,43 @@ doesn't seem to be any better than <<ffi>> or <<pipes,Pipes>>.
 
 // TODO
 
-This is possibly the _least weird_ way to do this, or at least the most common
-one for what we actually need in a Plugin Development Kit. A Foreign Function
-Interface can allow us to directly access resources in separately compiled
-objects, also after the linking phase with dynamic loading.
+This is possibly the _least weird_ way to implement a Plugin Development Kit,
+i.e. it's the most popular method I've seen. A Foreign Function Interface can
+allow us to directly access resources in separately compiled objects, and also
+after the linking phase with dynamic loading. It's one of the fastest options
+available because there's no overhead at all after dynamically loading the
+library.
 
-https://docs.rs/libloading/[`libloading`]
+The main library for this is `libloading`. It seems to be a lower-level
+implementation for any kind of FFI that requires `unsafe` for almost everything
+-- what I was expecting. Based on it there's `dynamic_reload`, which is very
+interesting in order to "`live reload`" the plugins when they are recompiled.
+This would be useful for plugin development, since it also handles unloading the
+_same plugin_ seamlessly, but that's not a goal for this project so I don't plan
+on using it.
 
-https://github.com/emoon/dynamic_reload[`dynamic_reload`]
-
-==== C
+==== With C
 
 I already discussed this quite a bit in the proposal <<proposal>> and came to
 the conclusion that, the same way as with <<scripting-langs>>, it's not viable
-to create an internal interface for Tremor through C. It's definitely not worth
-it to allow plugins to be created outside of Rust.
+to create an internal interface for Tremor through C.
 
-==== Rust
+==== With Rust
 
 Using Rust FFI is the easiest, but it still has a couple of inconvenients:
-`unsafe` usage is required, and binary compatibility is not good.
 
-As a way to improve the binary compatibility aspect, I found the
+. Awful safety: lots of `unsafe` usage is required. No sandboxing either. And
+  plugins can abort Tremor's core execution when panicking/leaking
+  memory/similars (I haven't been able to find information about using
+  `catch_unwind` with Rust-to-Rust FFIs).
+. Binary compatibility is not good. Any minor change to either Tremor's
+  interface or the version it was compiled with will break the plugin.
+
+As a way to improve the binary compatibility aspect, one can use the
 https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`] crate, which
 supposedly guarantee Rust ABI's stability unofficially.
 
-https://github.com/dtolnay/inventory[`inventory`]
+Its own author lists the following inconvenients:
 
 * It only supports native dynamic libraries right now,since AFAIK extern "C" fn
   with arbitrary types is not supported in the WASM abi.
@@ -330,7 +341,6 @@ https://github.com/dtolnay/inventory[`inventory`]
 . [{rank-bad}]*1/5* *Safety*
 . [{rank-meh}]*5/5* *Backwards compatibility*
 . [{rank-good}]*4/5* *Ease of porting current implementations*
-
 
 === Webassembly Interface
 
@@ -396,6 +406,7 @@ extensibility in mind and thus have to implement some kind of plugin system.
 
 - [[[proposal,0]]] {{< ref "gsoc-proposal.adoc" >}}
 - [[[michael,1]]] https://adventures.michaelfbryan.com/posts/plugins-in-rust/
+  and https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html
 - [[[fasterthanlime,2]]] https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
 - [[[lua-wiki,3]]] https://en.wikipedia.org/wiki/Lua_(programming_language)
 - [[[protobuf,4]]] https://developers.google.com/protocol-buffers
