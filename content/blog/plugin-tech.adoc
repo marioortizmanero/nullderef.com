@@ -116,6 +116,23 @@ permission is required by the dependency they want to install without thinking
 about it, but it's similar to `unsafe`: at least it makes you aware that you
 might mess up.
 
+// TODO: what about docker?
+
+One could argue that Tremor is realistically going to be ran in a Virtual
+Machine or a container most of the times, where this may not matter so much. But
+should you really assume that? Should user safety rely on the fact that the
+machine is ran on an externally isolated kernel?
+???
+
+> This is a capability that has only actually become common the last few years,
+> with “serverless” computing systems like AWS Lambda. Docker tries to emulate
+> this sort of functionality using existing API’s, and Kubernetes tries to manage
+> it, but this SHOULD be the operating system’s job. OS functionality like Linux’s
+> capabilities and OpenBSD’s pledge are steps in the right direction that make
+> this possible, and are the primitives upon which things like Docker are built.
+> But you still have to opt in to this sort of sandboxing. It is not the default.
+- https://wiki.alopex.li/ActuallyUsingWasm#what-does-the-ecosystem-look-like
+
 == Possible Approaches
 
 The following are the most viable technologies that could be used as the base of
@@ -305,11 +322,11 @@ This would be useful for plugin development, since it also handles unloading the
 _same plugin_ seamlessly, but that's not a goal for this project so I don't plan
 on using it.
 
-I already discussed Rust-to-C FFIs in detail in the proposal <<proposal>> and
-came to the conclusion that, the same way as with <<scripting-langs>>, it's not
-viable to create an internal interface for Tremor through C. This leaves us with
-Rust-to-Rust as the only option, which is the easiest, but still has important
-inconvenients:
+I already discussed about Rust-to-C FFIs in detail in the proposal <<proposal>>
+and came to the conclusion that, the same way as with <<scripting-langs>>, it's
+not viable to create an internal interface for Tremor through C. This leaves us
+with Rust-to-Rust as the only option, which is the easiest, but still has
+important inconvenients:
 
 . Awful safety: lots of `unsafe` usage is required with plenty of caveats. No
   sandboxing either. And plugins can abort Tremor's core execution when
@@ -318,21 +335,10 @@ inconvenients:
 . Binary compatibility is not good. Any minor change to either Tremor's
   interface or the version it was compiled with will break the plugin.
 
-==== Improving Binary Compatibility
-
-// TODO: move this somewhere else and add conclusion
-
-. [{rank-meh}]*5/5* *Loading at start-time and run-time*
-. [{rank-meh}]*5/5* *Cross-platform support*
-. [{rank-good}]*5/5* *Low overhead*
-. [{rank-bad}]*2/5* *Rust availability*
-. [{rank-bad}]*1/5* *Safety*
-. [{rank-meh}]*5/5* *Backwards compatibility*
-. [{rank-good}]*4/5* *Ease of porting current implementations*
-
 I recently discovered the
 https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`] crate, which
-guarantees Rust ABI's stability unofficially.
+guarantees Rust ABI's stability unofficially and helps with the binary
+compatibility aspect.
 
 It includes ffi-safe alternatives to many of the types in `std`, and even
 external ones (namely `crossbeam`, `parking_lot` and `serde_json`). This works
@@ -365,11 +371,21 @@ The fact that it's unofficial and not that popular doesn't give me full
 confidence that this will still work in 5 years, or that it won't be
 outdated/abandoned.
 
+// TODO: research about backwards compatibility via other methods
+
+. [{rank-good}]*5/5* *Loading at start-time and run-time*
+. [{rank-good}]*5/5* *Cross-platform support*
+. [{rank-good}]*5/5* *Low overhead*
+. [{rank-good}]*5/5* *Rust availability*
+. [{rank-bad}]*0/5* *Safety*
+. [{rank-bad}]*0/5* *Backwards compatibility*
+. [{rank-good}]*5/5* *Ease of porting current implementations*
+
 === WebAssembly Interface
 
 Now, this is what I wanted to emphasize in this article! Turns out WebAssembly
 isn't limited to web development anymore; it's slowly evolving into a portable
-binary-code format. As far as I know, this should be like <<ffi>, but with a
+binary-code format. As far as I know, this should be like <<ffi>>, but with a
 stronger focus in stability and portability. Here's what Wikipedia has to say
 about it:
 
@@ -403,10 +419,11 @@ The two main points WebAssembly offers are, in a nutshell:
 WASI is just a standard, so there's multiple implementations of its defined
 runtime available. The most popular ones are coincidentally implemented in Rust
 as well: https://github.com/bytecodealliance/wasmtime[*wasmtime*] and
-https://github.com/wasmerio/wasmer[*wasmer*]. . Both use the
+https://github.com/wasmerio/wasmer[*wasmer*]. Both use the
 https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md[Cranelift]
-backend to generate the WebAssembly machine code. Then, its runtime can be used
-to run the actual program in different ways (say, as a CLI or a library).
+backend to generate the WebAssembly machine code (although wasmer seems to
+support more backends, like LLVM). Then, its runtime can be used to run the
+actual program in different ways (say, as a CLI or a library).
 
 The differences between these aren't that big. You can read
 https://wiki.alopex.li/ActuallyUsingWasm[this wiki article for more details,
@@ -422,19 +439,35 @@ ____
 
 The article also includes a [.line-through]#not reliable at all# benchmark,
 which can serve us as a way to compare its performance with the native code
-you'd get with e.g. <<ffi>>, which estimates that Wasm is stem:[\le 10]
+you'd get with e.g. <<ffi>>. It estimates that Wasm is a bit less than an order
+of magnitude slower than native code, and the same applies to memory usage.
+https://github.com/jedisct1/webassembly-benchmarks/tree/master/2021-Q1[A more
+thorough benchmark] was done in libsodium that shows better results: Wasm can be
+just about 3 times slower than native code. Do note that this depends on the
+runtime that's being used, and it may improve in the future (WebAssembly is just
+4 years old).
 
 https://freemasen.com/blog/wasmer-plugin-pt-1/[Wasmer Tutorial]
 
 https://github.com/FreeMasen/wasmer-plugin/[`wasmer-plugin`]
 
+All in all, WebAssembly seems to win against <<ffi>> in terms of security by not
+needing `unsafe` at all and including sandboxing by default, at the cost of
+efficiency. This is up to the managers of the project and what they consider
+more important.
+
+. [{rank-good}]*5/5* *Loading at start-time and run-time*
+. [{rank-good}]*5/5* *Cross-platform support*
+. [{rank-good}]*4/5* *Low overhead*
+. [{rank-good}]*5/5* *Rust availability*
+. [{rank-good}]*5/5* *Safety*
+. [{rank-bad}]*0/5* *Backwards compatibility*
+. [{rank-good}]*5/5* *Ease of porting current implementations*
+
 == Prior Art
 
 It's very important to take a look at projects that have already done this in
 the past in order to learn from their mistakes and not start from scratch.
-
-Rust is relatively new, so I also took a look at similar languages that also
-don't 
 
 Here's a list of some of the libraries I found with PDKs, specifically written
 in Rust:
@@ -466,7 +499,8 @@ extensibility in mind and thus have to implement some kind of plugin system.
 [bibliography]
 == References
 
-// TODO: sort
+// TODO: sort and clean up
+// TODO: mention tutorials somewhere
 
 - [[[proposal,0]]] https://nullderef.com/blog/gsoc-proposal/
 - [[[michael,1]]] https://adventures.michaelfbryan.com/posts/plugins-in-rust/
