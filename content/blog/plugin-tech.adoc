@@ -8,6 +8,8 @@ date: 2021-04-13
 draft: true
 ---
 
+:sectnums:
+
 == Abstract
 
 Summary + best options. Maybe this should be a conclusion section at the end
@@ -17,9 +19,8 @@ instead?
 
 In this article I will futher analyze how a Plugin Development Kit could be
 implemented in Rust with more investigation and other ideas I've found. This is
-all based on the Google Summer of Code proposal for
-https://www.tremor.rs/[Tremor], which you can find link:{{< ref
-"gsoc-proposal.adoc" >}}[here].
+all based on the Google Summer of Code proposal <<proposal>> for
+https://www.tremor.rs/[Tremor] I started with.
 
 == Requirements
 
@@ -36,8 +37,8 @@ Besides that, the rest of the main points to consider remain the same:
 . *Mandatory:* Cross-platform support
 . *Mandatory:* Low overhead
 . *Mandatory:* Available at least from Rust
-. *Extra:* As little `unsafe` usage as possible
-. *Extra:* Binary compatibility
+. *Extra:* <<safety,Safety>>
+. *Extra:* Backwards compatibility
 . *Extra*: Not much work to port from the current implementations
 
 [[safety]]
@@ -118,12 +119,12 @@ investigate more about it.
 
 // TODO: is the ranking ok?
 
-I will rate each of the options in a scale from 1 to 5 in order to take the
-final decision. So, roughly ranked from worse to best for Tremor's usage:
+I will now rate each of the options in a scale from 1 to 5 in order to take the
+final decision:
 
-:rank-same: olive white-background txt-margin-right txt-round
-:rank-up: green white-background txt-margin-right txt-round
-:rank-down: red white-background txt-margin-right txt-round
+:rank-meh: olive white-background txt-margin-right txt-round
+:rank-good: green white-background txt-margin-right txt-round
+:rank-bad: red white-background txt-margin-right txt-round
 
 [[scripting-langs]]
 === Scripting Languages
@@ -150,6 +151,12 @@ forked by https://github.com/khvzak/mlua[`mlua`]. Unfortunately, after digging a
 bit the Rust ecosystem for Lua bindings doesn't seem to be as mature as I'd like
 for a project this big; there's still some work to do to reach more stability.
 
+Lua gets extra points in safety. It's possible to sandbox it by blocking
+whichever functions you don't want users to access <<lua-sandbox>> (though it's
+"`tricky and generally speaking difficult to get right`"). Similarly, one can
+also handle resource exhaustion issues within Lua programs. Not to mention that
+this wouldn't require `unsafe` at all with an optimal set of bindings.
+
 Anyhow, the main deal breaker with scripting languages in this case is that it
 would be extremely complicated to port everything in Tremor so that it can be
 used from Lua. For new projects this could perhaps be something interesting, but
@@ -159,13 +166,13 @@ Still, it's a pretty interesting option for new projects, as you have ABI
 stability guarantees, don't need unsafe code, and is very straightforward to
 use.
 
-. [{rank-same}]*5/5* *Loading at start-time and run-time*
-. [{rank-same}]*5/5* *Cross-platform support*
-. [{rank-same}]*4/5* *Low overhead*
-. [{rank-same}]*3/5* *Rust availability*
-. [{rank-same}]*5/5* *No `unsafe` usage*
-. [{rank-same}]*5/5* *Binary compatibility*
-. [{rank-same}]*0/5* *Ease of porting current implementations*
+. [{rank-good}]*5/5* *Loading at start-time and run-time*
+. [{rank-good}]*5/5* *Cross-platform support*
+. [{rank-good}]*4/5* *Low overhead*
+. [{rank-meh}]*3/5* *Rust availability*
+. [{rank-good}]*4/5* *Safety*
+. [{rank-good}]*5/5* *Backwards compatibility*
+. [{rank-bad}]*0/5* *Ease of porting current implementations*
 
 [[ipc]]
 === Inter-Process Communication
@@ -197,47 +204,54 @@ noticeable overhead when communicating via sockets; sending and receiving the
 messages can be much costlier than just calling a function, even if this happens
 on localhost.
 
-The main issue with this alternative is shared with <<scripting-langs>>. In this
-case at least we don't have to completely rewrite everything, since we could
-still use Rust, but Tremor would have to declare a protocol to communicate
-between the Tremor core and its plugins, which is a lot of work and makes this a
-not really feasible option.
+This alternative is much more interesting than <<scripting-langs>>: we don't
+have to completely rewrite everything, since Rust can still be used, and
+implementing the protocol to communicate between the Tremor core and its plugins
+should be as easy as `\#[derive(Serialize)]` for sending and
+`#[derive(Deserialize)]` for receiving.
 
-Overall, though, it seems more reasonable than <<scripting-langs>>. It does
-require a lot of work, but it helps a lot in terms of <<safety>>. Separate
-processes imply that malfunctioning plugins don't affect Tremor, and it
-basically consists on implementing basic servers, which require no `unsafe` at
-all and means that there's much more support for that in Rust.
+As to safety, separate processes imply that malfunctioning plugins don't affect
+Tremor directly, and the PDK basically consists on implementing servers, which
+require no `unsafe` at all and has much more popularity and support in Rust.
+It's still hard to properly sandbox plugins, though.
 
-. [{rank-same}]*5/5* *Loading at startdowntime and rundowntime*
-. [{rank-same}]*5/5* *Crossdownplatform support*
-. [{rank-down}]#*3/5* (-1)# *Low overhead*
-. [{rank-up}]#*5/5* (+1)# *Rust availability*
-. [{rank-same}]*5/5* *No `unsafe` usage*
-. [{rank-same}]*5/5* *Binary compatibility*
-. [{rank-same}]*2/5* *Ease of porting current implementations*
+Overall, I consider this a very solid solution, with its main drawback being
+performance. I can't really guess the effect this would have in Tremor's speed,
+so I would love to create a quick benchmark when I get to implement the first
+prototypes to see if it's actually the best choice, if Tremor devs agree with me
+on this one.
+
+. [{rank-good}]*5/5* *Loading at start-time and run-time*
+. [{rank-good}]*5/5* *Cross-platform support*
+. [{rank-meh}]*3/5* *Low overhead*
+. [{rank-good}]*5/5* *Rust availability*
+. [{rank-good}]*4/5* *Safety*
+. [{rank-good}]*5/5* *Backwards compatibility*
+. [{rank-good}]*4/5* *Ease of porting current implementations*
 
 [[pipes]]
 ==== Based on Pipes
 
-Named Pipes are really popular specifically on Linux, and enable Inter-Process
-Communication with less overhead than sockets. They are made to be ran on the
-same machine, which is exactly what we need. The terminal file manager
-https://github.com/jarun/nnn[nnn] uses this approach: plugins can read from a
-FIFO (Named Pipe) to receive selections from nnn (lists of files or directories)
-and act accordingly.
+Named Pipes have always been fairly popular specifically on Unix systems, and
+enable Inter-Process Communication with less overhead than sockets. They are
+made to be ran on the same machine, which is exactly what we need. The terminal
+file manager https://github.com/jarun/nnn[nnn] uses this approach: plugins can
+read from a FIFO (Named Pipe) to receive selections from nnn (lists of files or
+directories) and act accordingly.
 
 The rest is basically the same as with <<sockets, Sockets>>, maybe with extra
 points for performance, and less for Rust availability, since there don't seem
-to be any reliable libraries for pipes, besides `std`.
+to be any reliable libraries for pipes, besides `std` (maybe
+https://docs.rs/interprocess/1.1.1/interprocess/[`interprocess`] or
+https://crates.io/crates/ipipe[`ipipe`]).
 
-. [{rank-same}]*5/5* *Loading at start-time and run-time*
-. [{rank-same}]*5/5* *Cross-platform support*
-. [{rank-up}]#*4/5* (+1)# *Low overhead*
-. [{rank-down}]#*3/5* (-2)# *Rust availability*
-. [{rank-same}]*5/5* *No `unsafe` usage*
-. [{rank-same}]*5/5* *Binary compatibility*
-. [{rank-same}]*2/5* *Ease of porting current implementations*
+. [{rank-good}]*5/5* *Loading at start-time and run-time*
+. [{rank-good}]*5/5* *Cross-platform support*
+. [{rank-good}]*4/5* *Low overhead*
+. [{rank-meh}]*3/5* *Rust availability*
+. [{rank-good}]*5/5* *Safety*
+. [{rank-good}]*5/5* *Backwards compatibility*
+. [{rank-good}]*4/5* *Ease of porting current implementations*
 
 [[memory-sharing]]
 ==== Based on Memory Sharing
@@ -246,29 +260,27 @@ Knowing that the plugins are intended to be on the same machine as the core of
 Tremor, there's no need to actually send and receive messages. One can share
 memory between multiple processes and send notifications to receive updates. The
 performance is comparable to using a <<ffi>>, since the only overhead is the
-initial cost from setting up the shared pages, having regular memory memory
-access <<memory-share-so>>.
+initial cost from setting up the shared pages, having regular memory access
+afterwards <<memory-share-so>>.
 
 This feature heavily depends on the system's kernel, so it may hurt the
-"Cross-Compatibility" requirement. But we have libraries like
+"Cross-Compatibility" requirement. We have libraries like
 https://docs.rs/shared_memory[`shared_memory`] pass:[+]
 https://docs.rs/raw_sync[`raw_sync`] in Rust that wrap all the OS
-implementations under the same interface. Admittedly, they don't seem anywhere
-near as popular as most of the other alternatives. While the wrapper itself is
-quite simple, there isn't that much information about IPC shared memory for
-Rust. Not to mention that the examples for `shared_memory` _do_ use `unsafe`,
-and a lot of it.
+implementations under the same interface, but admittedly, they don't seem
+anywhere near as popular as most of the other alternatives. Not to mention that
+the examples for `shared_memory` _do_ use `unsafe`, and a lot of it.
 
 Maybe if it was easier to use this would be a good idea, but IPC shared memory
 doesn't seem to be any better than <<ffi>> or <<pipes,Pipes>>.
 
-. [{rank-same}]*5/5* *Loading at start-time and run-time*
-. [{rank-same}]*5/5* *Cross-platform support*
-. [{rank-up}]#*5/5* (+1)# *Low overhead*
-. [{rank-down}]#*2/5* (-1)# *Rust availability*
-. [{rank-down}]#*1/5* (-4)# *No `unsafe` usage*
-. [{rank-same}]*5/5* *Binary compatibility*
-. [{rank-up}]#*4/5* (+2)# *Ease of porting current implementations*
+. [{rank-good}]*5/5* *Loading at start-time and run-time*
+. [{rank-good}]*5/5* *Cross-platform support*
+. [{rank-good}]*5/5* *Low overhead*
+. [{rank-bad}]*2/5* *Rust availability*
+. [{rank-bad}]*0/5* *Safety*
+. [{rank-meh}]*3/5* *Backwards compatibility*
+. [{rank-good}]*4/5* *Ease of porting current implementations*
 
 // TODO: add sum of points
 
@@ -278,7 +290,9 @@ doesn't seem to be any better than <<ffi>> or <<pipes,Pipes>>.
 // TODO
 
 This is possibly the _least weird_ way to do this, or at least the most common
-one for what we actually need in a Plugin Development Kit.
+one for what we actually need in a Plugin Development Kit. A Foreign Function
+Interface can allow us to directly access resources in separately compiled
+objects, also after the linking phase with dynamic loading.
 
 https://docs.rs/libloading/[`libloading`]
 
@@ -286,14 +300,21 @@ https://github.com/emoon/dynamic_reload[`dynamic_reload`]
 
 ==== C
 
+I already discussed this quite a bit in the proposal <<proposal>> and came to
+the conclusion that, the same way as with <<scripting-langs>>, it's not viable
+to create an internal interface for Tremor through C. It's definitely not worth
+it to allow plugins to be created outside of Rust.
+
 ==== Rust
 
-Using Rust FFI is the easiest because it doesn't force Tremor to define a strict
-internal ABI, which can be a lot of work, as discussed in the previous section.
+Using Rust FFI is the easiest, but it still has a couple of inconvenients:
+`unsafe` usage is required, and binary compatibility is not good.
+
+As a way to improve the binary compatibility aspect, I found the
+https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`] crate, which
+supposedly guarantee Rust ABI's stability unofficially.
 
 https://github.com/dtolnay/inventory[`inventory`]
-
-https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`]
 
 * It only supports native dynamic libraries right now,since AFAIK extern "C" fn
   with arbitrary types is not supported in the WASM abi.
@@ -301,6 +322,15 @@ https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`]
   the values you'll pass through ffi.
 * It's still immature,lacking a Map<K,V> type for example,since I've had to
   reinvent the wheel for many Rust types.
+
+. [{rank-meh}]*5/5* *Loading at start-time and run-time*
+. [{rank-meh}]*5/5* *Cross-platform support*
+. [{rank-good}]*5/5* *Low overhead*
+. [{rank-bad}]*2/5* *Rust availability*
+. [{rank-bad}]*1/5* *Safety*
+. [{rank-meh}]*5/5* *Backwards compatibility*
+. [{rank-good}]*4/5* *Ease of porting current implementations*
+
 
 === Webassembly Interface
 
@@ -336,7 +366,8 @@ Here's a list of some of the libraries I found with PDKs, specifically written
 in Rust:
 
 * https://github.com/zellij-org/zellij[`zellij`]
-* https://github.com/xi-editor/xi-editor[`xi`] (JSON RPC), described
+* https://github.com/xi-editor/xi-editor[`xi`]
+  (https://docs.rs/xi-rpc/0.3.0/xi_rpc/[JSON RPC]), described
   https://raphlinus.github.io/xi/2020/06/27/xi-retrospective.html#json[here in
   detail].
 +
@@ -363,6 +394,7 @@ extensibility in mind and thus have to implement some kind of plugin system.
 
 // TODO: sort
 
+- [[[proposal,0]]] {{< ref "gsoc-proposal.adoc" >}}
 - [[[michael,1]]] https://adventures.michaelfbryan.com/posts/plugins-in-rust/
 - [[[fasterthanlime,2]]] https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
 - [[[lua-wiki,3]]] https://en.wikipedia.org/wiki/Lua_(programming_language)
@@ -373,3 +405,4 @@ extensibility in mind and thus have to implement some kind of plugin system.
 - [[[eclipse,8]]] http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html
 - [[[npm-trust,9]]] https://jamie.build/how-to-build-an-npm-worm
 - [[[memory-share-so,10]]] https://stackoverflow.com/a/14512554/11488352
+- [[[lua-sandbox,11]]] http://lua-users.org/wiki/SandBoxes
