@@ -30,6 +30,11 @@ cover Tremor's use case, I'm sure many other applications in the future will
 have similar requirements for their own program. And considering the few
 articles I found about plugins in Rust, this may be helpful to the community.
 
+NOTE: It seems Google hasn't allocated any slots for Tremor in the end. That
+saddens me a lot as I was very excited to work with them. I wanted to thank the
+devs for being welcoming and having such a nice community. And I still wanted to
+release this post in case it's useful to them or anyone else.
+
 After showing the proposal to the Tremor team, I was given an important
 suggestion: in this case there isn't really a need to be able to write plugins
 from multiple programming languages; it's not worth the additional complexity.
