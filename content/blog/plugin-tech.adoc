@@ -376,8 +376,8 @@ on it there's https://github.com/emoon/dynamic_reload[`dynamic_reload`], which
 is very interesting in order to "`live reload`" the plugins when they are
 recompiled. This would be useful for the development process of the plugins,
 since it also handles unloading the _same plugin_ seamlessly, but that's not a
-goal for this project so I don't plan on using it. There's also
-https://github.com/vberger/dlib[`dlib`], which provides macros to make the
+goal for this project so I don't plan on using it. And the
+https://github.com/vberger/dlib[`dlib`] crate provides macros to make the
 library loading simpler, based on `libloading`.
 
 I already discussed about Rust-to-C FFIs in detail in the
@@ -560,7 +560,8 @@ since by default you can only use integers, floating-point or vectors
 <<wasmer-types>> as parameters when calling Wasm plugins. For more complex
 types, you have to resort to encoding and decoding via a crate like
 https://github.com/bincode-org/bincode[`bincode`], although most of the
-boilerplate can be reduced with procedural macros, and this opens up the
+boilerplate can be reduced with procedural macros or a wrapper like
+https://github.com/alec-deason/wasm_plugin[`wasm_plugin`], and this opens up the
 possibility of using serialization with support for backwards compatibility
 within Tremor. The
 https://freemasen.com//blog/wasmer-plugin-pt-4/index.html[last part] of the
