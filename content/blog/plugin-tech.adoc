@@ -45,7 +45,7 @@ Besides that, the rest of the main points to consider remain the same:
 . *Mandatory:* Available at least from Rust
 . *Extra:* <<safety,Safety>>
 . *Extra:* Backwards compatibility
-. *Extra*: Not much work to port from the current implementations
+. *Extra*: Not much work to port from the existing implementations
 
 [[safety]]
 == Safety Concerns
@@ -148,11 +148,18 @@ break anything, and removing one can be done via a deprecation process.
 Unfortunately, this introduces some overhead the application may not be
 interested in.
 
+Other more involved methods include <<swift-abi>>:
+
+* Reserving space in the struct for future use.
+* Making the struct an opaque type, requiring function calls to get the fields.
+* Giving the struct a pointer to its "`version 2`" data (opaque in "`version
+  1`").
+
 As to breakage due to compiler version mismatches, there are a couple ways this
 can be fixed that I'll investigate later on. Some technologies other than
 <<ffi,FFI>> don't have this problem by nature, like <<ipc,IPC>> or
 <<scripting-langs,scripting languages>>, and we have some unofficial fixes from
-the community available, like `stable_abi`.
+the community available, like `abi_stable`.
 
 === Avoiding Breakage
 
@@ -219,28 +226,29 @@ used from Lua. For new projects this could perhaps be something interesting, but
 not if the entirety of the already existing plugins have to be rewritten.
 
 Still, it's a pretty interesting option for new projects, as you have ABI
-stability guarantees, don't need unsafe code, and is very straightforward to
+stability guarantees, solid safety overall, and it's very straightforward to
 use.
 
 . [{rank-good}]*5/5* *Cross-platform support*
 . [{rank-good}]*4/5* *Low overhead*
 . [{rank-meh}]*3/5* *Rust availability*
-. [{rank-good}]*4/5* *Safety*
+. [{rank-good}]*5/5* *Safety*
 . [{rank-good}]*5/5* *Backwards compatibility*
-. [{rank-bad}]*0/5* *Ease of porting current implementations*
+. [{rank-bad}]*0/5* *Ease of porting existing implementations*
 
 [[ipc]]
 === Inter-Process Communication
 
 Another possibility for plugins is to define a protocol for Inter-Process
-Communication, turning Tremor into a server that extends its capabilities by
-connecting to external plugins. For instance, most text editors use this method
-to support the https://microsoft.github.io/language-server-protocol/[Language
-Server Protocol], which uses JSON-RPC.
+Communication, turning your program into a server that extends its capabilities
+by connecting to external plugins. For instance, most text editors use this
+method to support the
+https://microsoft.github.io/language-server-protocol/[Language Server Protocol],
+which uses JSON-RPC.
 
 There are of course multiple ways to do IPC, which I'll briefly list below.
-Performance-wise, <<ipc-wisc>> shows a comparison of the overhead of each of
-them:
+Performance-wise, this graph shows a comparison of the overhead of each of them
+<<ipc-wisc>>:
 
 image::/blog/plugin-tech/ipc-comparison.png[IPC comparison, width=60%, align=center]
 
@@ -273,15 +281,15 @@ It's still hard to properly sandbox plugins, though.
 Overall, I consider this a very solid solution, with its main drawback being
 performance. I can't really guess the effect this would have in Tremor's speed,
 so I would love to create a quick benchmark when I get to implement the first
-prototypes to see if it's actually the best choice, if Tremor devs agree with me
-on this one.
+prototypes to see if it's actually the best choice, if Tremor devs think it's
+worth my time.
 
 . [{rank-good}]*5/5* *Cross-platform support*
 . [{rank-meh}]*3/5* *Low overhead*
 . [{rank-good}]*5/5* *Rust availability*
-. [{rank-good}]*4/5* *Safety*
+. [{rank-meh}]*3/5* *Safety*
 . [{rank-good}]*5/5* *Backwards compatibility*
-. [{rank-good}]*4/5* *Ease of porting current implementations*
+. [{rank-good}]*5/5* *Ease of porting existing implementations*
 
 [[pipes]]
 ==== Based on Pipes
@@ -302,9 +310,9 @@ https://crates.io/crates/ipipe[`ipipe`]).
 . [{rank-good}]*5/5* *Cross-platform support*
 . [{rank-good}]*4/5* *Low overhead*
 . [{rank-meh}]*3/5* *Rust availability*
-. [{rank-good}]*5/5* *Safety*
+. [{rank-meh}]*3/5* *Safety*
 . [{rank-good}]*5/5* *Backwards compatibility*
-. [{rank-good}]*4/5* *Ease of porting current implementations*
+. [{rank-good}]*5/5* *Ease of porting existing implementations*
 
 [[memory-sharing]]
 ==== Based on Memory Sharing
@@ -325,37 +333,37 @@ anywhere near as popular as most of the other alternatives. Not to mention that
 the examples for `shared_memory` _do_ use `unsafe`, and a lot of it.
 
 Maybe if it was easier to use this would be a good idea, but IPC shared memory
-doesn't seem to be any better than <<ffi>> or <<pipes,Pipes>>.
+doesn't seem to be any better than <<ffi>> overall.
 
 . [{rank-good}]*5/5* *Cross-platform support*
 . [{rank-good}]*5/5* *Low overhead*
 . [{rank-bad}]*2/5* *Rust availability*
 . [{rank-bad}]*0/5* *Safety*
 . [{rank-meh}]*3/5* *Backwards compatibility*
-. [{rank-good}]*4/5* *Ease of porting current implementations*
-
-// TODO: add sum of points
+. [{rank-good}]*5/5* *Ease of porting existing implementations*
 
 [[ffi]]
 === FFI
 
 This is possibly the _least weird_ way to implement a Plugin Development Kit,
-i.e. it's the most popular method I've seen. A Foreign Function Interface can
-allow us to directly access resources in separately compiled objects, and also
-after the linking phase with dynamic loading. It's one of the fastest options
-available because there's no overhead at all after dynamically loading the
-library.
+i.e. it's the most popular method I've seen outside of Rust. A _Foreign Function
+Interface_ can allow us to directly access resources in separately compiled
+objects, even after the linking phase with dynamic loading. It's one of the
+fastest options available because there's no overhead at all after dynamically
+loading the library.
 
-The main library for this is `libloading`. It seems to be a lower-level
-implementation for any kind of FFI that requires `unsafe` for almost everything
--- what I was expecting. Based on it there's https://github.com/emoon/dynamic_reload[`dynamic_reload`], which is very
+The main library for this is
+https://github.com/nagisa/rust_libloading[`libloading`]. There's also the less
+popular https://docs.rs/dlopen/0.1.8/dlopen/[`dlopen`] and
+https://github.com/Tyleo/sharedlib[`sharedlib`], but they don't seem _that_
+different <<ffi-comparison>>. It seems to be a lower-level implementation for any kind of FFI that
+requires `unsafe` for almost everything -- what I was expecting. Based on it
+there's https://github.com/emoon/dynamic_reload[`dynamic_reload`], which is very
 interesting in order to "`live reload`" the plugins when they are recompiled.
 This would be useful for plugin development, since it also handles unloading the
 _same plugin_ seamlessly, but that's not a goal for this project so I don't plan
 on using it. There's also https://github.com/vberger/dlib[`dlib`], which
-provides macros to make the library loading simpler.
-
-// TODO: take a look at https://docs.rs/dlopen/0.1.8/dlopen/
+provides macros to make the library loading simpler, based on `libloading`.
 
 I already discussed about Rust-to-C FFIs in detail in the proposal <<proposal>>
 and came to the conclusion that, the same way as with <<scripting-langs>>, it's
@@ -365,14 +373,13 @@ important inconvenients:
 
 . Awful safety: lots of `unsafe` usage is required with plenty of caveats
   <<libloading-caveat-1>> <<libloading-caveat-2>>, including subtle differences
-  in the interface between Operating Systems <<libloading-cross-platform>>. No
+  in the interface between Operating Systems <<libloading-cross-platform>>,
+  although `dlopen` seems to be better in that regard <<ffi-dlopen-safety>>. No
   sandboxing either. And plugins can abort Tremor's core execution when
   panicking/leaking memory/similars (I haven't been able to find information
   about using `catch_unwind` with Rust-to-Rust FFIs).
 . Binary compatibility is not good. Any minor change to either Tremor's
   interface or the version it was compiled with will break the plugin.
-
-// TODO: maybe it's not so bad?
 
 I recently discovered the
 https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`] crate, which
@@ -386,47 +393,85 @@ https://docs.rs/abi_stable/*/abi_stable/abi_stability/stable_abi_trait/trait.Sta
 trait that guarantees its ffi-safety, which may be done automatically with one
 of its procedural macros. Internal ABI stability is also guaranteed with macros
 like `#[sabi(last_prefix_field)]`, which would allow Tremor to add fields to
-existing structs without breaking backwards compatibility. Fortunately, it has a
+existing structs
+https://github.com/rodrimati1992/abi_stable_crates/blob/19d71ec9175f870c1c784c37dae730b99948cacf/examples/0_modules_and_interface_types/interface/src/lib.rs#L45[without
+breaking backwards compatibility]. Fortunately, it has a
 https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples[few very
 detailed examples] one can look at to better understand how it works, and it's
 exceptionally well documented.
 
 If I've understood it correctly, some of its inconvenients are the following:
 
-* Tremor would have to use the types from `abi_stable` instead of `std` for the
-  values passed through FFI.
+* You have to use the types from `abi_stable` instead of `std` for the values
+  passed through FFI.
 * The whole crate seems huge and would probably add a lot of complexity to this
   Plugin Development Kit.
 * It's worth mentioning that library unloading is a non-feature; although it's
   not going to be implemented for this project, it might in the future.
-// TODO: check?
-* It seems
-  https://github.com/rodrimati1992/abi_stable_crates/issues/25[incomplete] (?)
-  for async primitives, which is a requirement for Tremor's interface.
 
 While it's a really interesting concept and look forward to seeing how it
-evolves, I personally don't think it's at a point where Tremor should use it.
-The fact that it's unofficial and not that popular doesn't give me full
-confidence that this will still work in 5 years, or that it won't be
-outdated/abandoned.
+evolves, I'm not a big fan of having to resort to it. And the fact that it's
+unofficial and not that popular doesn't give me full confidence that this will
+still work in 5 years, or that it won't be outdated/abandoned.
 
-// TODO: research about backwards compatibility via other methods
+More people have tried writing Rust FFIs in the past, thankfully, so we can take
+a look at existing tutorials in order to see their experience:
+
+* The one and only Amos wrote an extremely detailed related blog post on
+  fasterthanlime
+  https://fasterthanli.me/articles/so-you-want-to-live-reload-rust[here],
+  specifically about live reloading Rust.
+* Michael Bryan made a guided introduction to Plugins in Rust
+  https://adventures.michaelfbryan.com/posts/plugins-in-rust/[here], and also
+  wrote a tutorial for his unofficial Rust FFI book
+  https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html[here].
+* https://github.com/zicklag[@zicklag], who had read Michael's article, tried it
+  by himself in order to add a plugin system to
+  https://github.com/amethyst/amethyst[Amethyst], and posted
+  https://zicklag.github.io/rust-tutorials/rust-plugins.html[this tutorial].
+  When he shared the post on the official Rust forum, it was accompanied by this
+  demotivating comment, after failing to implement it for Amethyst:
++
+[quote, https://users.rust-lang.org/t/creating-rust-apps-with-dynamically-loaded-rust-plugins/28814/111092]
+____
+Unfortunately I found that dynamic linking doesn’t actually work in Rust across
+different versions of Rust, and the technique for plugins also failed, even
+inside the same version of Rust, when I tried to compile an app with other
+dependencies like Amethyst. That leaves the technique outlined in the tutorial
+not very practical for real applications.
+
+The closest thing I’ve found to accomplish something similar is [`abi_stable`].
+____
++
+He also added later on:
++
+[quote, https://users.rust-lang.org/t/creating-rust-apps-with-dynamically-loaded-rust-plugins/28814/7]
+____
+It could very well be possible [to use Webassembly here].
+It wouldn’t be exactly the same workflow, but I’ve considered using Wasmtime
+or CraneLift, which Wasmtime is built on, to Run WASM modules as plugins.
+____
++
+He didn't have time to end up doing so, so we'll have to investigate ourselves.
+
+So, overall:
 
 . [{rank-meh}]*3/5* *Cross-platform support*
 . [{rank-good}]*5/5* *Low overhead*
 . [{rank-good}]*5/5* *Rust availability*
-. [{rank-bad}]*0/5* *Safety*
-. [{rank-bad}]*0/5* *Backwards compatibility*
-. [{rank-good}]*5/5* *Ease of porting current implementations*
+. [{rank-bad}]*1/5* *Safety*
+. [{rank-good}]*5/5* *Backwards compatibility* (may be [{rank-bad}]*0/5* if not
+  serializing/using `abi_stable`)
+. [{rank-good}]*5/5* *Ease of porting existing implementations*
 
 [[wasm]]
 === WebAssembly Interface
 
 Now, this is what I wanted to emphasize in this article! Turns out WebAssembly
 isn't limited to web development anymore; it's slowly evolving into a portable
-binary-code format. As far as I know, this should be like <<ffi>>, but with a
-stronger focus in stability and portability. Here's what Wikipedia has to say
-about it:
+binary-code format. As far as I know, this should be like a mix between <<ffi>>
+and <<scripting-langs>>, with a stronger focus in stability and portability.
+Here's what Wikipedia has to say about it:
 
 [quote, https://en.wikipedia.org/wiki/WebAssembly]
 ____
@@ -450,8 +495,9 @@ specifically.
 
 The two main points WebAssembly offers are, in a nutshell:
 
-* When compiled, it doesn’t need to know what system is being targeted. This is
-  handled by the runtime, and the binary itself is fully portable.
+* When compiled, it doesn’t need to know what Operating System is being
+  targeted. This is handled by the runtime, and the binary itself is fully
+  portable.
 * In order to handle untrustworthy programs, it implements a sandbox. With that,
   the host can limit exactly what a program has access to.
 
@@ -462,9 +508,11 @@ https://github.com/wasmerio/wasmer[*wasmer*]. Both use the
 https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md[Cranelift]
 backend to generate the WebAssembly machine code (although wasmer seems to
 support more backends, like LLVM). Then, its runtime can be used to run the
-actual program in different ways (say, as a CLI or a library).
+generated `.wasm` binary in different ways (say, as a CLI or a library). This
+also means that plugins could be written in any language that compiles to
+WebAssembly.
 
-The differences between these aren't that big. You can read
+The differences between the two runtimes aren't that big. You can read
 https://wiki.alopex.li/ActuallyUsingWasm[this wiki article for more details,
 including examples], but I particularly liked this quote:
 
@@ -483,19 +531,19 @@ of magnitude slower than native code, and the same applies to memory usage.
 https://github.com/jedisct1/webassembly-benchmarks/tree/master/2021-Q1[A more
 thorough benchmark] was done in libsodium that shows better results: Wasm can be
 just about 3 times slower than native code. Do note that this depends on the
-runtime that's being used, and it may improve in the future (WebAssembly is just
-4 years old).
+runtime that's being used, and it may improve in the future, as WebAssembly is
+just 4 years old.
 
 There's a whole series on how to make a Plugins System with Wasmer
 https://freemasen.com/blog/wasmer-plugin-pt-1/[here], which will come in handy
-to know what to expect. The usability doesn't seem to be that good, since by
-default you can only use integers, floating-point or vectors <<wasmer-types>> as
-parameters when calling Wasm plugins. For more complex types, you have to resort
-to encoding and decoding via a crate like
+to know what to expect. The usability doesn't actually seem to be that good,
+since by default you can only use integers, floating-point or vectors
+<<wasmer-types>> as parameters when calling Wasm plugins. For more complex
+types, you have to resort to encoding and decoding via a crate like
 https://github.com/bincode-org/bincode[`bincode`], although most of the
-boilerplate can be reduced with procedural macros, and it opens up the
-possibility of using a serialization method that supports backwards
-compatibility between Tremor versions (e.g. JSON or Protobuf). The
+boilerplate can be reduced with procedural macros, and this opens up the
+possibility of using serialization with support for backwards compatibility
+within Tremor. The
 https://freemasen.com//blog/wasmer-plugin-pt-4/index.html[last part] of the
 series is the most interesting one, as it includes a real-world example, with a
 version of the final code in https://github.com/FreeMasen/wasmer-plugin[this
@@ -511,14 +559,12 @@ more important.
 . [{rank-good}]*5/5* *Rust availability*
 . [{rank-good}]*5/5* *Safety*
 . [{rank-good}]*4/5* *Backwards compatibility*
-. [{rank-good}]*5/5* *Ease of porting current implementations*
+. [{rank-good}]*5/5* *Ease of porting existing implementations*
 
 == Prior Art
 
 It's very important to take a look at projects that have already done this in
 the past in order to learn from their mistakes and not start from scratch.
-
-// TODO: bevy plugins?? amethyst plugins? https://amethyst.rs/
 
 Here's a list of some of the libraries I found with PDKs, specifically written
 in Rust:
@@ -530,7 +576,6 @@ in Rust:
   it's available in the PATH when running `cargo`, it will be possible to run
   the plugin with `cargo expand` as well.
 +
-// TODO: maybe make a section out of this?
 Although this is a very interesting approach, specially because of how simple it
 is to use, I don't think it's suitable for <<requirements,the problem>>
 described at the beginning.
@@ -541,6 +586,12 @@ described at the beginning.
 This is an extremely valuable resource in case the <<wasm>> option is chosen, as
 it's very similar to what Tremor needs. One can even subscribe to events in
 order to simulate the traits in Tremor that currently use `async`.
++
+After trying it out and seeing its source code, it seems to work with a `wasm`
+binary that acts as a standalone program, where the parameters and communication
+takes place via stdin and stdout, serializing and deserializing with
+https://serde.rs/[serde]. It includes a few of them by default, like the status
+bar, or a file manager. Very neat architecture!
 * https://github.com/xi-editor/xi-editor[`xi`]: a now abandoned modern text
   editor. Its plugins, described
   https://raphlinus.github.io/xi/2020/06/27/xi-retrospective.html#json[here in
@@ -557,6 +608,14 @@ extensibility in mind and thus have to implement some kind of plugin system.
    causing lag.
 ** Eclipse's plugin architecture is based on Java classes <<eclipse>> loaded at
    runtime and configured with XML manifests.
+* https://bevyengine.org/[`bevy`]: a very promising game engine whose features
+  are implemented as plugins. Most times, these are loaded at compile-time, but
+  the
+  https://docs.rs/bevy/0.5.0/bevy/dynamic_plugin/index.html[`bevy::dynamic_plugin`]
+  allows this to happen at runtime. It uses `libloading` internally, with
+  actually
+  https://github.com/bevyengine/bevy/blob/v0.5.0/crates/bevy_dynamic_plugin/src/loader.rs[very
+  little code].
 * Firefox?
 
 == Conclusion
@@ -578,12 +637,8 @@ overhead may be important for your program.
 == References
 
 // TODO: sort and clean up
-// TODO: mention tutorials somewhere
 
 - [[[proposal,0]]] https://nullderef.com/blog/gsoc-proposal/
-- [[[michael,1]]] https://adventures.michaelfbryan.com/posts/plugins-in-rust/
-  and https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html
-- [[[fasterthanlime,2]]] https://fasterthanli.me/articles/so-you-want-to-live-reload-rust
 - [[[lua-wiki,3]]] https://en.wikipedia.org/wiki/Lua_(programming_language)
 - [[[protobuf,4]]] https://developers.google.com/protocol-buffers
 - [[[protobuf-perf,5]]] https://google.github.io/flatbuffers/flatbuffers_benchmarks.html
@@ -599,3 +654,6 @@ overhead may be important for your program.
 - [[[libloading-caveat-2,14]]] https://github.com/kurtlawrence/papyrus/blob/1c7f0a669fed59d220bdefb161c568072126d3d5/src/compile/execute.rs#L36
 - [[[libloading-cross-platform,15]]] https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#thread-safety,
   which is repeated all over the library documentation.
+- [[[ffi-comparison,16]]] https://docs.rs/dlopen/0.1.8/dlopen/#compare-with-other-libraries
+- [[[ffi-dlopen-safety,17]]] https://docs.rs/dlopen/0.1.8/dlopen/#safety
+- [[[swift-abi, 22]]] https://gankra.github.io/blah/swift-abi/
