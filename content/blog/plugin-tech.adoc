@@ -141,15 +141,16 @@ all broken again.
 === Possible Solutions
 
 The easiest fix for backward compatibility issues I can come up with is to
-serialize and deserialize the data with a flexible protocol. If something like
-JSON is used to communicate between the core and its plugins, adding a field to
-a message won't break anything, and removing one can be done via a deprecation
-process. Unfortunately, this introduces some overhead the application may not be
+serialize and deserialize the data with a flexible protocol rather than using
+its binary representation directly. If something like JSON is used to
+communicate between the core and its plugins, adding a field to a message won't
+break anything, and removing one can be done via a deprecation process.
+Unfortunately, this introduces some overhead the application may not be
 interested in.
 
 As to breakage due to compiler version mismatches, there are a couple ways this
-can be fixed that I'll talk about in depth later on. Some technologies other
-than <<ffi,FFI>> don't have this problem by nature, like <<ipc,IPC>> or
+can be fixed that I'll investigate later on. Some technologies other than
+<<ffi,FFI>> don't have this problem by nature, like <<ipc,IPC>> or
 <<scripting-langs,scripting languages>>, and we have some unofficial fixes from
 the community available, like `stable_abi`.
 
@@ -162,14 +163,14 @@ plugins previously developed.
 For that, the plugins must embed a bit of metadata about the different versions
 of rustc/core/etc it was developed for, so that when it's loaded by Tremor, it
 may check if they're compatible, rather than breaking in mysterious ways.
-https://nullderef.com/blog/gsoc-proposal/#_defining_an_interface[But I already
-talked about this in the past], so I won't get into details.
+https://nullderef.com/blog/gsoc-proposal/#_defining_an_interface[I already
+talked about this in the past], so I won't get into the details.
 
 == Possible Approaches
 
 The following are the most viable technologies that could be used as the base of
-a PDK. Some of the won't match the requirements I <<requirements,mentioned
-earlier>>, but it's a good idea to at least _consider_ all of them. I haven't
+a PDK. Some of the won't match the requirements I mentioned earlier at first
+glance, but it's a good idea to at least _consider_ all of them. I haven't
 written a line of code yet, so if an approach were to catch someone's eye we
 could investigate more about it. I will rate each of the alternatives in a scale
 from 1 to 5 in order to easen the decision-taking.
@@ -193,15 +194,18 @@ performant JIT implementation, which in any case I think would be the best
 option. It could be embedded into the main proram's core (it's only 247 kB
 compiled! <<lua-wiki>>) and used to load plugins at either start-time or
 run-time. And knowing it's used in games, which are _obsessed_ with performance,
-it might not be that much of a big deal in that regard.
+it might not be that much of a big deal in that regard. Do note that there are
+https://arewegameyet.rs/ecosystem/scripting/[languages specifically designed to
+extend Rust's capabilities], which you might be interested in, but I'll just
+simplify this part by going for Lua.
 
-There are libraries in Rust like https://github.com/amethyst/rlua[`rlua`] which
-provide bindings for interoperability with Lua. `rlua` in particular seems to
-focus on having an idiomatic and safe interface, which is rare for a bindings
-library and good news, though it seems to be currently semi-abandoned, and
-forked by https://github.com/khvzak/mlua[`mlua`]. Unfortunately, after digging a
-bit the Rust ecosystem for Lua bindings doesn't seem to be as mature as I'd like
-for a project this big; there's still some work to do to reach more stability.
+Rust has libraries like https://github.com/amethyst/rlua[`rlua`] which provide
+bindings for interoperability with Lua. `rlua` in particular seems to focus on
+having an idiomatic and safe interface, which is rare for a bindings library and
+good news, though it seems to be currently semi-abandoned, and forked by
+https://github.com/khvzak/mlua[`mlua`]. Unfortunately, after digging a bit the
+Rust ecosystem for Lua bindings doesn't seem to be as mature as I'd like for a
+project this big; there's still some work to do to reach more stability.
 
 Lua gets extra points in safety. It's possible to sandbox it by blocking
 whichever functions you don't want users to access <<lua-sandbox>> (though it's
