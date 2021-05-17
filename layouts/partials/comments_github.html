@@ -15,12 +15,29 @@ if (id) {
   xhr.setRequestHeader("Accept", "application/vnd.github.v3.html+json");
   xhr.send();
 
+  function showErrorMsg(msg) {
+    console.log(xhr.response);
+    let errorText = document.createElement("p");
+    errorText.innerHTML = "<i>".concat(msg, "</i>");
+    commentsDiv.appendChild(errorText);
+    return;
+  }
+
   xhr.onload = function() {
+    let issueHref = "<a href='".concat(url, "'>GitHub issue</a>");
     if (xhr.status != 200) {
-      console.log(xhr.response);
-      let errorText = document.createElement("p");
-      errorText.innerHTML = "<i>Comments for this post yet are not opened yet (or you have GitHub scripts disabled).</i>";
-      commentsDiv.appendChild(errorText);
+      switch (xhr.status) {
+        case 404:
+          showErrorMsg("Comments for this post yet are not opened yet.");
+          break;
+        case 403:
+          showErrorMsg("You've reached the GitHub API rate limit. Go to the ".concat(issueHref, " to leave a comment instead."));
+          break;
+        default:
+          showErrorMsg("Unable to show comments from GitHub.");
+          break;
+      }
+
       return;
     }
 
@@ -31,18 +48,21 @@ if (id) {
     commentsDiv.appendChild(mainHeader);
 
     let issueLink = document.createElement("p");
-    issueLink.innerHTML = "<i>You can leave a comment using this <a href='".concat(url, "'>GitHub issue</a>.</i>");
+    issueLink.innerHTML = "<i>You can leave a comment using this ".concat(issueHref, ".</i>");
     commentsDiv.appendChild(issueLink);
     
     comments.forEach(function(comment) {
+      let creationDate = new Date(comment.created_at);
+
       let commentContent = document.createElement("div");
+
       commentContent.setAttribute('class', 'gh-comment')
       commentContent.innerHTML = "".concat(
           "<div class='gh-header'>",
             "<img src='", comment.user.avatar_url, "' />",
             "<div style='margin:auto 0;'>",
               "<b><a class='gh-username' href='", comment.user.html_url, "'>", comment.user.login, "</a></b>",
-              " commented at <em>", new Date(comment.created_at), "</em>",
+              " commented at <em>", creationDate.toLocaleString(), "</em>",
             "</div>",
           "</div>",
           "<div class='gh-body'>",

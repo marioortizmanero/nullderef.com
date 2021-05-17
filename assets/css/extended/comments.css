@@ -39,8 +39,10 @@
 }
 
 .gh-header > img {
-  width: 24px;
-  height: 24px;
+  width: 35px;
+  height: 35px;
+  border: 1px solid var(--border);
+  border-radius: var(--code-bg);
   margin-right: 10px;
   vertical-align: middle;
 }
