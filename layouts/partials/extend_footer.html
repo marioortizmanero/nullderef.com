@@ -1,0 +1,23 @@
+<!--
+  MathJax, taken from
+  https://github.com/asciidoctor/jekyll-asciidoc#adding-the-stem-assets-to-the-page
+  and upgraded to >= v3.
+-->
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    tags: "none"
+  },
+  options: {
+    ignoreHtmlClass: "nostem|noasciimath"
+  },
+  asciimath: {
+    delimiters: [["\\$", "\\$"]]
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+</script>
