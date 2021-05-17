@@ -651,6 +651,10 @@ actually measurable, or is it just hypothetical? Don't forget that this depends
 on the use case, so make sure you run a couple benchmarks if the resulting
 overhead may be important for your program.
 
+You can join the discussion at
+https://www.reddit.com/r/rust/comments/nenql8/plugins_in_rust_the_technologies_nullderefcom/?[Reddit]
+if you have any additional suggestions or comments, or leave a comment below.
+
 [bibliography]
 == References
 
