@@ -7,35 +7,27 @@
 }
 
 .gh-comment {
-  border: 1px solid #d1d5da;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   margin-top: 15px;
 }
 
 .gh-header {
   display: flex;
-  color: #586069;
-  background-color: #f6f8fa;
-  border-bottom: 1px solid #d1d5da;
+  align-items: center;
+  background-color: var(--code-bg);
   padding: 10px;
   font-size: 85%;
-}
-
-.gh-username {
-  color: #586069;
 }
 
 .gh-body {
   padding: 10px 15px;
 }
 
-.gh-body code {
-  font-size: 120%;
-}
 .gh-body > div.highlight > pre {
-  padding: 10px;
-  color: lime;
-  font-size: 120%;
-  background-color: #000;
+  background: var(--code-bg);
+  padding: 10px 20px;
+  font-size: 90%;
   border-radius: 5px;
 }
 
