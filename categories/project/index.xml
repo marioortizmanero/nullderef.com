@@ -7,7 +7,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3</copyright>
-    <lastBuildDate>Tue, 13 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/categories/project/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 17 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/categories/project/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Plugins in Rust: The Technologies</title>
+      <link>https://nullderef.com/blog/plugin-tech/</link>
+      <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/blog/plugin-tech/</guid>
+      <description>A more in-depth look at Rust PDKs</description>
+    </item>
+    
     <item>
       <title>GSoC Proposal: Implementing a Plugin Development Kit for Tremor</title>
       <link>https://nullderef.com/blog/gsoc-proposal/</link>

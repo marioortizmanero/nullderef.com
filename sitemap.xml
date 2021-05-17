@@ -3,28 +3,31 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://nullderef.com/blog/</loc>
-    <lastmod>2021-04-13T00:00:00+00:00</lastmod>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url><url>
     <loc>https://nullderef.com/categories/</loc>
-    <lastmod>2021-04-13T00:00:00+00:00</lastmod>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/gsoc/</loc>
-    <lastmod>2021-04-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/blog/gsoc-proposal/</loc>
-    <lastmod>2021-04-13T00:00:00+00:00</lastmod>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/</loc>
-    <lastmod>2021-04-13T00:00:00+00:00</lastmod>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/blog/plugin-tech/</loc>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/categories/project/</loc>
-    <lastmod>2021-04-13T00:00:00+00:00</lastmod>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/rust/</loc>
-    <lastmod>2021-04-13T00:00:00+00:00</lastmod>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/</loc>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/blog/gsoc-proposal/</loc>
     <lastmod>2021-04-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/categories/guide/</loc>
