@@ -181,7 +181,7 @@ a PDK. Some of the won't match the requirements I mentioned earlier at first
 glance, but it's a good idea to at least _consider_ all of them. I haven't
 written a line of code yet, so if an approach were to catch someone's eye we
 could investigate more about it. I will rate each of the alternatives in a scale
-from 1 to 5 in order to easen the decision-taking.
+from 1 to 5 (approximately) in order to easen the decision-taking.
 
 :rank-meh: olive white-background txt-margin-right txt-round
 :rank-good: green white-background txt-margin-right txt-round
