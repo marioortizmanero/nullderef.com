@@ -133,6 +133,14 @@ machine is ran on an externally isolated kernel?
 > But you still have to opt in to this sort of sandboxing. It is not the default.
 - https://wiki.alopex.li/ActuallyUsingWasm#what-does-the-ecosystem-look-like
 
+== Backward Compatibility
+
+* Flexible [De]serialization
+* Embedding metadata to detect breakage
+
+// TODO: maybe make a section out of backwards compatibility instead of
+// repeating it multiple times?
+
 == Possible Approaches
 
 The following are the most viable technologies that could be used as the base of
@@ -312,11 +320,14 @@ library.
 
 The main library for this is `libloading`. It seems to be a lower-level
 implementation for any kind of FFI that requires `unsafe` for almost everything
--- what I was expecting. Based on it there's `dynamic_reload`, which is very
+-- what I was expecting. Based on it there's https://github.com/emoon/dynamic_reload[`dynamic_reload`], which is very
 interesting in order to "`live reload`" the plugins when they are recompiled.
 This would be useful for plugin development, since it also handles unloading the
 _same plugin_ seamlessly, but that's not a goal for this project so I don't plan
-on using it.
+on using it. There's also https://github.com/vberger/dlib[`dlib`], which
+provides macros to make the library loading simpler.
+
+// TODO: take a look at https://docs.rs/dlopen/0.1.8/dlopen/
 
 I already discussed about Rust-to-C FFIs in detail in the proposal <<proposal>>
 and came to the conclusion that, the same way as with <<scripting-langs>>, it's
@@ -324,13 +335,16 @@ not viable to create an internal interface for Tremor through C. This leaves us
 with Rust-to-Rust as the only option, which is the easiest, but still has
 important inconvenients:
 
-. Awful safety: lots of `unsafe` usage is required with plenty of caveats,
-  including subtle differences in the interface between Operating Systems. No
+. Awful safety: lots of `unsafe` usage is required with plenty of caveats
+  <<libloading-caveat-1>> <<libloading-caveat-2>>, including subtle differences
+  in the interface between Operating Systems <<libloading-cross-platform>>. No
   sandboxing either. And plugins can abort Tremor's core execution when
   panicking/leaking memory/similars (I haven't been able to find information
   about using `catch_unwind` with Rust-to-Rust FFIs).
 . Binary compatibility is not good. Any minor change to either Tremor's
   interface or the version it was compiled with will break the plugin.
+
+// TODO: maybe it's not so bad?
 
 I recently discovered the
 https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`] crate, which
@@ -370,7 +384,7 @@ outdated/abandoned.
 
 // TODO: research about backwards compatibility via other methods
 
-. [{rank-good}]*4/5* *Cross-platform support*
+. [{rank-meh}]*3/5* *Cross-platform support*
 . [{rank-good}]*5/5* *Low overhead*
 . [{rank-good}]*5/5* *Rust availability*
 . [{rank-bad}]*0/5* *Safety*
@@ -476,6 +490,8 @@ more important.
 It's very important to take a look at projects that have already done this in
 the past in order to learn from their mistakes and not start from scratch.
 
+// TODO: bevy plugins?? amethyst plugins? https://amethyst.rs/
+
 Here's a list of some of the libraries I found with PDKs, specifically written
 in Rust:
 
@@ -524,6 +540,12 @@ that *_very roughly_* compares the main methods:
 
 image::/blog/plugin-tech/triangle.svg[Triangle Chart, align=center, width=70%]
 
+There's never a single answer in programming: how much performance are you
+willing to lose in exchange for safety and usability? Is that performance
+actually measurable, or is it just hypothetical? Don't forget that this depends
+on the use case, so make sure you run a couple benchmarks if the resulting
+overhead may be important for your program.
+
 [bibliography]
 == References
 
@@ -545,3 +567,7 @@ image::/blog/plugin-tech/triangle.svg[Triangle Chart, align=center, width=70%]
 - [[[memory-share-so,10]]] https://stackoverflow.com/a/14512554/11488352
 - [[[lua-sandbox,11]]] http://lua-users.org/wiki/SandBoxes
 - [[[wasmer-types,12]]] https://wasmerio.github.io/wasmer/crates/wasmer/types/type.Val.html
+- [[[libloading-caveat-1,13]]] https://stackoverflow.com/a/46249019/11488352
+- [[[libloading-caveat-2,14]]] https://github.com/kurtlawrence/papyrus/blob/1c7f0a669fed59d220bdefb161c568072126d3d5/src/compile/execute.rs#L36
+- [[[libloading-cross-platform,15]]] https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#thread-safety,
+  which is repeated all over the library documentation.
