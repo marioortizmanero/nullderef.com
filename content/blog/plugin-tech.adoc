@@ -4,7 +4,7 @@ description: "A more in-depth look at Rust PDKs"
 author: "Mario Ortiz Manero"
 tags: ["rust", "gsoc"]
 categories: ["project"]
-date: 2021-04-13
+date: 2021-05-17
 draft: true
 ---
 
@@ -91,23 +91,24 @@ error resilience.
 https://en.wikipedia.org/wiki/Component_Object_Model#Security[This was a problem
 with Internet Explorer], for example. It used COM and ActiveX, which implement
 no sandboxing at all and were ran directly on the user's machine, allowing
-malware to be included in plugins and execute arbitrary code. This can be less
-of a problem when installing only trusted plugins via digital signatures, but
-it's still a huge risk.
+malware to be included in plugins with the ability to execute arbitrary code on
+the host machine. This can be less of a problem when installing only trusted
+plugins via digital signatures, but it's still a huge risk.
 
 In the case of Tremor plugins this is a similar problem. The end user -- those
-who will add plugins to their configuration -- in this case is developers, who
-should be more wary of what they're including in their own projects -- but the
+who will add plugins to their configuration -- in this case is a developer, who
+should be more wary of what they're including in their own projects. But the
 truth is that it isn't any better.
 
 I would compare the situation more specifically to how package managers like
-https://www.npmjs.com/[npm] work (or anything that deals with dependencies). The
-entire infrastructure is usually based on trust; noone's really stopping you
-from uploading a malicious package/crate for remote code execution or to steal
-data <<npm-trust>> <<npm-trust-2>>. Plugins are like dependencies in this case,
-which may be malicious and have full access to the host's computer.
+https://www.npmjs.com/[npm] work (or anything that deals with dependencies,
+really). The entire infrastructure is usually based on trust; noone's really
+stopping you from uploading a malicious package/crate for remote code execution
+or to steal data <<npm-trust>> <<npm-trust-2>>. Plugins are like dependencies in
+this case; they have full access to the host's computer, and thus shouldn't be
+trusted by default.
 
-An improved approach would be something like
+An improved approach to Node + npm would be something like
 https://github.com/denoland/deno[Deno], which is a secure by default
 JavaScript/TypeScript runtime. This is enabled thanks to sandboxing, and
 requires the developer to manually toggle e.g. access to the filesystem or to
@@ -116,30 +117,53 @@ permission is required by the dependency they want to install without thinking
 about it, but it's similar to `unsafe`: at least it makes you aware that you
 might mess up.
 
-// TODO: what about docker?
-
-One could argue that Tremor is realistically going to be ran in a Virtual
+One could argue that their program is realistically going to be ran in a Virtual
 Machine or a container most of the times, where this may not matter so much. But
 should you really assume that? Should user safety rely on the fact that the
-machine is ran on an externally isolated kernel?
-???
-
-> This is a capability that has only actually become common the last few years,
-> with “serverless” computing systems like AWS Lambda. Docker tries to emulate
-> this sort of functionality using existing API’s, and Kubernetes tries to manage
-> it, but this SHOULD be the operating system’s job. OS functionality like Linux’s
-> capabilities and OpenBSD’s pledge are steps in the right direction that make
-> this possible, and are the primitives upon which things like Docker are built.
-> But you still have to opt in to this sort of sandboxing. It is not the default.
-- https://wiki.alopex.li/ActuallyUsingWasm#what-does-the-ecosystem-look-like
+machine is ran on an isolated kernel? Which, by the way, is a much bigger
+overhead in comparison to some sandboxing methods. And even if the system as a
+whole is isolated, there is still a possibility for internal leaks: the Postgres
+plugin has access to whatever is being used by the Apache Kafka plugin, which
+may have sensitive logs you don't want anyone to see.
 
 == Backward Compatibility
 
-* Flexible [De]serialization
-* Embedding metadata to detect breakage
+As I discovered in the last post, backward compatibility is complicated for
+plugin systems in Rust. Since it doesn't currently offer a stable ABI -- and
+probably never will -- any difference between the version used to compile a
+plugin and the core of the program will break it.
 
-// TODO: maybe make a section out of backwards compatibility instead of
-// repeating it multiple times?
+Apart from the instability issues incoming from the Rust compiler, the core
+itself may change with frequency as well. If the plugin has to read a struct
+from the core when starting up, and that struct changes in a new version, it's
+all broken again.
+
+=== Possible Solutions
+
+The easiest fix for backward compatibility issues I can come up with is to
+serialize and deserialize the data with a flexible protocol. If something like
+JSON is used to communicate between the core and its plugins, adding a field to
+a message won't break anything, and removing one can be done via a deprecation
+process. Unfortunately, this introduces some overhead the application may not be
+interested in.
+
+As to breakage due to compiler version mismatches, there are a couple ways this
+can be fixed that I'll talk about in depth later on. Some technologies other
+than <<ffi,FFI>> don't have this problem by nature, like <<ipc,IPC>> or
+<<scripting-langs,scripting languages>>, and we have some unofficial fixes from
+the community available, like `stable_abi`.
+
+=== Avoiding Breakage
+
+There are times when breakage is inevitable. Tremor may want to rewrite part of
+its core or remove a deprecated feature without being afraid of breaking all the
+plugins previously developed.
+
+For that, the plugins must embed a bit of metadata about the different versions
+of rustc/core/etc it was developed for, so that when it's loaded by Tremor, it
+may check if they're compatible, rather than breaking in mysterious ways.
+https://nullderef.com/blog/gsoc-proposal/#_defining_an_interface[But I already
+talked about this in the past], so I won't get into details.
 
 == Possible Approaches
 
