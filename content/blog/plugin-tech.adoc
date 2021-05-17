@@ -518,36 +518,11 @@ extensibility in mind and thus have to implement some kind of plugin system.
 == Conclusion
 
 This article has covered quite a few ways to approach a Plugin System. The final
-choice depends on what tradeoffs the project wants to make. The most viable
-options are the following:
+choice depends on what tradeoffs the project wants to make. Most of them require
+sacrificing some level of performance for safety or usability. Here's a drawing
+that *_very roughly_* compares the main methods:
 
-|===
-| |FFI |WebAssembly |Sockets IPC |Scripting
-
-|
-|
-|
-|
-|
-
-|WebAssembly
-|
-|
-|
-|
-
-|Sockets IPC
-|
-|
-|
-|
-
-|Scripting
-|
-|
-|
-|
-|===
+image::/blog/plugin-tech/triangle.svg[Triangle Chart, align=center, width=70%]
 
 [bibliography]
 == References
