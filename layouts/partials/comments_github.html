@@ -5,6 +5,7 @@ var id = {{ .Params.GHissueID }};
 
 if (id) {
   let url = "https://github.com/marioortizmanero/nullderef.com/".concat(id);
+  let full_url = "https://github.com/marioortizmanero/nullderef.com/issues/".concat(id);
   let api_url = "https://api.github.com/repos/marioortizmanero/nullderef.com/issues/".concat(id, "/comments");
   
   var commentsDiv = document.getElementById("comments");
@@ -24,7 +25,7 @@ if (id) {
   }
 
   xhr.onload = function() {
-    let issueHref = "<a href='".concat(url, "'>GitHub issue</a>");
+    let issueHref = "<a href='".concat(full_url, "'>GitHub issue</a>");
     if (xhr.status != 200) {
       switch (xhr.status) {
         case 404:
