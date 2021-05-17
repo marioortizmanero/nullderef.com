@@ -5,6 +5,7 @@ author: "Mario Ortiz Manero"
 tags: ["rust"]
 categories: ["guide"]
 date: 2020-10-10
+GHissueID: 7
 ---
 
 Optional or default parameters are a very interesting feature of some languages
