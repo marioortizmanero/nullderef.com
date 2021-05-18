@@ -449,7 +449,8 @@ a look at existing tutorials in order to see their experience:
   https://github.com/amethyst/amethyst[Amethyst], and posted
   https://zicklag.github.io/rust-tutorials/rust-plugins.html[this tutorial].
   When he shared the post on the official Rust forum, it was accompanied by this
-  demotivating comment, after failing to implement it for Amethyst:
+  demotivating comment, after failing <<amethyst-fail>> to implement it for
+  Amethyst:
 +
 [quote, https://users.rust-lang.org/t/creating-rust-apps-with-dynamically-loaded-rust-plugins/28814/111092]
 ____
@@ -613,6 +614,10 @@ binary that acts as a standalone program, where the communication takes place
 via stdin and stdout, serializing and deserializing with
 https://serde.rs/[serde]. `zellij` includes a few plugins by default, like the
 status bar, or a file manager. Very neat architecture!
++
+Other WebAssmbly-based PDKs:
+https://book.veloren.net/contributors/developers/codebase-structure.html#plugins[Veloren],
+https://github.com/feather-rs/feather/tree/main/quill[Feather].
 * https://github.com/xi-editor/xi-editor[`xi`]: a now abandoned modern text
   editor. Its plugins, described
   https://raphlinus.github.io/xi/2020/06/27/xi-retrospective.html#json[here in
@@ -673,5 +678,6 @@ if you have any additional suggestions or comments, or leave a comment below.
 - [[[ffi-caveat-2,       11]]] https://github.com/kurtlawrence/papyrus/blob/1c7f0a669fed59d220bdefb161c568072126d3d5/src/compile/execute.rs#L36
 - [[[ffi-cross-platform, 12]]] https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#thread-safety, which is repeated all over the library documentation.
 - [[[ffi-dlopen-safety,  13]]] https://docs.rs/dlopen/0.1.8/dlopen/#safety
-- [[[wasmer-types,       14]]] https://wasmerio.github.io/wasmer/crates/wasmer/types/type.Val.html
-- [[[eclipse,            15]]] http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html
+- [[[amethyst-fail,      14]]] https://github.com/amethyst/amethyst/issues/1729
+- [[[wasmer-types,       15]]] https://wasmerio.github.io/wasmer/crates/wasmer/types/type.Val.html
+- [[[eclipse,            16]]] http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html
