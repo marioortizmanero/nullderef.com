@@ -2,7 +2,7 @@
 name: Comments for Post
 about: Describe this issue template's purpose here.
 title: ''
-labels: 'post-comments'
+labels: post-comments
 assignees: ''
 
 ---
