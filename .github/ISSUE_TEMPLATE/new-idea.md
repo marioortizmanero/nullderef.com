@@ -2,7 +2,7 @@
 name: New Idea
 about: Describe this issue template's purpose here.
 title: ''
-labels: ''
+labels: 'post-idea'
 assignees: ''
 
 ---
