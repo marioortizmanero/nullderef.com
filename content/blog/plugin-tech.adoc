@@ -626,7 +626,7 @@ https://github.com/feather-rs/feather/tree/main/quill[Feather].
 Text editors overall are very interesting, because they must be built with
 extensibility in mind and thus have to implement some kind of plugin system.
 
-** Visual Studio is based on Electron, so it has a renderer process for the
+** Visual Studio Code is based on Electron, so it has a renderer process for the
    frontend, and a main process with Node. Its extensions share the same event
    loop,
    https://github.com/microsoft/vscode/issues/75627#issuecomment-519125065[which
