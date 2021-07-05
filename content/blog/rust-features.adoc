@@ -1,0 +1,232 @@
+---
+title: "Rust features might be great, but don't obsess over them"
+description: ""
+author: "Mario Ortiz Manero"
+tags: ["rust"]
+categories: ["guide"]
+date: 2020-10-10
+GHissueID: 
+---
+
+Rust makes it very easy to express conditional compilation, specially thanks to
+its "features". They're well integrated into the language and are very easy to
+use. But one thing I've learned by maintaining
+https://github.com/ramsayleung/rspotify[rspotify] is that one shouldn't obsess
+over them. Conditional compilation should only be used when it's the only way to
+solve the problem for a number of reasons I'll explain.
+
+This article might be obvious to some, but to me they weren't so clear back when
+I started using Rust. Even if you know this, it might be an interesting
+reminder; maybe you forgot about it in your latest project.
+
+Conditional compilation isn't anything new either; C and C++ have been doing it
+for a long time now, for one. So the same thing is applied in these cases. But
+in my experience it's much easier to work with in Rust, meaning that it's more
+likely to misuse it as well.
+
+== The Problem
+
+I went through this dilemma when deciding how to configure cached tokens in
+https://github.com/ramsayleung/rspotify[rspotify]. Said library gives you the
+possibility of persistently managing the authentication token via a JSON file.
+That way, when the program is launched again the token from the previous session
+can be reused without having to follow the full auth process again -- that is,
+until the token expires.
+
+Originally, this was going to be a compile-time feature named `cached_token`. I
+didn't really give it much thought; why would one need the code to save and read
+the JSON file if you just don't need it? The easiest way to do that is using a
+feature you can just toggle.
+
+However, I later needed another very similar feature named `refreshing_token`.
+When optionally enabled, the client would automatically refresh expired tokens.
+As this pattern appeared more and more in the library I wanted to make sure its
+design was optimal. As I took a deeper look I found lots of inconveniences I
+hadn't considered about features:
+
+. They're *inflexible*: you can't have a client with cached tokens and another
+  without them. It's a library-wide thing, so you either enable them or you
+  don't.
+. They're *ugly*: writing `#[cfg(feature = "cached_token")]` is much more weird
+  and verbose than a plain `if cached_token`.
+. They're *messy*: features are hard to manage in the codebase. You can find
+  yourself in the Rust equivalent of a
+  https://www.cqse.eu/en/news/blog/living-in-the-ifdef-hell/[`#ifdef` hell] very
+  easily.
+. They're *hard to document and test*: Rust doesn't provide a way to expose the
+  features of a library, other than listing them in the main page of the docs.
+  Testing is also harder because you have to figure out what combinations of
+  features to use in order to cover the entire codebase, and apply them whenever
+  you want to run the tests.
+
+All of these are supposedly outweighed by just being guaranteed that the binary
+won't have code you don't need. But how true is that, really? And how important
+is it?
+
+== Alternatives
+
+Turns out that one of the simplest optimizations a compiler can implement is the
+propagation of constants. This, in combination with the removal of dead code,
+can result in exactly the same effect as features, but in a more natural way.
+Instead of adding features to configure the behaviour of your program, you can
+do the same with a `Config` struct. You may not even need a struct if it's just
+a single option to be configured, but that way it's future-proof. For example:
+
+[source, rust]
+----
+#[derive(Default)]
+struct Config {
+    cached_token: bool,
+    refreshing_token: bool,
+}
+----
+
+You can then modify your client in order to optionally take the `Config` struct:
+
+[source, rust]
+----
+struct Client {
+    config: Config
+}
+
+impl Client {
+    /// Uses the default configuration for the initialization
+    fn new() -> Client {
+        Client {
+            config: Config::default(),
+        }
+    }
+
+    /// Uses a custom configuration for the initialization
+    fn with_config(config: Config) -> Client {
+        Client {
+            config,
+        }
+    }
+
+    fn do_request(&self) {
+        if self.config.cached_token {
+            println!("Saving cache token to the file!");
+        }
+
+        if self.config.refreshing_token {
+            println!("Refreshing token!");
+        }
+
+        println!("Performing request!");
+    }
+}
+----
+
+And finally the user can customize the client however they want in the code
+itself in a very natural way:
+
+[source, rust]
+----
+fn main() {
+    // Option A
+    let client = Client::new();
+
+    // Option B
+    let config = Config {
+        cached_token: true,
+        ..Default::default()
+    };
+    let client = Client::with_config(config);
+}
+----
+
+And, thanks to the awesome https://godbolt.org[Compiler Explorer], we can make
+sure this compiles as we expect it to with https://godbolt.org/z/Kr9GP6Gqz[this
+snippet]:
+
+image::/blog/rust-features/compiler-explorer.png[Assembly comparison, width=100%, align=center]
+
+It seems that as of Rust 1.53, for values of `opt-level` greater or equal than
+2, the code for the deactivated features doesn't even appear in the assembly
+(it's easy to view by taking a look at the strings). `cargo build --release`
+configures it to 3, so it shouldn't be a problem for the production binary
+<<cargo-release>>.
+
+And we aren't even using `const`! I wonder what will happen in that case. With
+https://godbolt.org/z/f1xTaWzdc[this slightly modified snippet]:
+
+image::/blog/rust-features/compiler-explorer-const.png[Assembly comparison, width=100%, align=center]
+
+We actually get the same results. The generated assembly is exactly the same,
+and the `Config` struct is only optimized away starting at `opt-level=2`.
+
+TODO
+
+Finally, the last way to do it is via generics. TODO.
+
+== Conclusion
+
+So in rspotify's case, *conditional compilation was definitely not a proper
+solution*. When you're about to introduce a new _feature_ to your crate, think
+to yourself, "Do I really need conditional compilation for this?".
+
+In order to avoid this, perhaps the naming could have been different? "Feature"
+isn't ...
+
+== Platform-specific compilation
+
+Sometimes you just _have_ to use conditional compilation; there's no way around
+it. You might be developing an application to reproduce music, in which case
+you'll surely have to interact with different sound servers, such as pipewire,
+ALSA, Core Audio, etc. different operating systems with different
+audio servers (pipewire, ALSA, Core Audio, etc), which may be configured at
+compile-time.
+
+== Making conditional compilation prettier
+
+It may also be better to create stubs instead of filling your code with
+`#[cfg(feature = "x")]`:
+
+[source, rust]
+----
+fn endpoint_one(name: &str) {
+    #[cfg(feature = "auth")]
+    internal_auth(name);
+
+}
+
+fn endpoint_two(name: &str) {
+    #[cfg(feature = "auth")]
+    internal_auth(name);
+
+}
+
+fn endpoint_three(name: &str) {
+    #[cfg(feature = "auth")]
+    internal_auth(name);
+
+}
+----
+
+Versus this:
+
+[source, rust]
+----
+#[cfg(feature = "auth")]
+fn authenticate(name: &str) {
+    internal_auth(name)
+}
+
+fn endpoint_one(name: &str) {
+    authenticate(name);
+}
+
+fn endpoint_two(name: &str) {
+    authenticate(name);
+}
+
+fn endpoint_three(name: &str) {
+    authenticate(name);
+}
+----
+
+[bibliography]
+== References
+
+- [[[cargo-release, 1]]] https://doc.rust-lang.org/cargo/reference/profiles.html#release
