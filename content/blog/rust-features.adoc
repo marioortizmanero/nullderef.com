@@ -1,10 +1,10 @@
 ---
-title: "Rust features might be great, but don't obsess over them"
-description: ""
+title: "Why you shouldn't obsess about Rust features"
+description: "A quick reminder that you might not need conditional compilation"
 author: "Mario Ortiz Manero"
 tags: ["rust"]
 categories: ["guide"]
-date: 2020-10-10
+date: 2021-07-06
 GHissueID: 
 ---
 
