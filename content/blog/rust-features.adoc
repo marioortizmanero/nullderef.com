@@ -1,5 +1,5 @@
 ---
-title: "Why you shouldn't obsess about Rust features"
+title: "Why you shouldn't obsess about Rust \"features\""
 description: "A quick reminder that you might not need conditional compilation"
 author: "Mario Ortiz Manero"
 tags: ["rust", "beginner"]
