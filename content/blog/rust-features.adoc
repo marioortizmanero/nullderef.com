@@ -67,7 +67,7 @@ All of these are supposedly outweighed by just being guaranteed that the binary
 won't have code you don't need. But how true is that, really? And how important
 is it?
 
-== Alternatives
+== An Alternative
 
 Turns out that one of the simplest optimizations a compiler can implement is the
 propagation of constants. This, in combination with the removal of dead code,
@@ -140,6 +140,8 @@ fn main() {
 }
 ----
 
+=== Proving that you end up with the same code
+
 Thanks to the awesome https://godbolt.org[Compiler Explorer], we can make sure
 this compiles as we expect it to with https://godbolt.org/z/Kr9GP6Gqz[this
 snippet]:
@@ -172,7 +174,7 @@ optimization, though.
 So for what I've investigated it seems to be best to just not worry about it and
 use a variable instead of `const`. It looks better and gets the same results.
 
-== How much of an overhead do you really avoid?
+=== You can probably afford the overhead anyway
 
 Even if the previous optimization wasn't implemented, would the optional code
 cause any harm in the final binary, really? Are we overengineering the solution,
