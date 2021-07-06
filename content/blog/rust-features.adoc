@@ -2,32 +2,34 @@
 title: "Why you shouldn't obsess about Rust features"
 description: "A quick reminder that you might not need conditional compilation"
 author: "Mario Ortiz Manero"
-tags: ["rust"]
+tags: ["rust", "beginner"]
 categories: ["guide"]
 date: 2021-07-06
 GHissueID: 
 ---
 
 Rust makes it very easy to express conditional compilation, specially thanks to
-its "features". They're well integrated into the language and are very easy to
+its "`features`". They're well integrated into the language and are very easy to
 use. But one thing I've learned by maintaining
-https://github.com/ramsayleung/rspotify[rspotify] is that one shouldn't obsess
-over them. Conditional compilation should only be used when it's the only way to
-solve the problem for a number of reasons I'll explain.
+https://github.com/ramsayleung/rspotify[Rspotify] (a library for the Spotify
+API) is that one shouldn't obsess over them. Conditional compilation should be
+used when it's _the only way_ to solve the problem for a number of reasons I'll
+explain in this article.
 
-This article might be obvious to some, but to me they weren't so clear back when
-I started using Rust. Even if you know this, it might be an interesting
-reminder; maybe you forgot about it in your latest project.
+This might be obvious to some, but to me it wasn't so clear back when I started
+using Rust. And even if you're already aware, it might be an interesting
+reminder; maybe you forgot about it in your latest project and added an
+unnecessary feature.
 
 Conditional compilation isn't anything new either; C and C++ have been doing it
 for a long time now, for one. So the same thing is applied in these cases. But
-in my experience it's much easier to work with in Rust, meaning that it's more
-likely to misuse it as well.
+in my experience it's much easier to work with conditional compilation in Rust,
+meaning that it's more likely to be misused as well.
 
 == The Problem
 
 I went through this dilemma when deciding how to configure cached tokens in
-https://github.com/ramsayleung/rspotify[rspotify]. Said library gives you the
+https://github.com/ramsayleung/rspotify[Rspotify]. Said library gives you the
 possibility of persistently managing the authentication token via a JSON file.
 That way, when the program is launched again the token from the previous session
 can be reused without having to follow the full auth process again -- that is,
@@ -38,26 +40,28 @@ didn't really give it much thought; why would one need the code to save and read
 the JSON file if you just don't need it? The easiest way to do that is using a
 feature you can just toggle.
 
-However, I later needed another very similar feature named `refreshing_token`.
-When optionally enabled, the client would automatically refresh expired tokens.
-As this pattern appeared more and more in the library I wanted to make sure its
-design was optimal. As I took a deeper look I found lots of inconveniences I
-hadn't considered about features:
+However, I later needed another very similar feature, `refreshing_token`. When
+optionally enabled, the client would automatically refresh expired tokens. As
+this pattern appeared more and more in the library I wanted to make sure its
+design was optimal. Once I took a deeper look I began to find the many
+inconveniences of features:
 
 . They're *inflexible*: you can't have a client with cached tokens and another
-  without them. It's a library-wide thing, so you either enable them or you
-  don't.
+  without them in the same program. It's a library-wide thing, so you either
+  enable them or you don't. Obviously, they're not configurable at runtime
+  either. A user might want to choose what kind of behaviour to follow while the
+  program is running.
 . They're *ugly*: writing `#[cfg(feature = "cached_token")]` is much more weird
   and verbose than a plain `if cached_token`.
 . They're *messy*: features are hard to manage in the codebase. You can find
-  yourself in the Rust equivalent of a
+  yourself in the Rust equivalent of an
   https://www.cqse.eu/en/news/blog/living-in-the-ifdef-hell/[`#ifdef` hell] very
   easily.
 . They're *hard to document and test*: Rust doesn't provide a way to expose the
-  features of a library, other than listing them in the main page of the docs.
-  Testing is also harder because you have to figure out what combinations of
-  features to use in order to cover the entire codebase, and apply them whenever
-  you want to run the tests.
+  features of a library. All you can do is list themmanually in the main page of
+  the docs. Testing is also harder because you have to figure out what
+  combinations of features to use in order to cover the entire codebase, and
+  apply them whenever you want to run the tests.
 
 All of these are supposedly outweighed by just being guaranteed that the binary
 won't have code you don't need. But how true is that, really? And how important
@@ -118,8 +122,8 @@ impl Client {
 }
 ----
 
-And finally the user can customize the client however they want in the code
-itself in a very natural way:
+Finally, the user can customize the client however they want in the code itself
+in a very natural way:
 
 [source, rust]
 ----
@@ -136,97 +140,82 @@ fn main() {
 }
 ----
 
-And, thanks to the awesome https://godbolt.org[Compiler Explorer], we can make
-sure this compiles as we expect it to with https://godbolt.org/z/Kr9GP6Gqz[this
+Thanks to the awesome https://godbolt.org[Compiler Explorer], we can make sure
+this compiles as we expect it to with https://godbolt.org/z/Kr9GP6Gqz[this
 snippet]:
 
 image::/blog/rust-features/compiler-explorer.png[Assembly comparison, width=100%, align=center]
 
 It seems that as of Rust 1.53, for values of `opt-level` greater or equal than
 2, the code for the deactivated features doesn't even appear in the assembly
-(it's easy to view by taking a look at the strings). `cargo build --release`
-configures it to 3, so it shouldn't be a problem for the production binary
-<<cargo-release>>.
+(it's easy to see by taking a look at the strings at the end). `cargo build
+--release` configures `opt-level` to 3, so it shouldn't be a problem for
+production binaries <<cargo-release>>.
 
 And we aren't even using `const`! I wonder what will happen in that case. With
 https://godbolt.org/z/f1xTaWzdc[this slightly modified snippet]:
 
 image::/blog/rust-features/compiler-explorer-const.png[Assembly comparison, width=100%, align=center]
 
-We actually get the same results. The generated assembly is exactly the same,
-and the `Config` struct is only optimized away starting at `opt-level=2`.
+Hmm. We actually get the same results. The generated assembly is exactly the
+same, and the optional code is optimized away only starting at `opt-level=2`.
+The thing is that `const` just means that its value _may_ (and not must) be
+inlined <<rust-const>> <<rust-consteval>>. Nothing else. So we still don't have
+anything guaranteed, and inlining isn't enough to simplify the code _inside the
+function_.
 
-TODO
+By taking a look at the generated LLVM IR with `--emit=llvm-ir` we can guess
+that this optimization is performed by Rust itself, since the string doesn't
+seem to appear with `opt-level=2`. I wasn't able to find the exact name of this
+optimization, though.
 
-Finally, the last way to do it is via generics. TODO.
+So for what I've investigated it seems to be best to just not worry about it and
+use a variable instead of `const`. It looks better and gets the same results.
+
+== How much of an overhead do you really avoid?
+
+Even if the previous optimization wasn't implemented, would the optional code
+cause any harm in the final binary, really? Are we overengineering the solution,
+as always? Truth is the optional code for cached/refreshing tokens isn't even
+that much bloat.
+
+It depends, of course, but binary bloat isn't that much of a problem for higher
+level binaries, in my opinion. Rust already statically embeds both its standard
+library and its runtime (though much smaller) in each of them, which is around
+3MB. And the only overhead you may get at runtime is a branch.
 
 == Conclusion
 
-So in rspotify's case, *conditional compilation was definitely not a proper
-solution*. When you're about to introduce a new _feature_ to your crate, think
-to yourself, "Do I really need conditional compilation for this?".
-
-In order to avoid this, perhaps the naming could have been different? "Feature"
-isn't ...
-
-== Platform-specific compilation
-
 Sometimes you just _have_ to use conditional compilation; there's no way around
-it. You might be developing an application to reproduce music, in which case
-you'll surely have to interact with different sound servers, such as pipewire,
-ALSA, Core Audio, etc. different operating systems with different
-audio servers (pipewire, ALSA, Core Audio, etc), which may be configured at
-compile-time.
+it. You might be dealing with platform specific code or want to reduce the
+number of dependencies of your crate, in which cases features are super helpful.
 
-== Making conditional compilation prettier
+But that certainly wasn't Rspotify's case; conditional compilation was
+definitely not the way to go. When you're about to introduce a new feature to
+your crate, think to yourself, "`Do I really need conditional compilation for
+this?`".
 
-It may also be better to create stubs instead of filling your code with
-`#[cfg(feature = "x")]`:
+Neither `cached_token` nor `refreshing_token` follow the usual reasoning as to
+why a feature might be added. They don't give access to new functions/modules.
+They don't help remove optional dependencies. And they certainly aren't
+platform-specific features. They just configure the behaviour of the library.
 
-[source, rust]
-----
-fn endpoint_one(name: &str) {
-    #[cfg(feature = "auth")]
-    internal_auth(name);
+In order to avoid this, perhaps the naming for features could have been
+different? Enabling support for cached tokens certainly sounds like a
+"`feature`", while OS-specific code doesn't really seem like one. I also find it
+confusing sometimes, and Google agrees with me in this one. Looking for
+information related to rust features might return completely unrelated stuff
+just because the result has the word "`feature`" but meaning an attribute or
+aspect of the program. Kind of like how you have to google "`golang X`" instead
+of "`go X`" because otherwise it doesn't make sense. But whatever, it's too late
+for my opinion anyway.
 
-}
-
-fn endpoint_two(name: &str) {
-    #[cfg(feature = "auth")]
-    internal_auth(name);
-
-}
-
-fn endpoint_three(name: &str) {
-    #[cfg(feature = "auth")]
-    internal_auth(name);
-
-}
-----
-
-Versus this:
-
-[source, rust]
-----
-#[cfg(feature = "auth")]
-fn authenticate(name: &str) {
-    internal_auth(name)
-}
-
-fn endpoint_one(name: &str) {
-    authenticate(name);
-}
-
-fn endpoint_two(name: &str) {
-    authenticate(name);
-}
-
-fn endpoint_three(name: &str) {
-    authenticate(name);
-}
-----
+Anyhow, I hope you learned something new, or that this was at least a good
+reminder! If you have any suggestions please leave them in the section below :)
 
 [bibliography]
 == References
 
-- [[[cargo-release, 1]]] https://doc.rust-lang.org/cargo/reference/profiles.html#release
+- [[[cargo-release,  1]]] https://doc.rust-lang.org/cargo/reference/profiles.html#release
+- [[[rust-const,     2]]] https://doc.rust-lang.org/std/keyword.const.html
+- [[[rust-consteval, 3]]] https://doc.rust-lang.org/reference/const_eval.html
