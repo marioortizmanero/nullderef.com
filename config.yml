@@ -42,6 +42,7 @@ params:
   author: Mario Ortiz Manero
 
   defaultTheme: auto
+  ShowFullTextInRSS: true
   # disableThemeToggle: true
   ShowShareButtons: true
   ShowReadingTime: true
