@@ -1,6 +1,6 @@
 ---
 title: "Why you shouldn't obsess about Rust \"features\""
-description: "A quick reminder that you might not need conditional compilation"
+description: "Friendly reminder: you might not need conditional compilation"
 author: "Mario Ortiz Manero"
 tags: ["rust", "beginner"]
 categories: ["guide"]
@@ -9,11 +9,12 @@ GHissueID:
 ---
 
 Rust makes it very easy to express conditional compilation, specially thanks to
-its "`features`". They're well integrated into the language and are very easy to
-use. But one thing I've learned by maintaining
+its https://doc.rust-lang.org/cargo/reference/features.html["`features`"].
+They're well integrated into the language and are very easy to use. But one
+thing I've learned by maintaining
 https://github.com/ramsayleung/rspotify[Rspotify] (a library for the Spotify
 API) is that one shouldn't obsess over them. Conditional compilation should be
-used when it's _the only way_ to solve the problem for a number of reasons I'll
+used when it's _the only way_ to solve the problem, for a number of reasons I'll
 explain in this article.
 
 This might be obvious to some, but to me it wasn't so clear back when I started
@@ -22,9 +23,9 @@ reminder; maybe you forgot about it in your latest project and added an
 unnecessary feature.
 
 Conditional compilation isn't anything new either; C and C++ have been doing it
-for a long time now, for one. So the same thing is applied in these cases. But
-in my experience it's much easier to work with conditional compilation in Rust,
-meaning that it's more likely to be misused as well.
+for a long time now, for one. So the same thing can be applied in these cases.
+However, in my experience it's much easier to work with conditional compilation
+in Rust, meaning that it's more likely to be misused as well.
 
 == The Problem
 
@@ -37,8 +38,8 @@ until the token expires.
 
 Originally, this was going to be a compile-time feature named `cached_token`. I
 didn't really give it much thought; why would one need the code to save and read
-the JSON file if you just don't need it? The easiest way to do that is using a
-feature you can just toggle.
+the token file if you just don't need it? The easiest way to do that is using a
+feature you can just toggle in your `Cargo.toml`.
 
 However, I later needed another very similar feature, `refreshing_token`. When
 optionally enabled, the client would automatically refresh expired tokens. As
@@ -49,8 +50,8 @@ inconveniences of features:
 . They're *inflexible*: you can't have a client with cached tokens and another
   without them in the same program. It's a library-wide thing, so you either
   enable them or you don't. Obviously, they're not configurable at runtime
-  either. A user might want to choose what kind of behaviour to follow while the
-  program is running.
+  either; a user might want to choose what kind of behaviour to follow _while_
+  the program is running.
 . They're *ugly*: writing `#[cfg(feature = "cached_token")]` is much more weird
   and verbose than a plain `if cached_token`.
 . They're *messy*: features are hard to manage in the codebase. You can find
@@ -58,8 +59,8 @@ inconveniences of features:
   https://www.cqse.eu/en/news/blog/living-in-the-ifdef-hell/[`#ifdef` hell] very
   easily.
 . They're *hard to document and test*: Rust doesn't provide a way to expose the
-  features of a library. All you can do is list themmanually in the main page of
-  the docs. Testing is also harder because you have to figure out what
+  features of a library. All you can do is list them manually in the main page
+  of the docs. Testing is also harder because you have to figure out what
   combinations of features to use in order to cover the entire codebase, and
   apply them whenever you want to run the tests.
 
@@ -112,6 +113,12 @@ impl Client {
         if self.config.cached_token {
             println!("Saving cache token to the file!");
         }
+        // The previous block used to be equivalent to:
+        //
+        // #[cfg(feature = "cached_token")]
+        // {
+        //     println!("Saving cache token to the file!");
+        // }
 
         if self.config.refreshing_token {
             println!("Refreshing token!");
@@ -151,8 +158,8 @@ image::/blog/rust-features/compiler-explorer.png[Assembly comparison, width=100%
 It seems that as of Rust 1.53, for values of `opt-level` greater or equal than
 2, the code for the deactivated features doesn't even appear in the assembly
 (it's easy to see by taking a look at the strings at the end). `cargo build
---release` configures `opt-level` to 3, so it shouldn't be a problem for
-production binaries <<cargo-release>>.
+--release` configures `opt-level` to 3 <<cargo-release>>, so it shouldn't be a
+problem for production binaries.
 
 And we aren't even using `const`! I wonder what will happen in that case. With
 https://godbolt.org/z/f1xTaWzdc[this slightly modified snippet]:
@@ -161,6 +168,7 @@ image::/blog/rust-features/compiler-explorer-const.png[Assembly comparison, widt
 
 Hmm. We actually get the same results. The generated assembly is exactly the
 same, and the optional code is optimized away only starting at `opt-level=2`.
+
 The thing is that `const` just means that its value _may_ (and not must) be
 inlined <<rust-const>> <<rust-consteval>>. Nothing else. So we still don't have
 anything guaranteed, and inlining isn't enough to simplify the code _inside the
@@ -199,18 +207,18 @@ this?`".
 
 Neither `cached_token` nor `refreshing_token` follow the usual reasoning as to
 why a feature might be added. They don't give access to new functions/modules.
-They don't help remove optional dependencies. And they certainly aren't
+They don't help get rid of optional dependencies. And they certainly aren't
 platform-specific features. They just configure the behaviour of the library.
 
 In order to avoid this, perhaps the naming for features could have been
 different? Enabling support for cached tokens certainly sounds like a
 "`feature`", while OS-specific code doesn't really seem like one. I also find it
 confusing sometimes, and Google agrees with me in this one. Looking for
-information related to rust features might return completely unrelated stuff
-just because the result has the word "`feature`" but meaning an attribute or
-aspect of the program. Kind of like how you have to google "`golang X`" instead
-of "`go X`" because otherwise it doesn't make sense. But whatever, it's too late
-for my opinion anyway.
+information related to Rust features might return completely unrelated stuff
+just because the result has the word "`feature`" but meaning "`an attribute or
+aspect of the program`". Kind of like how you have to google "`golang X`"
+instead of "`go X`" because otherwise it doesn't make sense. But whatever, it's
+too late for my opinion anyway.
 
 Anyhow, I hope you learned something new, or that this was at least a good
 reminder! If you have any suggestions please leave them in the section below :)
