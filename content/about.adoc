@@ -1,8 +1,8 @@
 ---
-title: "About" # in any language you want
-layout: "about" # is necessary
+title: "About"
+layout: "about"
 url: "/about"
-summary: "about"
+summary: "Introducing myself and some additional info"
 ---
 
 Hi there! I'm Mario. Welcome to my personal site. I mostly use it as a blog to
