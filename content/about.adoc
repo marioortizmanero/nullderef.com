@@ -1,0 +1,38 @@
+---
+title: "About"
+layout: "about"
+url: "/about"
+summary: "Introducing myself and some additional info"
+---
+
+Hi there! I'm Mario. Welcome to my personal site. I mostly use it as a blog to
+write about stuff I enjoy or lessons I've learned. I'm currently studying
+Computer Science at University of Zaragoza, so most of the posts are about
+topics related to that.
+
+You can check out the projects I'm involved in on my
+https://github.com/marioortizmanero[GitHub profile]. The biggest ones I've
+worked on are, so far:
+
+* https://vidify.org/[*Vidify*]: with it, you can automatically reproduce music
+  videos of what's playing on your computer on any device.
+* https://github.com/ramsayleung/rspotify[*Rspotify*]: a wrapper for the
+  https://developer.spotify.com/documentation/web-api/[Spotify Web API] in Rust.
+* https://github.com/marioortizmanero/nullderef.com[*nullderef.com itself!*] You
+  already know about it. It's open source and made with Hugo, go check it out :)
+
+If you want to contact me you can send me a message via
+https://www.linkedin.com/in/mario-ortiz-manero-3b0472186/[LinkedIn] or just an
+mailto:marioortizmanero@gmail.com[e-mail].
+
+== Other Cool Blogs
+
+Here are some interesting blogs from friends or that I just enjoy reading:
+
+. https://fasterthanli.me/[*fasterthanlime*]: it features extremely thorough
+  posts about computers (mostly Rust) in a very dynamic way. Amos, the author,
+  really puts in effort and you can tell.
+. https://0x709394.me/index[*Ramsay's Eden*]: my friend's
+  https://github.com/ramsayleung[Ramsay] blog site, with very detailed posts. I
+  met him maintaining https://github.com/ramsayleung/rspotify[Rspotify], a
+  library in Rust, but he writes about other things as well.

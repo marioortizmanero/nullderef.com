@@ -76,3 +76,9 @@ blockquote, blockquote p {
 }
 .txt-margin-right { margin-right: 5px; }
 .txt-margin-left { margin-left: 5px; }
+
+/* Fix selection colors for dark mode */
+::selection {
+  background: var(--primary);
+  color: var(--theme);
+}
