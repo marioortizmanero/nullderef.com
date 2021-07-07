@@ -10,12 +10,13 @@ assignees: ''
 TODO list:
 
 - [ ] Create an issue for the comments
-- [ ] Add the following fields, at least:
+- [ ] Add the following metadata fields:
   + [ ] title
   + [ ] description
   + [ ] summary
   + [ ] author
   + [ ] tags
+  + [ ] series (optionally)
   + [ ] date
   + [ ] GHissueID
 - [ ] Add at least one image for previews when sharing

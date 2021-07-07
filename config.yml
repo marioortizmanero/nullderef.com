@@ -26,9 +26,9 @@ languages:
         - name: About
           url: about/
           weight: 1
-        # - name: Series
-        #   url: series/
-        #   weight: 2
+        - name: Series
+          url: series/
+          weight: 2
         - name: Archive
           url: archives/
           weight: 3
@@ -37,11 +37,17 @@ languages:
           weight: 4
 
 params:
+  # editPost:
+  #   URL: "https://github.com/marioortizmanero/nullderef.com/tree/master/content"
+  #   Text: "Suggest Changes"
+  #   appendFilePath: true
+
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
   description: "NullDeref - Yet Another Programming Blog"
   author: Mario Ortiz Manero
 
   defaultTheme: auto
+  ShowCodeCopyButtons: true
   ShowFullTextInRSS: true
   # disableThemeToggle: true
   ShowShareButtons: true
