@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>NullDeref</title>
     <link>https://nullderef.com/blog/</link>
     <description>Recent content on NullDeref</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3</copyright>
+    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
     <lastBuildDate>Mon, 17 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Plugins in Rust: The Technologies</title>
@@ -15,6 +15,1023 @@
       
       <guid>https://nullderef.com/blog/plugin-tech/</guid>
       <description>A more in-depth look at Rust PDKs</description>
+      <content:encoded><![CDATA[<div class="sect1">
+<h2 id="_introduction">1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this article I will further analyze how a Plugin Development Kit (PDK) could
+be implemented in Rust. Note that I’m no expert in the topic; my objective is to
+merely collect all the information I’ve found so far and present it as a
+summary, with enough resources for the reader to learn more on their own and
+make their own decisions.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="requirements">2. The Problem</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is actually part of my Google Summer of Code project for
+<a href="https://www.tremor.rs/">Tremor</a>. My first article about a Plugin System in Rust
+was in the <a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>, which serves as
+a full introduction and may be interesting as well. While this will specifically
+cover Tremor’s use case, I’m sure many other applications in the future will
+have similar requirements for their own program. And considering the few
+articles I found about plugins in Rust, this may be helpful to the community.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+It seems Google hasn’t allocated any slots for Tremor in the end. That
+saddens me a lot as I was very excited to work with them. I wanted to thank the
+devs for being welcoming and having such a nice community. And I still wanted to
+release this post in case it’s useful to them or anyone else.
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>After showing the proposal to the Tremor team, I was given an important
+suggestion: in this case there isn’t really a need to be able to write plugins
+from multiple programming languages; it’s not worth the additional complexity.
+It would definitely be interesting but with this I can focus on the main
+problems I discovered in my proposal: the ABI instability, and safety.</p>
+</div>
+<div class="paragraph">
+<p>Besides that, the rest of the main points to consider remain the same:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Mandatory:</strong> Being able to load/unload the plugins both at start-time and at
+run-time.</p>
+</li>
+<li>
+<p><strong>Mandatory:</strong> Cross-platform support</p>
+</li>
+<li>
+<p><strong>Mandatory:</strong> Low overhead</p>
+</li>
+<li>
+<p><strong>Mandatory:</strong> Available at least from Rust</p>
+</li>
+<li>
+<p><strong>Extra:</strong> <a href="#safety">Safety</a></p>
+</li>
+<li>
+<p><strong>Extra:</strong> <a href="#back-comp">Backwards compatibility</a></p>
+</li>
+<li>
+<p><strong>Extra</strong>: Not much work to port from the existing implementations</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="safety">3. Safety Concerns</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I’ve been wanting to take a look at the possible safety concerns a PDK could
+bring to Tremor since the initial proposal.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Depending on the approach that is taken for the Plugin System,
+implementing solutions to some of the points I make below can be really complex,
+so I wouldn’t work on them for the initial deadline. For now, it’s something we
+have to be aware of.
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="sect2">
+<h3 id="_unsafe_code">3.1. Unsafe Code</h3>
+<div class="paragraph">
+<p>Many of the technologies that can be used to implement a Plugin System work with
+unsafe code, like <a href="#ffi">FFIs</a> or <a href="#memory-sharing">IPC Memory Sharing</a>. This
+isn’t necessarily a problem if it’s self-contained and thoroughly reviewed, but
+we lose some of the safety guarantees Rust provides us, increasing the
+maintenance cost of the library.</p>
+</div>
+<div class="paragraph">
+<p>It takes considerably more work to make sure the implementation is sound, even
+with tools like <a href="https://github.com/rust-lang/miri">MIRI</a>, which I plan on
+integrating into Tremor if I do end up having to use <code>unsafe</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_error_resilience">3.2. Error Resilience</h3>
+<div class="paragraph">
+<p>Rust doesn’t protect its users from leaking memory. In fact, it’s as easy as
+calling <code>mem::forget</code>. The thing is that if a plugin leaks memory, the entire
+process also does, meaning that Tremor’s performance could be affected by
+incorrectly developed plugins.</p>
+</div>
+<div class="paragraph">
+<p>This doesn’t happen just with memory leaks; a plugin could abort or panic and
+crash the entire thing very easily.</p>
+</div>
+<div class="paragraph">
+<p>Ideally, Tremor could detect plugins that aren’t performing well and stop them
+before it’s too late. The core of the program could continue running even when a
+plugin fails, and perhaps warn the user about its malfunctioning, for optimal
+error resilience.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_remote_code_execution_via_plugins">3.3. Remote Code Execution via Plugins</h3>
+<div class="paragraph">
+<p><a href="https://en.wikipedia.org/wiki/Component_Object_Model#Security">This was a problem
+with Internet Explorer</a>, for example. It used COM and ActiveX, which implement
+no sandboxing at all and were ran directly on the user’s machine, allowing
+malware to be included in plugins with the ability to execute arbitrary code on
+the host machine. This can be less of a problem when installing only trusted
+plugins via digital signatures, but it’s still a huge risk.</p>
+</div>
+<div class="paragraph">
+<p>In the case of Tremor plugins this is a similar problem. The end user — those
+who will add plugins to their configuration — is a developer, who should be
+more wary of what they’re including in their own projects. But the truth is that
+it isn’t any better.</p>
+</div>
+<div class="paragraph">
+<p>I would compare the situation more specifically to how package managers like
+<a href="https://www.npmjs.com/">npm</a> work (or anything that deals with dependencies,
+really). The entire infrastructure is usually based on trust; noone’s really
+stopping you from uploading a malicious package/crate for remote code execution
+or to steal data <a href="#npm-trust-1">[1]</a> <a href="#npm-trust-2">[2]</a>. Plugins are like dependencies in
+this case; they have full access to the host’s computer, and thus shouldn’t be
+trusted by default.</p>
+</div>
+<div class="paragraph">
+<p>An improved approach to Node + npm would be something like
+<a href="https://github.com/denoland/deno">Deno</a>, which is a secure by default
+JavaScript/TypeScript runtime. This is enabled thanks to sandboxing, and
+requires the developer to manually toggle e.g. access to the filesystem or to
+the network. This is no panacea because people might end up enabling whatever
+permission is required by the dependency they want to install without thinking
+about it, but it’s similar to <code>unsafe</code>: at least it makes you aware that you
+might mess up.</p>
+</div>
+<div class="paragraph">
+<p>One could argue that their program is realistically going to be ran in a Virtual
+Machine or a container most of the times, where this may not matter so much. But
+should you really assume that? Should user safety rely on the fact that the
+machine is ran on an isolated kernel? Containers, by the way, introduce a much
+bigger overhead in comparison to some sandboxing methods. And even if the system
+as a whole is isolated, there is still a possibility for internal leaks: the
+Postgres plugin has access to whatever is being used by the Apache Kafka plugin,
+which may have sensitive logs you don’t want anyone to see.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="back-comp">4. Backward Compatibility</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As I discovered in the last post, backward compatibility is complicated for
+plugin systems in Rust with the typical approach, a FFI. Since it doesn’t
+currently offer a stable ABI — and probably never will — the slightest
+difference between the version used to compile a plugin and the core of the
+program will break it.</p>
+</div>
+<div class="paragraph">
+<p>Apart from the instability issues incoming from the Rust compiler, the core
+itself may change with frequency as well. And this isn’t limited to dynamic
+libraries. If the plugin receives a struct from the core, but the struct had one
+of its members removed in a new version, it’s all broken again.</p>
+</div>
+<div class="sect2">
+<h3 id="_possible_solutions">4.1. Possible Solutions</h3>
+<div class="paragraph">
+<p>The easiest fix for backward compatibility issues I can come up with is to
+serialize and deserialize the data with a flexible protocol rather than using
+its binary representation directly. If something like JSON is used to
+communicate between the core and its plugins, adding a field to a message won’t
+break anything, and removing one can be done via a deprecation process.
+Unfortunately, this introduces some overhead the application may not be
+interested in.</p>
+</div>
+<div class="paragraph">
+<p>Other more involved methods for binary representations include <a href="#swift-abi">[3]</a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Reserving space in the struct for future use.</p>
+</li>
+<li>
+<p>Making the struct an opaque type, requiring function calls to get the fields.</p>
+</li>
+<li>
+<p>Giving the struct a pointer to its “version 2” data (opaque in “version
+1”).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>As to breakage due to compiler version mismatches, there are a couple ways this
+can be fixed that I’ll investigate in later sections. Some technologies other
+than <a href="#ffi">FFI</a> don’t have this problem by nature, like <a href="#ipc">IPC</a> or
+<a href="#scripting-langs">scripting languages</a>, and we have some unofficial fixes from
+the community available, like <code>abi_stable</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_avoiding_breakage">4.2. Avoiding Breakage</h3>
+<div class="paragraph">
+<p>There are times when breakage is inevitable. Tremor may want to rewrite part of
+its core or finally remove a deprecated feature without being afraid of breaking
+all the plugins previously developed.</p>
+</div>
+<div class="paragraph">
+<p>For that, the plugins must embed a bit of metadata about the different versions
+of rustc/core/etc it was developed for, so that when it’s loaded by Tremor, it
+may check if they’re compatible, rather than breaking in mysterious ways.
+<a href="https://nullderef.com/blog/gsoc-proposal/#_defining_an_interface">I already
+talked about this in the past</a>, so I won’t get into the details.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_possible_approaches">5. Possible Approaches</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following are the most viable technologies that could be used as the base of
+a PDK. Some of the won’t match the requirements I mentioned earlier at first
+glance, but it’s a good idea to at least <em>consider</em> all of them. I haven’t
+written a line of code yet, so if an approach were to catch someone’s eye we
+could investigate more about it. I will rate each of the alternatives in a scale
+from 1 to 5 (approximately) in order to easen the decision-taking.</p>
+</div>
+<div class="sect2">
+<h3 id="scripting-langs">5.1. Scripting Languages</h3>
+<div class="paragraph">
+<p>Plenty of projects use scripting languages to extend their functionality at
+runtime, like Python, Ruby, Perl, Bash or JavaScript. Most notably, Vim created
+its own scripting language, Vimscript, in order to be fully customizable, and
+NeoVim is now pushing <a href="http://www.lua.org/">Lua</a> as a first-class language for
+configuration. Even Tremor itself has the interpreted query language
+<a href="https://docs.tremor.rs/tremor-query/"><code>tremor-query</code></a> for configuration.</p>
+</div>
+<div class="paragraph">
+<p>Lua is seen in game development; it’s a quite simple language with a very
+performant JIT implementation, which in any case I think would be the best
+option here. It could be embedded into the main program’s core (it’s only 247 kB
+compiled! <a href="#lua-wiki">[4]</a>) and used to load plugins at either start-time or
+run-time. And knowing it’s used in games, which are <em>obsessed</em> with performance,
+it might not be that much of a big deal in that regard.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+There are <a href="https://arewegameyet.rs/ecosystem/scripting/">languages
+specifically designed to extend Rust’s capabilities</a>, which you might be
+interested in, but I’ll just simplify this part by going for Lua.
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>Rust has libraries like <a href="https://github.com/amethyst/rlua"><code>rlua</code></a> which provide
+bindings for interoperability with Lua. <code>rlua</code> in particular seems to focus on
+having an idiomatic and safe interface, which is rare for a bindings library and
+good news, though it seems to be currently semi-abandoned, and forked by
+<a href="https://github.com/khvzak/mlua"><code>mlua</code></a>. Unfortunately, after digging a bit the
+Rust ecosystem for Lua bindings doesn’t seem to be as mature as I’d like for a
+project this big; there’s still some work to do to reach more stability.</p>
+</div>
+<div class="paragraph">
+<p>Lua gets extra points in safety. It’s possible to sandbox it by blocking
+whichever functions you don’t want users to access <a href="#lua-sandbox">[5]</a> (though it’s
+“tricky and generally speaking difficult to get right”). Similarly, one can
+also handle resource exhaustion issues within Lua programs. Not to mention that
+this wouldn’t require <code>unsafe</code> at all with an optimal set of bindings.</p>
+</div>
+<div class="paragraph">
+<p>Anyhow, the main deal breaker with scripting languages in this case is that it
+would be extremely complicated to port everything in Tremor so that it can be
+used from Lua. For new projects this could perhaps be something interesting, but
+not if the entirety of the already existing plugins have to be rewritten.</p>
+</div>
+<div class="paragraph">
+<p>Still, it’s a pretty interesting option for new projects, as you have ABI
+stability guarantees, solid safety overall, and it’s very straightforward to
+use.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">4/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Backwards compatibility</strong></p>
+</li>
+<li>
+<p><strong class="red white-background txt-margin-right txt-round">0/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ipc">5.2. Inter-Process Communication</h3>
+<div class="paragraph">
+<p>Another possibility for plugins is to define a protocol for Inter-Process
+Communication, turning your program into a server that extends its capabilities
+by connecting to external plugins. For instance, most text editors use this
+method to support the
+<a href="https://microsoft.github.io/language-server-protocol/">Language Server Protocol</a>,
+which uses JSON-RPC.</p>
+</div>
+<div class="paragraph">
+<p>There are of course multiple ways to do IPC, which I’ll briefly list below.
+Performance-wise, this graph shows a comparison of the overhead of each of them
+<a href="#ipc-wisc">[6]</a>:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="/blog/plugin-tech/ipc-comparison.png" alt="IPC comparison" width="60%"/>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sockets">5.2.1. Based on Sockets</h4>
+<div class="paragraph">
+<p>Sockets are the “worst”-performing alternative in the previous chart, but they’re
+so common and easy to use in most languages that it’s worth taking a look at.
+Using relatively lightweight protocols like
+<a href="https://developers.google.com/protocol-buffers">Protocol Buffers</a>, the
+performance would be close to passing raw structs, but with improved
+backwards/forwards compatibility <a href="#protobuf-perf">[7]</a>. JSON would probably not make
+that big of a difference in terms of performance either. This would make it
+possible to write a plugin in any language as well — including Rust — as long
+as there’s an implementation of the protocol available. But there’s still
+noticeable overhead when communicating via sockets; sending and receiving the
+messages can be much costlier than just calling a function, even if this happens
+on localhost.</p>
+</div>
+<div class="paragraph">
+<p>This alternative is much more interesting than <a href="#scripting-langs">Scripting Languages</a> for Tremor’s
+specific case: we don’t have to completely rewrite everything, since Rust can
+still be used, and implementing the protocol to communicate between the Tremor
+core and its plugins should be as easy as <code>#[derive(Serialize)]</code> for sending
+and <code>#[derive(Deserialize)]</code> for receiving.</p>
+</div>
+<div class="paragraph">
+<p>As to safety, separate processes imply that malfunctioning plugins don’t affect
+Tremor directly, and the PDK basically consists on implementing servers, which
+require no <code>unsafe</code> at all and has much more popularity and support in Rust.
+It’s still hard to properly sandbox the plugins, though.</p>
+</div>
+<div class="paragraph">
+<p>Overall, I consider this a very solid solution, with its main drawback being
+performance. I can’t really guess the effect this would have in Tremor’s speed,
+so I would love to create a quick benchmark when I get to implement the first
+prototypes to see if it’s actually the best choice, if Tremor devs think it’s
+worth my time.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Backwards compatibility</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="pipes">5.2.2. Based on Pipes</h4>
+<div class="paragraph">
+<p>Pipes have always been fairly popular specifically on Unix systems, and enable
+Inter-Process Communication with less overhead than sockets. They are made to be
+ran on the same machine, which is exactly what we need. The terminal file
+manager <a href="https://github.com/jarun/nnn">nnn</a> uses this approach: plugins can read
+from a FIFO (Named Pipe) to receive selections from nnn (lists of files or
+directories) and act accordingly.</p>
+</div>
+<div class="paragraph">
+<p>The rest is basically the same as with <a href="#sockets">Sockets</a>, maybe with extra
+points for performance, and less for Rust availability, since there don’t seem
+to be any reliable libraries for pipes (maybe
+<a href="https://docs.rs/interprocess/1.1.1/interprocess/"><code>interprocess</code></a> or
+<a href="https://crates.io/crates/ipipe"><code>ipipe</code></a>). But really, are libraries necessary at
+all? The <code>std</code> library
+<a href="https://doc.rust-lang.org/rust-by-example/std_misc/process/pipe.html">has support
+for cross-platform pipes when executing external commands</a> for stdin, stdout,
+and stderr, which most times is enough. The plugin can just use stdin to receive
+messages and stdout to send them. If that’s enough for your case then it’s
+vastly simplified.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">4/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">4/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Backwards compatibility</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="memory-sharing">5.2.3. Based on Memory Sharing</h4>
+<div class="paragraph">
+<p>Knowing that the plugins are intended to be on the same machine as the core of
+Tremor, there’s no need to actually send and receive messages. One can share
+memory between multiple processes and send notifications to receive updates. The
+performance is comparable to using a FFI, since the only overhead is the initial
+cost from setting up the shared pages, having regular memory access afterwards
+<a href="#memory-share-so">[8]</a>.</p>
+</div>
+<div class="paragraph">
+<p>This feature heavily depends on the system’s kernel, so it may hurt the
+“Cross-Compatibility” requirement. We have libraries like
+<a href="https://docs.rs/shared_memory"><code>shared_memory</code></a> +
+<a href="https://docs.rs/raw_sync"><code>raw_sync</code></a> in Rust that wrap all the OS
+implementations under the same interface, but admittedly, they don’t seem
+anywhere near as popular as most of the other alternatives. Not to mention that
+the examples for <code>shared_memory</code> <em>do</em> use <code>unsafe</code>, and a lot of it.</p>
+</div>
+<div class="paragraph">
+<p>Maybe if it was easier to use this would be a good idea, but IPC shared memory
+doesn’t seem to be any better than FFIs overall.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="red white-background txt-margin-right txt-round">2/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="red white-background txt-margin-right txt-round">2/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Backwards compatibility</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ffi">5.3. FFI</h3>
+<div class="paragraph">
+<p>This is possibly the <em>least weird</em> way to implement a Plugin Development Kit,
+i.e. it’s the most popular method I’ve seen outside of Rust. A <em>Foreign Function
+Interface</em> can allow us to directly access resources in separately compiled
+objects, even after the linking phase with dynamic loading. It’s one of the
+fastest options available because there’s no overhead at all after dynamically
+loading the library.</p>
+</div>
+<div class="paragraph">
+<p>The main library for this is
+<a href="https://github.com/nagisa/rust_libloading"><code>libloading</code></a>. There’s also the less
+popular <a href="https://docs.rs/dlopen/0.1.8/dlopen/"><code>dlopen</code></a> and
+<a href="https://github.com/Tyleo/sharedlib"><code>sharedlib</code></a>, with some small differences
+<a href="#ffi-comparison">[9]</a>. It seems to be a lower-level implementation for any kind of
+FFI that requires <code>unsafe</code> for almost everything — what I was expecting. Based
+on it there’s <a href="https://github.com/emoon/dynamic_reload"><code>dynamic_reload</code></a>, which
+is very interesting in order to “live reload” the plugins when they are
+recompiled. This would be useful for the development process of the plugins,
+since it also handles unloading the <em>same plugin</em> seamlessly, but that’s not a
+goal for this project so I don’t plan on using it. And the
+<a href="https://github.com/vberger/dlib"><code>dlib</code></a> crate provides macros to make the
+library loading simpler, based on <code>libloading</code>.</p>
+</div>
+<div class="paragraph">
+<p>I already discussed about Rust-to-C FFIs in detail in the
+<a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a> and came to the conclusion
+that, the same way as with <a href="#scripting-langs">Scripting Languages</a>, it’s too much work to create an
+internal interface for Tremor through C (with enough time and resources this
+would possibly be the best option, though). This leaves us with Rust-to-Rust as
+the only option, which is the easiest, but still has important inconvenients:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Awful safety: lots of <code>unsafe</code> usage is required with plenty of caveats
+<a href="#ffi-caveat-1">[10]</a> <a href="#ffi-caveat-2">[11]</a>, including subtle differences
+in the interface between Operating Systems <a href="#ffi-cross-platform">[12]</a>,
+although <code>dlopen</code> seems to be better in that regard <a href="#ffi-dlopen-safety">[13]</a>. No
+sandboxing either. And plugins can abort Tremor’s core execution when
+panicking/leaking memory/similars (I haven’t been able to find information
+about using <code>catch_unwind</code> with Rust-to-Rust FFIs).</p>
+</li>
+<li>
+<p>Binary compatibility is not good. Any minor change to either Tremor’s
+interface or the version it was compiled with will break the plugin.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>I recently discovered the
+<a href="https://github.com/rodrimati1992/abi_stable_crates"><code>abi_stable</code></a> crate, which
+guarantees Rust ABI’s stability unofficially and helps a lot with the binary
+compatibility aspect.</p>
+</div>
+<div class="paragraph">
+<p>It includes FFI-safe alternatives to many of the types in <code>std</code>, and even
+external ones (namely <code>crossbeam</code>, <code>parking_lot</code> and <code>serde_json</code>). This works
+by implementing a
+<a href="https://docs.rs/abi_stable/*/abi_stable/abi_stability/stable_abi_trait/trait.StableAbi.html"><code>StableAbi</code></a>
+trait that guarantees its FFI-safety, which may be done automatically with one
+of its procedural macros. Internal ABI stability is also guaranteed with macros
+like <code>#[sabi(last_prefix_field)]</code>, which would allow Tremor to add fields to
+existing structs
+<a href="https://github.com/rodrimati1992/abi_stable_crates/blob/19d71ec9175f870c1c784c37dae730b99948cacf/examples/0_modules_and_interface_types/interface/src/lib.rs#L45">without
+breaking backwards compatibility</a>.</p>
+</div>
+<div class="paragraph">
+<p>Fortunately, this crate has a
+<a href="https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples">few very
+detailed examples</a> one can look at to better understand how it works, and it’s
+exceptionally well documented. If I’ve understood it correctly, some of its
+inconvenients are the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>You have to use the types from <code>abi_stable</code> instead of <code>std</code> for the values
+passed through FFI.</p>
+</li>
+<li>
+<p>The whole crate seems huge and would probably add considerable complexity to
+this FFI method.</p>
+</li>
+<li>
+<p>It’s worth mentioning that library unloading is a non-feature; although it’s
+not going to be implemented for this project, it might in the future.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>While it’s a really interesting concept and look forward to seeing how it
+evolves, I’m not a big fan of having to resort to it. And the fact that it’s
+unofficial and not that popular doesn’t give me full confidence that this will
+still work in 5 years, or that it won’t be outdated/abandoned. If the FFI method
+were to be chosen in the end, perhaps the first version could try without
+<code>abi_stable</code>, and if ABI breakage ends up being a big problem, the plugin system
+could be updated to include it.</p>
+</div>
+<div class="paragraph">
+<p>More people have tried writing Rust FFIs in the past, thankfully, so we can take
+a look at existing tutorials in order to see their experience:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The one and only Amos wrote an extremely detailed blog post on fasterthanlime
+<a href="https://fasterthanli.me/articles/so-you-want-to-live-reload-rust">here</a>,
+specifically about live reloading Rust — a closely related topic.</p>
+</li>
+<li>
+<p>Michael Bryan made a guided introduction to Plugins in Rust
+<a href="https://adventures.michaelfbryan.com/posts/plugins-in-rust/">here</a>, and also
+wrote a tutorial for his unofficial Rust FFI book
+<a href="https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html">here</a>.</p>
+</li>
+<li>
+<p><a href="https://github.com/zicklag">@zicklag</a>, who had read Michael’s article, tried it
+by himself in order to add a plugin system to
+<a href="https://github.com/amethyst/amethyst">Amethyst</a>, and posted
+<a href="https://zicklag.github.io/rust-tutorials/rust-plugins.html">this tutorial</a>.
+When he shared the post on the official Rust forum, it was accompanied by this
+demotivating comment, after failing <a href="#amethyst-fail">[14]</a> to implement it for
+Amethyst:</p>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Unfortunately I found that dynamic linking doesn’t actually work in Rust across
+different versions of Rust, and the technique for plugins also failed, even
+inside the same version of Rust, when I tried to compile an app with other
+dependencies like Amethyst. That leaves the technique outlined in the tutorial
+not very practical for real applications.</p>
+</div>
+<div class="paragraph">
+<p>The closest thing I’ve found to accomplish something similar is [<code>abi_stable</code>].</p>
+</div>
+</blockquote>
+<div class="attribution">
+— https://users.rust-lang.org/t/creating-rust-apps-with-dynamically-loaded-rust-plugins/28814/111092
+</div>
+</div>
+<div class="paragraph">
+<p>He also added later on:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>It could very well be possible [to use WebAssembly here].
+It wouldn’t be exactly the same workflow, but I’ve considered using Wasmtime
+or CraneLift, which Wasmtime is built on, to Run Wasm modules as plugins.</p>
+</div>
+</blockquote>
+<div class="attribution">
+— https://users.rust-lang.org/t/creating-rust-apps-with-dynamically-loaded-rust-plugins/28814/7
+</div>
+</div>
+<div class="paragraph">
+<p>He didn’t have time to end up doing so, so we’ll have to investigate ourselves.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>So, more or less:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="red white-background txt-margin-right txt-round">1/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="red white-background txt-margin-right txt-round">0/5</strong> <strong>Backwards compatibility</strong> (may be <strong class="green white-background txt-margin-right txt-round">5/5</strong> if
+using <code>abi_stable</code>)</p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="wasm">5.4. WebAssembly Interface</h3>
+<div class="paragraph">
+<p>Now, this is what I wanted to emphasize in this article! Turns out WebAssembly
+isn’t limited to web development anymore; it’s slowly evolving into a portable
+binary-code format. As far as I know, this should be like a mix between <a href="#ffi">FFI</a>
+and <a href="#scripting-langs">Scripting Languages</a>, with a stronger focus in stability and portability.
+Here’s what Wikipedia has to say about it:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>WebAssembly (sometimes abbreviated Wasm) is an open standard that defines a
+portable binary-code format for executable programs, and a corresponding textual
+assembly language, as well as interfaces for facilitating interactions between
+such programs and their host environment. The main goal of WebAssembly is to
+enable high-performance applications on web pages, <mark>but the format is designed to
+be executed and integrated in other environments as well, including standalone
+ones.</mark></p>
+</div>
+</blockquote>
+<div class="attribution">
+— https://en.wikipedia.org/wiki/WebAssembly
+</div>
+</div>
+<div class="paragraph">
+<p>So to clear it up, <strong>Wasm</strong> is an <em>assembly language</em>, and
+<a href="https://wasi.dev/"><strong>WASI</strong></a> is a <em>system interface</em> to run it outside the web. The
+latter is extremely well explained
+<a href="https://hacks.mozilla.org/2019/03/standardizing-wasi-a-webassembly-system-interface/">in
+this article by Mozilla</a>, I suggest giving it a read for more details.
+<a href="https://bytecodealliance.org/articles/announcing-the-bytecode-alliance">This one</a>
+is also very nice to read and explains the isolation system it provides,
+specifically.</p>
+</div>
+<div class="paragraph">
+<p>The two main points WebAssembly offers are, in a nutshell:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>When compiled, it doesn’t need to know what Operating System is being
+targeted. This is handled by the runtime, and the binary itself is fully
+portable.</p>
+</li>
+<li>
+<p>In order to handle untrustworthy programs, it implements a sandbox. With that,
+the host can limit exactly what a program has access to.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>WASI is just a standard, so there’s multiple runtimes available. The most
+popular ones are coincidentally implemented in Rust as well:
+<a href="https://github.com/bytecodealliance/wasmtime"><strong>wasmtime</strong></a> and
+<a href="https://github.com/wasmerio/wasmer"><strong>wasmer</strong></a>. Both use the
+<a href="https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md">Cranelift</a>
+backend to generate the WebAssembly machine code (although wasmer seems to
+support more backends, like LLVM). Then, the runtime can be used to run the
+generated <code>.wasm</code> binary in different ways (say, as a CLI or a library). This
+also means that plugins could be written in any language that compiles to
+WebAssembly.</p>
+</div>
+<div class="paragraph">
+<p>The differences between the two runtimes aren’t that big. You can read
+<a href="https://wiki.alopex.li/ActuallyUsingWasm">this wiki article for more details,
+including examples</a>, but I particularly liked this quote:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Just based on what they demonstrate, wasmer is more focused on embedding wasm in
+your native program, while wasmtime is more focused on executing standalone wasm
+programs using WASI. Both are capable of both, it just seems a matter of
+emphasis.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>The article also includes a <span class="line-through">not reliable at all</span> benchmark,
+which can serve us as a way to compare its performance with the native code
+you’d get with e.g. <a href="#ffi">FFI</a>. It estimates that Wasm is a bit less than an order
+of magnitude slower than native code, and the same applies to memory usage.
+<a href="https://github.com/jedisct1/webassembly-benchmarks/tree/master/2021-Q1">A more
+thorough benchmark</a> was done in libsodium that shows better results: Wasm can be
+just about 3 times slower than native code. Do note that this depends on the
+runtime that’s being used, and it may improve in the future, as WebAssembly is
+just 4 years old.</p>
+</div>
+<div class="paragraph">
+<p>There’s a whole series on how to make a Plugins System with Wasmer
+<a href="https://freemasen.com/blog/wasmer-plugin-pt-1/">here</a>, which will come in handy
+to know what to expect. The usability doesn’t actually seem to be that good,
+since by default you can only use integers, floating-point or vectors
+<a href="#wasmer-types">[15]</a> as parameters when calling Wasm plugins. For more complex
+types, you have to resort to encoding and decoding via a crate like
+<a href="https://github.com/bincode-org/bincode"><code>bincode</code></a>, although most of the
+boilerplate can be reduced with procedural macros or a wrapper like
+<a href="https://github.com/alec-deason/wasm_plugin"><code>wasm_plugin</code></a>, and this opens up the
+possibility of using serialization with support for backwards compatibility
+within Tremor. The
+<a href="https://freemasen.com//blog/wasmer-plugin-pt-4/index.html">last part</a> of the
+series is the most interesting one, as it includes a real-world example, with a
+version of the final code in <a href="https://github.com/FreeMasen/wasmer-plugin">this
+repository</a>.</p>
+</div>
+<div class="paragraph">
+<p>All in all, WebAssembly seems to win against <a href="#ffi">FFI</a> in terms of security by not
+needing <code>unsafe</code> at all and including sandboxing by default, at the cost of
+efficiency. This is up to the managers of the project and what they consider
+more important.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">4/5</strong> <strong>Backwards compatibility</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_prior_art">6. Prior Art</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It’s very important to take a look at projects that have already done this in
+the past in order to learn from their mistakes and not start from scratch.</p>
+</div>
+<div class="paragraph">
+<p>Here’s a list of some of the libraries I found with Plugin Systems, specifically
+written in Rust:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rust-lang/cargo"><code>cargo</code></a>,
+<a href="https://github.com/rust-lang/mdBook"><code>mdbook</code></a>: both have an extension system
+via CLI commands. Adding a subcommand to either of these utilities is as easy
+as creating a binary with a fixed prefix (e.g. <code>cargo-expand</code>), and if it’s
+available in the <code>$PATH</code> when running <code>cargo</code>, it will be possible to invoke
+the plugin with <code>cargo expand</code> as well.</p>
+<div class="paragraph">
+<p>This is a very interesting approach, specially because of how simple it
+is to use. Cargo doesn’t seem to need to communicate with the extension at all,
+but <code>mdbook</code> does use stdin to receive messages and stdout to send them, via
+serialization. So it’s basically the IPC <a href="#pipes">Based on Pipes</a> approach.</p>
+</div>
+</li>
+<li>
+<p><a href="https://github.com/zellij-org/zellij"><code>zellij</code></a>: a terminal workspace with “a
+plugin system allowing one to create plugins in any language that compiles to
+WebAssembly”.</p>
+<div class="paragraph">
+<p>This is an extremely valuable resource in case the <a href="#wasm">WebAssembly Interface</a> option is chosen, as
+it’s very similar to what Tremor needs. One can even subscribe to events in
+order to simulate the traits in Tremor that currently use <code>async</code>.</p>
+</div>
+<div class="paragraph">
+<p>After trying it out and seeing its source code, it seems to work with a <code>wasm</code>
+binary that acts as a standalone program, where the communication takes place
+via stdin and stdout, serializing and deserializing with
+<a href="https://serde.rs/">serde</a>. <code>zellij</code> includes a few plugins by default, like the
+status bar, or a file manager. Very neat architecture!</p>
+</div>
+<div class="paragraph">
+<p>Other WebAssmbly-based PDKs:
+<a href="https://book.veloren.net/contributors/developers/codebase-structure.html#plugins">Veloren</a>,
+<a href="https://github.com/feather-rs/feather/tree/main/quill">Feather</a>.</p>
+</div>
+</li>
+<li>
+<p><a href="https://github.com/xi-editor/xi-editor"><code>xi</code></a>: a now abandoned modern text
+editor. Its plugins, described
+<a href="https://raphlinus.github.io/xi/2020/06/27/xi-retrospective.html#json">here in
+detail</a>, are based on <a href="https://docs.rs/xi-rpc/0.3.0/xi_rpc/">JSON RPC</a>.</p>
+<div class="paragraph">
+<p>Text editors overall are very interesting, because they must be built with
+extensibility in mind and thus have to implement some kind of plugin system.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Visual Studio Code is based on Electron, so it has a renderer process for the
+frontend, and a main process with Node. Its extensions share the same event
+loop,
+<a href="https://github.com/microsoft/vscode/issues/75627#issuecomment-519125065">which
+has been an issue for a long time in case an extension blocks temporarily</a>,
+causing lag.</p>
+</li>
+<li>
+<p>Eclipse’s plugin architecture is based on Java classes <a href="#eclipse">[16]</a> loaded at
+runtime and configured with XML manifests.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://bevyengine.org/"><code>bevy</code></a>: a very promising game engine whose features
+are implemented as plugins. Most times they are loaded at compile-time, but
+the
+<a href="https://docs.rs/bevy/0.5.0/bevy/dynamic_plugin/index.html"><code>bevy::dynamic_plugin</code></a>
+allows this to happen at runtime. It uses <code>libloading</code> internally, with
+actually
+<a href="https://github.com/bevyengine/bevy/blob/v0.5.0/crates/bevy_dynamic_plugin/src/loader.rs">very
+little code</a>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">7. Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This article has covered quite a few ways to approach a Plugin System. The final
+choice depends on what trade-offs the project wants to make. Most of them
+require sacrificing some level of performance for safety or usability. Here’s a
+drawing that <strong><em>very roughly</em></strong> compares the main methods:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="/blog/plugin-tech/triangle.svg" alt="Triangle Chart" width="70%"/>
+</div>
+</div>
+<div class="paragraph">
+<p>There’s never a single answer in programming: how much performance are you
+willing to lose in exchange for safety and usability? Is that performance
+actually measurable, or is it just hypothetical? Don’t forget that this depends
+on the use case, so make sure you run a couple benchmarks if the resulting
+overhead may be important for your program.</p>
+</div>
+<div class="paragraph">
+<p>You can join the discussion at
+<a href="https://www.reddit.com/r/rust/comments/nenql8/plugins_in_rust_the_technologies_nullderefcom/?">Reddit</a>
+if you have any additional suggestions or comments, or leave a comment below.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="ulist bibliography">
+<ul class="bibliography">
+<li>
+<p><a id="npm-trust-1"></a>[1] <a href="https://jamie.build/how-to-build-an-npm-worm" class="bare">https://jamie.build/how-to-build-an-npm-worm</a></p>
+</li>
+<li>
+<p><a id="npm-trust-2"></a>[2] <a href="https://snyk.io/blog/yet-another-malicious-package-found-in-npm-targeting-cryptocurrency-wallets/" class="bare">https://snyk.io/blog/yet-another-malicious-package-found-in-npm-targeting-cryptocurrency-wallets/</a></p>
+</li>
+<li>
+<p><a id="swift-abi"></a>[3] <a href="https://gankra.github.io/blah/swift-abi/" class="bare">https://gankra.github.io/blah/swift-abi/</a></p>
+</li>
+<li>
+<p><a id="lua-wiki"></a>[4] <a href="https://en.wikipedia.org/wiki/Lua_(programming_language" class="bare">https://en.wikipedia.org/wiki/Lua_(programming_language</a>)</p>
+</li>
+<li>
+<p><a id="lua-sandbox"></a>[5] <a href="http://lua-users.org/wiki/SandBoxes" class="bare">http://lua-users.org/wiki/SandBoxes</a></p>
+</li>
+<li>
+<p><a id="ipc-wisc"></a>[6] <a href="http://pages.cs.wisc.edu/~adityav/Evaluation_of_Inter_Process_Communication_Mechanisms.pdf" class="bare">http://pages.cs.wisc.edu/~adityav/Evaluation_of_Inter_Process_Communication_Mechanisms.pdf</a></p>
+</li>
+<li>
+<p><a id="protobuf-perf"></a>[7] <a href="https://google.github.io/flatbuffers/flatbuffers_benchmarks.html" class="bare">https://google.github.io/flatbuffers/flatbuffers_benchmarks.html</a></p>
+</li>
+<li>
+<p><a id="memory-share-so"></a>[8] <a href="https://stackoverflow.com/a/14512554/11488352" class="bare">https://stackoverflow.com/a/14512554/11488352</a></p>
+</li>
+<li>
+<p><a id="ffi-comparison"></a>[9] <a href="https://docs.rs/dlopen/0.1.8/dlopen/#compare-with-other-libraries" class="bare">https://docs.rs/dlopen/0.1.8/dlopen/#compare-with-other-libraries</a></p>
+</li>
+<li>
+<p><a id="ffi-caveat-1"></a>[10] <a href="https://stackoverflow.com/a/46249019/11488352" class="bare">https://stackoverflow.com/a/46249019/11488352</a></p>
+</li>
+<li>
+<p><a id="ffi-caveat-2"></a>[11] <a href="https://github.com/kurtlawrence/papyrus/blob/1c7f0a669fed59d220bdefb161c568072126d3d5/src/compile/execute.rs#L36" class="bare">https://github.com/kurtlawrence/papyrus/blob/1c7f0a669fed59d220bdefb161c568072126d3d5/src/compile/execute.rs#L36</a></p>
+</li>
+<li>
+<p><a id="ffi-cross-platform"></a>[12] <a href="https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#thread-safety" class="bare">https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#thread-safety</a>, which is repeated all over the library documentation.</p>
+</li>
+<li>
+<p><a id="ffi-dlopen-safety"></a>[13] <a href="https://docs.rs/dlopen/0.1.8/dlopen/#safety" class="bare">https://docs.rs/dlopen/0.1.8/dlopen/#safety</a></p>
+</li>
+<li>
+<p><a id="amethyst-fail"></a>[14] <a href="https://github.com/amethyst/amethyst/issues/1729" class="bare">https://github.com/amethyst/amethyst/issues/1729</a></p>
+</li>
+<li>
+<p><a id="wasmer-types"></a>[15] <a href="https://wasmerio.github.io/wasmer/crates/wasmer/types/type.Val.html" class="bare">https://wasmerio.github.io/wasmer/crates/wasmer/types/type.Val.html</a></p>
+</li>
+<li>
+<p><a id="eclipse"></a>[16] <a href="http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html" class="bare">http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+]]></content:encoded>
     </item>
     
     <item>
@@ -24,6 +1041,452 @@
       
       <guid>https://nullderef.com/blog/gsoc-proposal/</guid>
       <description>My proposal for 2021&amp;#39;s GSoC</description>
+      <content:encoded><![CDATA[<div class="sect1">
+<h2 id="_abstract">Abstract</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This Google Summer of Code project consists on developing a universal interface
+for Tremor plugins<sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup>,
+allowing said library to become more modular and reduce the core set of
+dependencies.</p>
+</div>
+<div class="paragraph">
+<p>This will achieve a considerably reduced core size for Tremor, meaning that the
+library will be faster to compile and have a smaller binary size. Most
+importantly, it will transform Tremor’s architecture to be completely modular,
+where plugins can be configured as needed and developed independently, in a
+language-agnostic way.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_implementation_plan">Implementation Plan</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are a few details to take into account about the proposed implementation:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Modules can be loaded into a Tremor instance either at start-time or
+dynamically and then used in deployments.</p>
+</li>
+<li>
+<p>Plugin unloading is not to be implemented for this project.</p>
+</li>
+<li>
+<p>Template projects, traits, and examples are out of scope in this</p>
+</li>
+<li>
+<p>Tremor supports Linux, Max OS X and Windows, so this feature should integrate
+seamlessly on any of these Operating Systems as well.</p>
+</li>
+<li>
+<p>Dynamic library loading usually requires usage of <code>unsafe</code>, so this
+implementation ought to make sure their appearances do not raise safety
+concerns in Tremor. Thorough error handling is a must for this.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The following sections list the problems that need to be solved. These haven’t
+been discussed with Tremor members much, so they are subject to heavy changes
+and are just introductions to possible approaches.</p>
+</div>
+<div class="sect2">
+<h3 id="_defining_an_interface">Defining an Interface</h3>
+<div class="paragraph">
+<p>The minimum common denominator to define binary interfaces most times is C.
+However, while this would allow Tremor plugins to be written in any language,
+the complexity of this project would increase tremendously. Types required for
+the interface like <code>tremor_script::Value</code> (currently used by
+<a href="https://github.com/tremor-rs/tremor-runtime/blob/main/src/codec.rs#L70">some
+traits</a>), error handling, and other advanced features like lifetimes or
+templates would have to be transformed down to the C ABI. Not only would this be
+an incredibly tedious and complicated task, but it’d also introduce a small
+overhead for every function in the plugin.</p>
+</div>
+<div class="paragraph">
+<p>Thus, the only viable solution is a Rust to Rust FFI, using
+<a href="https://doc.rust-lang.org/rustc/command-line-arguments.html#--crate-type-a-list-of-types-of-crates-for-the-compiler-to-emit"><code>dylib</code></a>
+libraries for the plugins. The problem in this case is that Rust doesn’t have a
+stable ABI, and it doesn’t plan to define one in the future<sup class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnotedef_2" title="View footnote.">2</a>]</sup>. This means
+that programs or plugins compiled with different versions of rustc won’t be
+compatible at all. This could be less of a problem with alternatives like
+<a href="https://github.com/rodrimati1992/abi_stable_crates/"><code>abi_stable_crates</code></a>, which
+provide unofficial stable ABIs, but they don’t follow Rust’s objectives nor are
+very popular, so these libraries might end up unmaintained or just not worth it.</p>
+</div>
+<div class="paragraph">
+<p>Interface improvements may also happen in the future, where a method might be
+deprecated, removed, or added. The same could happen with Tremor; different API
+versions wouldn’t be backwards compatible either.</p>
+</div>
+<div class="paragraph">
+<p>Knowing this, it’s important to correctly handle version upgrades. This means
+that some kind of interface versioning is needed. Tremor could disallow loading
+plugins that would inevitably break after a version upgrade, or perhaps it could
+show a message informing the user that they should upgrade their plugin before
+the deprecations turn into actual changes. Most Plugin Development Kit
+interfaces include some way of providing metadata about the plugin<sup class="footnote">[<a id="_footnoteref_3" class="footnote" href="#_footnotedef_3" title="View footnote.">3</a>]</sup>. This may include the following fields:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Versioning</strong>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Interface version</p>
+</li>
+<li>
+<p>Tremor version</p>
+</li>
+<li>
+<p>Rustc version</p>
+</li>
+<li>
+<p>Core version</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Interface type</strong>: to avoid incorrectly loading a codec plugin as a pipeline
+operator, for example.</p>
+</li>
+<li>
+<p><strong>Other information about the module itself</strong>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Version</p>
+</li>
+<li>
+<p>Author</p>
+</li>
+<li>
+<p>License</p>
+</li>
+<li>
+<p>Description</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The Linux Kernel Module system for example inserts this in the <code>.modinfo</code>
+section of the binary, where the fields can be read
+<a href="https://github.com/lizhuohua/linux-kernel-module-rust/blob/master/yes_chardev/src/lib.rs#L136">as
+a key-value c-string</a>. C extensions for Python, on the other hand, use a
+<a href="https://docs.python.org/3/c-api/module.html#c.PyModuleDef"><code>PyModuleDef</code> struct</a>
+with all the fields. The last option is by exporting globals with known names,
+which is the most straightforward.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_dynamically_loading_objects">Dynamically Loading Objects</h3>
+<div class="paragraph">
+<p>The next step after declaring a basic interface is somehow importing the dynamic
+objects into the core of Tremor, in Rust. The main library that can help with
+this is <a href="https://docs.rs/libloading/"><code>libloading</code></a>, which seems to be somewhat
+mature and well maintained. Although it does offer OS-dependent features, its
+main usage is wrapped to be cross-platform, following the same behaviour on all
+platforms. <code>libloading</code> would allow Tremor to load symbols from an external
+module, like functions or variables. Here’s an
+<a href="https://github.com/kmdouglass/rust-libloading-example">example</a> of how it’s used.
+After loading the dynamic library, the Tremor core would wrap its exported
+functions so that they can be used without <code>unsafe</code> and unnecessary boilerplate.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuration">Configuration</h3>
+<div class="paragraph">
+<p>Something to consider is where the plugins are going to be loaded dynamically
+from, or how that can be configured. Tremor currently has quite a few ways to
+handle <a href="https://docs.tremor.rs/operations/configuration/">configuration</a> via
+repositories and registries.</p>
+</div>
+<div class="paragraph">
+<p>One way to approach this would be to have a directory inside <code>/etc/tremor/</code> — or any user-configurable path when launching Tremor — with all the available
+plugins. Tremor would read its contents when starting and load all the plugins
+it finds. It should also be possible to load new plugins on demand, so the
+repository could be given the path of a library to include at runtime, for
+example with the <code>tremor</code> CLI tool.</p>
+</div>
+<div class="paragraph">
+<p>It’s important to make the PDK as easy to use as possible, and to avoid breaking
+already existing installations of Tremor. For this, the default Tremor
+configuration should include the current libraries in the default dynamic
+library location.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="impls">Implementations</h3>
+<div class="paragraph">
+<p>The PDK issue establishes the following components of Tremor as the main
+deliverables:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Pipeline Operators</p>
+</li>
+<li>
+<p>Codecs</p>
+</li>
+<li>
+<p>Preprocessors</p>
+</li>
+<li>
+<p>Postprocessors</p>
+</li>
+<li>
+<p>Modules/Functions</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>After defining its interfaces and implementing the PDK architecture, these
+features would be turned into plugins, which would allow them to be developed
+independently, and thus wouldn’t have to be in the main
+<a href="https://github.com/tremor-rs/tremor-runtime">tremor-runtime</a> repository. For
+simplicity, though, it might be best to keep them there — or at least group
+them up in less repositories — to avoid a large number of repos and thus a
+bigger maintenance cost. Some components are
+<a href="https://github.com/tremor-rs/tremor-runtime/blob/main/src/codec/null.rs">quite
+simple</a> and it might not be necessary to create a new repository for them, with
+a copy of the CI, README…​ But this is up to the core contributors of Tremor,
+after all.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_enhancements">Enhancements</h3>
+<div class="paragraph">
+<p>The PDK proposal also lists a few optional targets, which can be implemented if
+there’s remaining time after the main goals are fully finished:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Implement connectors RFC ( pre-requirement for connector plugins )</p>
+</li>
+<li>
+<p>Contribute to and finalize tremor-rs/tremor-rfcs#32</p>
+</li>
+<li>
+<p>Add source, sink, and peering connectors to pluggable artefacts</p>
+</li>
+<li>
+<p>Add a PDK TCK ( test compatibility kit ) that asserts plugin invariants and
+provides testing mechanisms for plugin developers</p>
+</li>
+<li>
+<p>Consider plugin documentation generation and another tooling for better
+developer convenience and usability</p>
+</li>
+<li>
+<p>Make trickle sub-graphs a first-class modular and pluggable artefact</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The most likely to be implemented of these is the fifth, as documentation is
+important for this new breaking feature and it looks like the easiest of them,
+or at least seemingly more flexible, considering there most likely won’t be that
+much extra time after the main goals, if any.</p>
+</div>
+<div class="paragraph">
+<p>The “development tooling” part would also be inevitably developed as the
+project progresses, since I’ll need them anyway to move the existing <a href="#impls">Implementations</a>
+to the PDK. Said resources could be contained in a separate <code>tremor_plugin</code>
+crate, with all kinds of utilities to make plugin development easier, including
+traits or even procedural macros if necessary, which are a very interesting part
+of Rust and I’m looking forward to on working on as well, and
+<a href="https://github.com/vidify/structconf">I’ve already done in the past</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_proposal_timeline">Proposal Timeline</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I do not plan on giving a very specific and tight timeline because it’s still
+really early, so the following are rough estimates and are subject to
+modifications. I’ll also include an extra week for possible delays, or otherwise
+for work towards the enhancements to the initial target, so that the established
+175 hours of work by Google are fully covered. This is expected to happen over
+10 weeks, which means about 17.5 hours of work per week. Depending on my speed
+of development this might increase to up to around 20 hours per week so that the
+proposed requirements can be fulfilled.</p>
+</div>
+<div class="paragraph">
+<p>I will be in contact with the Tremor team at all times during the development
+process. I’ll also make a detailed blog post after this is finished, and
+possibly smaller ones after finishing the more important goals of the project.</p>
+</div>
+<div class="sect2">
+<h3 id="_13th_april_to_17th_may_application_review">13th April to 17th May: Application Review</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>I don’t have experience with Tremor itself, since I’ve discovered it thanks to
+the GSoC, but I plan on contributing at least an
+<a href="https://github.com/tremor-rs/tremor-runtime/issues/17">exec offramp</a> soon to
+get myself familiarized with the codebase.</p>
+</li>
+<li>
+<p>I will do more research about the theory needed for this project: dynamic
+shared object libraries, and specifically in Rust (What libraries can I use?
+How unsafe is it? How stable is it?).</p>
+</li>
+<li>
+<p>Research more about libraries like
+<a href="https://github.com/rodrimati1992/abi_stable_crates/"><code>abi_stable_crates</code></a> and
+evaluate if said method to increase of compatibility for plugins is actually
+worth it.</p>
+</li>
+<li>
+<p>I will take a look at how other libraries implement this. I consider it vital
+to know about how this has been done in the past in order to avoid their
+failures and improve their solutions rather than starting from scratch.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_17th_may_to_7th_june_community_bonding">17th May to 7th June: Community Bonding</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Here I will try to get smaller prototypes of PDKs working, which can later be
+extended for Tremor, and with which I could discuss with the Tremor team.</p>
+</li>
+<li>
+<p>Plan how the development will work in detail and structure my research and
+ideas in a single place — perhaps a blog post.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_7th_june_to_16th_august_coding">7th June to 16th August: Coding</h3>
+<div class="paragraph">
+<p>As the code is written, documentation and the tests also will. Tests are a great
+method to make sure a feature really works while developing it, and a solid way
+to move on to another feature when coding is to sum it up with documentation
+before forgetting more about its details; I consider it a bad idea to forget
+these points until the very end.</p>
+</div>
+<div class="paragraph">
+<p>There are five main objectives proposed for the initial target, to be
+distributed in 9 weeks. Some will take more effort to implement, so here’s an
+estimate:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Implementing the plugin-loading architecture into Tremor</strong>: <em>weeks 1 to 2</em>.</p>
+</li>
+<li>
+<p><strong>Configuration of the PDK in Tremor’s repositories/registry</strong>: <em>week 3</em>.</p>
+</li>
+<li>
+<p><strong>Defining the main component interfaces</strong>: <em>weeks 4 to 5</em>.</p>
+</li>
+<li>
+<p><strong>Implementing all of Tremor’s components as plugins</strong> (pipeline operators,
+codecs, preprocessors, postprocessors and modules/functions): <em>weeks 6 to 9</em>.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+I expect to make less progress until around the 15th of June, since I will
+be on finals until that day, and it will be harder to keep up with both at the
+same time. This means that the work will most likely not be evenly distributed;
+some weeks I’ll have more time than others, so I’ll make more progress in these
+to even it out.
+</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_about_myself">About Myself</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I’m Mario Ortiz Manero, a Computer Science student at the University of
+Zaragoza, Spain. I’m currently finishing my third year. Thanks to the
+university, I’m mostly experienced with Python, C and C++, but I’ve also been
+interested in Rust since 2020’s summer, when I took a deep dive and learned it
+on my own. I would love to have an opportunity where I can contribute to a big
+project with mentorship to sharpen my skills.</p>
+</div>
+<div class="paragraph">
+<p>So far I’ve been interested in Software Development, but I recently learned more
+about Distributed and Concurrent Systems, which has really caught my attention.
+Tremor seems to be involved in this as well, which makes me excited to
+collaborate with them. I’m a long time open source contributor, mostly for
+projects of my own, but also to help other communities I’m passionate about, as
+I love the community and its ideals it represents:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The project I’m most proud of is <a href="https://github.com/vidify">Vidify</a>, a set of
+programs to automatically reproduce music videos for whatever music is playing
+on a device.</p>
+</li>
+<li>
+<p>I’m currently a maintainer of
+<a href="https://github.com/ramsayleung/rspotify">rspotify</a>, the most popular Spotify
+Web API bindings in Rust.</p>
+</li>
+<li>
+<p><a href="https://aur.archlinux.org/account/marioom/">Many</a>
+<a href="https://github.com/marioortizmanero/polybar-pulseaudio-control">other</a>
+<a href="https://github.com/maremotocafe">smaller</a>
+<a href="https://github.com/felix-hilden/tekore">contributions</a> to various projects.</p>
+</li>
+<li>
+<p>I’m also very interested in Hackathons, having participated in
+<a href="https://hacktoberfest.digitalocean.com/">Hacktoberfest</a> for two years in a row,
+<a href="https://codingcompetitions.withgoogle.com/hashcode/">Google’s Hashcode 2019</a>,
+<a href="https://www.ucode.es/">Adidas uCode 2019</a> and
+<a href="https://www.spaceappschallenge.org/">NASA’s SpaceApps 2019</a>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can contact me at marioortizmanero <em>at</em> gmail <em>dot</em> com, or via Discord as
+Glow#5433.</p>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<hr/>
+<div class="footnote" id="_footnotedef_1">
+<a href="#_footnoteref_1">1</a>. As described in detail in its <a href="https://github.com/tremor-rs/tremor-runtime/issues/791">issue on Tremor’s repository</a> or its <a href="https://rfcs.tremor.rs/0006-plugin-development-kit/">RFC</a>.
+</div>
+<div class="footnote" id="_footnotedef_2">
+<a href="#_footnoteref_2">2</a>. See <a href="https://github.com/rust-lang/rfcs/issues/600">rust-lang/rfcs/#600</a>
+</div>
+<div class="footnote" id="_footnotedef_3">
+<a href="#_footnoteref_3">3</a>. More details on this post: <a href="https://adventures.michaelfbryan.com/posts/plugins-in-rust/#determining-the-plugin-interface">Plugins in Rust</a>
+</div>
+</div>
+]]></content:encoded>
     </item>
     
     <item>
@@ -33,6 +1496,421 @@
       
       <guid>https://nullderef.com/blog/rust-parameters/</guid>
       <description>Analyzing different approaches for optional parameters in Rust</description>
+      <content:encoded><![CDATA[<p>Optional or default parameters are a very interesting feature of some languages
+that Rust specifically doesn&rsquo;t cover (and looks like it won&rsquo;t <a href="https://github.com/rust-lang/rfcs/pull/2964">anytime soon
+</a>). Say your library has lots of
+endpoints like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">endpoint</span><span style="color:#f92672">&lt;</span>T1, T2, T3, ...<span style="color:#f92672">&gt;</span>(mandatory: <span style="color:#a6e22e">T1</span>, opt1: Option<span style="color:#f92672">&lt;</span>T2<span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span>T3<span style="color:#f92672">&gt;</span>, ...);
+</code></pre></div><p>In this case, when you call <code>endpoint</code>, you have to use <code>endpoint(mandatory, None, None, ...)</code>, or <code>endpoint(mandatory, Some(val1), Some(val2), ...)</code>,
+instead of the more intuitive <code>endpoint(mandatory)</code> or <code>endpoint(mandatory, val1, val2)</code>. Other languages like Python have named arguments, which make
+optional parameters natural and easier to read: <code>endpoint(mandatory, opt1=val1, opt2=val2)</code>, while also allowing them to be written in any order.</p>
+<p>Even without official support, there are are lots of different ways to approach
+them in Rust, which is what this blog post tries to analyze. My goal is not to
+show which one is the &ldquo;best&rdquo; option, but to exhaustively showcase the different
+ways they can be approached, and the ups and downs of each of them.</p>
+<h2 id="introducing-an-example">Introducing an example</h2>
+<p>Let&rsquo;s start with a typical web API wrapper library. These often require a client
+struct to hold authentication fields and such:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[derive(Default, Debug, Clone)]</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">APIClient</span>;
+</code></pre></div><p>This client will have various endpoints which can be used to send requests to
+the server. We will use a function with the actual implementation and some type
+aliases so that the following snippets are easier to read:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::error::Error;
+
+<span style="color:#e6db74">/// Some value that the endpoint will return
+</span><span style="color:#e6db74"></span><span style="color:#75715e">#[derive(Debug, Default)]</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Value</span>;
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">ReturnedValue</span> <span style="color:#f92672">=</span> Result<span style="color:#f92672">&lt;</span>Value, Box<span style="color:#f92672">&lt;</span>dyn Error<span style="color:#f92672">&gt;&gt;</span>;
+
+<span style="color:#e6db74">/// The actual code for the endpoint inside the client
+</span><span style="color:#e6db74"></span><span style="color:#66d9ef">impl</span> APIClient {
+    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">actual_endpoint</span>(name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>, opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
+        println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;params: {} {:?} {:?}&#34;</span>, name, opt1, opt2);
+
+        Ok(Default::default())
+    }
+}
+</code></pre></div><h2 id="a-using-optiont">A) Using <code>Option&lt;T&gt;</code></h2>
+<p>The simplest way to do this would be to just use the <code>actual_endpoint</code> function
+signature. Sometimes the best solution is the simplest, and your project just
+might not need more complex approaches. Do consider if anything more elaborate
+is actually necessary.</p>
+<p>For the sake of this example, it would look like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient {
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_a</span>(<span style="color:#f92672">&amp;</span>self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>, opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
+        self.actual_endpoint(name, opt1, opt2)
+    }
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> api <span style="color:#f92672">=</span> APIClient {};
+<span style="color:#66d9ef">let</span> param2: <span style="color:#66d9ef">u32</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">324</span>;
+
+api.approach_a(<span style="color:#e6db74">&#34;option&#34;</span>, Some(param2), Some(<span style="color:#ae81ff">1234</span>))<span style="color:#f92672">?</span>;
+api.approach_a(<span style="color:#e6db74">&#34;option&#34;</span>, None, None)<span style="color:#f92672">?</span>;
+</code></pre></div><h3 id="upsides">Upsides</h3>
+<ul>
+<li>Simplest to understand and implement.</li>
+</ul>
+<h3 id="downsides">Downsides</h3>
+<ul>
+<li>Multiple optional parameters require lots of <code>None</code> and <code>Some</code>.</li>
+<li>Parameter names unknown when reading the code, which is specially annoying
+with <code>None</code> values, since these don&rsquo;t have context to know what they are for.</li>
+</ul>
+<h2 id="b-with-intooptiont">B) With <code>Into&lt;Option&lt;T&gt;&gt;</code></h2>
+<p>A variation of the previous approach consists on using <code>Into&lt;Option&lt;T&gt;&gt;</code> as the
+generic value for the optional parameters (<code>impl Into&lt;Option&lt;T&gt;&gt;</code> can be used as
+well). This way, <code>Some</code> isn&rsquo;t needed when the optional parameters are specified:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient {
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_b</span><span style="color:#f92672">&lt;</span>T1, T2<span style="color:#f92672">&gt;</span>(<span style="color:#f92672">&amp;</span>self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>, opt1: <span style="color:#a6e22e">T1</span>, opt2: <span style="color:#a6e22e">T2</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span>
+    <span style="color:#66d9ef">where</span>
+        T1: Into<span style="color:#f92672">&lt;</span>Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;&gt;</span>,
+        T2: Into<span style="color:#f92672">&lt;</span>Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;&gt;</span>,
+    {
+        self.actual_endpoint(name, opt1.into(), opt2.into())
+    }
+}
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.approach_b(<span style="color:#e6db74">&#34;into_option&#34;</span>, param2, <span style="color:#ae81ff">1234</span>)<span style="color:#f92672">?</span>;
+<span style="color:#75715e">// This still works
+</span><span style="color:#75715e"></span>api.approach_b(<span style="color:#e6db74">&#34;into_option&#34;</span>, Some(param2), Some(<span style="color:#ae81ff">123</span>))<span style="color:#f92672">?</span>;
+api.approach_b(<span style="color:#e6db74">&#34;into_option&#34;</span>, None, None)<span style="color:#f92672">?</span>;
+</code></pre></div><h3 id="upsides-1">Upsides</h3>
+<ul>
+<li><code>Some</code> isn&rsquo;t required, which makes it slightly easier to read.</li>
+</ul>
+<h3 id="downsides-1">Downsides</h3>
+<ul>
+<li>Multiple optional parameters still require lots of <code>None</code>s.</li>
+<li>No parameter names either.</li>
+<li>More complex function signatures, and might not be too &ldquo;idiomatic&rdquo;.</li>
+<li>Requires generics, 2^N copies of this function may be generated, where N is
+the number of optional parameters.</li>
+</ul>
+<h2 id="c-with-a-custom-struct">C) With a custom struct</h2>
+<p>Another option is to create a struct that holds the parameters and use that
+instead. The complexity is still relatively simple, and it can work out well
+if the API has functions with repetitive function signatures. This will serve
+as a base for the following approaches as well:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> call1 <span style="color:#f92672">=</span> params::ApproachC {
+    name: <span style="color:#e6db74">&#34;builder&#34;</span>.to_string(),
+    opt1: Some(param2),
+    opt2: Some(<span style="color:#ae81ff">123</span>),
+};
+api.approach_c(<span style="color:#f92672">&amp;</span>call1)<span style="color:#f92672">?</span>;
+</code></pre></div><p>We can even use <code>..Default::default()</code> to initialize the rest of the parameters
+with their default values:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> call2 <span style="color:#f92672">=</span> params::ApproachC {
+    name: <span style="color:#e6db74">&#34;builder&#34;</span>.to_string(),
+    ..Default::default()
+};
+api.approach_c(<span style="color:#f92672">&amp;</span>call2)<span style="color:#f92672">?</span>;
+</code></pre></div><p>The implementation looks like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">mod</span> params {
+    <span style="color:#e6db74">/// We derive `Default` to be able to initialize with
+</span><span style="color:#e6db74"></span>    <span style="color:#e6db74">/// `..Default::default()`.
+</span><span style="color:#e6db74"></span>    <span style="color:#75715e">#[derive(Default)]</span>
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachC</span> {
+        <span style="color:#66d9ef">pub</span> name: String,
+        <span style="color:#66d9ef">pub</span> opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>,
+        <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
+    }
+}
+
+<span style="color:#66d9ef">impl</span> APIClient {
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_c</span>(<span style="color:#f92672">&amp;</span>self, data: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">params</span>::ApproachC) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
+        self.actual_endpoint(<span style="color:#f92672">&amp;</span>data.name, data.opt1, data.opt2)
+    }
+}
+</code></pre></div><h3 id="upsides-2">Upsides</h3>
+<ul>
+<li>Some APIs might feel more natural this way, if the combination of these
+parameters as a group makes sense.</li>
+<li>The struct can be reused in different calls.</li>
+</ul>
+<h3 id="downsides-2">Downsides</h3>
+<ul>
+<li>Multiple optional parameters require lots of <code>None</code> and <code>Some</code>.</li>
+<li>Way more verbose.</li>
+<li>Can be difficult to scale, since it needs a struct and a function per
+endpoint.</li>
+</ul>
+<h2 id="d-with-the-builder-pattern">D) With the builder pattern</h2>
+<p>The previous approach can be improved by using the <a href="https://doc.rust-lang.org/1.0.0/style/ownership/builders.html">builder pattern
+</a> for the
+parameters, so that building the parameters is simpler and more pretty to look
+at:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> call1 <span style="color:#f92672">=</span> params::ApproachDBuilder::default()
+    .name(<span style="color:#e6db74">&#34;builder&#34;</span>)
+    .opt1(param2)
+    .opt2(<span style="color:#ae81ff">2134</span>)
+    .build()<span style="color:#f92672">?</span>;
+api.approach_d(<span style="color:#f92672">&amp;</span>call1)<span style="color:#f92672">?</span>;
+
+<span style="color:#66d9ef">let</span> call2 <span style="color:#f92672">=</span> params::ApproachDBuilder::default()
+    .name(<span style="color:#e6db74">&#34;builder&#34;</span>)
+    .build()<span style="color:#f92672">?</span>;
+api.approach_d(<span style="color:#f92672">&amp;</span>call2)<span style="color:#f92672">?</span>;
+</code></pre></div><p>In this case, we use the <a href="https://crates.io/crates/derive_builder"><code>derive_builder</code>
+</a> crate to make the implementation less
+repetitive:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">mod</span> params {
+    <span style="color:#75715e">#[derive(Default, Builder)]</span>
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachD</span> {
+        <span style="color:#75715e">#[builder(setter(into))]</span>
+        <span style="color:#66d9ef">pub</span> name: String,
+        <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
+        <span style="color:#66d9ef">pub</span> opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>,
+        <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
+        <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
+    }
+}
+
+<span style="color:#66d9ef">impl</span> APIClient {
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_d</span>(<span style="color:#f92672">&amp;</span>self, data: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">params</span>::ApproachD) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
+        self.actual_endpoint(<span style="color:#f92672">&amp;</span>data.name, data.opt1, data.opt2)
+    }
+}
+</code></pre></div><h3 id="upsides-3">Upsides</h3>
+<ul>
+<li>It&rsquo;s the most popular pattern in Rust for optional parameters.</li>
+<li>The struct can still be reused in different calls.</li>
+<li>No <code>None</code> or <code>Some</code> at sight.</li>
+<li>Optional parameters are now associated to their name, which makes it easier
+to read.</li>
+</ul>
+<h3 id="downsides-3">Downsides</h3>
+<ul>
+<li>Somewhat verbose.</li>
+<li>In our example it can be difficult to scale, since it needs a struct and a
+function per endpoint.</li>
+<li>More overhead, both at runtime and compile-time (specially if macros are
+used).</li>
+<li>Constructing the values may fail. Thus, the documentation has to specify very
+clearly which parameters are mandatory and which aren&rsquo;t.</li>
+</ul>
+<h2 id="e-endpoint-oriented-interface">E) Endpoint-oriented interface</h2>
+<p>Here&rsquo;s a different take: what if the API was endpoint-oriented instead of
+client-oriented? Starting from the previous approach, we could make the call
+<em>inside the endpoint struct itself</em> instead of in the API&rsquo;s client by adding it
+to <code>ApproachE</code>, or by overriding the <code>build</code> method from <code>derive_builder</code> for
+a slightly less verbose version:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">ApproachEBuilder::default()
+    .name(<span style="color:#e6db74">&#34;endpoint-oriented&#34;</span>)
+    .opt1(param2)
+    .opt2(<span style="color:#ae81ff">1111</span>)
+    .call(<span style="color:#f92672">&amp;</span>api)<span style="color:#f92672">?</span>;
+ApproachEBuilder::default()
+    .name(<span style="color:#e6db74">&#34;endpoint-oriented&#34;</span>)
+    .call(<span style="color:#f92672">&amp;</span>api)<span style="color:#f92672">?</span>;
+</code></pre></div><p>And its implementation:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[derive(Default, Builder)]</span>
+<span style="color:#75715e">#[builder(build_fn(private))]</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachE</span> {
+    <span style="color:#75715e">#[builder(setter(into))]</span>
+    <span style="color:#66d9ef">pub</span> name: String,
+    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
+    <span style="color:#66d9ef">pub</span> opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>,
+    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
+    <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
+}
+
+<span style="color:#66d9ef">impl</span> ApproachEBuilder {
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">call</span>(<span style="color:#f92672">&amp;</span>self, client: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">APIClient</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
+        <span style="color:#66d9ef">let</span> data <span style="color:#f92672">=</span> self.build()<span style="color:#f92672">?</span>; <span style="color:#75715e">// This might fail!
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// `actual_endpoint` would have to be at least pub(in crate) in this
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// case.
+</span><span style="color:#75715e"></span>        client.actual_endpoint(<span style="color:#f92672">&amp;</span>data.name, data.opt1, data.opt2)
+    }
+}
+</code></pre></div><p>Note: this is assuming the client contains necessary information to make the
+requests, like a <a href="https://docs.rs/reqwest/latest/reqwest/struct.Client.html"><code>reqwest::Client</code>
+</a> or authentication
+details. But for example, <code>ureq</code> can perform calls without a client instance,
+just by calling <a href="https://docs.rs/ureq/latest/ureq/fn.get.html"><code>ureq::get</code> and similars
+</a>. In that case, the API could
+just not have a client at all, and the <code>call</code> method wouldn&rsquo;t require a
+reference to the client.</p>
+<h3 id="upsides-4">Upsides</h3>
+<ul>
+<li>Fits perfectly for some specific APIs.</li>
+<li>No <code>None</code> or <code>Some</code> needed.</li>
+<li>Just as readable as the previous case.</li>
+<li>The struct may be reused.</li>
+<li>Simple to use and implement, since it doesn&rsquo;t need declaring both a function
+in the client and a parameters struct, only the latter.</li>
+</ul>
+<h3 id="downsides-4">Downsides</h3>
+<ul>
+<li>Still relatively verbose, might not be compatible with some APIs.</li>
+<li>Slight builder pattern overhead, and can also fail to construct the value.</li>
+</ul>
+<h2 id="f-hybrid-derive-pattern">F) Hybrid derive pattern</h2>
+<p>Back to the client-oriented API. We can remove some of the disadvantages of the
+builder pattern by using a different approach and possibly a custom
+implementation instead of just using <code>derive_builder</code>.</p>
+<p>The client will now have a method that calls <code>ApproachBuilder::default()</code> and
+whatever is necessary to start building the endpoint. Mandatory parameters are
+added to that function&rsquo;s signature, so that the build can never fail. This also
+avoids passing the client in <code>call(&amp;api)</code>, since we can do that inside the
+method. This is how it would look like:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.approach_f(<span style="color:#e6db74">&#34;hybrid-derive-pattern&#34;</span>)
+    .opt1(param2)
+    .opt2(<span style="color:#ae81ff">2222</span>)
+    .call()<span style="color:#f92672">?</span>;
+</code></pre></div><p>And an implementation by wrapping <code>derive_builder</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient {
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_f</span>(<span style="color:#f92672">&amp;</span>self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) -&gt; <span style="color:#a6e22e">ApproachFBuilder</span> {
+        ApproachFBuilder::default().client(self).name(name)
+    }
+}
+
+<span style="color:#e6db74">/// Not meant to be used directly, only within `APIClient`.
+</span><span style="color:#e6db74"></span><span style="color:#75715e">#[derive(Default, Builder)]</span>
+<span style="color:#75715e">#[builder(build_fn(private), pattern = </span><span style="color:#e6db74">&#34;owned&#34;</span><span style="color:#75715e">)]</span>
+<span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachF</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
+    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
+    client: Option<span style="color:#f92672">&lt;&amp;</span><span style="color:#a6e22e">&#39;a</span> APIClient<span style="color:#f92672">&gt;</span>,
+    <span style="color:#75715e">#[builder(setter(into))]</span>
+    <span style="color:#66d9ef">pub</span> name: String,
+    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
+    <span style="color:#66d9ef">pub</span> opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>,
+    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
+    <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
+}
+
+<span style="color:#66d9ef">impl</span> ApproachFBuilder<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;_</span><span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">call</span>(self) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
+        <span style="color:#66d9ef">let</span> data <span style="color:#f92672">=</span> self.build().unwrap(); <span style="color:#75715e">// This should never fail
+</span><span style="color:#75715e"></span>        data.client
+            .unwrap()
+            .actual_endpoint(<span style="color:#f92672">&amp;</span>data.name, data.opt1, data.opt2)
+    }
+}
+</code></pre></div><p><code>derive_builder</code> doesn&rsquo;t know that <code>build()</code> can never technically fail
+because the mandatory parameters are provided inside the wrapper, so it&rsquo;s kind
+of a waste to use this macro. It also forces us to create the wrapper because
+the builder always has to be initialized with <code>Builder::default()</code>. With a
+custom implementation, we could have this new method integrated in the builder
+itself instead, like <code>Builder::new(A, B, C)</code>.</p>
+<p>Thus, it might be better to use other crates like <a href="https://crates.io/crates/typed-builder"><code>typed-builder</code>
+</a>, or just a custom implementation.</p>
+<h3 id="upsides-5">Upsides</h3>
+<ul>
+<li>Although mandatory parameters don&rsquo;t have a parameter name now, it&rsquo;s still
+quite readable. It&rsquo;s also much less verbose.</li>
+<li>No <code>None</code> or <code>Some</code> needed.</li>
+<li>Can&rsquo;t fail to initialize the endpoint value, so it&rsquo;s &ldquo;safer&rdquo;.</li>
+<li>A custom implementation would avoid runtime overhead.</li>
+</ul>
+<h3 id="downsides-5">Downsides</h3>
+<ul>
+<li>Currently a bit hacky to implement, which makes it much more complex,
+specially because there&rsquo;s no existing macro that can simplify this specific
+variation of the builder pattern (that I know of). It requires both a function
+and a struct as well, so the implementation can be quite lengthy.</li>
+<li>Still some compilation-time overhead.</li>
+</ul>
+<h2 id="gh-grouping-up-endpoints">G,H) Grouping up endpoints</h2>
+<p>Another possible approach based on the previous approach of the builder pattern
+consists on grouping up all or some of the endpoints under a single struct.
+They will share the optional parameters, which is useful to avoid declaring a
+struct with optional parameters for each endpoint we have, and makes a lot of
+sense for some APIs.</p>
+<p>The <code>call</code> method could be removed in place of <code>approach_f</code>, and the optional
+parameters would go first. This would require a different order for the optional
+parameters. Here&rsquo;s an example if all the endpoints shared the same optional
+parameters:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.opt1(param2)
+    .opt2(<span style="color:#ae81ff">2222</span>)
+    .approach_f(<span style="color:#e6db74">&#34;group-builder-pattern&#34;</span>)<span style="color:#f92672">?</span>;
+</code></pre></div><p>And if we used different groups it would look like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.group()
+    .opt1(param2)
+    .opt2(<span style="color:#ae81ff">2222</span>)
+    .approach_g(<span style="color:#e6db74">&#34;group-builder-pattern&#34;</span>)<span style="color:#f92672">?</span>;
+api.group().opt2(<span style="color:#ae81ff">2222</span>).approach_h(<span style="color:#e6db74">&#34;builder-from-scratch&#34;</span>)<span style="color:#f92672">?</span>;
+</code></pre></div><p>Here&rsquo;s an implementation with <code>derive_builder</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">group</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#a6e22e">GroupBuilder</span> {
+        GroupBuilder::default().client(self)
+    }
+}
+
+<span style="color:#75715e">#[derive(Default, Builder)]</span>
+<span style="color:#75715e">#[builder(build_fn(private), pattern = </span><span style="color:#e6db74">&#34;owned&#34;</span><span style="color:#75715e">)]</span>
+<span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Group</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
+    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
+    client: Option<span style="color:#f92672">&lt;&amp;</span><span style="color:#a6e22e">&#39;a</span> APIClient<span style="color:#f92672">&gt;</span>,
+    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
+    <span style="color:#66d9ef">pub</span> opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>,
+    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
+    <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
+}
+
+<span style="color:#66d9ef">impl</span> GroupBuilder<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;_</span><span style="color:#f92672">&gt;</span> {
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_g</span>(self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
+        <span style="color:#66d9ef">let</span> data <span style="color:#f92672">=</span> self.build().unwrap();
+        data.client
+            .unwrap()
+            .actual_endpoint(name, data.opt1, data.opt2)
+    }
+
+    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_h</span>(self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
+        <span style="color:#66d9ef">let</span> data <span style="color:#f92672">=</span> self.build().unwrap();
+
+        <span style="color:#75715e">// This endpoint doesn&#39;t need `opt1`. It can either be ignored, or
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// be an error. I hate silent errors, though.
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> data.opt1.is_some() {
+            panic<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;opt1 isn&#39;t needed for enpoint_h&#34;</span>)
+        }
+
+        data.client.unwrap().actual_endpoint(name, None, data.opt2)
+    }
+}
+</code></pre></div><p>As the <code>approach_h</code> endpoint indicates, the shared optional parameters don&rsquo;t
+actually have to be strictly the same. As long as they are related, they can
+share the same group, and some extra verifications can be added in the final
+call to make sure the user is using it properly.</p>
+<h3 id="upsides-6">Upsides</h3>
+<ul>
+<li>Basically the same as the hybrid builder pattern, but with an easier
+implementation, and it might fit perfectly for some APIs that have clearly
+established groups of endpoints.</li>
+</ul>
+<h3 id="downsides-6">Downsides</h3>
+<ul>
+<li>It&rsquo;s a bit odd, specially because the order is inverse to what you&rsquo;d expect.
+And as it&rsquo;s based on the hybrid builder pattern, it may still be hacky to
+implement and require compilation-time overhead.</li>
+</ul>
+<h2 id="i-macros">I) Macros</h2>
+<p>Rust macros support variadic arguments, which make it possible to create a
+macro with named parameters, like <code>foo!(1, c = 30, b = -2.0)</code>. Ideally, we
+want a macro that generates the macros for us, which does sound crazy. I wanted
+to at least try how existing crates approached this, and only found <a href="https://crates.io/crates/named"><code>named</code>
+</a> and <a href="https://crates.io/crates/duang"><code>duang</code></a>,
+which haven&rsquo;t been updated in years, and probably for good. I tried <code>duang</code>
+with Rust 1.47 but got some unexpected errors, so we can assume there are no
+crates that support this yet. It definitely sounds like a fun challenge, if
+it&rsquo;s still possible to implement.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Whew! That took more than I expected. Some of these endpoints might be
+unnecessarily complicated or straight up weird, but I hope this was as a good
+showcase of the different ways optional parameters can be approached in Rust,
+and that reading this served as a learning experience. I look forward to seeing
+new crates in the future that help make some of the approaches easier to
+implement.</p>
+<p>The code for the different approaches can be found <a href="https://github.com/marioortizmanero/rust-optional-params">here
+</a>. Bear in mind that
+there are a lot of different ways to implement the approaches, as I explained
+in this post. You can discuss about it at the <a href="https://www.reddit.com/r/rust/comments/j8p6fx/optional_parameters_in_rust">reddit thread
+</a>.</p>
+<p>This was one of my first blog posts, so please let me know what you think about
+the writing, the structure and just your overall rating, or if you found any
+errors or things that could be improved about the Rust code.</p>
+<p><em>Disclaimer: this post was originally in
+<a href="https://vidify.org/blog/rust-parameters/">https://vidify.org/blog/rust-parameters/</a>.</em></p>
+]]></content:encoded>
     </item>
     
   </channel>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Tags on NullDeref</title>
     <link>https://nullderef.com/tags/</link>
     <description>Recent content in Tags on NullDeref</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3</copyright>
+    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
     <lastBuildDate>Mon, 17 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>gsoc</title>
@@ -15,6 +15,17 @@
       
       <guid>https://nullderef.com/tags/gsoc/</guid>
       <description></description>
+      <content:encoded><![CDATA[]]></content:encoded>
+    </item>
+    
+    <item>
+      <title>project</title>
+      <link>https://nullderef.com/tags/project/</link>
+      <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/tags/project/</guid>
+      <description></description>
+      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
     <item>
@@ -24,6 +35,27 @@
       
       <guid>https://nullderef.com/tags/rust/</guid>
       <description></description>
+      <content:encoded><![CDATA[]]></content:encoded>
+    </item>
+    
+    <item>
+      <title>beginners</title>
+      <link>https://nullderef.com/tags/beginners/</link>
+      <pubDate>Sat, 10 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/tags/beginners/</guid>
+      <description></description>
+      <content:encoded><![CDATA[]]></content:encoded>
+    </item>
+    
+    <item>
+      <title>guide</title>
+      <link>https://nullderef.com/tags/guide/</link>
+      <pubDate>Sat, 10 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/tags/guide/</guid>
+      <description></description>
+      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
   </channel>
