@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>beginner on NullDeref</title>
+    <link>https://nullderef.com/tags/beginner/</link>
+    <description>Recent content in beginner on NullDeref</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
+    <lastBuildDate>Tue, 06 Jul 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/beginner/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Why you shouldn&#39;t obsess about Rust &#34;features&#34;</title>
+      <link>https://nullderef.com/blog/rust-features/</link>
+      <pubDate>Tue, 06 Jul 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/blog/rust-features/</guid>
+      <description>Friendly reminder: you might not need conditional compilation</description>
+      <content:encoded><![CDATA[<div class="paragraph">
+<p>Rust makes it very easy to express conditional compilation, specially thanks to
+its <a href="https://doc.rust-lang.org/cargo/reference/features.html">“features”</a>.
+They’re well integrated into the language and are very easy to use. But one
+thing I’ve learned by maintaining
+<a href="https://github.com/ramsayleung/rspotify">Rspotify</a> (a library for the Spotify
+API) is that one shouldn’t obsess over them. Conditional compilation should be
+used when it’s <em>the only way</em> to solve the problem, for a number of reasons I’ll
+explain in this article.</p>
+</div>
+<div class="paragraph">
+<p>This might be obvious to some, but to me it wasn’t so clear back when I started
+using Rust. And even if you’re already aware, it might be an interesting
+reminder; maybe you forgot about it in your latest project and added an
+unnecessary feature.</p>
+</div>
+<div class="paragraph">
+<p>Conditional compilation isn’t anything new either; C and C++ have been doing it
+for a long time now, for one. So the same thing can be applied in these cases.
+However, in my experience it’s much easier to work with conditional compilation
+in Rust, meaning that it’s more likely to be misused as well.</p>
+</div>
+<div class="sect1">
+<h2 id="_the_problem">The Problem</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I went through this dilemma when deciding how to configure cached tokens in
+<a href="https://github.com/ramsayleung/rspotify">Rspotify</a>. Said library gives you the
+possibility of persistently managing the authentication token via a JSON file.
+That way, when the program is launched again the token from the previous session
+can be reused without having to follow the full auth process again — that is,
+until the token expires.</p>
+</div>
+<div class="paragraph">
+<p>Originally, this was going to be a compile-time feature named <code>cached_token</code>. I
+didn’t really give it much thought; why would one need the code to save and read
+the token file if you just don’t need it? The easiest way to do that is using a
+feature you can just toggle in your <code>Cargo.toml</code>.</p>
+</div>
+<div class="paragraph">
+<p>However, I later needed another very similar feature, <code>refreshing_token</code>. When
+optionally enabled, the client would automatically refresh expired tokens. As
+this pattern appeared more and more in the library I wanted to make sure its
+design was optimal. Once I took a deeper look I began to find the many
+inconveniences of features:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>They’re <strong>inflexible</strong>: you can’t have a client with cached tokens and another
+without them in the same program. It’s a library-wide thing, so you either
+enable them or you don’t. Obviously, they’re not configurable at runtime
+either; a user might want to choose what kind of behaviour to follow <em>while</em>
+the program is running.</p>
+</li>
+<li>
+<p>They’re <strong>ugly</strong>: writing <code>#[cfg(feature = &#34;cached_token&#34;)]</code> is much more weird
+and verbose than a plain <code>if cached_token</code>.</p>
+</li>
+<li>
+<p>They’re <strong>messy</strong>: features are hard to manage in the codebase. You can find
+yourself in the Rust equivalent of an
+<a href="https://www.cqse.eu/en/news/blog/living-in-the-ifdef-hell/"><code>#ifdef</code> hell</a> very
+easily.</p>
+</li>
+<li>
+<p>They’re <strong>hard to document and test</strong>: Rust doesn’t provide a way to expose the
+features of a library. All you can do is list them manually in the main page
+of the docs. Testing is also harder because you have to figure out what
+combinations of features to use in order to cover the entire codebase, and
+apply them whenever you want to run the tests.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>All of these are supposedly outweighed by just being guaranteed that the binary
+won’t have code you don’t need. But how true is that, really? And how important
+is it?</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_an_alternative">An Alternative</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Turns out that one of the simplest optimizations a compiler can implement is the
+propagation of constants. This, in combination with the removal of dead code,
+can result in exactly the same effect as features, but in a more natural way.
+Instead of adding features to configure the behaviour of your program, you can
+do the same with a <code>Config</code> struct. You may not even need a struct if it’s just
+a single option to be configured, but that way it’s future-proof. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[derive(Default)]
+struct Config {
+    cached_token: bool,
+    refreshing_token: bool,
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can then modify your client in order to optionally take the <code>Config</code> struct:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">struct Client {
+    config: Config
+}
+
+impl Client {
+    /// Uses the default configuration for the initialization
+    fn new() -&gt; Client {
+        Client {
+            config: Config::default(),
+        }
+    }
+
+    /// Uses a custom configuration for the initialization
+    fn with_config(config: Config) -&gt; Client {
+        Client {
+            config,
+        }
+    }
+
+    fn do_request(&amp;self) {
+        if self.config.cached_token {
+            println!(&#34;Saving cache token to the file!&#34;);
+        }
+        // The previous block used to be equivalent to:
+        //
+        // #[cfg(feature = &#34;cached_token&#34;)]
+        // {
+        //     println!(&#34;Saving cache token to the file!&#34;);
+        // }
+
+        if self.config.refreshing_token {
+            println!(&#34;Refreshing token!&#34;);
+        }
+
+        println!(&#34;Performing request!&#34;);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally, the user can customize the client however they want in the code itself
+in a very natural way:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">fn main() {
+    // Option A
+    let client = Client::new();
+
+    // Option B
+    let config = Config {
+        cached_token: true,
+        ..Default::default()
+    };
+    let client = Client::with_config(config);
+}</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_proving_that_you_end_up_with_the_same_code">Proving that you end up with the same code</h3>
+<div class="paragraph">
+<p>Thanks to the awesome <a href="https://godbolt.org">Compiler Explorer</a>, we can make sure
+this compiles as we expect it to with <a href="https://godbolt.org/z/Kr9GP6Gqz">this
+snippet</a>:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="/blog/rust-features/compiler-explorer.png" alt="Assembly comparison" width="100%"/>
+</div>
+</div>
+<div class="paragraph">
+<p>It seems that as of Rust 1.53, for values of <code>opt-level</code> greater or equal than
+2, the code for the deactivated features doesn’t even appear in the assembly
+(it’s easy to see by taking a look at the strings at the end). <code>cargo build
+--release</code> configures <code>opt-level</code> to 3 <a href="#cargo-release">[1]</a>, so it shouldn’t be a
+problem for production binaries.</p>
+</div>
+<div class="paragraph">
+<p>And we aren’t even using <code>const</code>! I wonder what will happen in that case. With
+<a href="https://godbolt.org/z/f1xTaWzdc">this slightly modified snippet</a>:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="/blog/rust-features/compiler-explorer-const.png" alt="Assembly comparison" width="100%"/>
+</div>
+</div>
+<div class="paragraph">
+<p>Hmm. We actually get the same results. The generated assembly is exactly the
+same, and the optional code is optimized away only starting at <code>opt-level=2</code>.</p>
+</div>
+<div class="paragraph">
+<p>The thing is that <code>const</code> just means that its value <em>may</em> (and not must) be
+inlined <a href="#rust-const">[2]</a> <a href="#rust-consteval">[3]</a>. Nothing else. So we still don’t have
+anything guaranteed, and inlining isn’t enough to simplify the code <em>inside the
+function</em>.</p>
+</div>
+<div class="paragraph">
+<p>By taking a look at the generated LLVM IR with <code>--emit=llvm-ir</code> we can guess
+that this optimization is performed by Rust itself, since the string doesn’t
+seem to appear with <code>opt-level=2</code>. I wasn’t able to find the exact name of this
+optimization, though.</p>
+</div>
+<div class="paragraph">
+<p>So for what I’ve investigated it seems to be best to just not worry about it and
+use a variable instead of <code>const</code>. It looks better and gets the same results.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_you_can_probably_afford_the_overhead_anyway">You can probably afford the overhead anyway</h3>
+<div class="paragraph">
+<p>Even if the previous optimization wasn’t implemented, would the optional code
+cause any harm in the final binary, really? Are we overengineering the solution,
+as always? Truth is the optional code for cached/refreshing tokens isn’t even
+that much bloat.</p>
+</div>
+<div class="paragraph">
+<p>It depends, of course, but binary bloat isn’t that much of a problem for higher
+level binaries, in my opinion. Rust already statically embeds both its standard
+library and its runtime (though much smaller) in each of them, which is around
+3MB. And the only overhead you may get at runtime is a branch.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Sometimes you just <em>have</em> to use conditional compilation; there’s no way around
+it. You might be dealing with platform specific code or want to reduce the
+number of dependencies of your crate, in which cases features are super helpful.</p>
+</div>
+<div class="paragraph">
+<p>But that certainly wasn’t Rspotify’s case; conditional compilation was
+definitely not the way to go. When you’re about to introduce a new feature to
+your crate, think to yourself, “Do I really need conditional compilation for
+this?”.</p>
+</div>
+<div class="paragraph">
+<p>Neither <code>cached_token</code> nor <code>refreshing_token</code> follow the usual reasoning as to
+why a feature might be added. They don’t give access to new functions/modules.
+They don’t help get rid of optional dependencies. And they certainly aren’t
+platform-specific features. They just configure the behaviour of the library.</p>
+</div>
+<div class="paragraph">
+<p>In order to avoid this, perhaps the naming for features could have been
+different? Enabling support for cached tokens certainly sounds like a
+“feature”, while OS-specific code doesn’t really seem like one. I also find it
+confusing sometimes, and Google agrees with me in this one. Looking for
+information related to Rust features might return completely unrelated stuff
+just because the result has the word “feature” but meaning “an attribute or
+aspect of the program”. Kind of like how you have to google “golang X”
+instead of “go X” because otherwise it doesn’t make sense. But whatever, it’s
+too late for my opinion anyway.</p>
+</div>
+<div class="paragraph">
+<p>Anyhow, I hope you learned something new, or that this was at least a good
+reminder! If you have any suggestions please leave them in the section below :)</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="ulist bibliography">
+<ul class="bibliography">
+<li>
+<p><a id="cargo-release"></a>[1] <a href="https://doc.rust-lang.org/cargo/reference/profiles.html#release" class="bare">https://doc.rust-lang.org/cargo/reference/profiles.html#release</a></p>
+</li>
+<li>
+<p><a id="rust-const"></a>[2] <a href="https://doc.rust-lang.org/std/keyword.const.html" class="bare">https://doc.rust-lang.org/std/keyword.const.html</a></p>
+</li>
+<li>
+<p><a id="rust-consteval"></a>[3] <a href="https://doc.rust-lang.org/reference/const_eval.html" class="bare">https://doc.rust-lang.org/reference/const_eval.html</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+]]></content:encoded>
+    </item>
+    
+  </channel>
+</rss>
