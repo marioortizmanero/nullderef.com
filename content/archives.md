@@ -1,6 +1,6 @@
 ---
 title: "Archive"
 layout: "archives"
-url: "/archives/"
-summary: "A chronological list of all the posts"
+url: "/archive/"
+description: "A chronological list of all the articles on the site."
 ---

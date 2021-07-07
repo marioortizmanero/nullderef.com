@@ -26,11 +26,11 @@ languages:
         - name: About
           url: about/
           weight: 1
-        # - name: Series
-        #   url: series/
-        #   weight: 2
+        - name: Series
+          url: series/
+          weight: 2
         - name: Archive
-          url: archives/
+          url: archive/
           weight: 3
         - name: Search
           url: search/
@@ -42,6 +42,7 @@ params:
   author: Mario Ortiz Manero
 
   defaultTheme: auto
+  ShowCodeCopyButtons: true
   ShowFullTextInRSS: true
   # disableThemeToggle: true
   ShowShareButtons: true
