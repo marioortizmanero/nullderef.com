@@ -250,14 +250,13 @@ library and its runtime (though much smaller) in each of them, which is around
 <div class="sectionbody">
 <div class="paragraph">
 <p>Sometimes you just <em>have</em> to use conditional compilation; there’s no way around
-it. You might be dealing with platform specific code or want to reduce the
+it. You might be dealing with platform-specific code or want to reduce the
 number of dependencies of your crate, in which cases features are super helpful.</p>
 </div>
 <div class="paragraph">
-<p>But that certainly wasn’t Rspotify’s case; conditional compilation was
-definitely not the way to go. When you’re about to introduce a new feature to
-your crate, think to yourself, “Do I really need conditional compilation for
-this?”.</p>
+<p>But that wasn’t Rspotify’s case; conditional compilation was definitely not the
+way to go. When you’re about to introduce a new feature to your crate, think to
+yourself, “Do I really need conditional compilation for this?”.</p>
 </div>
 <div class="paragraph">
 <p>Neither <code>cached_token</code> nor <code>refreshing_token</code> follow the usual reasoning as to
