@@ -173,11 +173,6 @@ inlined <<rust-const>> <<rust-consteval>>. Nothing else. So we still don't have
 anything guaranteed, and inlining isn't enough to simplify the code _inside the
 function_.
 
-By taking a look at the generated LLVM IR with `--emit=llvm-ir` we can guess
-that this optimization is performed by Rust itself, since the string doesn't
-seem to appear with `opt-level=2`. I wasn't able to find the exact name of this
-optimization, though.
-
 So for what I've investigated it seems to be best to just not worry about it and
 use a variable instead of `const`. It looks better and gets the same results.
 
