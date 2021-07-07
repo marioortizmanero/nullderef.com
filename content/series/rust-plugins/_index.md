@@ -1,9 +1,5 @@
 ---
 title: "Plugin Development Kit in Rust"
-layout: "rust-plugins"
-draft: false
-summary: "summary"
-descripton: "description"
+description: "In this series I implement a Plugin System in Rust in hopes of
+reducing the size of Tremor."
 ---
-
-content

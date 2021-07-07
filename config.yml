@@ -30,7 +30,7 @@ languages:
           url: series/
           weight: 2
         - name: Archive
-          url: archives/
+          url: archive/
           weight: 3
         - name: Search
           url: search/
