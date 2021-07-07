@@ -9,5 +9,13 @@ assignees: ''
 
 TODO list:
 
+- [ ] Create an issue for the comments
+- [ ] Add the following fields, at least:
+  + [ ] title
+  + [ ] description
+  + [ ] summary
+  + [ ] author
+  + [ ] tags
+  + [ ] date
+  + [ ] GHissueID
 - [ ] Add at least one image for previews when sharing
-- [ ] Make an issue for comments
