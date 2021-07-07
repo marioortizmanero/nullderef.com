@@ -37,11 +37,6 @@ languages:
           weight: 4
 
 params:
-  # editPost:
-  #   URL: "https://github.com/marioortizmanero/nullderef.com/tree/master/content"
-  #   Text: "Suggest Changes"
-  #   appendFilePath: true
-
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
   description: "NullDeref - Yet Another Programming Blog"
   author: Mario Ortiz Manero
