@@ -1,0 +1,59 @@
+---
+title: "Tremor Journal I: The Beginnings"
+description: "My personal experience with Tremor when starting the PDK
+implementation"
+summary: "Getting to know the Tremor team was exciting. Implementing the PDK
+wasn't going to be easy, but it certainly sounded fun thanks to their dynamics.
+I had to start somewhere, and this was the moment."
+author: "Mario Ortiz Manero"
+tags: ["journal"]
+series: ["rust-plugins"]
+date: 2021-08-06
+GHissueID: ??
+---
+
+== Getting to know the team
+
+My first official meeting with the Tremor team took place in the beginnings of
+August. I had already been lurking in their Discord server before, and I'd
+talked with them a few times, so I more or less knew what to expect. But I was
+still surprised by their welcomingness and how refreshing their dynamics were.
+
+Starting to work on Tremor for the first time with such a large task at first
+sounds daunting. I was somewhat overwhelmed by that and felt quite some pressure
+on me. But their words helped me de-stress about it; finishing the PDK would of
+course be hard, but no need to worry about things you can't control yet.
+
+I particularly liked the three "`rules`" of their workflow:
+
+* Have fun
+* Take good notes
+* Don't worry
+
+Matthias, Darach and Heinz seemed like very different kinds of people; something
+they knew and took advantage of. Decision-taking is hard; it requires good
+communication and an open mind. I also took note of this quote (roughly) from
+them:
+
+[quote, Darach]
+____
+When I have an idea about something, I just post it on the Discord server and
+wait for it to be destroyed by someone else.
+____
+
+// TODO: aryan
+
+== Getting started
+
+Up until that point I had mostly investigated about the
+https://nullderef.com/blog/plugin-tech/[technologies] that could be used for the
+PDK, but I was suggested that I should first take a look at how the interfaces
+would actually look like. That way it would be easier to decide how to approach
+the PDK's implementation.
+
+I knew their original intent was the typical architecture via dynamic linking,
+but I wanted to explore the viability of Wasm before ruling it out. Would this
+idea be destroyed by someone in the end, or does it stand a chance? In order to
+know that I'd first need to find more specific requisites by defining the basic
+interfaces in the PDK. Which is very hard at first because you need to know more
+about the internals of Tremor.
