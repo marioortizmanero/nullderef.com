@@ -32,6 +32,9 @@ Here are some interesting blogs from friends or that I just enjoy reading:
 . https://fasterthanli.me/[*fasterthanlime*]: it features extremely thorough
   posts about computers (mostly Rust) in a very dynamic way. Amos, the author,
   really puts in effort and you can tell.
+. https://adventures.michaelfbryan.com/[*Michael-F-Bryan*]: another programming
+  blog about various topics, including Rust. His articles are explained with
+  lots of code, examples, and diagrams.
 . https://0x709394.me/index[*Ramsay's Eden*]: my friend's
   https://github.com/ramsayleung[Ramsay] blog site, with very detailed posts. I
   met him maintaining https://github.com/ramsayleung/rspotify[Rspotify], a
