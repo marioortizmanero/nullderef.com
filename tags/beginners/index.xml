@@ -307,7 +307,7 @@ reminder! If you have any suggestions please leave them in the section below :)<
 that Rust specifically doesn&rsquo;t cover (and looks like it won&rsquo;t <a href="https://github.com/rust-lang/rfcs/pull/2964">anytime soon
 </a>). Say your library has lots of
 endpoints like so:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">endpoint</span><span style="color:#f92672">&lt;</span>T1, T2, T3, ...<span style="color:#f92672">&gt;</span>(mandatory: <span style="color:#a6e22e">T1</span>, opt1: Option<span style="color:#f92672">&lt;</span>T2<span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span>T3<span style="color:#f92672">&gt;</span>, ...);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">endpoint</span><span style="color:#f92672">&lt;</span>T1, T2, T3, ...<span style="color:#f92672">&gt;</span>(mandatory: <span style="color:#a6e22e">T1</span>, opt1: Option<span style="color:#f92672">&lt;</span>T2<span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span>T3<span style="color:#f92672">&gt;</span>, ...);
 </code></pre></div><p>In this case, when you call <code>endpoint</code>, you have to use <code>endpoint(mandatory, None, None, ...)</code>, or <code>endpoint(mandatory, Some(val1), Some(val2), ...)</code>,
 instead of the more intuitive <code>endpoint(mandatory)</code> or <code>endpoint(mandatory, val1, val2)</code>. Other languages like Python have named arguments, which make
 optional parameters natural and easier to read: <code>endpoint(mandatory, opt1=val1, opt2=val2)</code>, while also allowing them to be written in any order.</p>
@@ -318,12 +318,12 @@ ways they can be approached, and the ups and downs of each of them.</p>
 <h2 id="introducing-an-example">Introducing an example</h2>
 <p>Let&rsquo;s start with a typical web API wrapper library. These often require a client
 struct to hold authentication fields and such:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[derive(Default, Debug, Clone)]</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[derive(Default, Debug, Clone)]</span>
 <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">APIClient</span>;
 </code></pre></div><p>This client will have various endpoints which can be used to send requests to
 the server. We will use a function with the actual implementation and some type
 aliases so that the following snippets are easier to read:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::error::Error;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">use</span> std::error::Error;
 
 <span style="color:#e6db74">/// Some value that the endpoint will return
 </span><span style="color:#e6db74"></span><span style="color:#75715e">#[derive(Debug, Default)]</span>
@@ -344,12 +344,12 @@ signature. Sometimes the best solution is the simplest, and your project just
 might not need more complex approaches. Do consider if anything more elaborate
 is actually necessary.</p>
 <p>For the sake of this example, it would look like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient {
     <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_a</span>(<span style="color:#f92672">&amp;</span>self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>, opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
         self.actual_endpoint(name, opt1, opt2)
     }
 }
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> api <span style="color:#f92672">=</span> APIClient {};
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> api <span style="color:#f92672">=</span> APIClient {};
 <span style="color:#66d9ef">let</span> param2: <span style="color:#66d9ef">u32</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">324</span>;
 
 api.approach_a(<span style="color:#e6db74">&#34;option&#34;</span>, Some(param2), Some(<span style="color:#ae81ff">1234</span>))<span style="color:#f92672">?</span>;
@@ -368,7 +368,7 @@ with <code>None</code> values, since these don&rsquo;t have context to know what
 <p>A variation of the previous approach consists on using <code>Into&lt;Option&lt;T&gt;&gt;</code> as the
 generic value for the optional parameters (<code>impl Into&lt;Option&lt;T&gt;&gt;</code> can be used as
 well). This way, <code>Some</code> isn&rsquo;t needed when the optional parameters are specified:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient {
     <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_b</span><span style="color:#f92672">&lt;</span>T1, T2<span style="color:#f92672">&gt;</span>(<span style="color:#f92672">&amp;</span>self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>, opt1: <span style="color:#a6e22e">T1</span>, opt2: <span style="color:#a6e22e">T2</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span>
     <span style="color:#66d9ef">where</span>
         T1: Into<span style="color:#f92672">&lt;</span>Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;&gt;</span>,
@@ -377,7 +377,7 @@ well). This way, <code>Some</code> isn&rsquo;t needed when the optional paramete
         self.actual_endpoint(name, opt1.into(), opt2.into())
     }
 }
-</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.approach_b(<span style="color:#e6db74">&#34;into_option&#34;</span>, param2, <span style="color:#ae81ff">1234</span>)<span style="color:#f92672">?</span>;
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.approach_b(<span style="color:#e6db74">&#34;into_option&#34;</span>, param2, <span style="color:#ae81ff">1234</span>)<span style="color:#f92672">?</span>;
 <span style="color:#75715e">// This still works
 </span><span style="color:#75715e"></span>api.approach_b(<span style="color:#e6db74">&#34;into_option&#34;</span>, Some(param2), Some(<span style="color:#ae81ff">123</span>))<span style="color:#f92672">?</span>;
 api.approach_b(<span style="color:#e6db74">&#34;into_option&#34;</span>, None, None)<span style="color:#f92672">?</span>;
@@ -398,7 +398,7 @@ the number of optional parameters.</li>
 instead. The complexity is still relatively simple, and it can work out well
 if the API has functions with repetitive function signatures. This will serve
 as a base for the following approaches as well:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> call1 <span style="color:#f92672">=</span> params::ApproachC {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> call1 <span style="color:#f92672">=</span> params::ApproachC {
     name: <span style="color:#e6db74">&#34;builder&#34;</span>.to_string(),
     opt1: Some(param2),
     opt2: Some(<span style="color:#ae81ff">123</span>),
@@ -406,13 +406,13 @@ as a base for the following approaches as well:</p>
 api.approach_c(<span style="color:#f92672">&amp;</span>call1)<span style="color:#f92672">?</span>;
 </code></pre></div><p>We can even use <code>..Default::default()</code> to initialize the rest of the parameters
 with their default values:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> call2 <span style="color:#f92672">=</span> params::ApproachC {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> call2 <span style="color:#f92672">=</span> params::ApproachC {
     name: <span style="color:#e6db74">&#34;builder&#34;</span>.to_string(),
     ..Default::default()
 };
 api.approach_c(<span style="color:#f92672">&amp;</span>call2)<span style="color:#f92672">?</span>;
 </code></pre></div><p>The implementation looks like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">mod</span> params {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">mod</span> params {
     <span style="color:#e6db74">/// We derive `Default` to be able to initialize with
 </span><span style="color:#e6db74"></span>    <span style="color:#e6db74">/// `..Default::default()`.
 </span><span style="color:#e6db74"></span>    <span style="color:#75715e">#[derive(Default)]</span>
@@ -446,7 +446,7 @@ endpoint.</li>
 </a> for the
 parameters, so that building the parameters is simpler and more pretty to look
 at:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> call1 <span style="color:#f92672">=</span> params::ApproachDBuilder::default()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> call1 <span style="color:#f92672">=</span> params::ApproachDBuilder::default()
     .name(<span style="color:#e6db74">&#34;builder&#34;</span>)
     .opt1(param2)
     .opt2(<span style="color:#ae81ff">2134</span>)
@@ -460,7 +460,7 @@ api.approach_d(<span style="color:#f92672">&amp;</span>call2)<span style="color:
 </code></pre></div><p>In this case, we use the <a href="https://crates.io/crates/derive_builder"><code>derive_builder</code>
 </a> crate to make the implementation less
 repetitive:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">mod</span> params {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">mod</span> params {
     <span style="color:#75715e">#[derive(Default, Builder)]</span>
     <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachD</span> {
         <span style="color:#75715e">#[builder(setter(into))]</span>
@@ -501,7 +501,7 @@ client-oriented? Starting from the previous approach, we could make the call
 <em>inside the endpoint struct itself</em> instead of in the API&rsquo;s client by adding it
 to <code>ApproachE</code>, or by overriding the <code>build</code> method from <code>derive_builder</code> for
 a slightly less verbose version:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">ApproachEBuilder::default()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">ApproachEBuilder::default()
     .name(<span style="color:#e6db74">&#34;endpoint-oriented&#34;</span>)
     .opt1(param2)
     .opt2(<span style="color:#ae81ff">1111</span>)
@@ -510,7 +510,7 @@ ApproachEBuilder::default()
     .name(<span style="color:#e6db74">&#34;endpoint-oriented&#34;</span>)
     .call(<span style="color:#f92672">&amp;</span>api)<span style="color:#f92672">?</span>;
 </code></pre></div><p>And its implementation:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[derive(Default, Builder)]</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#75715e">#[derive(Default, Builder)]</span>
 <span style="color:#75715e">#[builder(build_fn(private))]</span>
 <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachE</span> {
     <span style="color:#75715e">#[builder(setter(into))]</span>
@@ -560,12 +560,12 @@ whatever is necessary to start building the endpoint. Mandatory parameters are
 added to that function&rsquo;s signature, so that the build can never fail. This also
 avoids passing the client in <code>call(&amp;api)</code>, since we can do that inside the
 method. This is how it would look like:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.approach_f(<span style="color:#e6db74">&#34;hybrid-derive-pattern&#34;</span>)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.approach_f(<span style="color:#e6db74">&#34;hybrid-derive-pattern&#34;</span>)
     .opt1(param2)
     .opt2(<span style="color:#ae81ff">2222</span>)
     .call()<span style="color:#f92672">?</span>;
 </code></pre></div><p>And an implementation by wrapping <code>derive_builder</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient {
     <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_f</span>(<span style="color:#f92672">&amp;</span>self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) -&gt; <span style="color:#a6e22e">ApproachFBuilder</span> {
         ApproachFBuilder::default().client(self).name(name)
     }
@@ -627,17 +627,17 @@ sense for some APIs.</p>
 parameters would go first. This would require a different order for the optional
 parameters. Here&rsquo;s an example if all the endpoints shared the same optional
 parameters:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.opt1(param2)
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.opt1(param2)
     .opt2(<span style="color:#ae81ff">2222</span>)
     .approach_f(<span style="color:#e6db74">&#34;group-builder-pattern&#34;</span>)<span style="color:#f92672">?</span>;
 </code></pre></div><p>And if we used different groups it would look like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.group()
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">api.group()
     .opt1(param2)
     .opt2(<span style="color:#ae81ff">2222</span>)
     .approach_g(<span style="color:#e6db74">&#34;group-builder-pattern&#34;</span>)<span style="color:#f92672">?</span>;
 api.group().opt2(<span style="color:#ae81ff">2222</span>).approach_h(<span style="color:#e6db74">&#34;builder-from-scratch&#34;</span>)<span style="color:#f92672">?</span>;
 </code></pre></div><p>Here&rsquo;s an implementation with <code>derive_builder</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">impl</span> APIClient
     <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">group</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#a6e22e">GroupBuilder</span> {
         GroupBuilder::default().client(self)
     }
