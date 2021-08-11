@@ -41,7 +41,21 @@ When I have an idea about something, I just post it on the Discord server and
 wait for it to be destroyed by someone else.
 ____
 
-// TODO: aryan
+== Getting to know other mentees
+
+In the first meeting I was suggested to meet the other LFX mentee at that
+moment, @aryan9600 on Discord, which seemed like a good idea. I'd seen him a
+couple times and knew he'd been contributing to Tremor even before the
+mentorship.
+
+Aryan turned out to be a very nice colleague! He was very enthusiastic about the
+project and he explained me his progress in detail. In summary, he was starting
+to add gRPC support to Tremor, and wasn't sure how to approach it so that new
+interfaces could be added outside the compilation time. He had multiple ideas on
+how to implement this, but the one that interested me the most was via Wasm or
+dynamic linking, which was exactly what I was trying to do as well for the PDK.
+Which meant I'd probably spend more time with him, as our projects were more
+interconnected than I thought.
 
 == Getting started
 
@@ -49,11 +63,62 @@ Up until that point I had mostly investigated about the
 https://nullderef.com/blog/plugin-tech/[technologies] that could be used for the
 PDK, but I was suggested that I should first take a look at how the interfaces
 would actually look like. That way it would be easier to decide how to approach
-the PDK's implementation.
+the PDK's implementation, according to the requirements for these interfaces.
 
-I knew their original intent was the typical architecture via dynamic linking,
-but I wanted to explore the viability of Wasm before ruling it out. Would this
-idea be destroyed by someone in the end, or does it stand a chance? In order to
-know that I'd first need to find more specific requisites by defining the basic
-interfaces in the PDK. Which is very hard at first because you need to know more
-about the internals of Tremor.
+I always knew their original intent was the typical architecture via dynamic
+linking, but I wanted to explore the viability of Wasm before ruling it out.
+Would this idea be destroyed by someone in the end, or does it stand a chance?
+In order to know that I'd first need to find more specific requisites by
+defining the basic interfaces in the PDK. Which is very hard at first because
+you need to know more about the internals of Tremor.
+
+Luckily, Matthias spent the second meeting explaining me how Tremor works, with
+the help of some drawings, taking a look at the code, and running it. He also
+taught me the concept of a _connector_, which is just an abstraction over both
+sources and sinks. The thing was that connectors were still Work In Progress,
+and Matthias needed to know how the PDK would work to adapt the `Connector`
+interface. This is when the following questions arose:
+
+* Is it possible to use generics in the PDK?
+* Otherwise, is it possible to use `dyn` in the PDK?
+* Otherwise, what can be done to represent a "`generic`" trait object in the
+  interface Tremor exports for plugins?
+
+Back when I talked to Aryan we ended up asking ourselves the same exact things.
+Turns out that the generated code with `tonic` for gRPC uses generics, which
+might not be compatible with dynamic loading.
+
+This meant I had to do more research. I spent a few days reading multiple
+articles. For example:
+
+* https://fasterthanli.me/articles/so-you-want-to-live-reload-rust[So you want
+  to live-reload Rust - fasterthanli.me]
+* https://adventures.michaelfbryan.com/posts/wasm-as-a-platform-for-abstraction/[WebAssembly
+  as a Platform for Abstraction - adventures.michaelfbryan.com], recommended to
+  me by Aryan
+* https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/[FFI-Safe
+  Polymorphism: Thin Trait Objects - adventures.michaelfbryan.com]
+* https://adventures.michaelfbryan.com/posts/plugins-in-rust/[Plugins in Rust -
+  adventures.michaelfbryan.com]
+
+By the way, thanks a lot to Michael F. Bryan for writing so many articles
+regarding dynamic loading!
+
+I already expected that generics wouldn't work with dynamic linking, because
+generics are handled at compile-time; you need to know the size of the object
+you're dealing with at that moment. But I wanted to see if there was any way
+around it and how complicated it was.
+
+It turns out I wasn't the first person to ask that question, and Michael had a
+few ideas about it.
+
+== First prototype with dynamic linking
+
+The first approach for the PDK used dynamic linking. I was looking forward to
+using a library other than `libloading` because of how easy it seems to end up
+with undefined behaviour in that case. I found out `sharedlib` was abandoned, as
+no commits had been made since 2017, leaving `dlopen` as the only alternative.
+
+I also had to investigate first, so I did some reading about dynamic linking in
+order to know more about how it works:
+
