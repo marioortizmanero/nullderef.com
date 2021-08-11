@@ -100,14 +100,120 @@ articles. For example:
   Polymorphism: Thin Trait Objects - adventures.michaelfbryan.com]
 * https://adventures.michaelfbryan.com/posts/plugins-in-rust/[Plugins in Rust -
   adventures.michaelfbryan.com]
+* https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html[Dynamic
+  Loading & Plugins - michael-f-bryan.github.io]
 
 By the way, thanks a lot to Michael F. Bryan for writing so many articles
 regarding dynamic loading!
 
-I already expected that generics wouldn't work with dynamic linking, because
-generics are handled at compile-time; you need to know the size of the object
-you're dealing with at that moment. But I wanted to see if there was any way
-around it and how complicated it was.
+== Experimenting with plugins
+
+I already imagined that generics with dynamic linking is fundamentally
+impossible. Rust needs to know the size of the object it's dealing with at
+compile-time -- which is when generics works -- something that's not available
+when using dynamically loaded libraries. It's really easy to prove in Rust,
+which I'll do in a moment.
+
+Firstly, I've created the
+https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] repository,
+where I'll write various examples of how the PDK might work. The first one I've
+created is in the
+https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-simple[`dynamic-simple`
+directory], with a small example of how to dynamically load plugins with Rust.
+
+We first need a common library, called `tremor-core`, which defines the
+interface exported by the plugin so that the main binary may load it. In this
+case it's just a function:
+
+.`tremor-core/src/lib.rs`
+[source, rust]
+----
+pub type MinFunction = fn(i32, i32) -> i32;
+----
+
+With it, the plugin crate may export its own implementation with a `static`
+variable and by setting `crate-type` to a
+https://doc.rust-lang.org/reference/linkage.html[dynamic library]. Note that
+`#[no_mangle]` is necessary so that the variable's name is known when loading it
+from the main binary.
+
+.`plugin-sample/src/lib.rs`
+[source, rust]
+----
+#[no_mangle]
+pub static plugin_function: MinFunction = min;
+
+fn min(a: i32, b: i32) -> i32 {
+    a.min(b)
+}
+----
+
+Finally, the main binary can load the library with `libloading`:
+
+.`src/main.rs`
+[source, rust]
+----
+fn run_plugin(path: &str) -> Result<(), libloading::Error> {
+    unsafe {
+        let library = Library::new(path)?;
+        let min = library.get::<*mut MinFunction>(b"plugin_function\0")?.read();
+        println!("Running plugin:");
+        println!("  min(1, 2): {}", min(1, 2));
+        println!("  min(-10, 10): {}", min(-10, 10));
+        println!("  min(2000, 2000): {}", min(2000, 2000));
+    }
+
+    Ok(())
+}
+----
+
+Running it:
+
+[source, commandline]
+----
+$ cd plugin-sample
+$ cargo build
+$ cd ..
+$ cargo run -- plugin-sample/target/debug/libplugin_sample.so
+Running plugin:
+  min(1, 2): 1
+  min(-10, 10): -10
+  min(2000, 2000): 2000
+----
+
+Cool! This raises a couple questions that I should investigate:
+
+* Why are we using `extern "C"` if the FFI should be Rust-to-Rust? Would `extern
+  "Rust"` work any better?
+* There are many different options to configure `crate-type` as a
+  https://doc.rust-lang.org/reference/linkage.html[dynamic library]. What are
+  they and which one should I choose?
+
+---
+
+And, in the case of Wasm:
+
+[source, rust]
+----
+----
+
+What I wanted to see if there was any
+way around it and how complicated it was.
+
+The thing is: generics are almost inevitable in Rust. In a trait, you might want
+to use them to:
+
+* TODO: more?
+* Handle lifetimes
+* Async (in the future). A trait with an `async` method will work thanks to
+  generics (https://github.com/rust-lang/rust/issues/44265[GATs]).
+
+There are ways to work around these, but they of course mean additional
+overhead:
+
+* Lifetimes: smart pointers like `Rc<T>`, `Arc<T>` (TODO: raw pointers + unsafe?)
+* Async (GATs): just like how it works nowadays with `async_trait`, by boxing
+  the `Future`. TODO: add reference and example.
 
 It turns out I wasn't the first person to ask that question, and Michael had a
 few ideas about it.
