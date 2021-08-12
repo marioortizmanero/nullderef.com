@@ -89,7 +89,7 @@ Turns out that the generated code with `tonic` for gRPC uses generics, which
 might not be compatible with dynamic loading.
 
 This meant I had to do more research. I spent a few days reading multiple
-articles. For example:
+articles. It's a rabbit hole 🐰. For example:
 
 * https://fasterthanli.me/articles/so-you-want-to-live-reload-rust[So you want
   to live-reload Rust - fasterthanli.me]
@@ -181,13 +181,30 @@ Running plugin:
   min(2000, 2000): 2000
 ----
 
-Cool! This raises a couple questions that I should investigate:
+Cool! My research raises a few questions that I should learn more about:
 
-* Why are we using `extern "C"` if the FFI should be Rust-to-Rust? Would `extern
-  "Rust"` work any better?
-* There are many different options to configure `crate-type` as a
+. Many plugin tutorials use `extern "C"` for the exported function's type in the
+  plugin. What exactly does that mean? Do we need it if the FFI is Rust-to-Rust?
+  Would
+  https://doc.rust-lang.org/reference/items/external-blocks.html#abi[`extern
+  "Rust"`] work any better?
+. There are many different options to configure `crate-type` as a
   https://doc.rust-lang.org/reference/linkage.html[dynamic library]. What are
   they and which one should I choose?
+. I faintly remember that `rlib` files are Rust-only objects with additional
+  metadata for things like generics. Could that possibly work at runtime? As in,
+  is there an equivalent to
+  https://en.wikipedia.org/wiki/Component_Object_Model[COM] in Rust, or maybe
+  like JAR files in Java?
+
+=== 1. `extern` values
+
+=== 2. `crate-type` values
+
+=== 3. `rlib` files
+
+While researching, I also found https://github.com/rust-lang/rfcs/pull/1510[this
+RFC]: "Add a new crate-type, rdylib".
 
 ---
 
