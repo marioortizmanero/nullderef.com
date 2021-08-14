@@ -131,8 +131,9 @@ case it's just a function:
 pub type MinFunction = fn(i32, i32) -> i32;
 ----
 
-With it, the plugin crate may export its own implementation with a `static`
-variable and by setting `crate-type` to a
+With it, the plugin crate may export its own implementation. In this case I'll
+declare a `static` variable, but the example also showcases how `extern` may
+work as well. The crate's value of `crate-type` must be set to a
 https://doc.rust-lang.org/reference/linkage.html[dynamic library]. Note that
 `#[no_mangle]` is necessary so that the variable's name is known when loading it
 from the main binary.
@@ -185,9 +186,8 @@ Cool! My research raises a few questions that I should learn more about:
 
 . Many plugin tutorials use `extern "C"` for the exported function's type in the
   plugin. What exactly does that mean? Do we need it if the FFI is Rust-to-Rust?
-  Would
-  https://doc.rust-lang.org/reference/items/external-blocks.html#abi[`extern
-  "Rust"`] work any better?
+  Would https://doc.rust-lang.org/std/keyword.extern.html[`extern "Rust"`] work
+  any better?
 . There are many different options to configure `crate-type` as a
   https://doc.rust-lang.org/reference/linkage.html[dynamic library]. What are
   they and which one should I choose?
@@ -199,12 +199,82 @@ Cool! My research raises a few questions that I should learn more about:
 
 === 1. `extern` values
 
+The `extern` keyword simply means that the block isn't defined in the current
+crate <<extern>>, which means it can be used for FFI. Its parameter specifies
+what ABI it should use, of which the only interesting values in this case are:
+
+* `extern "Rust"`: for the Rust ABI
+* `extern "C"`: for the default C compiler's ABI in your system
+
+Though most tutorials use `export "C"`, `export "Rust"` is the best choice for
+Rust-to-Rust FFI because with it one can easily export Rust-only features like
+enums with data fields (at the cost of not being a stable ABI). Otherwise, we'd
+get this error:
+
+[source, text]
+----
+warning: `extern` fn uses type `EnumWithDataFields`, which is not FFI-safe
+  --> src/lib.rs:24:50
+   |
+24 | pub extern "C" fn with_extern(a: i32, b: i32) -> EnumWithDataFields {
+   |                                                  ^^^^^^^^^^^^^^^^^^ not FFI-safe
+   |
+   = note: `#[warn(improper_ctypes_definitions)]` on by default
+   = help: consider adding a `#[repr(C)]`, `#[repr(transparent)]`, or integer `#[repr(...)]` attribute to this enum
+   = note: enum has no representation hint
+note: the type is defined here
+  --> src/lib.rs:3:1
+   |
+3  | / pub enum EnumWithDataFields {
+4  | |     A,
+5  | |     B(i32),
+6  | |     C
+7  | | }
+   | |_^
+----
+
+Note that the default value for the ABI is `"C"`, so `"Rust"` must be explicitly
+specified always when using `extern`.
+
 === 2. `crate-type` values
+
+There are https://doc.rust-lang.org/reference/linkage.html[two ways to configure
+dynamic linking with the `crate-type` field] in the crate's `Cargo.toml`:
+
+* `dylib`
+* `cdylib`
+
+Once again, this difference has to do with the ABIs in the dynamic library
+<<dylib>>. `cdylib` is meant for linking into C/C++ programs, and `dylib` for
+Rust ones. `cdylib` will strip away all functions that aren't publicly exported.
+`dylib` means that `extern` isn't even needed; you just need to set it as `pub`.
 
 === 3. `rlib` files
 
-While researching, I also found https://github.com/rust-lang/rfcs/pull/1510[this
-RFC]: "Add a new crate-type, rdylib".
+Also listed in the previous section, `rlib` is a value for `crate-type` that
+might be of interest. `rlib` files are Rust *static* libraries, which can then
+be imported with `extern crate crate_name` <<dylib>>. Since they're static
+libraries, they can't be loaded at runtime. But what about
+https://github.com/rust-lang/miri[MIRI]? I recently learned about it, and
+quoting its official documentation:
+
+[quote]
+____
+[MIRI is] an experimental interpreter for Rust's mid-level intermediate
+representation (MIR). It can run binaries and test suites of cargo projects and
+detect certain classes of undefined behavior
+____
+
+[quote]
+____
+You can use Miri to emulate programs on other targets, e.g. to ensure that
+byte-level data manipulation works correctly both on little-endian and
+big-endian systems.
+____
+
+Hmm. Could it possibly be used to dynamically run Rust code for plugins? If MIR
+was stable it might be worth considering. But it isn't, so it's not any better
+than loading plugins with binaries.
 
 ---
 
@@ -245,3 +315,8 @@ no commits had been made since 2017, leaving `dlopen` as the only alternative.
 I also had to investigate first, so I did some reading about dynamic linking in
 order to know more about how it works:
 
+[bibliography]
+== References
+
+- [[[extern, 1]]] https://doc.rust-lang.org/reference/items/external-blocks.html#abi
+- [[[dylib,  2]]] https://users.rust-lang.org/t/what-is-the-difference-between-dylib-and-cdylib/28847
