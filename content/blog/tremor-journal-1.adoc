@@ -244,34 +244,43 @@ dynamic linking with the `crate-type` field] in the crate's `Cargo.toml`:
 Once again, this difference has to do with the ABIs in the dynamic library
 <<dylib>>. `cdylib` is meant for linking into C/C++ programs, and `dylib` for
 Rust ones. `cdylib` will strip away all functions that aren't publicly exported.
-`dylib` means that `extern` isn't even needed; you just need to set it as `pub`.
+`dylib` means that `extern` isn't even needed; you just need to set the external
+items as `pub`.
 
 === 3. `rlib` files
 
 Also listed in the previous section, `rlib` is a value for `crate-type` that
 might be of interest. `rlib` files are Rust *static* libraries, which can then
-be imported with `extern crate crate_name` <<dylib>>. Since they're static
-libraries, they can't be loaded at runtime. But what about
-https://github.com/rust-lang/miri[MIRI]? I recently learned about it, and
-quoting its official documentation:
+be imported with `extern crate crate_name` <<dylib>>. Since `rlib` files are
+static libraries, they can't be loaded at runtime.
+
+So here's a crazy idea: What if the `rlib` files were dynamically loaded as
+plugins with the help of https://github.com/rust-lang/miri[MIRI]? I recently
+learned about it, and quoting its official documentation:
 
 [quote]
 ____
 [MIRI is] an experimental interpreter for Rust's mid-level intermediate
 representation (MIR). It can run binaries and test suites of cargo projects and
-detect certain classes of undefined behavior
-____
+detect certain classes of undefined behavior.
 
-[quote]
-____
-You can use Miri to emulate programs on other targets, e.g. to ensure that
+#You can use Miri to emulate programs on other targets#, e.g. to ensure that
 byte-level data manipulation works correctly both on little-endian and
 big-endian systems.
 ____
 
-Hmm. Could it possibly be used to dynamically run Rust code for plugins? If MIR
-was stable it might be worth considering. But it isn't, so it's not any better
-than loading plugins with binaries.
+Hmm. Could it possibly be used to interpret Rust code? In some way this would be
+very similar to using WebAssembly, but theoretically with less friction, as MIR
+is specific to Rust and plugin development would be as easy as in the case of
+dynamic loading with Rust-to-Rust FFI. A few things to consider:
+
+. Is MIR stable?
+. Is the overhead of MIRI worth it?
+
+As to the first question: no, MIR is unfortunately unstable, so we'd have the
+same binary incompatibility problems between plugins and the main binary.
+
+
 
 === WebAssembly
 
@@ -345,6 +354,19 @@ error: aborting due to previous error
 
 For more information about this error, try `rustc --explain E0044`.
 ----
+
+Interestingly enough, you can export `extern` functions declared _in Rust_. This
+will compile:
+
+[source, rust]
+----
+extern fn foo<T>() {}
+----
+
+This confused me in the beginning; it made me think generic functions through
+FFI would be possible. But as described in
+https://github.com/rust-lang/rust/pull/15831[the original issue that allowed
+them], they're only supported to pass callbacks to C functions.
 
 [bibliography]
 == References
