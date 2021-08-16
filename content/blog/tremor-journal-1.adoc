@@ -294,7 +294,12 @@ to go.
 
 === WebAssembly
 
-And, in the case of Wasm:
+I also tried to write a simple example of how plugins would work with
+WebAssembly, which is available in the
+https://github.com/marioortizmanero/pdk-experiments/tree/master/wasm-simple[`wasm-simple`
+directory].
+
+Based on https://freemasen.com/blog/wasmer-plugin-pt-1/
 
 [source, rust]
 ----
