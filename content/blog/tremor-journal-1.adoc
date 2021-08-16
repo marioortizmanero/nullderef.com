@@ -274,13 +274,23 @@ very similar to using WebAssembly, but theoretically with less friction, as MIR
 is specific to Rust and plugin development would be as easy as in the case of
 dynamic loading with Rust-to-Rust FFI. A few things to consider:
 
-. Is MIR stable?
-. Is the overhead of MIRI worth it?
-
-As to the first question: no, MIR is unfortunately unstable, so we'd have the
-same binary incompatibility problems between plugins and the main binary.
-
-
+. *Is this even possible?*
++
+The Rust compiler itself uses MIRI to evaluate constant expressions
+<<miri-compiler>> via the
+https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/index.html[`rustc_mir`
+crate]. But taking a quick look it seems to be created specifically for the
+compiler, at a very low level, and without that much documentation. Plus, it's
+nightly-only. It does seem possible, but I wasn't able to get a simple example
+working.
+. *Is MIR stable?*
++
+MIR is unfortunately unstable <<miri-unstable>>, so we'd have the same
+incompatibility problems between plugins and the main binary.
+. *Is the overhead of MIRI worth it?*
++
+Considering the previous answers, no, this approach is most likely not the way
+to go.
 
 === WebAssembly
 
@@ -371,5 +381,7 @@ them], they're only supported to pass callbacks to C functions.
 [bibliography]
 == References
 
-- [[[extern, 1]]] https://doc.rust-lang.org/std/keyword.extern.html
-- [[[dylib,  2]]] https://users.rust-lang.org/t/what-is-the-difference-between-dylib-and-cdylib/28847
+- [[[extern,        1]]] https://doc.rust-lang.org/std/keyword.extern.html
+- [[[dylib,         2]]] https://users.rust-lang.org/t/what-is-the-difference-between-dylib-and-cdylib/28847
+- [[[miri-compiler, 3]]] https://rustc-dev-guide.rust-lang.org/miri.html
+- [[[miri-unstable, 4]]] https://github.com/rust-lang/miri/blob/master/CONTRIBUTING.md#preparing-the-build-environment
