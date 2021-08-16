@@ -108,11 +108,7 @@ regarding dynamic loading!
 
 == Experimenting with plugins
 
-I already imagined that generics with dynamic linking is fundamentally
-impossible. Rust needs to know the size of the object it's dealing with at
-compile-time -- which is when generics works -- something that's not available
-when using dynamically loaded libraries. It's really easy to prove in Rust,
-which I'll do in a moment.
+=== Dynamic Loading
 
 Firstly, I've created the
 https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] repository,
@@ -199,9 +195,10 @@ Cool! My research raises a few questions that I should learn more about:
 
 === 1. `extern` values
 
-The `extern` keyword simply means that the block isn't defined in the current
-crate <<extern>>, which means it can be used for FFI. Its parameter specifies
-what ABI it should use, of which the only interesting values in this case are:
+The `extern` keyword can be used to either declare function interfaces that Rust
+code can call foreign code by, or to export Rust code <<extern>>. Its parameter
+specifies what ABI it should use, of which the only interesting values in this
+case are:
 
 * `extern "Rust"`: for the Rust ABI
 * `extern "C"`: for the default C compiler's ABI in your system
@@ -276,7 +273,7 @@ Hmm. Could it possibly be used to dynamically run Rust code for plugins? If MIR
 was stable it might be worth considering. But it isn't, so it's not any better
 than loading plugins with binaries.
 
----
+=== WebAssembly
 
 And, in the case of Wasm:
 
@@ -307,6 +304,8 @@ few ideas about it.
 
 == First prototype with dynamic linking
 
+TODO
+
 The first approach for the PDK used dynamic linking. I was looking forward to
 using a library other than `libloading` because of how easy it seems to end up
 with undefined behaviour in that case. I found out `sharedlib` was abandoned, as
@@ -315,8 +314,40 @@ no commits had been made since 2017, leaving `dlopen` as the only alternative.
 I also had to investigate first, so I did some reading about dynamic linking in
 order to know more about how it works:
 
+== Supporting generics in plugins
+
+I already imagined that generics with dynamic linking is fundamentally
+impossible. Rust needs to know the size of the objects it's dealing with at
+compile-time -- which is when generics works -- something that's not available
+when using dynamically loaded libraries. It's really easy to prove in Rust with
+the following example:
+
+[source, rust]
+----
+extern {
+    fn foo<T>();
+}
+----
+
+Which results in the error:
+
+[source, text]
+----
+error[E0044]: foreign items may not have type parameters
+ --> src/lib.rs:2:5
+  |
+2 |     fn foo<T>();
+  |     ^^^^^^^^^^^^ can't have type parameters
+  |
+  = help: replace the type parameters with concrete types like `u32`
+
+error: aborting due to previous error
+
+For more information about this error, try `rustc --explain E0044`.
+----
+
 [bibliography]
 == References
 
-- [[[extern, 1]]] https://doc.rust-lang.org/reference/items/external-blocks.html#abi
+- [[[extern, 1]]] https://doc.rust-lang.org/std/keyword.extern.html
 - [[[dylib,  2]]] https://users.rust-lang.org/t/what-is-the-difference-between-dylib-and-cdylib/28847
