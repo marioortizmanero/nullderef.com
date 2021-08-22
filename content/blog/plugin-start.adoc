@@ -19,12 +19,12 @@ Welcome to my second article about Plugins in Rust! Here I will try to actually
 write some simple code of what a PDK would look like, and also do some research
 about questions that arise while doing so. Please note that this is a series of
 posts, so you might be interested in reading
-https://nullderef.com/blog/plugin-tech/[the previous ones for context].
+https://nullderef.com/series/rust-plugins/[the previous ones for context].
 
-Some probably weren't expecting me to continue the series, as in the last
-article I wrote that Google didn't end up allocating a slot for my project (as
-this was initially going to be for the
-https://summerofcode.withgoogle.com/[Google Summer of Code]). But the Tremor
+Some probably weren't expecting me to continue the series, as in the
+https://nullderef.com/blog/plugin-tech/[last article] I wrote that Google didn't
+end up allocating a slot for my project (as this was initially going to be for
+the https://summerofcode.withgoogle.com/[Google Summer of Code]). But the Tremor
 team ended up talking with me and arranging the same thing via the
 https://lfx.linuxfoundation.org/tools/mentorship/[The Linux Foundation
 Mentorships], so I will be able to work on the PDK in the end!
@@ -62,12 +62,18 @@ them:
 [quote, Darach]
 ____
 When I have an idea about something, I just post it on the Discord server and
-wait for it to be destroyed by someone else.
+wait for it to be destroyed by someone else. If it doesn't, maybe it's worth
+considering.
 ____
+
+Also note that while writing this post I quite literally broke my leg (tibia &
+fibula). The team was very supportive and I took some rest until I went through
+surgery. Which is another reason as to why this article has taken me longer than
+usual to release. Thanks a lot to all of them ❤️.
 
 === Getting to know other mentees
 
-In the first meeting I was suggested to meet the other LFX mentee at that
+In the first reunion I was suggested to meet the other LFX mentee at that
 moment, @aryan9600 on Discord, which seemed like a good idea. I'd seen him a
 couple times and knew he'd been contributing to Tremor even before the
 mentorship.
@@ -78,43 +84,48 @@ to add gRPC support to Tremor, and wasn't sure how to approach it so that new
 interfaces could be added outside the compilation time. He had multiple ideas on
 how to implement this, but the one that interested me the most was via Wasm or
 dynamic linking, which was exactly what I was trying to do as well for the PDK.
-Which meant I'd probably spend more time with him, as our projects were more
+This meant I'd probably spend more time with him, as our projects were more
 interconnected than I thought.
 
-[[actual_start]]
-== The first steps
+=== Learning about the internals of Tremor
 
-Up until that point I had mostly investigated about the
-https://nullderef.com/blog/plugin-tech/[technologies] that could be used for the
-PDK, but I was suggested that I should first take a look at how the interfaces
-would actually look like. That way it would be easier to decide how to approach
-the PDK's implementation, according to the requirements for these interfaces.
-
-I always knew their original intent was the typical architecture via dynamic
-linking, but I wanted to explore the viability of Wasm before ruling it out.
-Would this idea be destroyed by someone in the end, or does it stand a chance?
-In order to know that I'd first need to find more specific requisites by
-defining the basic interfaces in the PDK. Which is very hard at first because
-you need to know more about the internals of Tremor.
+I've always known that the original intent for the PDK was the typical
+architecture via dynamic linking, but I wanted to explore the viability of Wasm
+or other alternatives before ruling it out. Would this idea be destroyed by
+someone in the end, or does it stand a chance? In order to know that I'd first
+need to find more specific requisites by defining the basic interfaces of the
+PDK. Which is very hard at first because you need to know more about the
+internals of Tremor and how it works.
 
 Luckily, Matthias spent the second meeting explaining me how Tremor works, with
 the help of some drawings, taking a look at the code, and running it. He also
-taught me the concept of a _connector_, which is just an abstraction over both
-sources and sinks. The thing was that connectors were still Work In Progress,
-and Matthias needed to know how the PDK would work to adapt the `Connector`
-interface. This is when the following questions arose:
-
-* Is it possible to use generics in the PDK?
-* Otherwise, is it possible to use `dyn` in the PDK?
-* Otherwise, what can be done to represent a "`generic`" trait object in the
-  interface Tremor exports for plugins?
+taught me the novel concept of a _connector_, which is just an abstraction over
+both sources and sinks. The thing was that connectors were still Work In
+Progress, and Matthias needed to know how the PDK would work to modify the
+`Connector` interface -- mainly how to approach a plugin interface with
+generics. Which is what I'll try to figure out in this article.
 
 Back when I talked to Aryan we ended up asking ourselves the same exact things.
 Turns out that the generated code with `tonic` for gRPC uses generics, which
 might not be compatible with dynamic loading.
 
+[[actual_start]]
+== The first steps
+
+Up until now I had mostly investigated about the
+https://nullderef.com/blog/plugin-tech/[technologies] that could be used for the
+PDK, but I was suggested that I should first take a look at how the interfaces
+would actually look like. That way it would be easier to take the final decision
+for the PDK's technology, according to the requirements for these interfaces. In
+summary, the following question arose:
+
+* Is it possible to use generics in the PDK?
+* Otherwise, is it possible to use `dyn` in the PDK?
+* If all else fails, what can be done to represent a "`generic`" trait object in
+  the interface Tremor exports for plugins?
+
 This meant I had to do more research. I spent a few days reading multiple
-articles. It's a rabbit hole 🐰. For example:
+articles, but it's a rabbit hole 🐰! I would recommend the following ones:
 
 * https://fasterthanli.me/articles/so-you-want-to-live-reload-rust[So you want
   to live-reload Rust - fasterthanli.me]
@@ -128,8 +139,8 @@ articles. It's a rabbit hole 🐰. For example:
 * https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html[Dynamic
   Loading & Plugins - michael-f-bryan.github.io]
 
-By the way, thanks a lot to Michael F. Bryan for writing so many articles
-regarding dynamic loading!
+As you can see, Michael F. Bryan has put a lot of effort into teaching how
+dynamic loading works in Rust. Thanks a lot to him!
 
 == Experimenting with plugins
 
