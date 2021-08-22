@@ -1,7 +1,6 @@
 ---
-title: "Tremor Journal I: The Beginnings"
-description: "My personal experience with Tremor when starting the PDK
-implementation"
+title: "Plugins in Rust: Getting Started"
+description: "My first steps trying to implement the PDK"
 summary: "Getting to know the Tremor team was exciting. Implementing the PDK
 wasn't going to be easy, but it certainly sounded fun thanks to their dynamics.
 I had to start somewhere, and this was the moment."
@@ -12,7 +11,28 @@ date: 2021-08-06
 GHissueID: ??
 ---
 
-== Getting to know the team
+:sectnums:
+
+== Introduction
+
+Welcome to my second article about Plugins in Rust! Here I will try to actually
+write some simple code for what a PDK would look like, and also do some research
+about questions that arise while doing so. Please note that this is a series of
+posts, so you might be interested in reading
+https://nullderef.com/blog/plugin-tech/[the previous ones for context].
+
+Some probably weren't expecting me to continue the series, as in the last
+article I wrote that Google didn't end up allocating a slot for my project (as
+this was initially going to be a project for the GSoC
+
+Even though this project is specific to Tremor, I try to keep it relatively
+generic so that it's useful to future rustaceans interested in plugins. If you
+don't really care about Tremor's specific case, you can skip to the
+<<actual_start,next section>>.
+
+== About Tremor
+
+=== Getting to know the team
 
 My first official meeting with the Tremor team took place in the beginnings of
 August. I had already been lurking in their Discord server before, and I'd
@@ -41,7 +61,7 @@ When I have an idea about something, I just post it on the Discord server and
 wait for it to be destroyed by someone else.
 ____
 
-== Getting to know other mentees
+=== Getting to know other mentees
 
 In the first meeting I was suggested to meet the other LFX mentee at that
 moment, @aryan9600 on Discord, which seemed like a good idea. I'd seen him a
@@ -57,7 +77,8 @@ dynamic linking, which was exactly what I was trying to do as well for the PDK.
 Which meant I'd probably spend more time with him, as our projects were more
 interconnected than I thought.
 
-== Getting started
+[[actual_start]]
+== The first steps
 
 Up until that point I had mostly investigated about the
 https://nullderef.com/blog/plugin-tech/[technologies] that could be used for the
@@ -129,7 +150,8 @@ pub type MinFunction = fn(i32, i32) -> i32;
 
 With it, the plugin crate may export its own implementation. In this case I'll
 declare a `static` variable, but the example also showcases how `extern` may
-work as well. The crate's value of `crate-type` must be set to a
+work as well (which will end up being the better choice). The crate's value of
+`crate-type` must be set to a
 https://doc.rust-lang.org/reference/linkage.html[dynamic library]. Note that
 `#[no_mangle]` is necessary so that the variable's name is known when loading it
 from the main binary.
@@ -169,9 +191,9 @@ Running it:
 [source, commandline]
 ----
 $ cd plugin-sample
-$ cargo build
+$ cargo build --release
 $ cd ..
-$ cargo run -- plugin-sample/target/debug/libplugin_sample.so
+$ cargo run --release -- plugin-sample/target/debug/libplugin_sample.so
 Running plugin:
   min(1, 2): 1
   min(-10, 10): -10
@@ -297,13 +319,81 @@ to go.
 I also tried to write a simple example of how plugins would work with
 WebAssembly, which is available in the
 https://github.com/marioortizmanero/pdk-experiments/tree/master/wasm-simple[`wasm-simple`
-directory].
+directory]. It took me considerably more effort to get running than with dynamic
+linking, even following https://freemasen.com/blog/wasmer-plugin-pt-1/[Free
+Masen's guide] and
+https://docs.rs/wasmer-runtime/0.17.1/wasmer_runtime/[Wasmer's official
+documentation]. But at least I didn't have to write that much `unsafe` (I still
+needed some to load or store data from Wasm's virtual memory, which I'll explain
+later on).
 
-Based on https://freemasen.com/blog/wasmer-plugin-pt-1/
+The following snippet is what the plugin would look like. Note that this time we
+don't even consider using `static` to export the function. Wasm does have
+support for globals, but since handling complex types -- a function in this case
+-- isn't trivial, it's not worth it.
 
+.`plugin-sample/src/lib.rs`
 [source, rust]
 ----
+#[no_mangle]
+pub fn with_extern(a: i32, b: i32) -> i32 {
+    a.min(b)
+}
 ----
+
+And the basic runtime can be implemented with
+https://github.com/wasmerio/wasmer[Wasmer]. I was initially going to use
+https://github.com/FreeMasen/wasmer-plugin[`wasmer-plugin`], which includes
+procedural macros in order to reduce the overall boilerplate (which will be more
+important later on), but it seems to be abandoned since 2019. I wanted to try
+the lower-level interface of Wasmer myself to learn more about it anyway, so
+I'll just use that for now. If we ended up using Wasm for Tremor I'd try
+updating and maintaining `wasmer-plugin` to make the code a bit prettier.
+
+.`src/main.rs`
+[source, rust]
+----
+fn run_plugin(_path: &str) -> Result<(), WasmerError> {
+    let import_object = imports! {};
+    let instance = instantiate(WASM, &import_object)?;
+
+    println!("Running plugin:");
+    let min_extern: Func<(i32, i32), i32> = instance.exports.get("with_extern")?;
+    println!("  min(1, 2): {}", min_extern.call(1, 2)?);
+    println!("  min(-10, 10): {}", min_extern.call(-10, 10)?);
+    println!("  min(2000, 2000): {}", min_extern.call(2000, 2000)?);
+
+    Ok(())
+}
+----
+
+Running it:
+
+[source, text]
+----
+$ rustup target add wasm32-unknown-unknown
+$ cd plugin-simple
+$ cargo build --target wasm32-unknown-unknown --release
+$ cd ..
+$ cargo run --release -- plugin-sample/target/wasm32-unknown-unknown/release/plugin_sample.wasm
+Running plugin:
+  min(1, 2): 1
+  min(-10, 10): -10
+  min(2000, 2000): 2000
+----
+
+Wasm only allows importing and exporting items of basic types (integers
+and floating point <<wasmer-types>>). So in order to interact with custom
+``struct``s or ``enum``s the user has to construct them in Wasm's memory (which
+can be accessed directly by the runtime, and vice versa), and using pointers to
+access them from both sides. This requires [de]serializing the data into memory
+with a crate like https://github.com/bincode-org/bincode[`bincode`].
+
+In conclusion, in Wasm's case there's no point in asking ourselves if there's
+support for generics or not, as it's going to have a considerable overhead
+anyway.
+
+---
 
 What I wanted to see if there was any
 way around it and how complicated it was.
@@ -390,3 +480,4 @@ them], they're only supported to pass callbacks to C functions.
 - [[[dylib,         2]]] https://users.rust-lang.org/t/what-is-the-difference-between-dylib-and-cdylib/28847
 - [[[miri-compiler, 3]]] https://rustc-dev-guide.rust-lang.org/miri.html
 - [[[miri-unstable, 4]]] https://github.com/rust-lang/miri/blob/master/CONTRIBUTING.md#preparing-the-build-environment
+- [[[wasmer-types,  5]]] https://docs.rs/wasmer-runtime-core/0.17.1/wasmer_runtime_core/types/trait.WasmExternType.html
