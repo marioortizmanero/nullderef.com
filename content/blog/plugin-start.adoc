@@ -127,6 +127,8 @@ summary, the following question arose:
 This meant I had to do more research. I spent a few days reading multiple
 articles, but it's a rabbit hole 🐰! I would recommend the following ones:
 
+// TODO add wasm articles?
+
 * https://fasterthanli.me/articles/so-you-want-to-live-reload-rust[So you want
   to live-reload Rust - fasterthanli.me]
 * https://adventures.michaelfbryan.com/posts/wasm-as-a-platform-for-abstraction/[WebAssembly
@@ -153,11 +155,11 @@ created is in the
 https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-simple[`dynamic-simple`
 directory], with a small example of how to dynamically load plugins with Rust.
 
-We first need a common library, called `tremor-core`, which defines the
-interface exported by the plugin so that the main binary may load it. In this
-case it's just a function:
+We first need a common library, called `common`, which defines the interface
+exported by the plugin so that the main binary may load it. In this case it's
+just a function:
 
-.`tremor-core/src/lib.rs`
+.`common/src/lib.rs`
 [source, rust]
 ----
 pub type MinFunction = fn(i32, i32) -> i32;
@@ -182,7 +184,8 @@ fn min(a: i32, b: i32) -> i32 {
 }
 ----
 
-Finally, the main binary can load the library with `libloading`:
+Finally, the main binary can load the library with `libloading`, which requires
+a bit of `unsafe`:
 
 .`src/main.rs`
 [source, rust]
@@ -215,7 +218,7 @@ Running plugin:
   min(2000, 2000): 2000
 ----
 
-Cool! My research raises a few questions that I should learn more about:
+Cool! This raises a few questions that I should learn more about:
 
 . Many plugin tutorials use `extern "C"` for the exported function's type in the
   plugin. What exactly does that mean? Do we need it if the FFI is Rust-to-Rust?
@@ -326,8 +329,8 @@ MIR is unfortunately unstable <<miri-unstable>>, so we'd have the same
 incompatibility problems between plugins and the main binary.
 . *Is the overhead of MIRI worth it?*
 +
-Considering the previous answers, no, this approach is most likely not the way
-to go.
+Considering the previous answers, no, this approach doesn't seem like the right
+tool for the job.
 
 === WebAssembly
 
@@ -345,7 +348,7 @@ later on).
 The following snippet is what the plugin would look like. Note that this time we
 don't even consider using `static` to export the function. Wasm does have
 support for globals, but since handling complex types -- a function in this case
--- isn't trivial, it's not worth it.
+-- isn't trivial, it's not worth it. Just using `pub` is enough:
 
 .`plugin-sample/src/lib.rs`
 [source, rust]
@@ -359,7 +362,7 @@ pub fn with_extern(a: i32, b: i32) -> i32 {
 And the basic runtime can be implemented with
 https://github.com/wasmerio/wasmer[Wasmer]. I was initially going to use
 https://github.com/FreeMasen/wasmer-plugin[`wasmer-plugin`], which includes
-procedural macros in order to reduce the overall boilerplate (which will be more
+procedural macros to help reduce the overall boilerplate (which will be more
 important later on), but it seems to be abandoned since 2019. I wanted to try
 the lower-level interface of Wasmer myself to learn more about it anyway, so
 I'll just use that for now. If we ended up using Wasm for Tremor I'd try
@@ -369,11 +372,17 @@ updating and maintaining `wasmer-plugin` to make the code a bit prettier.
 [source, rust]
 ----
 fn run_plugin(_path: &str) -> Result<(), WasmerError> {
+    // For reference, Feather also reads the plugins with `fs::read`:
+    // https://github.com/feather-rs/feather/blob/07c64678f80ff77be3dbd3d99fbe5558b4e72c97/quill/cargo-quill/src/main.rs#L107
+    let module_wat = fs::read(&path)?;
+    let store = Store::default();
+    let module = Module::new(&store, &module_wat)?;
+    // No imports needed; the object will be empty for now
     let import_object = imports! {};
-    let instance = instantiate(WASM, &import_object)?;
+    let instance = Instance::new(&module, &import_object)?;
 
     println!("Running plugin:");
-    let min_extern: Func<(i32, i32), i32> = instance.exports.get("with_extern")?;
+    let min_extern: NativeFunc<(i32, i32), i32> = instance.exports.get_native_function("with_extern")?;
     println!("  min(1, 2): {}", min_extern.call(1, 2)?);
     println!("  min(-10, 10): {}", min_extern.call(-10, 10)?);
     println!("  min(2000, 2000): {}", min_extern.call(2000, 2000)?);
@@ -396,6 +405,29 @@ Running plugin:
   min(-10, 10): -10
   min(2000, 2000): 2000
 ----
+
+Some questions:
+
+* What's the difference between the https://docs.rs/wasmer/[`wasmer`] crate and
+  https://docs.rs/wasmer-runtime/[`wasmer_runtime`]?
+
+=== `wasmer` vs `wasmer_runtime`
+
+This was confusing for me at first, since both crates seem to have a very
+similar interface and almost the same set of authors. Some tutorials used
+`wasmer`, but others `wasmer_runtime`.
+
+The difference seems to be that `wasmer_runtime` was updated about a year ago,
+while `wasmer` got an upgrade to v2.0.0 just two months back. The last release
+of `wasmer_runtime` is v0.17 (v0.18 seems to be yanked), and the first one of
+`wasmer` is the same one, so my bet is that `wasmer_runtime` is the name of the
+crate their team used previously, and they eventually deprecated it in favor of
+`wasmer`.
+
+I've opened an https://github.com/wasmerio/wasmer/issues/2539[issue] upstream so
+that this is hopefully more clear to future users.
+
+---
 
 Wasm only allows importing and exporting items of basic types (integers
 and floating point <<wasmer-types>>). So in order to interact with custom
