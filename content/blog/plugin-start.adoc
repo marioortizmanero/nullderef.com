@@ -68,8 +68,8 @@ ____
 
 Also note that while writing this post I quite literally broke my leg (tibia &
 fibula). The team was very supportive and I took some rest until I went through
-surgery. Which is another reason as to why this article has taken me longer than
-usual to release. Thanks a lot to all of them ❤️.
+surgery (I'm still recovering). Which is another reason as to why this article
+has taken me longer than usual to release. Thanks a lot to all of them ❤️.
 
 === Getting to know other mentees
 
@@ -117,7 +117,7 @@ https://nullderef.com/blog/plugin-tech/[technologies] that could be used for the
 PDK, but I was suggested that I should first take a look at how the interfaces
 would actually look like. That way it would be easier to take the final decision
 for the PDK's technology, according to the requirements for these interfaces. In
-summary, the following question arose:
+summary, the following questions arose:
 
 * Is it possible to use generics in the PDK?
 * Otherwise, is it possible to use `dyn` in the PDK?
@@ -148,16 +148,17 @@ dynamic loading works in Rust. Thanks a lot to him!
 
 === Dynamic Loading
 
-Firstly, I've created the
+First of all, I've created the
 https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] repository,
-where I'll write various examples of how the PDK might work. The first one I've
-created is in the
+where I'll write various examples of how the PDK might work. The first
+experiment is in the
 https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-simple[`dynamic-simple`
 directory], with a small example of how to dynamically load plugins with Rust.
 
 We first need a common library, called `common`, which defines the interface
 exported by the plugin so that the main binary may load it. In this case it's
-just a function:
+just a pointer to a function. To keep it simple it'll just compute the minimum
+between two integers:
 
 .`common/src/lib.rs`
 [source, rust]
@@ -166,12 +167,13 @@ pub type MinFunction = fn(i32, i32) -> i32;
 ----
 
 With it, the plugin crate may export its own implementation. In this case I'll
-declare a `static` variable, but the example also showcases how `extern` may
-work as well (which will end up being the better choice). The crate's value of
+declare a `static` variable, but the example showcases how `extern` may work as
+well (which will end up being the better choice). The crate's value of
 `crate-type` must be set to a
-https://doc.rust-lang.org/reference/linkage.html[dynamic library]. Note that
-`#[no_mangle]` is necessary so that the variable's name is known when loading it
-from the main binary.
+https://doc.rust-lang.org/reference/linkage.html[dynamic library], which we'll
+cover later. Note that `#[no_mangle]` is necessary so that the variable's name
+isn't https://en.wikipedia.org/wiki/Name_mangling[_mangled_] and we can access
+it when when dynamically loading the library.
 
 .`plugin-sample/src/lib.rs`
 [source, rust]
@@ -186,16 +188,17 @@ fn min(a: i32, b: i32) -> i32 {
 
 Finally, the main binary can load the library with
 https://crates.io/crates/libloading[`libloading`], which requires a bit of
-`unsafe`. I was looking forward to using a library other than `libloading`
-because of how easy it seems to end up with undefined behaviour in that case. I
-found out `sharedlib` was abandoned, as no commits had been made since 2017,
-leaving https://crates.io/crates/dlopen[`dlopen`] as the only alternative. Which
-was updated two years ago as well, but their GitHub repo seemed somewhat active.
+`unsafe`. I was looking forward to using a different library because of how easy
+it seems to end up with undefined behaviour in that case. I found out
+https://github.com/tyleo/sharedlib[`sharedlib`] was abandoned, as no commits had
+been made since 2017, leaving https://crates.io/crates/dlopen[`dlopen`] as the
+only alternative. Which was updated two years ago as well, but their GitHub repo
+seemed somewhat active in comparison.
 
-But to keep things simple, for now I'll just use `libloading` for being the most
-popular crate, and perhaps consider using `dlopen` in the future. In terms of
-relevant features and performance they're pretty close anyway
-<<dynload-comp>>.
+For now I'll just use `libloading` for being the most popular crate, and perhaps
+I'll consider using `dlopen` in the future. In terms of relevant features and
+performance they're pretty close anyway <<dynload-comp>>. Here's what the code
+looks like:
 
 .`src/main.rs`
 [source, rust]
@@ -221,7 +224,7 @@ Running it:
 $ cd plugin-sample
 $ cargo build --release
 $ cd ..
-$ cargo run --release -- plugin-sample/target/debug/libplugin_sample.so
+$ cargo run --release -- plugin-sample/target/release/libplugin_sample.so
 Running plugin:
   min(1, 2): 1
   min(-10, 10): -10
@@ -256,7 +259,7 @@ case are:
 Though most tutorials use `export "C"`, `export "Rust"` is the best choice for
 Rust-to-Rust FFI because with it one can easily export Rust-only features like
 enums with data fields (at the cost of not being a stable ABI). Otherwise, we'd
-get this error:
+get this message when compiling the library:
 
 [source, text]
 ----
@@ -293,18 +296,19 @@ dynamic linking with the `crate-type` field] in the crate's `Cargo.toml`:
 
 Once again, this difference has to do with the ABIs in the dynamic library
 <<dylib>>. `cdylib` is meant for linking into C/C++ programs, and `dylib` for
-Rust ones. `cdylib` will strip away all functions that aren't publicly exported.
-`dylib` means that `extern` isn't even needed; you just need to set the external
-items as `pub`.
+Rust ones. More specifically, `cdylib` will strip away all functions that aren't
+publicly exported. `dylib` means that `extern` isn't even needed; you just need
+to set the external items as `pub`.
 
 === 3. `rlib` files
 
 Also listed in the previous section, `rlib` is a value for `crate-type` that
 might be of interest. `rlib` files are Rust *static* libraries, which can then
-be imported with `extern crate crate_name` <<dylib>>. Since `rlib` files are
-static libraries, they can't be loaded at runtime.
+be imported with `extern crate crate_name` <<dylib>>. But since `rlib` files are
+static libraries, they can't be loaded at runtime, so they're of no use in a
+plugin system.
 
-So here's a crazy idea: What if the `rlib` files were dynamically loaded as
+Here's a crazy idea though: What if the `rlib` files were dynamically loaded as
 plugins with the help of https://github.com/rust-lang/miri[MIRI]? I recently
 learned about it, and quoting its official documentation:
 
@@ -356,9 +360,9 @@ needed some to load or store data from Wasm's virtual memory, which I'll explain
 later on).
 
 The following snippet is what the plugin would look like. Note that this time we
-don't even consider using `static` to export the function. Wasm does have
-support for globals, but since handling complex types -- a function in this case
--- isn't trivial, it's not worth it. Just using `pub` is enough:
+use `pub` without even considering `static` to export a pointer to the function.
+Wasm does have support for globals, but since handling complex types -- a
+function in this case -- isn't trivial, it's not worth it.
 
 .`plugin-sample/src/lib.rs`
 [source, rust]
@@ -427,12 +431,12 @@ Some questions:
 
 This was confusing for me at first, since both crates seem to have a very
 similar interface and almost the same set of authors. Some tutorials used
-`wasmer`, but others `wasmer_runtime`.
+`wasmer`, others `wasmer_runtime`.
 
 The difference seems to be that `wasmer_runtime` was updated about a year ago,
-while `wasmer` got an upgrade to v2.0.0 just two months back. The last release
-of `wasmer_runtime` is v0.17 (v0.18 seems to be yanked), and the first one of
-`wasmer` is the same one, so my bet is that `wasmer_runtime` is the name of the
+while `wasmer` got bumped to v2.0.0 just two months ago. The last release of
+`wasmer_runtime` is v0.17 (v0.18 seems to be yanked), and the first one of
+`wasmer` is v0.17 as well, so my bet is that `wasmer_runtime` is the name of the
 crate their team used previously, and they eventually deprecated it in favor of
 `wasmer`.
 
@@ -441,17 +445,16 @@ that this is hopefully more clear to future users.
 
 ==== More complex types
 
-Wasm only allows importing and exporting items of basic types (integers
-and floating point <<wasmer-types>>). So in order to interact with custom
-``struct``s or ``enum``s the user has to construct them in Wasm's memory (which
-can be accessed directly by the runtime, and vice versa), and use pointers to
-access them from either side. As to exporting structs that implement a specific
-trait, as long as the trait's size is known, it should be possible to do so
-via pointers as well.
+Wasm only allows functions with parameters of basic types (integers and floating
+point <<wasmer-types>>). So in order to interact with custom ``struct``s or
+``enum``s the user has to construct them in Wasm's memory (which can be accessed
+directly by the runtime or the plugin), and use pointers to access them from
+either side. As to exporting structs that implement a specific trait, as long as
+the trait's size is known, it should be possible to do so via pointers as well.
 
 All of this requires [de]serializing the data into memory with a crate like
 https://github.com/bincode-org/bincode[`bincode`], which I'll try to use myself
-later on in this post.
+in the following section.
 
 == Generics
 
