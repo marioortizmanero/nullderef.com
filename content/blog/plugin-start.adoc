@@ -246,7 +246,7 @@ Cool! This raises a few questions that I should learn more about:
   https://en.wikipedia.org/wiki/Component_Object_Model[COM] in Rust, or maybe
   like JAR files in Java?
 
-=== 1. `extern` values
+==== 1. `extern` values
 
 The `extern` keyword can be used to either declare function interfaces that Rust
 code can call foreign code by, or to export Rust code <<extern>>. Its parameter
@@ -286,7 +286,7 @@ note: the type is defined here
 Note that the default value for the ABI is `"C"`, so `"Rust"` must be explicitly
 specified always when using `extern`.
 
-=== 2. `crate-type` values
+==== 2. `crate-type` values
 
 There are https://doc.rust-lang.org/reference/linkage.html[two ways to configure
 dynamic linking with the `crate-type` field] in the crate's `Cargo.toml`:
@@ -300,7 +300,7 @@ Rust ones. More specifically, `cdylib` will strip away all functions that aren't
 publicly exported. `dylib` means that `extern` isn't even needed; you just need
 to set the external items as `pub`.
 
-=== 3. `rlib` files
+==== 3. `rlib` files
 
 Also listed in the previous section, `rlib` is a value for `crate-type` that
 might be of interest. `rlib` files are Rust *static* libraries, which can then
@@ -350,14 +350,13 @@ tool for the job.
 
 I also tried to write a simple example of how plugins would work with
 WebAssembly, which is available in the
-https://github.com/marioortizmanero/pdk-experiments/tree/master/wasm-simple[`wasm-simple`
-directory]. It took me considerably more effort to get running than with dynamic
-linking, even following https://freemasen.com/blog/wasmer-plugin-pt-1/[Free
-Masen's guide] and
-https://docs.rs/wasmer[Wasmer's official
-documentation]. But at least I didn't have to write that much `unsafe` (I still
-needed some to load or store data from Wasm's virtual memory, which I'll explain
-later on).
+https://github.com/marioortizmanero/pdk-experiments/tree/master/wasmer-simple[`wasmer-simple`
+directory]. It took me considerably more effort to understand and get running
+than with dynamic linking, even following
+https://freemasen.com/blog/wasmer-plugin-pt-1/[Free Masen's guide] and
+https://docs.rs/wasmer[Wasmer's official documentation]. But at least I didn't
+have to write that much `unsafe` (I still needed some to load or store data from
+Wasm's virtual memory, which I'll explain later on).
 
 The following snippet is what the plugin would look like. Note that this time we
 use `pub` without even considering `static` to export a pointer to the function.
@@ -373,14 +372,16 @@ pub fn with_extern(a: i32, b: i32) -> i32 {
 }
 ----
 
-And the basic runtime can be implemented with
-https://github.com/wasmerio/wasmer[Wasmer]. I was initially going to use
+
+For the runtime, this time I'm using Wasmer instead of Wasmtime because in an
+https://nullderef.com/blog/plugin-tech/[earlier post] it seemed like the best
+alternative. I also wanted to try
 https://github.com/FreeMasen/wasmer-plugin[`wasmer-plugin`], which includes
 procedural macros to help reduce the overall boilerplate (which will be more
 important later on), but it seems to be abandoned since 2019. I wanted to try
 the lower-level interface of Wasmer myself to learn more about it anyway, so
 I'll just use that for now. If we ended up using Wasm for Tremor I'd try
-updating and maintaining `wasmer-plugin` to make the code a bit prettier.
+updating and maintaining `wasmer-plugin` to keep the code boilerplate-free.
 
 .`src/main.rs`
 [source, rust]
@@ -409,28 +410,54 @@ Running it:
 
 [source, text]
 ----
-$ rustup target add wasm32-unknown-unknown
+$ rustup target add wasm32-wasi
 $ cd plugin-simple
-$ cargo build --target wasm32-unknown-unknown --release
+$ cargo build --target wasm32-wasi --release
 $ cd ..
-$ cargo run --release -- plugin-sample/target/wasm32-unknown-unknown/release/plugin_sample.wasm
+$ cargo run --release -- plugin-sample/target/wasm32-wasi/release/plugin_sample.wasm
 Running plugin:
   min(1, 2): 1
   min(-10, 10): -10
   min(2000, 2000): 2000
 ----
 
-Some questions:
-
-// TODO: add note about wasi target:
-// https://docs.wasmtime.dev/wasm-rust.html
+I created a `Makefile` for this example so that it's easier to compile, though.
+Running `make debug` or `make release` should do the trick. Some new questions
+about WebAssembly:
 
 // TODO: wasmer vs wasmtime?
 
+* AFAIK there are multiple compilation targets for Wasm. Which one should I be
+  using?
 * What's the difference between the https://docs.rs/wasmer/[`wasmer`] crate and
   https://docs.rs/wasmer-runtime/[`wasmer_runtime`]?
 * What about exporting types more complex than an `i32`? Is it possible to
   export a struct that implements a specific trait?
+
+==== WebAssembly targets
+
+Wasmer docs don't mention this much because is related to the plugin, rather
+than the runtime. But Wasmtime's book does include a section about compiling
+Rust to WebAssembly:
+
+[quote, https://docs.wasmtime.dev/wasm-rust.html]
+____
+* `wasm32-wasi` - when using wasmtime this is likely what you'll be using. The
+  WASI target is integrated into the standard library and is intended on
+  producing standalone binaries.
+* `wasm32-unknown-unknown` - this target, like the WASI one, is focused on
+  producing single *.wasm binaries. The standard library, however, is largely
+  stubbed out since the "unknown" part of the target means libstd can't assume
+  anything. This means that while binaries will likely work in wasmtime, common
+  conveniences like println! or panic! won't work.
+* `wasm32-unknown-emscripten` - this target is intended to work in a web browser
+  and produces a *.wasm file coupled with a *.js file, and it is not compatible
+  with wasmtime.
+____
+
+So basically what we need is `wasm32-wasi`. Even though Wasmer was my initial
+choice, to be honest I found Wasmtime's docs to be much more detailed and
+well-organized.
 
 ==== `wasmer` vs `wasmer_runtime`
 
@@ -451,7 +478,57 @@ that this is hopefully more clear to future users.
 ==== More complex types
 
 Wasm only allows functions with parameters of basic types (integers and floating
-point <<wasmer-types>>). So in order to interact with custom ``struct``s or
+point <<wasmer-types>>). There are currently two ways of handling this:
+
+* Via the https://github.com/webassembly/interface-types[*Interface Types
+  Proposal* for WebAssembly]. It defines the binary format for encoding and
+  decoding the newly supported types, and specifies a set of instructions to
+  transform the data between WebAssembly and the outside world. Note that it's
+  not meant to define a fixed representation of e.g. a string in Wasm, it
+  attempts to allow representation-agnostic high-level value types.
++
+--
+These new _high-level value types_ are called *interface types*. The current
+proposal defines them as:
+
+* Floating point of 32 and 64 bits
+* Signed and unsigned integers of up to 64 bits
+* Single characters
+* Lists (a string would be a list of characters)
+* Records (basically like Rust structs)
+* Variants (basically like Rust enums, it would enable `Option`, `Result`,
+  `union`, etc)
+
+You can see an explanation in detail
+https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md[here].
+And
+https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md#defining-language-neutral-interfaces-like-wasi-revisited[here's
+an example] of how it might work for a function in C++. It's pretty neat.
+
+However, this proposal is still at
+https://github.com/WebAssembly/proposals#phase-1---feature-proposal-cg[Phase 1].
+It's still actively being worked on and its specification is far from stable:
+
+* At the plugin level the `wasm_bindgen` crate seems to be ideal. It's a very
+  simple procedural macro that can be added to the exported functions in the
+  plugin in order to add support for Interface Types.
+* Wasmtime did support this in the past until their implementation was removed
+  after being considered outdated. As
+  https://github.com/bytecodealliance/wasmtime/issues/677[this issue indicates],
+  it still hasn't been updated.
+* Wasmer has the
+  https://docs.rs/wasmer-interface-types/[`wasmer_interface_types`] crate, but
+  with a similar story; it's outdated. There's
+  https://github.com/wasmerio/wasmer/issues/2480[this issue] as a continuation
+  of Wasmtime's, which explains the situation.
+
+In the end I wasn't able to get Interface Types working, nor I considered them
+worth my time, as it's still too early.
+--
+* With `witx` files, https://github.com/WebAssembly/WASI/blob/main/docs/witx.md
+* The legacy way, via *pointers and a shared memory*.
+
+So in order to interact with custom ``struct``s or
 ``enum``s the user has to construct them in Wasm's memory (which can be accessed
 directly by the runtime or the plugin), and use pointers to access them from
 either side. As to exporting structs that implement a specific trait, as long as
@@ -525,12 +602,13 @@ FFI would be possible. But as described in
 https://github.com/rust-lang/rust/pull/15831[the original issue that allowed
 them], they're only supported to pass callbacks to C functions.
 
-=== Wasm
+=== WebAssembly
 
-Can we do similar stuff for Wasm? The function signature of the earlier Wasm
-example only contains basic types supported by Wasm: integers and floating
-points. Before even considering generics, how can we use more complex types? Is
-it possible to write a function that takes or returns a struct?
+Can we somehow implement something similar with WebAssembly? The function
+signature of the `wasmer-example` example only contains basic types supported by
+Wasm: integers and floating points. Before even considering generics, how can we
+use more complex types? Is it possible to write a function that takes or returns
+a struct?
 
 This is covered quite well in
 https://freemasen.com/blog/wasmer-plugin-pt-1/[Free Masen's guide]. The author
@@ -554,9 +632,10 @@ benchmarking system] (which requires nightly for now)
 [bibliography]
 == References
 
-- [[[dynload-comp,  1]]] https://github.com/szymonwieloch/rust-dlopen#compare-with-other-libraries
-- [[[extern,        2]]] https://doc.rust-lang.org/std/keyword.extern.html
-- [[[dylib,         3]]] https://users.rust-lang.org/t/what-is-the-difference-between-dylib-and-cdylib/28847
-- [[[miri-compiler, 4]]] https://rustc-dev-guide.rust-lang.org/miri.html
-- [[[miri-unstable, 5]]] https://github.com/rust-lang/miri/blob/master/CONTRIBUTING.md#preparing-the-build-environment
-- [[[wasmer-types,  5]]] https://docs.rs/wasmer-runtime-core/0.17.1/wasmer_runtime_core/types/trait.WasmExternType.html
+- [[[dynload-comp,    1]]] https://github.com/szymonwieloch/rust-dlopen#compare-with-other-libraries
+- [[[extern,          2]]] https://doc.rust-lang.org/std/keyword.extern.html
+- [[[dylib,           3]]] https://users.rust-lang.org/t/what-is-the-difference-between-dylib-and-cdylib/28847
+- [[[miri-compiler,   4]]] https://rustc-dev-guide.rust-lang.org/miri.html
+- [[[miri-unstable,   5]]] https://github.com/rust-lang/miri/blob/master/CONTRIBUTING.md#preparing-the-build-environment
+- [[[wasmer-types,    6]]] https://docs.rs/wasmer-runtime-core/0.17.1/wasmer_runtime_core/types/trait.WasmExternType.html
+- [[[wasmtime-inttyp, 7]]] https://github.com/bytecodealliance/wasmtime/issues/677
