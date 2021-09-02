@@ -526,20 +526,24 @@ In the end I wasn't able to get Interface Types working, nor I considered them
 worth my time, as it's still too early.
 --
 * With `witx` files, https://github.com/WebAssembly/WASI/blob/main/docs/witx.md
-* The legacy way, via *pointers and a shared memory*.
+* The hacky-but-working way, via *pointers and a shared
+  https://docs.wasmer.io/integrations/examples/memory[memory]*. The user has to
+  first construct and serialize the complex types, and then save them into
+  Wasm's memory, which can be accessed directly by the runtime or the plugin.
+  https://docs.wasmer.io/integrations/examples/memory-pointers[Pointers] can be
+  used from either side to access the data.
++
+--
+Not only does this require a serialization and deserialization step, but also
+it's very cumbersome to use and easy to mess up. It's somewhat trivial though,
+so a procedural macro like the now outdated
+https://github.com/FreeMasen/wasmer-plugin[`wasmer-plugin`] could simplify it.
+For now, https://github.com/bincode-org/bincode[`bincode`] can be used for the
+serialization steps manually.
 
-So in order to interact with custom ``struct``s or
-``enum``s the user has to construct them in Wasm's memory (which can be accessed
-directly by the runtime or the plugin), and use pointers to access them from
-either side. As to exporting structs that implement a specific trait, as long as
-the trait's size is known, it should be possible to do so via pointers as well.
-
-All of this requires [de]serializing the data into memory with a crate like
-https://github.com/bincode-org/bincode[`bincode`], which I'll try to use myself
-in the following section.
-
-// TODO: ref https://docs.wasmer.io/integrations/examples/memory
-// TODO: ref https://docs.wasmer.io/integrations/examples/memory-pointers
+As to exporting structs that implement a specific trait, as long as the trait's
+size is known, it should be possible to do so via pointers as well. I think...
+--
 
 == Generics
 
