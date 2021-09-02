@@ -646,6 +646,11 @@ This is covered quite well in
 https://freemasen.com/blog/wasmer-plugin-pt-1/[Free Masen's guide]. The author
 is able to use more complex types by passing them inside.
 
+TODO mention:
+
+https://docs.rs/typetag/0.1.7/typetag/
+https://docs.rs/serde_traitobject/0.2.7/serde_traitobject/
+
 == Benchmarking
 
 I've always wanted to run some benchmarks in order to find out the actual
