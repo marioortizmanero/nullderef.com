@@ -525,7 +525,35 @@ It's still actively being worked on and its specification is far from stable:
 In the end I wasn't able to get Interface Types working, nor I considered them
 worth my time, as it's still too early.
 --
-* With `witx` files, https://github.com/WebAssembly/WASI/blob/main/docs/witx.md
+* With *`witx` files*. As
+  https://github.com/WebAssembly/WASI/blob/main/docs/witx.md[this document
+  explains], it's an experimental file format to express WASI APIs. It's
+  a partial implementation of the Interface Types, but it means that the
+  interfaces have to be written in said format, which looks like this:
++
+--
+[source, witx]
+----
+(use "errno.witx")
+
+;;; Add two integers
+(module $calculator
+  (@interface func (export "add")
+    (param $lh s32)
+    (param $rh s32)
+    (result $error $errno)
+    (result $res s32)
+  )
+)
+----
+
+Once the interface is defined, it can be loaded into Rust with a crate like
+https://docs.rs/wiggle/[`wiggle`]. For the previous example, wiggle's macro will
+generate a `Calculator` trait TODO
+
+I learned most of this from https://radu-matei.com/blog/wasm-api-witx/[radu's
+guide], please check it out for more information!
+--
 * The hacky-but-working way, via *pointers and a shared
   https://docs.wasmer.io/integrations/examples/memory[memory]*. The user has to
   first construct and serialize the complex types, and then save them into
