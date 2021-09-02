@@ -354,7 +354,7 @@ https://github.com/marioortizmanero/pdk-experiments/tree/master/wasm-simple[`was
 directory]. It took me considerably more effort to get running than with dynamic
 linking, even following https://freemasen.com/blog/wasmer-plugin-pt-1/[Free
 Masen's guide] and
-https://docs.rs/wasmer-runtime/0.17.1/wasmer_runtime/[Wasmer's official
+https://docs.rs/wasmer[Wasmer's official
 documentation]. But at least I didn't have to write that much `unsafe` (I still
 needed some to load or store data from Wasm's virtual memory, which I'll explain
 later on).
@@ -385,7 +385,7 @@ updating and maintaining `wasmer-plugin` to make the code a bit prettier.
 .`src/main.rs`
 [source, rust]
 ----
-fn run_plugin(_path: &str) -> Result<(), WasmerError> {
+fn run_plugin(path: &str) -> Result<(), WasmerError> {
     // For reference, Feather also reads the plugins with `fs::read`:
     // https://github.com/feather-rs/feather/blob/07c64678f80ff77be3dbd3d99fbe5558b4e72c97/quill/cargo-quill/src/main.rs#L107
     let module_wat = fs::read(&path)?;
@@ -422,6 +422,11 @@ Running plugin:
 
 Some questions:
 
+// TODO: add note about wasi target:
+// https://docs.wasmtime.dev/wasm-rust.html
+
+// TODO: wasmer vs wasmtime?
+
 * What's the difference between the https://docs.rs/wasmer/[`wasmer`] crate and
   https://docs.rs/wasmer-runtime/[`wasmer_runtime`]?
 * What about exporting types more complex than an `i32`? Is it possible to
@@ -456,11 +461,10 @@ All of this requires [de]serializing the data into memory with a crate like
 https://github.com/bincode-org/bincode[`bincode`], which I'll try to use myself
 in the following section.
 
-== Generics
+// TODO: ref https://docs.wasmer.io/integrations/examples/memory
+// TODO: ref https://docs.wasmer.io/integrations/examples/memory-pointers
 
-In conclusion, in Wasm's case there's no point in asking ourselves if there's
-support for generics or not, as it's going to have a considerable overhead
-anyway.
+== Generics
 
 Generics are almost inevitable in Rust. One might want to use them to:
 
@@ -474,6 +478,8 @@ overhead:
 * Lifetimes: smart pointers like `Rc<T>`, `Arc<T>` (TODO: raw pointers + unsafe?)
 * Async (GATs): just like how it works nowadays with `async_trait`, by boxing
   the `Future`. TODO: add reference and example.
+
+=== Dynamic Linking
 
 It turns out I wasn't the first person to ask that question, and Michael had a
 few ideas about it. Since we already know generics in plugins are fundamentally
@@ -518,6 +524,17 @@ This confused me in the beginning; it made me think generic functions through
 FFI would be possible. But as described in
 https://github.com/rust-lang/rust/pull/15831[the original issue that allowed
 them], they're only supported to pass callbacks to C functions.
+
+=== Wasm
+
+Can we do similar stuff for Wasm? The function signature of the earlier Wasm
+example only contains basic types supported by Wasm: integers and floating
+points. Before even considering generics, how can we use more complex types? Is
+it possible to write a function that takes or returns a struct?
+
+This is covered quite well in
+https://freemasen.com/blog/wasmer-plugin-pt-1/[Free Masen's guide]. The author
+is able to use more complex types by passing them inside.
 
 == Benchmarking
 
