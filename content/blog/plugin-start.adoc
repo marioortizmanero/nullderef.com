@@ -155,6 +155,40 @@ experiment is in the
 https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-simple[`dynamic-simple`
 directory], with a small example of how to dynamically load plugins with Rust.
 
+==== ABI unstability, it's much worse than it seems
+
+I had this very late realization about ABI stability in Rust. Up until this
+point I thought that even though Rust's ABI is _unstable_, one could dynamically
+load a library safely as long as both the library and the main binary were
+compiled with the same exact compiler/`std`/etc version. This is exactly what
+other authors explain in their blog posts, like X or Y.
+
+But turns out that the ABI may not only break between compiler versions, but
+also _compiler runs_. Rust doesn't guarantee that a layout is going to be the
+same in different compilation runs. This is proved by
+https://github.com/rust-lang/compiler-team/issues/457[rust-lang/compiler-team#457],
+the new unstable `-Z randomize-layout` flag. It's pretty much self-explanatory:
+it randomly reorders `repr(rust)` layouts. The same thing could happen in the
+future without an explicit flag; an optimization may cause the `repr(rust)`
+layouts to be non-deterministic.
+
+Props to the devs at the `#black-magic` channel in Rust's discord server, who
+helped me understand this, specially Yandros and Kixiron.
+
+////
+TODO: talk about breakthrough on ABI instability
+https://github.com/rust-lang/rust/pull/87868
+https://github.com/rust-lang/compiler-team/issues/457
+
+
+Well, rather, why is dylib even a thing?
+
+Yandros ꜰʀ-ᴇꜱ — Today at 9:44 PM
+Good question, I believe that dylib is a vestigial / historical artifact, and their main author, alexchriton even mentioned somewhere their wish to remove it or at least a regret of having featured it
+////
+
+==== Example
+
 We first need a common library, called `common`, which defines the interface
 exported by the plugin so that the main binary may load it. In this case it's
 just a pointer to a function. To keep it simple it'll just compute the minimum
@@ -500,8 +534,8 @@ proposal defines them as:
 
 Additionally, language-neutral interfaces for WASI can be defined with the
 experimental *`witx` files* <<witx>>, which makes it easy to define a common ABI
-in order to interact from different programming languages <<witx-guide>>. They
-look like this:
+in order to interact from different programming languages <<witx-example>>
+<<witx-guide>>. They look like this:
 
 [source, lisp]
 ----
@@ -549,9 +583,8 @@ worth my time, as it's still too early.
 * The hacky-but-working way, via *pointers and a shared
   https://docs.wasmer.io/integrations/examples/memory[memory]*. The user has to
   first construct and serialize the complex types, and then save them into
-  Wasm's memory, which can be accessed directly by the runtime or the plugin.
-  https://docs.wasmer.io/integrations/examples/memory-pointers[Pointers] can be
-  used from either side to access the data.
+  Wasm's memory, which can be accessed directly by the runtime or the plugin
+  with https://docs.wasmer.io/integrations/examples/memory-pointers[pointers].
 +
 --
 Not only does this require a serialization and deserialization step, but also
@@ -566,23 +599,17 @@ size is known, it should be possible to do so via pointers as well. I think...
 
 == Generics
 
-Generics are almost inevitable in Rust. One might want to use them to:
+The traits I was trying to make plugin-compatible in Tremor had some instances
+of generics. And they'd only get worse in the future with
+https://github.com/rust-lang/rust/issues/44265[GATs] and `async` methods in
+traits actually being generic (we currently use {{< crate async_trait >}}).
 
-* Handle lifetimes
-* Use async traits. A trait with an `async` method will work thanks to generics
-  in the future (https://github.com/rust-lang/rust/issues/44265[GATs]).
-
-Basically, they were all over the place in the traits I was trying to make
-plugin-compatible. There are ways to work around these, but they of course mean
-additional overhead:
-
-* Lifetimes: smart pointers like `Rc<T>`, `Arc<T>` (TODO: raw pointers + unsafe?)
-* Async (GATs): just like how it works nowadays with `async_trait`, by boxing
-  the `Future`. TODO: add reference and example.
+So, first of all let's cross this one out of the checklist. Can we use generics
+in the plugins?
 
 === Why they are impossible
 
-Generics in plugins are fundamentally impossible, though. In Rust,
+Well, no, generics in plugins are fundamentally impossible. In Rust,
 monomorphization turns generic code into specific code by filling in the
 concrete types that are used when *compiled* <<generics>>. Plugins are loaded at
 runtime, so they may use types the compiler didn't generate code for.
@@ -633,9 +660,13 @@ lifetimes. This will compile:
 [source, rust]
 ----
 extern "Rust" {
-    fn foo<'a>(_: &'a str);
+    fn foo<'a>(_: &'a str) -> &'a str;
 }
 ----
+
+That is mainly because even though lifetimes and generics share the same syntax,
+in the case of lifetimes they are only annotations. No new versions of the
+function are generated.
 
 === Alternatives
 
@@ -692,4 +723,5 @@ benchmarking system] (which requires nightly for now)
 - [[[wasmtime-inttyp, 7]]] https://github.com/bytecodealliance/wasmtime/issues/677
 - [[[witx,            8]]] https://github.com/WebAssembly/WASI/blob/main/docs/witx.md
 - [[[witx-guide,      9]]] https://radu-matei.com/blog/wasm-api-witx/
-- [[[generics,       10]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
+- [[[witx-example,   10]]] https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md#defining-language-neutral-interfaces-like-wasi-revisited
+- [[[generics,       11]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
