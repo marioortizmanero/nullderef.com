@@ -186,14 +186,13 @@ fn min(a: i32, b: i32) -> i32 {
 }
 ----
 
-Finally, the main binary can load the library with
-https://crates.io/crates/libloading[`libloading`], which requires a bit of
-`unsafe`. I was looking forward to using a different library because of how easy
-it seems to end up with undefined behaviour in that case. I found out
-https://github.com/tyleo/sharedlib[`sharedlib`] was abandoned, as no commits had
-been made since 2017, leaving https://crates.io/crates/dlopen[`dlopen`] as the
-only alternative. Which was updated two years ago as well, but their GitHub repo
-seemed somewhat active in comparison.
+Finally, the main binary can load the library with {{< crate libloading >}},
+which requires a bit of `unsafe`. I was looking forward to using a different
+library because of how easy it seems to end up with undefined behaviour in that
+case. I found out {{< crate sharedlib >}} was abandoned, as no commits had been
+made since 2017, leaving {{< crate dlopen >}} as the only alternative. Which was
+updated two years ago as well, but their GitHub repo seemed somewhat active in
+comparison.
 
 For now I'll just use `libloading` for being the most popular crate, and perhaps
 I'll consider using `dlopen` in the future. In terms of relevant features and
@@ -376,7 +375,7 @@ pub fn with_extern(a: i32, b: i32) -> i32 {
 For the runtime, this time I'm using Wasmer instead of Wasmtime because in an
 https://nullderef.com/blog/plugin-tech/[earlier post] it seemed like the best
 alternative. I also wanted to try
-https://github.com/FreeMasen/wasmer-plugin[`wasmer-plugin`], which includes
+{{< crate wasmer-plugin >}}, which includes
 procedural macros to help reduce the overall boilerplate (which will be more
 important later on), but it seems to be abandoned since 2019. I wanted to try
 the lower-level interface of Wasmer myself to learn more about it anyway, so
@@ -499,40 +498,12 @@ proposal defines them as:
 * Variants (basically like Rust enums, it would enable `Option`, `Result`,
   `union`, etc)
 
-You can see an explanation in detail
-https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md[here].
-And
-https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md#defining-language-neutral-interfaces-like-wasi-revisited[here's
-an example] of how it might work for a function in C++. It's pretty neat.
+Additionally, language-neutral interfaces for WASI can be defined with the
+experimental *`witx` files* <<witx>>, which makes it easy to define a common ABI
+in order to interact from different programming languages <<witx-guide>>. They
+look like this:
 
-However, this proposal is still at
-https://github.com/WebAssembly/proposals#phase-1---feature-proposal-cg[Phase 1].
-It's still actively being worked on and its specification is far from stable:
-
-* At the plugin level the `wasm_bindgen` crate seems to be ideal. It's a very
-  simple procedural macro that can be added to the exported functions in the
-  plugin in order to add support for Interface Types.
-* Wasmtime did support this in the past until their implementation was removed
-  after being considered outdated. As
-  https://github.com/bytecodealliance/wasmtime/issues/677[this issue indicates],
-  it still hasn't been updated.
-* Wasmer has the
-  https://docs.rs/wasmer-interface-types/[`wasmer_interface_types`] crate, but
-  with a similar story; it's outdated. There's
-  https://github.com/wasmerio/wasmer/issues/2480[this issue] as a continuation
-  of Wasmtime's, which explains the situation.
-
-In the end I wasn't able to get Interface Types working, nor I considered them
-worth my time, as it's still too early.
---
-* With *`witx` files*. As
-  https://github.com/WebAssembly/WASI/blob/main/docs/witx.md[this document
-  explains], it's an experimental file format to express WASI APIs. It's
-  a partial implementation of the Interface Types, but it means that the
-  interfaces have to be written in said format, which looks like this:
-+
---
-[source, witx]
+[source, lisp]
 ----
 (use "errno.witx")
 
@@ -547,12 +518,33 @@ worth my time, as it's still too early.
 )
 ----
 
-Once the interface is defined, it can be loaded into Rust with a crate like
-https://docs.rs/wiggle/[`wiggle`]. For the previous example, wiggle's macro will
-generate a `Calculator` trait TODO
+Please refer to the
+https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md[proposal
+itself] for more detailed information; it's very well explained.
 
-I learned most of this from https://radu-matei.com/blog/wasm-api-witx/[radu's
-guide], please check it out for more information!
+However, this proposal is still at
+https://github.com/WebAssembly/proposals#phase-1---feature-proposal-cg[Phase 1].
+It's still actively being worked on and its specification is far from stable:
+
+* At the plugin level the {{< crate wasm_bindgen >}} crate seems to be ideal.
+  It's a very simple procedural macro that can be added to the exported
+  functions in the plugin in order to automatically add support for Interface
+  Types.
+* Once the interface is defined, it can be loaded into Rust with a crate like
+  https://docs.rs/wiggle/[`wiggle`]. For the previous example, wiggle's macro
+  will generate a `Calculator` trait TODO
+* Wasmtime did support this in the past until their implementation was removed
+  after being considered outdated. As
+  https://github.com/bytecodealliance/wasmtime/issues/677[this issue indicates],
+  it still hasn't been updated.
+* Wasmer has the
+  https://docs.rs/wasmer-interface-types/[`wasmer_interface_types`] crate, but
+  with a similar story; it's outdated. There's
+  https://github.com/wasmerio/wasmer/issues/2480[this issue] as a continuation
+  of Wasmtime's, which explains the situation.
+
+In the end I wasn't able to get Interface Types working, nor I considered them
+worth my time, as it's still too early.
 --
 * The hacky-but-working way, via *pointers and a shared
   https://docs.wasmer.io/integrations/examples/memory[memory]*. The user has to
@@ -564,10 +556,9 @@ guide], please check it out for more information!
 --
 Not only does this require a serialization and deserialization step, but also
 it's very cumbersome to use and easy to mess up. It's somewhat trivial though,
-so a procedural macro like the now outdated
-https://github.com/FreeMasen/wasmer-plugin[`wasmer-plugin`] could simplify it.
-For now, https://github.com/bincode-org/bincode[`bincode`] can be used for the
-serialization steps manually.
+so a procedural macro like the now outdated {{< crate wasmer-plugin >}} could
+simplify it. For now, {{< crate bincode >}} can be used for the serialization
+steps manually.
 
 As to exporting structs that implement a specific trait, as long as the trait's
 size is known, it should be possible to do so via pointers as well. I think...
@@ -581,38 +572,40 @@ Generics are almost inevitable in Rust. One might want to use them to:
 * Use async traits. A trait with an `async` method will work thanks to generics
   in the future (https://github.com/rust-lang/rust/issues/44265[GATs]).
 
-There are ways to work around these, but they of course mean additional
-overhead:
+Basically, they were all over the place in the traits I was trying to make
+plugin-compatible. There are ways to work around these, but they of course mean
+additional overhead:
 
 * Lifetimes: smart pointers like `Rc<T>`, `Arc<T>` (TODO: raw pointers + unsafe?)
 * Async (GATs): just like how it works nowadays with `async_trait`, by boxing
   the `Future`. TODO: add reference and example.
 
-=== Dynamic Linking
+=== Why they are impossible
 
-It turns out I wasn't the first person to ask that question, and Michael had a
-few ideas about it. Since we already know generics in plugins are fundamentally
-impossible, we'll just see what alternatives there are. Rust needs to know the
-size of the objects it's dealing with at compile-time -- which is when generics
-works -- something that's not available when using dynamically loaded libraries.
-It's really easy to prove in Rust with the following example:
+Generics in plugins are fundamentally impossible, though. In Rust,
+monomorphization turns generic code into specific code by filling in the
+concrete types that are used when *compiled* <<generics>>. Plugins are loaded at
+runtime, so they may use types the compiler didn't generate code for.
+
+It's really easy to prove in Rust with the following example. We'll try to
+_load_ an external function with generics:
 
 [source, rust]
 ----
-extern {
-    fn foo<T>();
+extern "Rust" {
+    fn foo<T>(_: T);
 }
 ----
 
-Which results in the error:
+This results in the following error:
 
 [source, text]
 ----
 error[E0044]: foreign items may not have type parameters
  --> src/lib.rs:2:5
   |
-2 |     fn foo<T>();
-  |     ^^^^^^^^^^^^ can't have type parameters
+2 |     fn foo<T>(_: T);
+  |     ^^^^^^^^^^^^^^^^ can't have type parameters
   |
   = help: replace the type parameters with concrete types like `u32`
 
@@ -621,18 +614,33 @@ error: aborting due to previous error
 For more information about this error, try `rustc --explain E0044`.
 ----
 
-Interestingly enough, you can export `extern` functions declared _in Rust_. This
-will compile:
+Interestingly enough, the compiler lets you export generic functions declared
+_in Rust_:
 
 [source, rust]
 ----
-extern fn foo<T>() {}
+extern fn foo<T>(_: T) {}
 ----
 
 This confused me in the beginning; it made me think generic functions through
 FFI would be possible. But as described in
 https://github.com/rust-lang/rust/pull/15831[the original issue that allowed
 them], they're only supported to pass callbacks to C functions.
+
+Another interesting thing about generics in plugins is that it does work for
+lifetimes. This will compile:
+
+[source, rust]
+----
+extern "Rust" {
+    fn foo<'a>(_: &'a str);
+}
+----
+
+=== Alternatives
+
+=== Dynamic Linking
+
 
 === WebAssembly
 
@@ -651,12 +659,18 @@ TODO mention:
 https://docs.rs/typetag/0.1.7/typetag/
 https://docs.rs/serde_traitobject/0.2.7/serde_traitobject/
 
+== Conclusion
+
+TODO leave benchmarking for next week
+
 == Benchmarking
 
 I've always wanted to run some benchmarks in order to find out the actual
 difference in performance between dynamic loading (with native code) and Wasm
 (with interpreted code). Of course, the former will be faster. But, is it
 noticeable?
+
+TODO compare with already existing benchmarks, what to expect, etc
 
 Now that I have some examples of both dynamic loading and Wasm plugins, I can
 make a few benchmarks in order to see the difference by myself. The `wasm-bench`
@@ -676,3 +690,6 @@ benchmarking system] (which requires nightly for now)
 - [[[miri-unstable,   5]]] https://github.com/rust-lang/miri/blob/master/CONTRIBUTING.md#preparing-the-build-environment
 - [[[wasmer-types,    6]]] https://docs.rs/wasmer-runtime-core/0.17.1/wasmer_runtime_core/types/trait.WasmExternType.html
 - [[[wasmtime-inttyp, 7]]] https://github.com/bytecodealliance/wasmtime/issues/677
+- [[[witx,            8]]] https://github.com/WebAssembly/WASI/blob/main/docs/witx.md
+- [[[witx-guide,      9]]] https://radu-matei.com/blog/wasm-api-witx/
+- [[[generics,       10]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
