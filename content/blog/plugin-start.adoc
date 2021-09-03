@@ -597,6 +597,39 @@ As to exporting structs that implement a specific trait, as long as the trait's
 size is known, it should be possible to do so via pointers as well. I think...
 --
 
+////
+TODO: learn more about what Monadic Cat shared with me regarding pointers in
+Wasm:
+
+I have! It's sortof a pain, and the sandboxing (at least with wasmtime, last I used it- my complaints are about an explicitly WIP thing) isn't as free as they make it sound
+It's not terrible, but there's some unsafe involved, and you do need to be careful.
+In particular, feel free to steal and adapt this snippet I wrote for my bot however you please:
+/// Type erased thin pointer to WebAssembly memory.
+#[derive(Copy, Clone, Debug)]
+#[repr(transparent)]
+struct ThinPointer(WSize);
+impl ThinPointer {
+    /// Bounds checked read of a pointer received from WASM.
+    /// Seeing as we don't trust the WASM we're loading ultimately,
+    /// this is necessary for soundness.
+    fn read<T: Pod>(&self, memory: &Memory) -> Result<T, ()> {
+        if memory.data_size() > (self.0 as usize + ::core::mem::size_of::<T>()) {
+            #[allow(unused_unsafe)]
+            Ok(unsafe {
+                // This needs to tolerate unaligned reads, because
+                // the WASM plugin may intentionally give us misaligned data
+                // to cause misbehavior if we don't handle it right.
+                ::core::ptr::read_unaligned(memory.data_ptr().offset(self.0 as isize).cast())
+            })
+        } else {
+            Err(())
+        }
+    }
+}
+lol
+(Where WSize is an alias for the size type of the WASM memory in question, which is u32 for wasm32 stuff.)
+////
+
 == Generics
 
 The traits I was trying to make plugin-compatible in Tremor had some instances
