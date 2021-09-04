@@ -165,7 +165,15 @@ https://github.com/rust-lang/compiler-team/issues/457[rust-lang/compiler-team#45
 the new unstable `-Z randomize-layout` flag. It's pretty much self-explanatory:
 it randomly reorders `repr(rust)` layouts for testing purposes. The same thing
 could happen in the future without an explicit flag; an optimization may cause
-the `repr(rust)` layouts to change between compilation runs.
+the `repr(rust)` layouts to change between compilation runs. This is briefly
+mentioned in
+https://doc.rust-lang.org/reference/type-layout.html#type-layout[the Rust
+reference]:
+
+____
+Type layout can be changed with each compilation. Instead of trying to document
+exactly what is done, we only document what is guaranteed today.
+____
 
 Props to the devs at the `#black-magic` channel in Rust's discord server, who
 helped me understand this. Specially Yandros and Kixiron, both of them very
