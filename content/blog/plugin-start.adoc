@@ -119,6 +119,8 @@ would actually look like. That way it would be easier to take the final decision
 for the PDK's technology, according to the requirements for these interfaces. In
 summary, the following questions arose:
 
+* What's the performance hit of the PDK?
+* Can we avoid serialization?
 * Is it possible to use generics in the PDK?
 * Otherwise, is it possible to use `dyn` in the PDK?
 * If all else fails, what can be done to represent a "`generic`" trait object in
@@ -127,8 +129,6 @@ summary, the following questions arose:
 This meant I had to do more research. I spent a few days reading multiple
 articles, but it's a rabbit hole 🐰! I would recommend the following ones:
 
-// TODO add wasm articles?
-
 * https://fasterthanli.me/articles/so-you-want-to-live-reload-rust[So you want
   to live-reload Rust - fasterthanli.me]
 * https://adventures.michaelfbryan.com/posts/wasm-as-a-platform-for-abstraction/[WebAssembly
@@ -136,8 +136,6 @@ articles, but it's a rabbit hole 🐰! I would recommend the following ones:
   me by Aryan
 * https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/[FFI-Safe
   Polymorphism: Thin Trait Objects - adventures.michaelfbryan.com]
-* https://adventures.michaelfbryan.com/posts/plugins-in-rust/[Plugins in Rust -
-  adventures.michaelfbryan.com]
 * https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html[Dynamic
   Loading & Plugins - michael-f-bryan.github.io]
 
@@ -164,27 +162,31 @@ compiled with the same exact compiler/`std`/etc version. This is exactly what
 other authors explain in their blog posts, like X or Y.
 
 But turns out that the ABI may not only break between compiler versions, but
-also _compiler runs_. Rust doesn't guarantee that a layout is going to be the
-same in different compilation runs. This is proved by
+also _compiler runs_. `rustc` doesn't guarantee that a layout is going to be the
+same in different executions. This is proved by
 https://github.com/rust-lang/compiler-team/issues/457[rust-lang/compiler-team#457],
 the new unstable `-Z randomize-layout` flag. It's pretty much self-explanatory:
-it randomly reorders `repr(rust)` layouts. The same thing could happen in the
-future without an explicit flag; an optimization may cause the `repr(rust)`
-layouts to be non-deterministic.
+it randomly reorders `repr(rust)` layouts for testing purposes. The same thing
+could happen in the future without an explicit flag; an optimization may cause
+the `repr(rust)` layouts to change between compilation runs.
 
 Props to the devs at the `#black-magic` channel in Rust's discord server, who
-helped me understand this, specially Yandros and Kixiron.
+helped me understand this. Specially Yandros and Kixiron, both of them very
+respectable contributors to the Rust compiler/community and that know more than
+I do.
+
+This basically means that we are _forced_ to stick to the C ABI with
+`#[repr(C)]`, and that we should use {{< crate abi_stable >}} in order to have
+access to a stable `std` library as well. On the positive side, it means that
+plugins could be implemented in any language, but that wasn't important for
+Tremor's case since the beginning anyway.
 
 ////
-TODO: talk about breakthrough on ABI instability
-https://github.com/rust-lang/rust/pull/87868
-https://github.com/rust-lang/compiler-team/issues/457
+TODO: maybe add mail conversation with Michael?
 
-
-Well, rather, why is dylib even a thing?
-
-Yandros ꜰʀ-ᴇꜱ — Today at 9:44 PM
-Good question, I believe that dylib is a vestigial / historical artifact, and their main author, alexchriton even mentioned somewhere their wish to remove it or at least a regret of having featured it
+Also add how this is more or less missing in the nomicon and why the confusion.
+Explain how it's a misconception.
+https://doc.rust-lang.org/nomicon/repr-rust.html?highlight=repr(rust)#reprrust
 ////
 
 ==== Example
@@ -702,6 +704,12 @@ in the case of lifetimes they are only annotations. No new versions of the
 function are generated.
 
 === Alternatives
+
+////
+https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/
+https://docs.rs/thin_trait_object/1.1.2/thin_trait_object/
+https://www.youtube.com/watch?v=xcygqF5LVmM&feature=emb_title
+////
 
 === Dynamic Linking
 
