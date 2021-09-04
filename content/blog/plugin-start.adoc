@@ -142,9 +142,7 @@ articles, but it's a rabbit hole 🐰! I would recommend the following ones:
 As you can see, Michael F. Bryan has put a lot of effort into teaching how
 dynamic loading works in Rust. Thanks a lot to him!
 
-== Experimenting with plugins
-
-=== Dynamic Loading
+== Experimenting with dynamic loading
 
 First of all, I've created the
 https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] repository,
@@ -153,13 +151,12 @@ experiment is in the
 https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-simple[`dynamic-simple`
 directory], with a small example of how to dynamically load plugins with Rust.
 
-==== ABI unstability, it's much worse than it seems
+=== ABI unstability, it's much worse than it seems
 
 I had this very late realization about ABI stability in Rust. Up until this
 point I thought that even though Rust's ABI is _unstable_, one could dynamically
 load a library safely as long as both the library and the main binary were
-compiled with the same exact compiler/`std`/etc version. This is exactly what
-other authors explain in their blog posts, like X or Y.
+compiled with the same exact compiler/`std`/etc version.
 
 But turns out that the ABI may not only break between compiler versions, but
 also _compiler runs_. `rustc` doesn't guarantee that a layout is going to be the
@@ -181,43 +178,41 @@ access to a stable `std` library as well. On the positive side, it means that
 plugins could be implemented in any language, but that wasn't important for
 Tremor's case since the beginning anyway.
 
-////
-TODO: maybe add mail conversation with Michael?
+// TODO
+This misunderstanding has unfortunately made me rewrite a considerable part of
+my posts and the working examples I had written. I'm not the only one who made
+this mistake, Michael F. Bryan had a
+https://adventures.michaelfbryan.com/posts/plugins-in-rust/[similar blog post]
+about Rust plugins, which ended up TODO, for example. So perhaps the Rust
+documentation should define exactly what "ABI unstability" means.
 
-Also add how this is more or less missing in the nomicon and why the confusion.
-Explain how it's a misconception.
-https://doc.rust-lang.org/nomicon/repr-rust.html?highlight=repr(rust)#reprrust
-////
-
-==== Example
+=== Getting a simple example running
 
 We first need a common library, called `common`, which defines the interface
 exported by the plugin so that the main binary may load it. In this case it's
-just a pointer to a function. To keep it simple it'll just compute the minimum
-between two integers:
+just a pointer to a function with the C ABI. To keep it simple it'll just
+compute the minimum between two integers:
 
 .`common/src/lib.rs`
 [source, rust]
 ----
-pub type MinFunction = fn(i32, i32) -> i32;
+pub type MinFunction = unsafe extern "C" fn(i32, i32) -> i32;
 ----
 
 With it, the plugin crate may export its own implementation. In this case I'll
 declare a `static` variable, but the example showcases how `extern` may work as
-well (which will end up being the better choice). The crate's value of
-`crate-type` must be set to a
-https://doc.rust-lang.org/reference/linkage.html[dynamic library], which we'll
-cover later. Note that `#[no_mangle]` is necessary so that the variable's name
-isn't https://en.wikipedia.org/wiki/Name_mangling[_mangled_] and we can access
-it when when dynamically loading the library.
+well. Since we want to use the C ABI, we'll have to specify `crate-type` as
+`cdylib` in our `Cargo.toml`. Note that `#[no_mangle]` is necessary so that the
+variable's name isn't https://en.wikipedia.org/wiki/Name_mangling[_mangled_] and
+we can access it when when dynamically loading the library.
 
 .`plugin-sample/src/lib.rs`
 [source, rust]
 ----
 #[no_mangle]
-pub static plugin_function: MinFunction = min;
+pub static with_static: MinFunction = min;
 
-fn min(a: i32, b: i32) -> i32 {
+pub extern "C" fn min(a: i32, b: i32) -> i32 {
     a.min(b)
 }
 ----
@@ -252,7 +247,7 @@ fn run_plugin(path: &str) -> Result<(), libloading::Error> {
 }
 ----
 
-Running it:
+We can run it with:
 
 [source, commandline]
 ----
@@ -268,10 +263,8 @@ Running plugin:
 
 Cool! This raises a few questions that I should learn more about:
 
-. Many plugin tutorials use `extern "C"` for the exported function's type in the
-  plugin. What exactly does that mean? Do we need it if the FFI is Rust-to-Rust?
-  Would https://doc.rust-lang.org/std/keyword.extern.html[`extern "Rust"`] work
-  any better?
+. Since we're using the C ABI, is it perhaps best to declare the bindings in C?
+  The `common` crate I introduced earlier could just be a header.
 . There are many different options to configure `crate-type` as a
   https://doc.rust-lang.org/reference/linkage.html[dynamic library]. What are
   they and which one should I choose?
@@ -281,47 +274,32 @@ Cool! This raises a few questions that I should learn more about:
   https://en.wikipedia.org/wiki/Component_Object_Model[COM] in Rust, or maybe
   like JAR files in Java?
 
-==== 1. `extern` values
+=== Generating bindings
 
-The `extern` keyword can be used to either declare function interfaces that Rust
-code can call foreign code by, or to export Rust code <<extern>>. Its parameter
-specifies what ABI it should use, of which the only interesting values in this
-case are:
+The public interface for the plugins can be written either in Rust (thanks to
+`extern "C"`) or directly in C. There are two commonly used when writing
+bindings:
 
-* `extern "Rust"`: for the Rust ABI
-* `extern "C"`: for the default C compiler's ABI in your system
+* https://rust-lang.github.io/rust-bindgen/[`rust-bindgen`] generates Rust
+  bindings from C code
+* https://github.com/eqrion/cbindgen[`cbindgen`] is the opposite; it generates C
+  bindings from Rust code.
 
-Though most tutorials use `export "C"`, `export "Rust"` is the best choice for
-Rust-to-Rust FFI because with it one can easily export Rust-only features like
-enums with data fields (at the cost of not being a stable ABI). Otherwise, we'd
-get this message when compiling the library:
+Some examples of its usage:
 
-[source, text]
-----
-warning: `extern` fn uses type `EnumWithDataFields`, which is not FFI-safe
-  --> src/lib.rs:24:50
-   |
-24 | pub extern "C" fn with_extern(a: i32, b: i32) -> EnumWithDataFields {
-   |                                                  ^^^^^^^^^^^^^^^^^^ not FFI-safe
-   |
-   = note: `#[warn(improper_ctypes_definitions)]` on by default
-   = help: consider adding a `#[repr(C)]`, `#[repr(transparent)]`, or integer `#[repr(...)]` attribute to this enum
-   = note: enum has no representation hint
-note: the type is defined here
-  --> src/lib.rs:3:1
-   |
-3  | / pub enum EnumWithDataFields {
-4  | |     A,
-5  | |     B(i32),
-6  | |     C
-7  | | }
-   | |_^
-----
+* {{< crate hyper >}} is a crate completely written in Rust that exposes C
+  headers for compatibility, so it uses `cbindgen` to generate them
+  automatically.
+* {{< crate pipewire_rs >}} exposes the interface of
+  https://pipewire.org/[PipeWire], written in C, so that it's also available
+  from Rust, thanks to `rust-bindgen`.
 
-Note that the default value for the ABI is `"C"`, so `"Rust"` must be explicitly
-specified always when using `extern`.
+Since we're going to write the plugin system in Rust, the most appropiate choice
+would be to use Rust for the interface as well. And if we wanted to make the
+plugin interface available to other languages -- which is not a concern right
+now -- it'd be as easy as setting up `cbindgen`.
 
-==== 2. `crate-type` values
+=== `crate-type` values
 
 There are https://doc.rust-lang.org/reference/linkage.html[two ways to configure
 dynamic linking with the `crate-type` field] in the crate's `Cargo.toml`:
@@ -335,7 +313,7 @@ Rust ones. More specifically, `cdylib` will strip away all functions that aren't
 publicly exported. `dylib` means that `extern` isn't even needed; you just need
 to set the external items as `pub`.
 
-==== 3. `rlib` files
+=== `rlib` files
 
 Also listed in the previous section, `rlib` is a value for `crate-type` that
 might be of interest. `rlib` files are Rust *static* libraries, which can then
@@ -381,7 +359,7 @@ incompatibility problems between plugins and the main binary.
 Considering the previous answers, no, this approach doesn't seem like the right
 tool for the job.
 
-=== WebAssembly
+== Can we use WebAssembly for this?
 
 I also tried to write a simple example of how plugins would work with
 WebAssembly, which is available in the
@@ -406,7 +384,6 @@ pub fn with_extern(a: i32, b: i32) -> i32 {
     a.min(b)
 }
 ----
-
 
 For the runtime, this time I'm using Wasmer instead of Wasmtime because in an
 https://nullderef.com/blog/plugin-tech/[earlier post] it seemed like the best
@@ -469,7 +446,7 @@ about WebAssembly:
 * What about exporting types more complex than an `i32`? Is it possible to
   export a struct that implements a specific trait?
 
-==== WebAssembly targets
+=== WebAssembly targets
 
 Wasmer docs don't mention this much because is related to the plugin, rather
 than the runtime. But Wasmtime's book does include a section about compiling
@@ -494,7 +471,7 @@ So basically what we need is `wasm32-wasi`. Even though Wasmer was my initial
 choice, to be honest I found Wasmtime's docs to be much more detailed and
 well-organized.
 
-==== `wasmer` vs `wasmer_runtime`
+=== `wasmer` vs `wasmer_runtime`
 
 This was confusing for me at first, since both crates seem to have a very
 similar interface and almost the same set of authors. Some tutorials used
@@ -510,7 +487,7 @@ crate their team used previously, and they eventually deprecated it in favor of
 I've opened an https://github.com/wasmerio/wasmer/issues/2539[issue] upstream so
 that this is hopefully more clear to future users.
 
-==== More complex types
+=== More complex types
 
 Wasm only allows functions with parameters of basic types (integers and floating
 point <<wasmer-types>>). There are currently two ways of handling this:
