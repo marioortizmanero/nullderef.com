@@ -13,6 +13,8 @@ GHissueID: ??
 
 :sectnums:
 
+:repr-c: pass:quotes[`#[repr\(C)]`]
+
 == Introduction
 
 Welcome to my second article about Plugins in Rust! Here I will try to actually
@@ -165,10 +167,10 @@ https://github.com/rust-lang/compiler-team/issues/457[rust-lang/compiler-team#45
 the new unstable `-Z randomize-layout` flag. It's pretty much self-explanatory:
 it randomly reorders `repr(rust)` layouts for testing purposes. The same thing
 could happen in the future without an explicit flag; an optimization may cause
-the `repr(rust)` layouts to change between compilation runs. This is briefly
+the `repr(rust)` layouts to change between compilation runs. It's briefly
 mentioned in
 https://doc.rust-lang.org/reference/type-layout.html#type-layout[the Rust
-reference]:
+reference] as well:
 
 ____
 Type layout can be changed with each compilation. Instead of trying to document
@@ -179,11 +181,11 @@ Props to the devs at the `#black-magic` channel in Rust's discord server, who
 helped me understand this. Specially Yandros and Kixiron, both of them very
 respectable contributors to the Rust compiler/community.
 
-This basically means that we are _forced_ to stick to the C ABI with
-`#[repr(C)]`, and that we should use {{< crate abi_stable >}} in order to have
-access to a stable `std` library as well. On the positive side, it means that
-plugins could be implemented in any language, but that wasn't important for
-Tremor's case since the beginning anyway.
+This basically means that we are _forced_ to stick to the C ABI with {repr-c},
+and that we should use {{< crate abi_stable >}} in order to have access to a
+stable `std` library as well. On the positive side, it means that plugins could
+be implemented in any language, but that wasn't important for Tremor's case
+since the beginning anyway.
 
 // TODO
 This misunderstanding has unfortunately made me rewrite a considerable part of
@@ -711,12 +713,11 @@ https://docs.rs/typetag/0.1.7/typetag/
 https://docs.rs/serde_traitobject/0.2.7/serde_traitobject/
 ////
 
-=== Dynamic Linking
-
 == Conclusion
 
 TODO leave benchmarking for next week
 
+////
 == Benchmarking
 
 I've always wanted to run some benchmarks in order to find out the actual
@@ -733,6 +734,7 @@ https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] can be
 compiled and then ran with
 https://doc.rust-lang.org/1.7.0/book/benchmark-tests.html[Rust's integrated
 benchmarking system] (which requires nightly for now)
+////
 
 [bibliography]
 == References
