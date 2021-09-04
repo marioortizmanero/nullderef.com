@@ -177,8 +177,7 @@ ____
 
 Props to the devs at the `#black-magic` channel in Rust's discord server, who
 helped me understand this. Specially Yandros and Kixiron, both of them very
-respectable contributors to the Rust compiler/community and that know more than
-I do.
+respectable contributors to the Rust compiler/community.
 
 This basically means that we are _forced_ to stick to the C ABI with
 `#[repr(C)]`, and that we should use {{< crate abi_stable >}} in order to have
@@ -255,7 +254,8 @@ fn run_plugin(path: &str) -> Result<(), libloading::Error> {
 }
 ----
 
-We can run it with:
+We can run it with the following commands (though the `Makefile` in the repo
+will do everything for you):
 
 [source, commandline]
 ----
@@ -373,13 +373,15 @@ about :)
 == Can we use WebAssembly for this?
 
 I also tried to write a simple example of how plugins would work with
-WebAssembly, which is available in the
-https://github.com/marioortizmanero/pdk-experiments/tree/master/wasmer-simple[`wasmer-simple`
-directory]. It took me considerably more effort to understand and get running
+WebAssembly. They are available in the
+https://github.com/marioortizmanero/pdk-experiments/tree/master/wasmer-simple[`wasmer-simple`]
+and
+https://github.com/marioortizmanero/pdk-experiments/tree/master/wasmtime-simple[`wasmtime-simple`]
+directories. It took me considerably more effort to understand and get running
 than with dynamic linking, even following
 https://freemasen.com/blog/wasmer-plugin-pt-1/[Free Masen's guide] and
 https://docs.rs/wasmer[Wasmer's official documentation]. But at least I didn't
-have to write that much `unsafe` (I still needed some to load or store data from
+have to write that much `unsafe` (it's still needed to load or store data from
 Wasm's virtual memory, which I'll explain later on).
 
 The following snippet is what the plugin would look like. Note that this time we
@@ -396,20 +398,21 @@ pub fn with_extern(a: i32, b: i32) -> i32 {
 }
 ----
 
-For the runtime, this time I'm using Wasmer instead of Wasmtime because in an
-https://nullderef.com/blog/plugin-tech/[earlier post] it seemed like the best
-alternative. I also wanted to try
-{{< crate wasmer-plugin >}}, which includes
+For the runtime, since it's a simple example I'll try both
+https://wasmer.io/[Wasmer] and https://wasmtime.dev/[Wasmtime]. For more complex
+things I'll just use Wasmer https://nullderef.com/blog/plugin-tech/[earlier
+post] it seemed like the best alternative. I also wanted to try
+https://github.com/alec-deason/wasm_plugin[`wasm_plugin`], which includes
 procedural macros to help reduce the overall boilerplate (which will be more
-important later on), but it seems to be abandoned since 2019. I wanted to try
-the lower-level interface of Wasmer myself to learn more about it anyway, so
-I'll just use that for now. If we ended up using Wasm for Tremor I'd try
-updating and maintaining `wasmer-plugin` to keep the code boilerplate-free.
+important later on), but it seems to be abandoned since 2019. It's interesting
+to try the lower-level interface of the runtimes myself to learn more about it
+anyway, so I'll just use that for now. If we ended up using Wasm for Tremor I'd
+try updating and maintaining `wasm_plugin` to keep the code boilerplate-free.
 
-.`src/main.rs`
+.Wasmer, in `src/main.rs`
 [source, rust]
 ----
-fn run_plugin(path: &str) -> Result<(), WasmerError> {
+pub fn run_plugin(path: &str) -> Result<(), Box<dyn Error>> {
     // For reference, Feather also reads the plugins with `fs::read`:
     // https://github.com/feather-rs/feather/blob/07c64678f80ff77be3dbd3d99fbe5558b4e72c97/quill/cargo-quill/src/main.rs#L107
     let module_wat = fs::read(&path)?;
@@ -429,7 +432,31 @@ fn run_plugin(path: &str) -> Result<(), WasmerError> {
 }
 ----
 
-Running it:
+.Wasmtime, in `src/main.rs`
+[source, rust]
+----
+pub fn run_plugin(path: &str) -> Result<(), Box<dyn Error>> {
+    let engine = Engine::default();
+    let module = Module::from_file(&engine, &path)?;
+
+    let mut store = Store::new(
+        &engine,
+        WasmState {},
+    );
+    let imports = [];
+    let instance = Instance::new(&mut store, &module, &imports)?;
+
+    println!("Running plugin:");
+    let min_extern = instance.get_typed_func::<(i32, i32), i32, _>(&mut store, "with_extern")?;
+    println!("  min(1, 2): {}", min_extern.call(&mut store, (1, 2))?);
+    println!("  min(-10, 10): {}", min_extern.call(&mut store, (-10, 10))?);
+    println!("  min(2000, 2000): {}", min_extern.call(&mut store, (2000, 2000))?);
+
+    Ok(())
+}
+----
+
+For a simple example they're pretty much the same. Running them:
 
 [source, text]
 ----
@@ -444,18 +471,21 @@ Running plugin:
   min(2000, 2000): 2000
 ----
 
-I created a `Makefile` for this example so that it's easier to compile, though.
-Running `make debug` or `make release` should do the trick. Some new questions
-about WebAssembly:
-
-// TODO: wasmer vs wasmtime?
-
 * AFAIK there are multiple compilation targets for Wasm. Which one should I be
   using?
 * What's the difference between the https://docs.rs/wasmer/[`wasmer`] crate and
   https://docs.rs/wasmer-runtime/[`wasmer_runtime`]?
 * What about exporting types more complex than an `i32`? Is it possible to
   export a struct that implements a specific trait?
+
+////
+TODO: Include this?
+
+running 3 tests
+test test::dynamic_simple ... bench:     169,073 ns/iter (+/- 63,377)
+test test::wasmer_setup   ... bench:   1,058,268 ns/iter (+/- 498,406)
+test test::wasmtime_setup ... bench:   1,125,107 ns/iter (+/- 390,118)
+////
 
 === WebAssembly targets
 
@@ -583,42 +613,16 @@ so a procedural macro like the now outdated {{< crate wasmer-plugin >}} could
 simplify it. For now, {{< crate bincode >}} can be used for the serialization
 steps manually.
 
-As to exporting structs that implement a specific trait, as long as the trait's
-size is known, it should be possible to do so via pointers as well. I think...
+I did try this and got it working by following
+https://freemasen.com/blog/wasmer-plugin-pt-1/[Free Masen's guide], but it
+wasn't worth exploring in depth because it requires a [de]serialization step
+Tremor can't afford.
 --
 
-////
-TODO: learn more about what Monadic Cat shared with me regarding pointers in
-Wasm:
-
-I have! It's sortof a pain, and the sandboxing (at least with wasmtime, last I used it- my complaints are about an explicitly WIP thing) isn't as free as they make it sound
-It's not terrible, but there's some unsafe involved, and you do need to be careful.
-In particular, feel free to steal and adapt this snippet I wrote for my bot however you please:
-/// Type erased thin pointer to WebAssembly memory.
-#[derive(Copy, Clone, Debug)]
-#[repr(transparent)]
-struct ThinPointer(WSize);
-impl ThinPointer {
-    /// Bounds checked read of a pointer received from WASM.
-    /// Seeing as we don't trust the WASM we're loading ultimately,
-    /// this is necessary for soundness.
-    fn read<T: Pod>(&self, memory: &Memory) -> Result<T, ()> {
-        if memory.data_size() > (self.0 as usize + ::core::mem::size_of::<T>()) {
-            #[allow(unused_unsafe)]
-            Ok(unsafe {
-                // This needs to tolerate unaligned reads, because
-                // the WASM plugin may intentionally give us misaligned data
-                // to cause misbehavior if we don't handle it right.
-                ::core::ptr::read_unaligned(memory.data_ptr().offset(self.0 as isize).cast())
-            })
-        } else {
-            Err(())
-        }
-    }
-}
-lol
-(Where WSize is an alias for the size type of the WASM memory in question, which is u32 for wasm32 stuff.)
-////
+In the end, this has forced me to discard WebAssembly for Tremor's Plugin
+Development Kit. Performance is really important in this specific case, and Wasm
+doesn't offer a solution to efficiently pass data between the host and the
+plugin.
 
 == Generics
 
