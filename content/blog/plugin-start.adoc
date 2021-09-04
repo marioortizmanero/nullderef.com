@@ -308,18 +308,21 @@ dynamic linking with the `crate-type` field] in the crate's `Cargo.toml`:
 * `cdylib`
 
 Once again, this difference has to do with the ABIs in the dynamic library
-<<dylib>>. `cdylib` is meant for linking into C/C++ programs, and `dylib` for
-Rust ones. More specifically, `cdylib` will strip away all functions that aren't
-publicly exported. `dylib` means that `extern` isn't even needed; you just need
-to set the external items as `pub`.
+<<dylib>>. `cdylib` is meant for linking into C/C++ programs (so it strip away
+all functions that aren't publicly exported), and `dylib` is meant for Rust
+libraries.
+
+When compiling the previous example with `dylib`, the resulting shared object
+for the plugin has a size of 4.8Mb, whereas with `cdylib` it's just 2.9Mb. So
+while both of these will work for our C ABI, `cdylib` is clearly the more
+appropiate choice.
 
 === `rlib` files
 
-Also listed in the previous section, `rlib` is a value for `crate-type` that
-might be of interest. `rlib` files are Rust *static* libraries, which can then
-be imported with `extern crate crate_name` <<dylib>>. But since `rlib` files are
-static libraries, they can't be loaded at runtime, so they're of no use in a
-plugin system.
+`rlib` is another value for `crate-type` to generate Rust *static* libraries,
+which can then be imported with `extern crate crate_name` <<dylib>>. But since
+`rlib` files are static libraries, they can't be loaded at runtime, so they're
+of no use in a plugin system.
 
 Here's a crazy idea though: What if the `rlib` files were dynamically loaded as
 plugins with the help of https://github.com/rust-lang/miri[MIRI]? I recently
@@ -356,8 +359,8 @@ MIR is unfortunately unstable <<miri-unstable>>, so we'd have the same
 incompatibility problems between plugins and the main binary.
 . *Is the overhead of MIRI worth it?*
 +
-Considering the previous answers, no, this approach doesn't seem like the right
-tool for the job.
+Considering the previous answers, no, but it was cool to consider and learn
+about :)
 
 == Can we use WebAssembly for this?
 
