@@ -530,8 +530,9 @@ that this is hopefully more clear to future users.
 
 === More complex types
 
-Wasm only allows functions with parameters of basic types (integers and floating
-point <<wasmer-types>>). There are currently two ways of handling this:
+The WebAssembly specification only defines integers and floating point as its
+supported types <<wasmer-types>>. There are currently two ways of handling
+non-trivial types like structs or enums:
 
 * Via the https://github.com/webassembly/interface-types[*Interface Types
   Proposal* for WebAssembly]. It defines the binary format for encoding and
@@ -619,10 +620,14 @@ wasn't worth exploring in depth because it requires a [de]serialization step
 Tremor can't afford.
 --
 
-In the end, this has forced me to discard WebAssembly for Tremor's Plugin
+Ultimately, this has forced me to discard WebAssembly for Tremor's Plugin
 Development Kit. Performance is really important in this specific case, and Wasm
 doesn't offer a solution to efficiently pass data between the host and the
 plugin.
+
+== Extending our example
+
+TODO research repr(C) and stable_abi, make an intermediate example
 
 == Generics
 
@@ -639,14 +644,14 @@ in the plugins?
 Well, no, generics in plugins are fundamentally impossible. In Rust,
 monomorphization turns generic code into specific code by filling in the
 concrete types that are used when *compiled* <<generics>>. Plugins are loaded at
-runtime, so they may use types the compiler didn't generate code for.
+runtime, so they may want to use types the compiler didn't generate code for.
 
 It's really easy to prove in Rust with the following example. We'll try to
 _load_ an external function with generics:
 
 [source, rust]
 ----
-extern "Rust" {
+extern "C" {
     fn foo<T>(_: T);
 }
 ----
@@ -686,7 +691,7 @@ lifetimes. This will compile:
 
 [source, rust]
 ----
-extern "Rust" {
+extern "C" {
     fn foo<'a>(_: &'a str) -> &'a str;
 }
 ----
@@ -701,27 +706,12 @@ function are generated.
 https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/
 https://docs.rs/thin_trait_object/1.1.2/thin_trait_object/
 https://www.youtube.com/watch?v=xcygqF5LVmM&feature=emb_title
-////
-
-=== Dynamic Linking
-
-
-=== WebAssembly
-
-Can we somehow implement something similar with WebAssembly? The function
-signature of the `wasmer-example` example only contains basic types supported by
-Wasm: integers and floating points. Before even considering generics, how can we
-use more complex types? Is it possible to write a function that takes or returns
-a struct?
-
-This is covered quite well in
-https://freemasen.com/blog/wasmer-plugin-pt-1/[Free Masen's guide]. The author
-is able to use more complex types by passing them inside.
-
-TODO mention:
 
 https://docs.rs/typetag/0.1.7/typetag/
 https://docs.rs/serde_traitobject/0.2.7/serde_traitobject/
+////
+
+=== Dynamic Linking
 
 == Conclusion
 
