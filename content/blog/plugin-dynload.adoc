@@ -216,3 +216,4 @@ benchmarking system] (which requires nightly for now)
 [bibliography]
 == References
 
+- [[[generics,       11]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
