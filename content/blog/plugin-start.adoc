@@ -7,7 +7,7 @@ I had to start somewhere, and this was the moment."
 author: "Mario Ortiz Manero"
 tags: ["journal"]
 series: ["rust-plugins"]
-date: 2021-09-13
+date: 2021-09-05
 GHissueID: 30
 ---
 
@@ -18,9 +18,9 @@ GHissueID: 30
 == Introduction
 
 Welcome to my second article about Plugins in Rust! Here I will try to actually
-write some simple code of what a PDK would look like, and also do some research
-about questions that arise while doing so. Please note that this is a series of
-posts, so you might be interested in reading
+write some simple code of what a PDK (_Plugin Development Kit_) might look like,
+and also do some research about questions that arise while doing so. Please note
+that this is a series of posts, so you might be interested in reading
 https://nullderef.com/series/rust-plugins/[the previous ones for context].
 
 Some probably weren't expecting me to continue the series, as in the
@@ -41,7 +41,7 @@ don't really care about Tremor's specific case, you can skip to the
 === Getting to know the team
 
 My first official meeting with the Tremor team took place in the beginnings of
-August. I had already been lurking in their Discord server before, and I'd
+August. I had already been lurking in their Discord server before, and I had
 talked with them a few times, so I more or less knew what to expect. But I was
 still surprised by their welcomingness and how refreshing their dynamics were.
 
@@ -56,10 +56,10 @@ I particularly liked the three "`rules`" of their workflow:
 * Take good notes
 * Don't worry
 
-Matthias, Darach and Heinz seemed like very different kinds of people; something
-they knew and took advantage of. Decision-taking is hard; it requires good
-communication and an open mind. I also took note of this quote (roughly) from
-them:
+My mentors were Matthias, Darach and Heinz. They seemed like very different
+kinds of people; something they knew and took advantage of. Decision-taking is
+hard; it requires good communication and an open mind. I also took note of this
+quote (roughly) from them:
 
 [quote, Darach]
 ____
@@ -198,14 +198,15 @@ documentation should define exactly what "ABI unstability" means.
 === Getting a simple example running
 
 We first need a common library, called `common`, which defines the interface
-exported by the plugin so that the main binary may load it. In this case it's
-just a pointer to a function with the C ABI. To keep it simple it'll just
-compute the minimum between two integers:
+shared by the plugin and the runtime in the main binary. In this case it's just
+a pointer to a function with the C ABI. We can specify the ABI with `extern
+"C"`, or simply `extern`, as `"C"` is already its default value <<extern>>. To
+keep it simple it'll just compute the minimum between two integers:
 
 .`common/src/lib.rs`
 [source, rust]
 ----
-pub type MinFunction = unsafe extern "C" fn(i32, i32) -> i32;
+pub type MinFunction = unsafe extern fn(i32, i32) -> i32;
 ----
 
 With it, the plugin crate may export its own implementation. In this case I'll
@@ -221,7 +222,7 @@ we can access it when when dynamically loading the library.
 #[no_mangle]
 pub static with_static: MinFunction = min;
 
-pub extern "C" fn min(a: i32, b: i32) -> i32 {
+pub extern fn min(a: i32, b: i32) -> i32 {
     a.min(b)
 }
 ----
@@ -621,27 +622,41 @@ https://freemasen.com/blog/wasmer-plugin-pt-1/[Free Masen's guide], but it
 wasn't worth exploring in depth because it requires a [de]serialization step
 Tremor can't afford.
 --
+* TODO: using wasm as a binary
 
 Ultimately, this has forced me to discard WebAssembly for Tremor's Plugin
 Development Kit. Performance is really important in this specific case, and Wasm
 doesn't offer a solution to efficiently pass data between the host and the
 plugin.
 
-== Conclusion
+== Wrapping up
 
-TODO
+Today we've learned a lot of things both about dynamic loading and WebAssembly.
+Unfortunately, I've had to discard the latter for Tremor's PDK, but it may be of
+interest to projects that aren't so focused on performance. Or maybe by the time
+you, the reader, have finished this article, Interface Types are already
+stabilized and broadly used, which would make Wasm a very appealing choice.
+
+In the next post, I will try to get a more advanced example of a PDK with
+dynamic loading. The goal is to simulate the end-product by writing it as close
+as possible to how it would be used in real life. This way, we will also be able
+to benchmark it against a statically linked implementation and analyze the
+performance overhead we'll end up getting.
+
+I did write a few benchmarks for the examples provided in this article, but they
+aren't fair at all, nor representative of a real-life situation. Knowing that,
+it might be interesting to take a look:
 
 [bibliography]
 == References
 
-- [[[dynload-comp,    1]]] https://github.com/szymonwieloch/rust-dlopen#compare-with-other-libraries
-- [[[extern,          2]]] https://doc.rust-lang.org/std/keyword.extern.html
+- [[[extern,          1]]] https://doc.rust-lang.org/std/keyword.extern.html
+- [[[dynload-comp,    2]]] https://github.com/szymonwieloch/rust-dlopen#compare-with-other-libraries
 - [[[dylib,           3]]] https://users.rust-lang.org/t/what-is-the-difference-between-dylib-and-cdylib/28847
 - [[[miri-compiler,   4]]] https://rustc-dev-guide.rust-lang.org/miri.html
 - [[[miri-unstable,   5]]] https://github.com/rust-lang/miri/blob/master/CONTRIBUTING.md#preparing-the-build-environment
 - [[[wasmer-types,    6]]] https://docs.rs/wasmer-runtime-core/0.17.1/wasmer_runtime_core/types/trait.WasmExternType.html
 - [[[wasmtime-inttyp, 7]]] https://github.com/bytecodealliance/wasmtime/issues/677
 - [[[witx,            8]]] https://github.com/WebAssembly/WASI/blob/main/docs/witx.md
-- [[[witx-guide,      9]]] https://radu-matei.com/blog/wasm-api-witx/
-- [[[witx-example,   10]]] https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md#defining-language-neutral-interfaces-like-wasi-revisited
-- [[[generics,       11]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
+- [[[witx-example,    9]]] https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md#defining-language-neutral-interfaces-like-wasi-revisited
+- [[[witx-guide,     10]]] https://radu-matei.com/blog/wasm-api-witx/
