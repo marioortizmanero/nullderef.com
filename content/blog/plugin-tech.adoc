@@ -33,10 +33,12 @@ cover Tremor's use case, I'm sure many other applications in the future will
 have similar requirements for their own program. And considering the few
 articles I found about plugins in Rust, this may be helpful to the community.
 
-NOTE: It seems Google hasn't allocated any slots for Tremor in the end. That
-saddens me a lot as I was very excited to work with them. I wanted to thank the
-devs for being welcoming and having such a nice community. And I still wanted to
-release this post in case it's useful to them or anyone else.
+NOTE: [.line-through]#It seems Google hasn't allocated any slots for Tremor in
+the end. That saddens me a lot as I was very excited to work with them. I wanted
+to thank the devs for being welcoming and having such a nice community. And I
+still wanted to release this post in case it's useful to them or anyone else.#
+Forget about that! In the end the Tremor team contacted with me and arranged the
+mentorship in a different way outside the Google Summer of Code.
 
 After showing the proposal to the Tremor team, I was given an important
 suggestion: in this case there isn't really a need to be able to write plugins
