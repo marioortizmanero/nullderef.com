@@ -3202,9 +3202,9 @@ already know about it. It’s open source and made with Hugo, go check it out :)
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><a href="https://fasterthanli.me/"><strong>fasterthanlime</strong></a>: it features extremely thorough
-posts about computers (mostly Rust) in a very dynamic way. Amos, the author,
-really puts in effort and you can tell.</p>
+<p><a href="https://fasterthanli.me/"><strong>fasterthanlime</strong></a>: this site features extremely
+thorough posts about computers (mostly Rust) in a very dynamic way. Amos, the
+author, really puts in effort and you can tell.</p>
 </li>
 <li>
 <p><a href="https://adventures.michaelfbryan.com/"><strong>Michael-F-Bryan</strong></a>: another programming
@@ -3219,7 +3219,13 @@ library in Rust, but he writes about other things as well.</p>
 </li>
 <li>
 <p><a href="https://robertheaton.com/"><strong>Robert Heaton</strong></a>: a blog with a very unique style of
-narration, often about either pentesting or personal stories from the author.</p>
+narration, often about either pentesting or personal stories from Robert.</p>
+</li>
+<li>
+<p><a href="https://matklad.github.io/"><strong>matklad</strong></a>: this author shares his extensive
+experience as the development leader of
+<a href="https://github.com/rust-analyzer/rust-analyzer">Rust Analyzer</a>, in the form of
+technical blog posts.</p>
 </li>
 </ol>
 </div>
