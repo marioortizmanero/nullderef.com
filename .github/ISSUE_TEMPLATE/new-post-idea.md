@@ -10,7 +10,7 @@ assignees: ''
 TODO list:
 
 - [ ] Create an issue for the comments
-- [ ] Add the following metadata fields:
+- Add the following metadata fields:
   + [ ] title
   + [ ] description
   + [ ] summary
