@@ -7,8 +7,8 @@ I had to start somewhere, and this was the moment."
 author: "Mario Ortiz Manero"
 tags: ["journal"]
 series: ["rust-plugins"]
-date: 2021-08-06
-GHissueID: ??
+date: 2021-09-13
+GHissueID: 30
 ---
 
 :sectnums:
@@ -627,114 +627,9 @@ Development Kit. Performance is really important in this specific case, and Wasm
 doesn't offer a solution to efficiently pass data between the host and the
 plugin.
 
-== Extending our example
-
-TODO research repr(C) and stable_abi, make an intermediate example
-
-== Generics
-
-The traits I was trying to make plugin-compatible in Tremor had some instances
-of generics. And they'd only get worse in the future with
-https://github.com/rust-lang/rust/issues/44265[GATs] and `async` methods in
-traits actually being generic (we currently use {{< crate async_trait >}}).
-
-So, first of all let's cross this one out of the checklist. Can we use generics
-in the plugins?
-
-=== Why they are impossible
-
-Well, no, generics in plugins are fundamentally impossible. In Rust,
-monomorphization turns generic code into specific code by filling in the
-concrete types that are used when *compiled* <<generics>>. Plugins are loaded at
-runtime, so they may want to use types the compiler didn't generate code for.
-
-It's really easy to prove in Rust with the following example. We'll try to
-_load_ an external function with generics:
-
-[source, rust]
-----
-extern "C" {
-    fn foo<T>(_: T);
-}
-----
-
-This results in the following error:
-
-[source, text]
-----
-error[E0044]: foreign items may not have type parameters
- --> src/lib.rs:2:5
-  |
-2 |     fn foo<T>(_: T);
-  |     ^^^^^^^^^^^^^^^^ can't have type parameters
-  |
-  = help: replace the type parameters with concrete types like `u32`
-
-error: aborting due to previous error
-
-For more information about this error, try `rustc --explain E0044`.
-----
-
-Interestingly enough, the compiler lets you export generic functions declared
-_in Rust_:
-
-[source, rust]
-----
-extern fn foo<T>(_: T) {}
-----
-
-This confused me in the beginning; it made me think generic functions through
-FFI would be possible. But as described in
-https://github.com/rust-lang/rust/pull/15831[the original issue that allowed
-them], they're only supported to pass callbacks to C functions.
-
-Another interesting thing about generics in plugins is that it does work for
-lifetimes. This will compile:
-
-[source, rust]
-----
-extern "C" {
-    fn foo<'a>(_: &'a str) -> &'a str;
-}
-----
-
-That is mainly because even though lifetimes and generics share the same syntax,
-in the case of lifetimes they are only annotations. No new versions of the
-function are generated.
-
-=== Alternatives
-
-////
-https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/
-https://docs.rs/thin_trait_object/1.1.2/thin_trait_object/
-https://www.youtube.com/watch?v=xcygqF5LVmM&feature=emb_title
-
-https://docs.rs/typetag/0.1.7/typetag/
-https://docs.rs/serde_traitobject/0.2.7/serde_traitobject/
-////
-
 == Conclusion
 
-TODO leave benchmarking for next week
-
-////
-== Benchmarking
-
-I've always wanted to run some benchmarks in order to find out the actual
-difference in performance between dynamic loading (with native code) and Wasm
-(with interpreted code). Of course, the former will be faster. But, is it
-noticeable?
-
-TODO compare with already existing benchmarks, what to expect, etc
-
-Now that I have some examples of both dynamic loading and Wasm plugins, I can
-make a few benchmarks in order to see the difference by myself. The `wasm-bench`
-and `dynamic-bench` directories in
-https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] can be
-compiled and then ran with
-https://doc.rust-lang.org/1.7.0/book/benchmark-tests.html[Rust's integrated
-benchmarking system] (which requires nightly for now)
-////
+TODO
 
 [bibliography]
 == References
