@@ -1,0 +1,218 @@
+---
+title: "Plugins in Rust: Diving into dynamic loading"
+description: "A closer look at dynamic loading in Rust"
+summary: "Getting a more advanced example of dynamic loading working, and
+benchmarking the results."
+author: "Mario Ortiz Manero"
+tags: ["journal"]
+series: ["rust-plugins"]
+date: 2021-08-06
+GHissueID: ??
+---
+
+:sectnums:
+
+:repr-c: pass:quotes[`#[repr\(C)]`]
+
+== Introduction
+
+TODO
+
+== Extending our example
+
+TODO research repr(C) and stable_abi, make an intermediate example
+
+Now that we know more or less how to approach the PDK, let's try getting a more
+complex example running. We'll try to simulate the final implementation so that
+we can run some benchmarks and analyze the overhead our PDK will introduce.
+
+One of the simplest components of Tremor is a
+https://docs.tremor.rs/artefacts/codecs/[_codec_]. Quoting the official
+documentation, "`they are used to describe how to decode data from the wire and
+encode it back to wire format`". For example, the `json` codec helps convert
+data from and to JSON.
+
+Coding-wise, all codecs must implement the
+https://github.com/tremor-rs/tremor-runtime/blob/e529ae969b0f9c6c9d09ae5a1a36dd7ccd2d8902/src/codec.rs#L47[`Codec`
+trait]. A simplified version of it may look like this:
+
+[source, rust]
+----
+pub trait Codec: Send + Sync {
+    /// The canonical name for this codec
+    fn name(&self) -> &str;
+
+    /// supported mime types
+    /// as <base>/<subtype>
+    ///
+    /// e.g. application/json
+    ///
+    /// The returned mime types should be unique to this codec
+    fn mime_types(&self) -> Vec<&str> {
+        vec![]
+    }
+
+    /// Decode a binary, into an Value
+    /// If `None` is returned, no data could be encoded, but we don't exactly triggered an error condition.
+    ///
+    /// # Errors
+    ///  * if we can't decode the data
+    fn decode<'input>(
+        &mut self,
+        data: &'input mut [u8],
+        ingest_ns: u64,
+    ) -> Result<Option<Value<'input>>>;
+
+    /// Encodes a Value into a binary
+    ///
+    /// # Errors
+    ///  * If the encoding fails
+    fn encode(&self, data: &Value) -> Result<Vec<u8>>;
+}
+----
+
+With it, we can perform the encoding or decoding of the trait, and also include
+some metadata about it, like its name or the mime types it supports.
+
+=== Setting up cbindgen
+
+For these first steps I think {{< crate cbindgen >}} will help us understand
+what's going on. Unfortunately
+
+[source, text]
+----
+(...)
+WARN: Skip abi_stable::CONST - (...)
+ 
+thread 'main' panicked at 'RResult has 2 params but is being instantiated with 1 values', src/bindgen/ir/enumeration.rs:596:9
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+----
+
+Which probably has to do with the following warning found in
+https://github.com/eqrion/cbindgen/blob/master/docs.md[`cbindgen`'s
+documentation]:
+
+____
+pass:[NOTE:] A major limitation of cbindgen is that it does not understand
+Rust's module system or namespacing. This means that if cbindgen sees that it
+needs the definition for `MyType` and there exists two things in your project
+with the type name `MyType`, it won't know what to do. Currently, cbindgen's
+behaviour is unspecified if this happens. However this may be ok if they have
+https://github.com/eqrion/cbindgen/blob/master/docs.md#defines-and-cfgs[different
+cfgs].
+____
+
+== Generics
+
+The traits I was trying to make plugin-compatible in Tremor had some instances
+of generics. And they'd only get worse in the future with
+https://github.com/rust-lang/rust/issues/44265[GATs] and `async` methods in
+traits actually being generic as well (we currently use {{< crate async_trait
+>}}).
+
+So, first of all let's cross this one out of the checklist. Can we use generics
+in the plugins?
+
+=== Why they are impossible
+
+Well, no, generics in plugins are fundamentally impossible. In Rust,
+monomorphization turns generic code into specific code by filling in the
+concrete types that are used when *compiled* <<generics>>. Plugins are loaded at
+runtime, so they may want to use types the compiler didn't generate code for.
+
+It's really easy to prove in Rust with the following example. We'll try to
+_load_ an external function with generics:
+
+[source, rust]
+----
+extern "C" {
+    fn foo<T>(_: T);
+}
+----
+
+This results in the following error:
+
+[source, text]
+----
+error[E0044]: foreign items may not have type parameters
+ --> src/lib.rs:2:5
+  |
+2 |     fn foo<T>(_: T);
+  |     ^^^^^^^^^^^^^^^^ can't have type parameters
+  |
+  = help: replace the type parameters with concrete types like `u32`
+
+error: aborting due to previous error
+
+For more information about this error, try `rustc --explain E0044`.
+----
+
+Interestingly enough, the compiler lets you export generic functions declared
+_in Rust_:
+
+[source, rust]
+----
+extern fn foo<T>(_: T) {}
+----
+
+This confused me in the beginning; it made me think generic functions through
+FFI would be possible. But as described in
+https://github.com/rust-lang/rust/pull/15831[the original issue that allowed
+them], they're only supported to pass callbacks to C functions.
+
+Another interesting thing about generics in plugins is that it does work for
+lifetimes. This will compile:
+
+[source, rust]
+----
+extern "C" {
+    fn foo<'a>(_: &'a str) -> &'a str;
+}
+----
+
+That is mainly because even though lifetimes and generics share the same syntax,
+in the case of lifetimes they are only annotations. No new versions of the
+function are generated.
+
+=== Alternatives
+
+https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/[Michael
+F. Bryan's blog post about `Box<dyn Trait>`] covers pretty well the different
+alternatives we have available. Since we can't use generics, `Box<dyn Trait>` is
+what we should be using, which makes polymorphism available at runtime. However,
+the ABI for `Box<dyn Trait>` is unstable, as it's written in Rust, so we'll have
+to find an equivalent alternative.
+
+////
+https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/
+https://www.youtube.com/watch?v=xcygqF5LVmM&feature=emb_title
+
+https://docs.rs/typetag/0.1.7/typetag/
+https://docs.rs/serde_traitobject/0.2.7/serde_traitobject/
+https://docs.rs/thin_trait_object/1.1.2/thin_trait_object/
+////
+
+== Conclusion
+
+////
+== Benchmarking
+
+I've always wanted to run some benchmarks in order to find out the actual
+difference in performance between dynamic loading (with native code) and Wasm
+(with interpreted code). Of course, the former will be faster. But, is it
+noticeable?
+
+TODO compare with already existing benchmarks, what to expect, etc
+
+Now that I have some examples of both dynamic loading and Wasm plugins, I can
+make a few benchmarks in order to see the difference by myself. The `wasm-bench`
+and `dynamic-bench` directories in
+https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] can be
+compiled and then ran with
+https://doc.rust-lang.org/1.7.0/book/benchmark-tests.html[Rust's integrated
+benchmarking system] (which requires nightly for now)
+////
+
+[bibliography]
+== References
+
