@@ -104,8 +104,10 @@ the help of some drawings, taking a look at the code, and running it. He also
 taught me the novel concept of a _connector_, which is just an abstraction over
 both sources and sinks. The thing was that connectors were still Work In
 Progress, and Matthias needed to know how the PDK would work to modify the
-`Connector` interface -- mainly how to approach a plugin interface with
-generics. Which is what I'll try to figure out in this article.
+`Connector` interface. Mainly how to combine plugins and generics, which is what
+I'll try to figure out in this article.
+
+image::/blog/plugin-start/connectors.png[width=100%, align=center]
 
 Back when I talked to Aryan we ended up asking ourselves the same exact things.
 Turns out that the generated code with `tonic` for gRPC uses generics, which
@@ -128,8 +130,9 @@ summary, the following questions arose:
 * If all else fails, what can be done to represent a "`generic`" trait object in
   the interface Tremor exports for plugins?
 
-This meant I had to do more research. I spent a few days reading multiple
-articles, but it's a rabbit hole 🐰! I would recommend the following ones:
+This meant I had to do more research. I spent a few days reading different
+articles and forum discussions, but it's a rabbit hole 🐰! A few links I
+recommend checking out:
 
 * https://fasterthanli.me/articles/so-you-want-to-live-reload-rust[So you want
   to live-reload Rust - fasterthanli.me]
@@ -138,27 +141,23 @@ articles, but it's a rabbit hole 🐰! I would recommend the following ones:
   me by Aryan
 * https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/[FFI-Safe
   Polymorphism: Thin Trait Objects - adventures.michaelfbryan.com]
-* https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html[Dynamic
-  Loading & Plugins - michael-f-bryan.github.io]
 
-As you can see, Michael F. Bryan has put a lot of effort into teaching how
-dynamic loading works in Rust. Thanks a lot to him!
+Michael F. Bryan has put a lot of effort into teaching how dynamic loading and
+Wasm work in Rust. Thanks a lot to him!
 
 == Experimenting with dynamic loading
 
-First of all, I've created the
-https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] repository,
-where I'll write various examples of how the PDK might work. The first
-experiment is in the
-https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-simple[`dynamic-simple`
-directory], with a small example of how to dynamically load plugins with Rust.
-
 === ABI unstability, it's much worse than it seems
 
-I had this very late realization about ABI stability in Rust. Up until this
-point I thought that even though Rust's ABI is _unstable_, one could dynamically
-load a library safely as long as both the library and the main binary were
-compiled with the same exact compiler/`std`/etc version.
+I recently had this very late realization about ABI stability in Rust. Up until
+this point I thought that even though Rust's ABI is _unstable_, one could
+dynamically load a library safely as long as both the library and the main
+binary were compiled with the same exact compiler/`std`/etc version. I had read
+this many times in forums like
+https://www.reddit.com/r/rust/comments/6v29z0/plugin_system_with_api/dlx9w7v/[this
+one on Reddit] and in blogposts such as
+https://adventures.michaelfbryan.com/posts/plugins-in-rust/["Plugins in Rust"],
+so I assumed it was true.
 
 But turns out that the ABI may not only break between compiler versions, but
 also _compiler runs_. `rustc` doesn't guarantee that a layout is going to be the
@@ -177,31 +176,32 @@ Type layout can be changed with each compilation. Instead of trying to document
 exactly what is done, we only document what is guaranteed today.
 ____
 
-Props to the devs at the `#black-magic` channel in Rust's discord server, who
-helped me understand this. Specially Yandros and Kixiron, both of them very
-respectable contributors to the Rust compiler/community.
+Props to the devs at the `#black-magic` channel in
+https://discord.com/invite/rust[Rust's Discord server], who helped me understand
+this. Specially Yandros and Kixiron, both of them very respectable contributors
+to the Rust compiler/community.
 
 This basically means that we are _forced_ to stick to the C ABI with {repr-c},
 and that we should use {{< crate abi_stable >}} in order to have access to a
-stable `std` library as well. On the positive side, it means that plugins could
-be implemented in any language, but that wasn't important for Tremor's case
-since the beginning anyway.
-
-// TODO
-This misunderstanding has unfortunately made me rewrite a considerable part of
-my posts and the working examples I had written. I'm not the only one who made
-this mistake, Michael F. Bryan had a
-https://adventures.michaelfbryan.com/posts/plugins-in-rust/[similar blog post]
-about Rust plugins, which ended up TODO, for example. So perhaps the Rust
-documentation should define exactly what "ABI unstability" means.
+stable `std` library as well, instead of re-implementing everything ourselves
+from scratch. On the positive side, it means that plugins could be implemented
+in any language, but that wasn't important for Tremor's case since the beginning
+anyway.
 
 === Getting a simple example running
 
-We first need a common library, called `common`, which defines the interface
-shared by the plugin and the runtime in the main binary. In this case it's just
-a pointer to a function with the C ABI. We can specify the ABI with `extern
-"C"`, or simply `extern`, as `"C"` is already its default value <<extern>>. To
-keep it simple it'll just compute the minimum between two integers:
+I've created the
+https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] repository,
+where I'll write various examples of how the PDK might work. The first
+experiment is in the
+https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-simple[`dynamic-simple`
+directory], with a small example of how to dynamically load plugins with Rust.
+
+We first need a crate called `common`, which defines the interface shared by the
+plugin and the runtime in the main binary. In this case it's just a pointer to a
+function with the C ABI. We can specify the ABI with `extern "C"`, or simply
+`extern`, as `"C"` is already its default value <<extern>>. To keep it simple
+it'll just compute the minimum between two integers:
 
 .`common/src/lib.rs`
 [source, rust]
@@ -288,8 +288,8 @@ Cool! This raises a few questions that I should learn more about:
 === Generating bindings
 
 The public interface for the plugins can be written either in Rust (thanks to
-`extern "C"`) or directly in C. There are two commonly used when writing
-bindings:
+`extern "C"`) or directly in C. There are two commonly used projects when
+writing bindings:
 
 * https://rust-lang.github.io/rust-bindgen/[`rust-bindgen`] generates Rust
   bindings from C code
@@ -308,7 +308,7 @@ Some examples of its usage:
 Since we're going to write the plugin system in Rust, the most appropiate choice
 would be to use Rust for the interface as well. And if we wanted to make the
 plugin interface available to other languages -- which is not a concern right
-now -- it'd be as easy as setting up `cbindgen`.
+now -- it'd be as "`easy`" as setting up `cbindgen`.
 
 === `crate-type` values
 
@@ -389,8 +389,8 @@ Wasm's virtual memory, which I'll explain later on).
 
 The following snippet is what the plugin would look like. Note that this time we
 use `pub` without even considering `static` to export a pointer to the function.
-Wasm does have support for globals, but since handling complex types -- a
-function in this case -- isn't trivial, it's not worth it.
+Wasm does have support for globals, but since handling complex types -- those
+other than numbers, a function in this case -- isn't trivial, it's not worth it.
 
 .`plugin-sample/src/lib.rs`
 [source, rust]
@@ -403,8 +403,9 @@ pub fn with_extern(a: i32, b: i32) -> i32 {
 
 For the runtime, since it's a simple example I'll try both
 https://wasmer.io/[Wasmer] and https://wasmtime.dev/[Wasmtime]. For more complex
-things I'll just use Wasmer https://nullderef.com/blog/plugin-tech/[earlier
-post] it seemed like the best alternative. I also wanted to try
+things I'll just use Wasmer, since in an
+https://nullderef.com/blog/plugin-tech/[earlier post] it seemed like the best
+alternative. I also wanted to try
 https://github.com/alec-deason/wasm_plugin[`wasm_plugin`], which includes
 procedural macros to help reduce the overall boilerplate (which will be more
 important later on), but it seems to be abandoned since 2019. It's interesting
@@ -421,7 +422,6 @@ pub fn run_plugin(path: &str) -> Result<(), Box<dyn Error>> {
     let module_wat = fs::read(&path)?;
     let store = Store::default();
     let module = Module::new(&store, &module_wat)?;
-    // No imports needed; the object will be empty for now
     let import_object = imports! {};
     let instance = Instance::new(&module, &import_object)?;
 
@@ -441,7 +441,6 @@ pub fn run_plugin(path: &str) -> Result<(), Box<dyn Error>> {
 pub fn run_plugin(path: &str) -> Result<(), Box<dyn Error>> {
     let engine = Engine::default();
     let module = Module::from_file(&engine, &path)?;
-
     let mut store = Store::new(
         &engine,
         WasmState {},
@@ -474,7 +473,7 @@ Running plugin:
   min(2000, 2000): 2000
 ----
 
-* AFAIK there are multiple compilation targets for Wasm. Which one should I be
+* AFAIK Rust has multiple compilation targets for Wasm. Which one should I be
   using?
 * What's the difference between the https://docs.rs/wasmer/[`wasmer`] crate and
   https://docs.rs/wasmer-runtime/[`wasmer_runtime`]?
@@ -492,9 +491,9 @@ test test::wasmtime_setup ... bench:   1,125,107 ns/iter (+/- 390,118)
 
 === WebAssembly targets
 
-Wasmer docs don't mention this much because is related to the plugin, rather
-than the runtime. But Wasmtime's book does include a section about compiling
-Rust to WebAssembly:
+Wasmer docs don't mention this much because targets are related to the plugin,
+rather than the runtime. But Wasmtime's book does include a section about
+compiling Rust to WebAssembly:
 
 [quote, https://docs.wasmtime.dev/wasm-rust.html]
 ____
@@ -511,9 +510,9 @@ ____
   with wasmtime.
 ____
 
-So basically what we need is `wasm32-wasi`. Even though Wasmer was my initial
-choice, to be honest I found Wasmtime's docs to be much more detailed and
-well-organized.
+So basically what we need is `wasm32-wasi`. By the way, even though Wasmer was
+my initial choice, to be honest I found Wasmtime's docs to be much more detailed
+and well-organized.
 
 === `wasmer` vs `wasmer_runtime`
 
@@ -534,15 +533,15 @@ that this is hopefully more clear to future users.
 === More complex types
 
 The WebAssembly specification only defines integers and floating point as its
-supported types <<wasmer-types>>. There are currently two ways of handling
-non-trivial types like structs or enums:
+supported types <<wasmer-types>>. There are a few ways to handle non-trivial
+types like structs or enums:
 
 * Via the https://github.com/webassembly/interface-types[*Interface Types
   Proposal* for WebAssembly]. It defines the binary format for encoding and
   decoding the newly supported types, and specifies a set of instructions to
-  transform the data between WebAssembly and the outside world. Note that it's
-  not meant to define a fixed representation of e.g. a string in Wasm, it
-  attempts to allow representation-agnostic high-level value types.
+  transform the data between WebAssembly and the outside world. Note that this
+  proposal is not meant to define a fixed representation of e.g. a string in
+  Wasm, it attempts to allow representation-agnostic high-level value types.
 +
 --
 These new _high-level value types_ are called *interface types*. The current
@@ -553,8 +552,8 @@ proposal defines them as:
 * Single characters
 * Lists (a string would be a list of characters)
 * Records (basically like Rust structs)
-* Variants (basically like Rust enums, it would enable `Option`, `Result`,
-  `union`, etc)
+* Variants (basically like Rust enums or unions, it would enable `Option`,
+  `Result`, etc)
 
 Additionally, language-neutral interfaces for WASI can be defined with the
 experimental *`witx` files* <<witx>>, which makes it easy to define a common ABI
@@ -580,26 +579,27 @@ Please refer to the
 https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md[proposal
 itself] for more detailed information; it's very well explained.
 
-However, this proposal is still at
+The main problem is that this proposal is still at
 https://github.com/WebAssembly/proposals#phase-1---feature-proposal-cg[Phase 1].
-It's still actively being worked on and its specification is far from stable:
+It's still actively being worked on and its specification is far from stable.
 
-* At the plugin level the {{< crate wasm_bindgen >}} crate seems to be ideal.
-  It's a very simple procedural macro that can be added to the exported
-  functions in the plugin in order to automatically add support for Interface
-  Types.
-* Once the interface is defined, it can be loaded into Rust with a crate like
-  https://docs.rs/wiggle/[`wiggle`]. For the previous example, wiggle's macro
-  will generate a `Calculator` trait TODO
-* Wasmtime did support this in the past until their implementation was removed
-  after being considered outdated. As
-  https://github.com/bytecodealliance/wasmtime/issues/677[this issue indicates],
-  it still hasn't been updated.
-* Wasmer has the
-  https://docs.rs/wasmer-interface-types/[`wasmer_interface_types`] crate, but
-  with a similar story; it's outdated. There's
-  https://github.com/wasmerio/wasmer/issues/2480[this issue] as a continuation
-  of Wasmtime's, which explains the situation.
+* At the plugin level the {{< crate wasm_bindgen >}} crate seems to be ideal,
+  and it already works well. It's a very simple procedural macro that can be
+  added to the exported functions in the plugin in order to automatically add
+  support for Interface Types.
+* The {{< crate wiggle >}} crate can be used to generate Rust code from `witx`
+  files. For the previous snippet of code, wiggle's macro will generate a
+  `Calculator` trait and the defined types in another module named `types`.
+* The runtimes, however, don't work with Interface types:
+** Wasmtime did support this in the past until their implementation was removed
+   after being considered outdated. As
+   https://github.com/bytecodealliance/wasmtime/issues/677[this issue
+   indicates], it still hasn't been updated.
+** Wasmer has the
+   https://docs.rs/wasmer-interface-types/[`wasmer_interface_types`] crate, but
+   with a similar story; it's outdated. There's
+   https://github.com/wasmerio/wasmer/issues/2480[this issue] as a continuation
+   of Wasmtime's, which explains the situation.
 
 In the end I wasn't able to get Interface Types working, nor I considered them
 worth my time, as it's still too early.
@@ -609,25 +609,36 @@ worth my time, as it's still too early.
   first construct and serialize the complex types, and then save them into
   Wasm's memory, which can be accessed directly by the runtime or the plugin
   with https://docs.wasmer.io/integrations/examples/memory-pointers[pointers].
+  This is what https://github.com/feather-rs/feather/tree/main/quill[Feather] or
+  https://book.veloren.net/contributors/developers/codebase-structure.html#plugins[Veloren]
+  do, in case you want more details.
 +
 --
-Not only does this require a serialization and deserialization step, but also
-it's very cumbersome to use and easy to mess up. It's somewhat trivial though,
-so a procedural macro like the now outdated {{< crate wasmer-plugin >}} could
-simplify it. For now, {{< crate bincode >}} can be used for the serialization
-steps manually.
+Not only does this require a serialization and deserialization step and
+writing/reading all the data from memory, but also it's very cumbersome to use
+and easy to mess up. It's somewhat trivial though, so a procedural macro like
+the now outdated {{< crate wasmer-plugin >}} could simplify it. For now, {{<
+crate bincode >}} can be used for the serialization steps manually.
 
 I did try this and got it working by following
 https://freemasen.com/blog/wasmer-plugin-pt-1/[Free Masen's guide], but it
 wasn't worth exploring in depth because it requires a [de]serialization step
 Tremor can't afford.
 --
-* TODO: using wasm as a binary
+* Another way I've seen to work around this is by using Wasm as an executable
+  instead of a library. https://github.com/zellij-org/zellij[Zellij] does this,
+  and communicates with the plugins via the standard input and standard output
+  streams.
++
+Unfortunately, this also requires [de]serializing and has the overhead of
+writing/reading all the data from stdin and stdout.
 
 Ultimately, this has forced me to discard WebAssembly for Tremor's Plugin
 Development Kit. Performance is really important in this specific case, and Wasm
 doesn't offer a solution to efficiently pass data between the host and the
-plugin.
+plugin. For most use cases Wasm still may be of interest, so hopefully I've
+included enough links and ideas so that you can get started if it's the way you
+want to go.
 
 == Wrapping up
 
@@ -635,7 +646,8 @@ Today we've learned a lot of things both about dynamic loading and WebAssembly.
 Unfortunately, I've had to discard the latter for Tremor's PDK, but it may be of
 interest to projects that aren't so focused on performance. Or maybe by the time
 you, the reader, have finished this article, Interface Types are already
-stabilized and broadly used, which would make Wasm a very appealing choice.
+stabilized and broadly used, which would make Wasm an even more appealing
+choice.
 
 In the next post, I will try to get a more advanced example of a PDK with
 dynamic loading. The goal is to simulate the end-product by writing it as close
@@ -644,8 +656,22 @@ to benchmark it against a statically linked implementation and analyze the
 performance overhead we'll end up getting.
 
 I did write a few benchmarks for the examples provided in this article, but they
-aren't fair at all, nor representative of a real-life situation. Knowing that,
-it might be interesting to take a look:
+aren't fair at all nor representative of a real-life situation. They simply load
+the plugin and run the `min` function once, or in the case of dynamic loading
+twice (one with `static` and another with `extern`). And since they're very
+simple examples, the Wasm ones don't include the [de]serialization part that may
+introduce even more overhead. Knowing that, the results are the following, which
+is more or less what I was expecting:
+
+[source, text]
+----
+test test::dynamic_simple ... bench:     139,702 ns/iter (+/- 34,699)
+test test::wasmer_setup   ... bench:     967,633 ns/iter (+/- 203,933)
+test test::wasmtime_setup ... bench:     988,500 ns/iter (+/- 363,244)
+----
+
+I hope you enjoyed reading this post and that you learned something from it! You
+can leave any suggestions in the comments below.
 
 [bibliography]
 == References
