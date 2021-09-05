@@ -29,9 +29,9 @@ mailto:marioortizmanero@gmail.com[e-mail].
 
 Here are some interesting blogs from friends or that I just enjoy reading:
 
-. https://fasterthanli.me/[*fasterthanlime*]: it features extremely thorough
-  posts about computers (mostly Rust) in a very dynamic way. Amos, the author,
-  really puts in effort and you can tell.
+. https://fasterthanli.me/[*fasterthanlime*]: this site features extremely
+  thorough posts about computers (mostly Rust) in a very dynamic way. Amos, the
+  author, really puts in effort and you can tell.
 . https://adventures.michaelfbryan.com/[*Michael-F-Bryan*]: another programming
   blog about various topics, including Rust. His articles are explained with
   lots of code, examples, and diagrams.
@@ -40,4 +40,8 @@ Here are some interesting blogs from friends or that I just enjoy reading:
   met him maintaining https://github.com/ramsayleung/rspotify[Rspotify], a
   library in Rust, but he writes about other things as well.
 . https://robertheaton.com/[*Robert Heaton*]: a blog with a very unique style of
-  narration, often about either pentesting or personal stories from the author.
+  narration, often about either pentesting or personal stories from Robert.
+. https://matklad.github.io/[*matklad*]: this author shares his extensive
+  experience as the development leader of
+  https://github.com/rust-analyzer/rust-analyzer[Rust Analyzer], in the form of
+  technical blog posts.
