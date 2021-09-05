@@ -39,3 +39,5 @@ Here are some interesting blogs from friends or that I just enjoy reading:
   https://github.com/ramsayleung[Ramsay] blog site, with very detailed posts. I
   met him maintaining https://github.com/ramsayleung/rspotify[Rspotify], a
   library in Rust, but he writes about other things as well.
+. https://robertheaton.com/[*Robert Heaton*]: a blog with a very unique style of
+  narration, often about either pentesting or personal stories from the author.
