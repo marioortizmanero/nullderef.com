@@ -34,6 +34,8 @@ GHissueID: ??
 
   ./bench/run.sh <name>
 * start async with callbacks for example instead of something more complicated
+* for async take a look at how libkafka does it:
+  https://github.com/fede1024/rust-rdkafka
 
 
 * in team building, everyone is different and the team is very homogeneous, you
@@ -43,6 +45,11 @@ GHissueID: ??
   (developing people instead of code)
 * don't care about what others say about you (don't worry)
 * take good rest, breathe, coding is mentally exhausting
+////
+
+////
+2021-09-07 MEETING NOTES (CONNECTORS):
+
 ////
 
 TODO
@@ -104,6 +111,11 @@ With it, we can perform the encoding or decoding of the trait, and also include
 some metadata about it, like its name or the mime types it supports.
 
 === Setting up cbindgen
+
+////
+TODO: MENTION THIS:
+https://github.com/rodrimati1992/abi_stable_crates/issues/52
+////
 
 For these first steps I think {{< crate cbindgen >}} will help us understand
 what's going on. Unfortunately
