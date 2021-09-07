@@ -16,6 +16,35 @@ GHissueID: ??
 
 == Introduction
 
+////
+2021-09-07 MEETING NOTES:
+
+* start with connectors, don't worry that much b/c the real overhead lies in the
+  external dependencies (networking/etc)
+* copy stuff from connectors branch into new repo, forget everything else
+  https://github.com/tremor-rs/tremor-runtime/blob/main/src/source/blaster.rs
+  https://github.com/tremor-rs/tremor-runtime/blob/main/src/sink/blackhole.rs
+* try to see if generics are avoidable
+* benchmarks:
+
+  cd tremor-cli
+  tremor test bench tests
+  
+  (or)
+
+  ./bench/run.sh <name>
+* start async with callbacks for example instead of something more complicated
+
+
+* in team building, everyone is different and the team is very homogeneous, you
+  have to figure out how to mix them up
+* as you get older you talk more and code less
+* remember that with time you change, and so does your position in the company
+  (developing people instead of code)
+* don't care about what others say about you (don't worry)
+* take good rest, breathe, coding is mentally exhausting
+////
+
 TODO
 
 == Extending our example
