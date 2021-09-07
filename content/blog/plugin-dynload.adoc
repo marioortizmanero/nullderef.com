@@ -50,6 +50,20 @@ GHissueID: ??
 ////
 2021-09-07 MEETING NOTES (CONNECTORS):
 
+Connector trait:
+* can contain a source, a sink, or both
+* handlers like `on_start`, `on_pause`, etc
+* `connect` retries until it returns `true`
+* {Sink,Source}ManagerBuilder and similars are not actually generic, they *have*
+  a generic function.
+* how are plugins loaded and how are they specified: automatically if possible
+
+Later on:
+* Automatically search plugins, maybe $TREMORPATH
+* Check all functions are exported in the plugin
+* Make sure a plugin crash doesn't crash Tremor itself if possible. Can panics
+  be caught?
+* Check conflicting plugin names
 ////
 
 TODO
