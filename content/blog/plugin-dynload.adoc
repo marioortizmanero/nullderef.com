@@ -1,12 +1,12 @@
 ---
 title: "Plugins in Rust: Diving into dynamic loading"
 description: "A closer look at dynamic loading in Rust"
-summary: "Getting a more advanced example of dynamic loading working, and
-benchmarking the results."
+summary: "Writing a more advanced example of dynamic loading working, and
+analyzing the results."
 author: "Mario Ortiz Manero"
 tags: ["journal"]
 series: ["rust-plugins"]
-date: 2021-08-06
+date: 2021-09-09
 GHissueID: ??
 ---
 
@@ -15,6 +15,82 @@ GHissueID: ??
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
 == Introduction
+
+In the https://nullderef.com/blog/plugin-start/[last part] of this
+https://nullderef.com/series/rust-plugins/[series] I wrote some simple
+experiments of plugins both with WebAssembly and dynamic loading. After
+discarding Wasm for this specific PDK, I wanted to try to get a more realistic
+example with dynamic loading and work towards the final implementation.
+
+As always, these articles include a first section with content specific to
+Tremor that you might <<actual_start,want to skip>>. Unfortunately, with time
+this series will become more and more specific to Tremor; after all I'm just
+reporting my progress on Tremor's PDK. Still, having a step-by-step walkthrough
+for a real-life Plugin System will surely be helpful to those attempting to do
+the same.
+
+== About Tremor
+
+=== My next steps
+
+In my first meeting we discussed the work I had exposed in my last update.
+Despite the complications (being forced to use {repr-c}), the team liked where
+the PDK was going.
+
+They suggested me to start with connectors for the real-life example, even
+though they were incomplete because Matthias was still working on them. The best
+way to do this would be to copy the bare minimum from
+https://github.com/tremor-rs/tremor-runtime[Tremor's repository] and try to get
+the simplest Proof of Concept working. Then, I could implement the two following
+connector plugins:
+
+* https://github.com/tremor-rs/tremor-runtime/blob/main/src/sink/blackhole.rs[Blackhole]
+  is used for benchmarking. It takes measurements of the end to end times of each
+  event traversing the pipeline and at the end prints an HDR (High Dynamic
+  Range) http://hdrhistogram.org/[histogram].
+* https://github.com/tremor-rs/tremor-runtime/blob/main/src/source/blaster.rs[Blaster]
+  replays a series of events specified in a file, which is specially useful for
+  performance testing.
+
+Both of these are relatively simple and will be helpful to benchmark the PDK
+later on. But that isn't really important right now; we first need to get the
+PDK working, and then we can care about performance.
+
+In previous meetings we had discussed the possibility of having generics in the
+interface, but that turned out to not be necessary at all. The `Connector`
+trait had a workaround to avoid generics with `SinkManagerBuilder`.
+
+What would be more complicated is handling `async` with C's ABI. For now I will
+try to get it to work in the simplest possible way -- possibly callbacks, and
+we'll actually work on it later on. Crates like
+https://github.com/fede1024/rust-rdkafka[`libkafka`] do something similar, so I
+should take a look.
+
+=== On software engineering
+
+At the end of the first meeting, Darach gave some very interesting advice for my
+software engineering career, so I took note of it and reflected for a bit:
+
+* As you get more experience in the field, you talk more and code less. The
+  positions you're in become more about team management than programming. It's
+  good to remember that software engineering isn't just coding. Also that with
+  time, your personality changes, and you have to keep adapting.
+* Team building isn't about getting a group of people to carry the exact same
+  tasks in the same way. Everyone is different; you'll have to discover the
+  strengths and weaknesses of each member and figure out how to mix them up. The
+  best teams are often very heterogeneous, and it's pretty clear to me that this
+  is the case with Tremor as well.
+* Don't care about what others say about you (the _don't worry_ rule). Don't let
+  "`You'll never end up being X`", "`You're bad at Y`" and similars ever affect
+  you.
+* Coding is mentally exhausting and burnout is a very common thing. Take good
+  rest, breathe, and have fun. Taking a break from programming is a good idea
+  from time to time.
++
+I've personally experienced burnout myself so I know this first hand. You may
+immerse yourself too much in computers or coding (specially under a pandemic
+that restricts how much you can go out). Finding a hobby outside of that is
+incredibly helpful.
 
 ////
 2021-09-07 MEETING NOTES:
@@ -47,6 +123,8 @@ GHissueID: ??
 * take good rest, breathe, coding is mentally exhausting
 ////
 
+=== Learning more about connectors
+
 ////
 2021-09-07 MEETING NOTES (CONNECTORS):
 
@@ -66,8 +144,7 @@ Later on:
 * Check conflicting plugin names
 ////
 
-TODO
-
+[[actual_start]]
 == Extending our example
 
 TODO research repr(C) and stable_abi, make an intermediate example
