@@ -4,7 +4,7 @@ description: "A closer look at dynamic loading in Rust"
 summary: "Writing a more advanced example of dynamic loading working, and
 analyzing the results."
 author: "Mario Ortiz Manero"
-tags: ["journal"]
+tags: ["rust", "journal"]
 series: ["rust-plugins"]
 date: 2021-09-09
 GHissueID: ??
