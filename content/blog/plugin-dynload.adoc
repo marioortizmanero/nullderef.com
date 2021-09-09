@@ -14,6 +14,10 @@ GHissueID: ??
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
+////
+TODO: Research eBPF and uBPF
+////
+
 == Introduction
 
 In the https://nullderef.com/blog/plugin-start/[last part] of this
