@@ -1273,7 +1273,9 @@ was in the <a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>, whi
 a full introduction and may be interesting as well. While this will specifically
 cover Tremor’s use case, I’m sure many other applications in the future will
 have similar requirements for their own program. And considering the few
-articles I found about plugins in Rust, this may be helpful to the community.</p>
+articles I found about plugins in Rust, this
+<a href="https://nullderef.com/series/rust-plugins/">series</a> may be helpful to the
+community.</p>
 </div>
 <div class="admonitionblock note">
 <table>
