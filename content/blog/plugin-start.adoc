@@ -5,7 +5,7 @@ summary: "Getting to know the Tremor team was exciting. Implementing the PDK
 wasn't going to be easy, but it certainly sounded fun thanks to their dynamics.
 I had to start somewhere, and this was the moment."
 author: "Mario Ortiz Manero"
-tags: ["journal"]
+tags: ["rust", "journal"]
 series: ["rust-plugins"]
 date: 2021-09-05
 GHissueID: 30
