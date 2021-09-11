@@ -149,6 +149,26 @@ Later on:
 ////
 
 [[actual_start]]
+== Taking a look at eBPF first
+
+In the previous articles I mostly considered using either WebAssembly or Dynamic
+Loading. What I didn't even know about is https://ebpf.io/[eBPF], "`a
+revolutionary technology with origins in the Linux kernel that can run sandboxed
+programs in an operating system kernel`". However, similarly to WebAssembly, its
+usage has been expanded to user-space applications.
+
+There are multiple active crates for eBPF in Rust. {{< crate libbpf_rs >}}, {{<
+crate redbpf >}} and {{< crate aya >}} are specific to the Linux Kernel. {{<
+crate solana_rbpf >}} is a virtual machine, so it only works for user-space. It
+seems to be a fork of the now abandoned {{< crate rbpf >}}.
+
+So, is this any better than WebAssembly? Well, not really. In fact, it has the
+same exact caveat that made us discard Wasm; for more complex types, one has to
+serialize them into a shared memory. It also has a few more restrictions: only
+one exported function per file is allowed, and the "PDK" must handle indirect
+access through the host if you want plugins to call each others (there is no
+multiple imports/exports) (? TODO: rephrase).
+
 == Extending our example
 
 TODO research repr(C) and stable_abi, make an intermediate example
