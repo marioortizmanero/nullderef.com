@@ -262,8 +262,22 @@ on.
 === Modifying the `Connector` trait for dynamic loading
 
 Now that we know more or less how to approach the PDK, let's try getting a more
-complex example running. We'll try to simulate the final implementation so that
-we can run some benchmarks and analyze the overhead our PDK will introduce.
+complex example running. The plan is to try to simulate the final implementation
+of the PDK so that we can run some benchmarks and analyze the overhead it will
+introduce. For this, I'll add the `native-connector` and `dynamic-connector`
+examples to https://github.com/marioortizmanero/pdk-experiments[the
+pdk-experiments repository]. `native-connector` is simply how it currently
+works, in a single static executable, and `dynamic-connector` loads the
+connectors dynamically as plugins.
+
+Since it may be simpler to get `native-connector` running, let's start with
+that. We'll just copy all the necessary code for the
+https://github.com/tremor-rs/tremor-runtime/tree/883f13e29b4c6ec7b6703f2487aac321c738e7c8[current
+implementation] of connectors as a standalone program:
+
+==== The `Connector` trait
+
+==== The `Value` struct
 
 == Generics
 
