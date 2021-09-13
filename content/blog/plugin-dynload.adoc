@@ -33,7 +33,7 @@ the same.
 
 === My next steps
 
-In my first meeting we discussed the work I had exposed in my last update.
+In the first meeting we discussed the work I had exposed in my last update.
 Despite the complications (being forced to use {repr-c}), the team liked where
 the PDK was going.
 
@@ -111,7 +111,9 @@ In the previous articles I mostly considered using either WebAssembly or Dynamic
 Loading. What I didn't even know about is https://ebpf.io/[eBPF], "`a
 revolutionary technology with origins in the Linux kernel that can run sandboxed
 programs in an operating system kernel`". However, similarly to WebAssembly, its
-usage has been expanded to user-space applications.
+usage has been expanded to user-space applications. eBPF defines a set of
+bytecode instructions that may be ran by a virtual machine anywhere, similarly
+to how Wasm works.
 
 There are multiple active crates for eBPF in Rust. {{< crate libbpf_rs >}}, {{<
 crate redbpf >}} and {{< crate aya >}} are specific to the Linux Kernel. {{<
@@ -126,10 +128,17 @@ manually within the runtime. You can get started quickly with
 https://blog.redsift.com/labs/writing-bpf-code-in-rust/[this tutorial from Red
 Sift], but I feel like there's less documentation than in the case of Wasm.
 
+Cheers to Dr. TODO for letting me know about this technology -- though he's
+considering switching to WebAssembly. He's currently using it to research
+pluggable anonymous protocols like Tor, which would allow patches to its code to
+happen at runtime. This makes it faster to fix vulnerabilities until it's
+properly updated upstream, among other things. TODO add links. Pretty cool :)
+
 == Extending our example
 
 Since the Tremor team suggested to begin by implementing connectors, we'll first
-have to learn more about them. Matthias ran me through their current state.
+have to learn more about them. Matthias ran me through their current state in a
+meeting, which I'll try to summarize:
 
 === Learning more about connectors
 
@@ -152,7 +161,50 @@ Later on:
 * Check conflicting plugin names
 ////
 
-Then, I could implement the two following connector plugins:
+First of all, Tremor is an event processing system for unstructured data. For
+example, you could use it to:
+
+. Receive logs from different applications in your business
+. Filter, transform, and mix them up following the same structure
+. Send all the now structured logs to your database
+
+This currently works with https://docs.tremor.rs/artefacts/onramps/[onramps]
+and https://docs.tremor.rs/artefacts/offramps/[offramps]:
+
+* An onramp specifies how Tremor connects to the outside world in order to
+  *receive from external systems*, such as
+  https://docs.tremor.rs/artefacts/onramps/#tcp[TCP],
+  https://docs.tremor.rs/artefacts/onramps/#metronome[periodically] or
+  https://docs.tremor.rs/artefacts/onramps/#postgresql[PostgreSQL].
+* An offramp specifies how Tremor connects to the outside world in order to
+  *publish to external systems*, such as
+  https://docs.tremor.rs/artefacts/offramps/#stdout[stdout],
+  https://docs.tremor.rs/artefacts/offramps/#kafka[Kafka] or
+  https://docs.tremor.rs/artefacts/offramps/#elastic[ElasticSearch].
+
+The thing is that some onramps may not only want to receive from external
+systems, but also respond to them directly, acting like an offramp, and
+vice-versa. This is currently implemented with what's called
+https://docs.tremor.rs/operations/linked-transports/["`linked transports`"], and
+it's specifically useful for some onramps and offramps like REST and websocket,
+where the protocol already provides facility for responding to events with a
+single connection.  Thanks to this, Tremor has become a platform for
+implementing a wider variety of applications -- think servers, proxies, bridges
+etc., and not just ETL-style use cases.
+
+Basically,
+https://github.com/tremor-rs/tremor-rfcs/blob/connectors-n-streams/text/0000-connectors-streams.md[connectors]
+are just a way to abstract over both onramps and offramps under the same
+concept, including linked transports. As the time of writing this article
+they're still being implemented by Matthias in the
+https://github.com/tremor-rs/tremor-runtime/tree/connectors[`connectors` branch]
+of https://github.com/tremor-rs/tremor-runtime[tremor-rs/tremor-runtime], but
+their interface, defined with the
+https://github.com/tremor-rs/tremor-runtime/blob/883f13e29b4c6ec7b6703f2487aac321c738e7c8/src/connectors.rs#L739[`Connector`
+trait], is somewhat stable.
+
+After the interface is done, we could implement the two following connector
+plugins:
 
 * https://github.com/tremor-rs/tremor-runtime/blob/main/src/sink/blackhole.rs[Blackhole]
   is used for benchmarking. It takes measurements of the end to end times of each
@@ -172,12 +224,6 @@ we'll actually work on it later on. Crates like
 https://github.com/fede1024/rust-rdkafka[`libkafka`] do something similar, so I
 should take a look.
 
-=== Getting to work
-
-Now that we know more or less how to approach the PDK, let's try getting a more
-complex example running. We'll try to simulate the final implementation so that
-we can run some benchmarks and analyze the overhead our PDK will introduce.
-
 === Setting up cbindgen
 
 For these first steps I think {{< crate cbindgen >}} will help us understand
@@ -193,7 +239,7 @@ thread 'main' panicked at 'RResult has 2 params but is being instantiated with 1
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ----
 
-This probably has to do with the following warning found in
+This _probably_ has to do with the following warning found in
 https://github.com/eqrion/cbindgen/blob/master/docs.md[`cbindgen`'s
 documentation]:
 
@@ -212,6 +258,12 @@ https://github.com/rodrimati1992/abi_stable_crates/issues/52[an issue], they
 pointed out that this was expected and that they don't plan on supporting
 `cbindgen` because it would take too much effort. Understandable, so let's move
 on.
+
+=== Modifying the `Connector` trait for dynamic loading
+
+Now that we know more or less how to approach the PDK, let's try getting a more
+complex example running. We'll try to simulate the final implementation so that
+we can run some benchmarks and analyze the overhead our PDK will introduce.
 
 == Generics
 
