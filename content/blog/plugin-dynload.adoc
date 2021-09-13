@@ -14,10 +14,6 @@ GHissueID: ??
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
-////
-TODO: Research eBPF and uBPF
-////
-
 == Introduction
 
 In the https://nullderef.com/blog/plugin-start/[last part] of this
@@ -45,30 +41,11 @@ They suggested me to start with connectors for the real-life example, even
 though they were incomplete because Matthias was still working on them. The best
 way to do this would be to copy the bare minimum from
 https://github.com/tremor-rs/tremor-runtime[Tremor's repository] and try to get
-the simplest Proof of Concept working. Then, I could implement the two following
-connector plugins:
-
-* https://github.com/tremor-rs/tremor-runtime/blob/main/src/sink/blackhole.rs[Blackhole]
-  is used for benchmarking. It takes measurements of the end to end times of each
-  event traversing the pipeline and at the end prints an HDR (High Dynamic
-  Range) http://hdrhistogram.org/[histogram].
-* https://github.com/tremor-rs/tremor-runtime/blob/main/src/source/blaster.rs[Blaster]
-  replays a series of events specified in a file, which is specially useful for
-  performance testing.
-
-Both of these are relatively simple and will be helpful to benchmark the PDK
-later on. But that isn't really important right now; we first need to get the
-PDK working, and then we can care about performance.
+the simplest Proof of Concept working.
 
 In previous meetings we had discussed the possibility of having generics in the
 interface, but that turned out to not be necessary at all. The `Connector`
 trait had a workaround to avoid generics with `SinkManagerBuilder`.
-
-What would be more complicated is handling `async` with C's ABI. For now I will
-try to get it to work in the simplest possible way -- possibly callbacks, and
-we'll actually work on it later on. Crates like
-https://github.com/fede1024/rust-rdkafka[`libkafka`] do something similar, so I
-should take a look.
 
 === On software engineering
 
@@ -127,6 +104,33 @@ incredibly helpful.
 * take good rest, breathe, coding is mentally exhausting
 ////
 
+[[actual_start]]
+== Taking a look at eBPF first
+
+In the previous articles I mostly considered using either WebAssembly or Dynamic
+Loading. What I didn't even know about is https://ebpf.io/[eBPF], "`a
+revolutionary technology with origins in the Linux kernel that can run sandboxed
+programs in an operating system kernel`". However, similarly to WebAssembly, its
+usage has been expanded to user-space applications.
+
+There are multiple active crates for eBPF in Rust. {{< crate libbpf_rs >}}, {{<
+crate redbpf >}} and {{< crate aya >}} are specific to the Linux Kernel. {{<
+crate solana_rbpf >}} is a virtual machine, so it only works for user-space. It
+seems to be a fork of the now abandoned {{< crate rbpf >}}.
+
+So, is this any better than WebAssembly? Well, not really. In fact, it has the
+same exact caveat that made us discard Wasm; for more complex types, one has to
+serialize them into a shared memory. It also has a few more restrictions like
+only being able to export one function per file or managing imports or exports
+manually within the runtime. You can get started quickly with
+https://blog.redsift.com/labs/writing-bpf-code-in-rust/[this tutorial from Red
+Sift], but I feel like there's less documentation than in the case of Wasm.
+
+== Extending our example
+
+Since the Tremor team suggested to begin by implementing connectors, we'll first
+have to learn more about them. Matthias ran me through their current state.
+
 === Learning more about connectors
 
 ////
@@ -148,92 +152,37 @@ Later on:
 * Check conflicting plugin names
 ////
 
-[[actual_start]]
-== Taking a look at eBPF first
+Then, I could implement the two following connector plugins:
 
-In the previous articles I mostly considered using either WebAssembly or Dynamic
-Loading. What I didn't even know about is https://ebpf.io/[eBPF], "`a
-revolutionary technology with origins in the Linux kernel that can run sandboxed
-programs in an operating system kernel`". However, similarly to WebAssembly, its
-usage has been expanded to user-space applications.
+* https://github.com/tremor-rs/tremor-runtime/blob/main/src/sink/blackhole.rs[Blackhole]
+  is used for benchmarking. It takes measurements of the end to end times of each
+  event traversing the pipeline and at the end prints an HDR (High Dynamic
+  Range) http://hdrhistogram.org/[histogram].
+* https://github.com/tremor-rs/tremor-runtime/blob/main/src/source/blaster.rs[Blaster]
+  replays a series of events specified in a file, which is specially useful for
+  performance testing.
 
-There are multiple active crates for eBPF in Rust. {{< crate libbpf_rs >}}, {{<
-crate redbpf >}} and {{< crate aya >}} are specific to the Linux Kernel. {{<
-crate solana_rbpf >}} is a virtual machine, so it only works for user-space. It
-seems to be a fork of the now abandoned {{< crate rbpf >}}.
+Both of these are relatively simple and will be helpful to benchmark the PDK
+later on. But that isn't really important right now; we first need to get the
+PDK working, and then we can care about performance.
 
-So, is this any better than WebAssembly? Well, not really. In fact, it has the
-same exact caveat that made us discard Wasm; for more complex types, one has to
-serialize them into a shared memory. It also has a few more restrictions: only
-one exported function per file is allowed, and the "PDK" must handle indirect
-access through the host if you want plugins to call each others (there is no
-multiple imports/exports) (? TODO: rephrase).
+What would be more complicated is handling `async` with C's ABI. For now I will
+try to get it to work in the simplest possible way -- possibly callbacks, and
+we'll actually work on it later on. Crates like
+https://github.com/fede1024/rust-rdkafka[`libkafka`] do something similar, so I
+should take a look.
 
-== Extending our example
-
-TODO research repr(C) and stable_abi, make an intermediate example
+=== Getting to work
 
 Now that we know more or less how to approach the PDK, let's try getting a more
 complex example running. We'll try to simulate the final implementation so that
 we can run some benchmarks and analyze the overhead our PDK will introduce.
 
-One of the simplest components of Tremor is a
-https://docs.tremor.rs/artefacts/codecs/[_codec_]. Quoting the official
-documentation, "`they are used to describe how to decode data from the wire and
-encode it back to wire format`". For example, the `json` codec helps convert
-data from and to JSON.
-
-Coding-wise, all codecs must implement the
-https://github.com/tremor-rs/tremor-runtime/blob/e529ae969b0f9c6c9d09ae5a1a36dd7ccd2d8902/src/codec.rs#L47[`Codec`
-trait]. A simplified version of it may look like this:
-
-[source, rust]
-----
-pub trait Codec: Send + Sync {
-    /// The canonical name for this codec
-    fn name(&self) -> &str;
-
-    /// supported mime types
-    /// as <base>/<subtype>
-    ///
-    /// e.g. application/json
-    ///
-    /// The returned mime types should be unique to this codec
-    fn mime_types(&self) -> Vec<&str> {
-        vec![]
-    }
-
-    /// Decode a binary, into an Value
-    /// If `None` is returned, no data could be encoded, but we don't exactly triggered an error condition.
-    ///
-    /// # Errors
-    ///  * if we can't decode the data
-    fn decode<'input>(
-        &mut self,
-        data: &'input mut [u8],
-        ingest_ns: u64,
-    ) -> Result<Option<Value<'input>>>;
-
-    /// Encodes a Value into a binary
-    ///
-    /// # Errors
-    ///  * If the encoding fails
-    fn encode(&self, data: &Value) -> Result<Vec<u8>>;
-}
-----
-
-With it, we can perform the encoding or decoding of the trait, and also include
-some metadata about it, like its name or the mime types it supports.
-
 === Setting up cbindgen
 
-////
-TODO: MENTION THIS:
-https://github.com/rodrimati1992/abi_stable_crates/issues/52
-////
-
 For these first steps I think {{< crate cbindgen >}} will help us understand
-what's going on. Unfortunately
+what's going on. We can take a look at the generated headers and see how it
+works internally. Unfortunately, it fails to run for the `abi_stable` crate:
 
 [source, text]
 ----
@@ -244,7 +193,7 @@ thread 'main' panicked at 'RResult has 2 params but is being instantiated with 1
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ----
 
-Which probably has to do with the following warning found in
+This probably has to do with the following warning found in
 https://github.com/eqrion/cbindgen/blob/master/docs.md[`cbindgen`'s
 documentation]:
 
@@ -257,6 +206,12 @@ behaviour is unspecified if this happens. However this may be ok if they have
 https://github.com/eqrion/cbindgen/blob/master/docs.md#defines-and-cfgs[different
 cfgs].
 ____
+
+After letting the maintainers of `abi_stable` know about this in
+https://github.com/rodrimati1992/abi_stable_crates/issues/52[an issue], they
+pointed out that this was expected and that they don't plan on supporting
+`cbindgen` because it would take too much effort. Understandable, so let's move
+on.
 
 == Generics
 
