@@ -77,13 +77,186 @@ The important question here is, how do you do this once you have hundreds of
 endpoints? And how can you make it easy to switch between async and sync for the
 user?
 
-=== Copy-pasting
+=== Good ol' copy-pasting
 
-This is what was first implemented.
+This is what was first implemented. It was quite simple and it worked. The
+interface is similar to how {{< crate reqwest >}} works: there's a `blocking`
+module in the crate with the exact same functionality as the root module, but
+without `async` and `.await`. Instead of importing `rspotify::Client`, you do
+`rspotify::blocking::Client`, and voilà! Your code is now blocking. And if we
+don't want overhead for the async users we can just feature-gate it under the
+name `blocking` and done.
 
-=== `block_on`
+The problem was much more clear later on, though. Half the crate's code was
+duplicated. Adding a new endpoint or modifying it meant writing or removing
+everything twice. And good luck if you had to refactor something, prepare
+yourself to double your efforts!
 
-=== `maybe_async`
+There is no way to make sure both implementations are equivalent either unless
+you test absolutely everything. Which isn't a bad idea either, but maybe you
+copy pasted the tests wrong! How about that? The poor reviewer of the Pull
+Request would have to read through the same code twice as well to make sure both
+sides look alright -- which sounds incredibly prone to human errors.
+
+In my experience it really slowed down the development of Rspotify, specially
+for new contributors who weren't used to this whole ordeal. And so as a new
+excited maintainer of Rspotify, I began to
+https://github.com/ramsayleung/rspotify/issues/112[investigate] other possible
+solutions.
+
+=== Calling `block_on`
+
+https://github.com/ramsayleung/rspotify/pull/120[Our second approach] consists
+on implementing everything in the async side. Then, you just make wrappers for
+the blocking code, which just calls `block_on` internally. This way you only
+copy the _definitions_, but the implementation remains de-duplicated.
+
+[source, rust]
+----
+mod blocking {
+    struct Spotify(super::Spotify);
+
+    impl Spotify {
+        fn endpoint(&self, param: String) -> SpotifyResult<String> {
+            runtime.block_on(async move {
+                self.0.endpoint(param).await
+            })
+        }
+    }
+}
+----
+
+Note that in order to call `block_on`, you first have to create some kind of
+runtime. For example, with {{< crate tokio >}}:
+
+[source, rust]
+----
+let mut runtime = tokio::runtime::Builder::new()
+    .basic_scheduler()
+    .enable_all()
+    .build()
+    .unwrap();
+----
+
+This raises the question: should we initialize the runtime in each call to the
+endpoint, or is there a way to share it? We could keep it as a global (_ewwww_)
+or perhaps better we can save the runtime in the `Spotify` struct. But since it
+takes a _mutable_ reference to the runtime, you'd have to wrap it up with
+`Arc<Mutex<T>>`, completely killing the concurrency in your client. Instead, you
+may use a Tokio
+https://docs.rs/tokio/latest/tokio/runtime/struct.Handle.html[Handle], which
+contains a reference to the runtime internally. One way to do it would be:
+
+[source, rust]
+----
+use tokio::runtime::Runtime;
+
+lazy_static! { // You can also use `once_cell`
+    static ref RT: Runtime = Runtime::new().unwrap();
+}
+
+fn endpoint(&self, param: String) -> SpotifyResult<String> {
+    RT.handle().block_on(async move {
+        self.0.endpoint(param).await
+    })
+}
+----
+
+While this does make our blocking client faster <<block-on-perf>>, turns out
+that we're just walking in circles. {{< crate reqwest >}} does it differently in
+order to achieve even more performance. Without getting into nasty details, it
+basically spawns a thread that calls `block_on` waiting on a channel with jobs
+<<block-on-channels>> <<block-on-reqwest>>.
+
+Unfortunately this still has quite the overhead. You have to pull in `futures`,
+`tokio`, etc, and include them in your binary in order to... actually end up
+writing blocking code. So not only is it a cost at runtime, but also at compile
+time. It just feels wrong to me.
+
+And you still have a good amount of duplicate code. Mostly definitions, since
+the implementation is only written in the async side, but still, there are _a
+lot_ of definitions. {{< crate reqwest >}} is a huge project and can probably
+afford this for their `blocking` module.
+
+I wonder, is there something better than this?
+
+=== The `maybe_async` crate
+
+////
+TODO: Investigate if enabling multiple TLS for reqwest is conflicting
+////
+
+https://github.com/ramsayleung/rspotify/pull/129[The third attempt] is based on
+a crate called {{< crate maybe_async >}}. I remember thinking it was the perfect
+solution back when I discovered it. I was so happy I had managed to solve this
+issue. Hahaha.
+
+Anyway, the idea is that with this crate you can automatically remove the
+`async` and `.await` occurrences in your code with a procedural macro,
+essentially automating the copy-pasting approach. For example:
+
+[source, rust]
+----
+#[maybe_async::maybe_async]
+async fn endpoint() { /* stuff */ }
+----
+
+Generates the following code:
+
+[source, rust]
+----
+#[cfg(not(feature = "is_sync"))]
+async fn endpoint() { /* stuff */ }
+
+#[cfg(feature = "is_sync")]
+fn endpoint() { /* stuff with `.await` removed */ }
+----
+
+You can configure whether you want asynchronous or blocking code by toggling the
+`is_sync` feature when compiling the crate. It works for functions, traits and
+`impl` blocks. And you can specify custom async/sync implementations with the
+`async_impl` and `sync_impl` procedural macros, respectively. It does its job
+perfectly, and we've been using it for Rspotify for a while now with no problems
+whatsoever.
+
+In fact, it worked so well that what I made Rspotify _http-client agnostic_,
+which is even more flexible than being _async/sync agnostic_. This allowed us to
+support multiple HTTP clients like {{< crate reqwest >}} and {{< crate ureq >}},
+independently of whether the client is asynchronous or synchronous.
+
+////
+TODO: research crates which are async runtime agnostic
+
+"More or less like how some crates support multiple async backends (say {{<
+crate tokio >}} and {{< crate async_std >}})"
+
+^ Maybe it's `smol` instead of `async_std`
+////
+
+This is not that hard to implement if you have `maybe_async` around. You just
+need to define a trait for the
+https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/common.rs#L46[HTTP
+client], and then implement it for each of the clients you want to support
+(https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/reqwest.rs#L97[1],
+https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/ureq.rs#L56[2]).
+Then, the user may configure whichever client they want to use with feature
+flags in their `Cargo.toml`. For example, if `client-ureq` is configured, since
+`ureq` is synchronous, it would enable `maybe_async/is_sync`. The HTTP trait
+would have their `async`/`.await` removed, and the client would use it with that
+interface.
+
+This essentially means that this solution has none of the downsides I listed in
+previous attempts:
+
+* No code duplication at all
+* No overhead neither at runtime nor at compile time. If the user wants a
+  blocking client, they can configure `ureq`, which doesn't pull `tokio` and
+  friends
+* Quite easy to use; just configure a flag in you `Cargo.toml`
+
+However, stop reading for a couple minutes and try to figure out why you
+shouldn't do this. In fact, I'll give you 10 months, which is how long it took
+me to do so.
 
 == Conclusion
 
@@ -93,3 +266,16 @@ interested in being able to use both, sometimes you just have to say no. If such
 a feature becomes so complicated to deal with that your entire codebase becomes
 a mess, and you don't have the enough engineering power to maintain it, then
 it's your only choice.
+
+I don't really regret spending so much time walking on circles, though. I was
+contributing to Rspotify in the first place just to _learn_. I had no deadlines,
+and no stress, I just wanted to try to improve a library in Rust. And I _have_
+learned a lot; hopefully you too, after reading this.
+
+[bibliography]
+== References
+
+- [[[block-on-perf,     1]]] https://github.com/ramsayleung/rspotify/issues/112#issuecomment-683266508
+- [[[block-on-channels, 2]]] https://github.com/seanmonstar/reqwest/blob/0.10.x/src/blocking/client.rs#L757
+- [[[block-on-reqwest,  3]]] https://github.com/ramsayleung/rspotify/issues/112#issuecomment-683249563
+- [[[features-additive, X]]] https://github.com/rust-lang/cargo/blob/master/src/doc/src/reference/features.md#feature-unification
