@@ -70,22 +70,23 @@ impl Spotify {
 ----
 
 Essentially, we would have to make `some_endpoint` available for both
-asynchronous and blocking users. Which is quite simple in 99% of your library;
-you just have to remove `async` and `.await`.
-
-The important question here is, how do you do this once you have hundreds of
-endpoints? And how can you make it easy to switch between async and sync for the
-user?
+asynchronous and blocking users. The important question here is, how do you do
+this once you have hundreds of endpoints? And how can you make it easy to switch
+between async and sync for the user?
 
 === Good ol' copy-pasting
 
-This is what was first implemented. It was quite simple and it worked. The
-interface is similar to how {{< crate reqwest >}} works: there's a `blocking`
-module in the crate with the exact same functionality as the root module, but
-without `async` and `.await`. Instead of importing `rspotify::Client`, you do
-`rspotify::blocking::Client`, and voilà! Your code is now blocking. And if we
-don't want overhead for the async users we can just feature-gate it under the
-name `blocking` and done.
+This is what was first implemented. It was quite simple and it worked. You just
+need to copy the regular client code into a new
+https://github.com/ramsayleung/rspotify/tree/v0.9/src/blocking[`blocking` module
+in Rspotify]. Since the `reqwest` and `reqwest::blocking` clients share the same
+interface, manually removing `async`/`.await` and importing `reqwest::blocking`
+instead in the new module will work painlessly.
+
+The Rspotify user just has to import `rspotify::blocking::Client` instead of
+`rspotify::Client`, and voilà! Their code is now blocking. And if we don't want
+overhead for the async users we can just feature-gate it under the name
+`blocking` and done.
 
 The problem was much more clear later on, though. Half the crate's code was
 duplicated. Adding a new endpoint or modifying it meant writing or removing
@@ -108,8 +109,11 @@ solutions.
 
 https://github.com/ramsayleung/rspotify/pull/120[Our second approach] consists
 on implementing everything in the async side. Then, you just make wrappers for
-the blocking code, which just calls `block_on` internally. This way you only
-copy the _definitions_, but the implementation remains de-duplicated.
+the blocking code, which just calls
+https://docs.rs/tokio/latest/tokio/runtime/struct.Runtime.html#method.block_on[`block_on`
+internally]. `block_on` will run the future until completion, basically
+converting it into blocking code. This way you need to copy the _definitions_,
+but the implementation is written once only.
 
 [source, rust]
 ----
@@ -213,11 +217,11 @@ fn endpoint() { /* stuff with `.await` removed */ }
 ----
 
 You can configure whether you want asynchronous or blocking code by toggling the
-`is_sync` feature when compiling the crate. It works for functions, traits and
-`impl` blocks. And you can specify custom async/sync implementations with the
-`async_impl` and `sync_impl` procedural macros, respectively. It does its job
-perfectly, and we've been using it for Rspotify for a while now with no problems
-whatsoever.
+`maybe_async/is_sync` feature when compiling the crate. The macro works for
+functions, traits and `impl` blocks. If needed, you can specify custom
+async/sync implementations with the `async_impl` and `sync_impl` procedural
+macros, respectively. It does its job perfectly, and we've been using it for
+Rspotify for a while now with no problems whatsoever.
 
 In fact, it worked so well that what I made Rspotify _http-client agnostic_,
 which is even more flexible than being _async/sync agnostic_. This allowed us to
@@ -240,18 +244,16 @@ client], and then implement it for each of the clients you want to support
 (https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/reqwest.rs#L97[1],
 https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/ureq.rs#L56[2]).
 Then, the user may configure whichever client they want to use with feature
-flags in their `Cargo.toml`. For example, if `client-ureq` is configured, since
-`ureq` is synchronous, it would enable `maybe_async/is_sync`. The HTTP trait
-would have their `async`/`.await` removed, and the client would use it with that
-interface.
+flags in their `Cargo.toml`. For example, if `client-ureq` is enabled, since
+`ureq` is synchronous, it would enable `maybe_async/is_sync` (removing
+`async`/`.await`), and the client would use ``ureq``'s implementation.
 
-This essentially means that this solution has none of the downsides I listed in
-previous attempts:
+This means that this solution has none of the downsides I listed in previous
+attempts:
 
 * No code duplication at all
 * No overhead neither at runtime nor at compile time. If the user wants a
-  blocking client, they can configure `ureq`, which doesn't pull `tokio` and
-  friends
+  blocking client, they can use `ureq`, which doesn't pull `tokio` and friends
 * Quite easy to use; just configure a flag in you `Cargo.toml`
 
 However, stop reading for a couple minutes and try to figure out why you
