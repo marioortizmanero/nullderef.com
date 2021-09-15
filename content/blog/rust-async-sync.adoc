@@ -1,0 +1,95 @@
+---
+title: "The bane of my existence: Supporting both async and sync code in Rust"
+description: "Sit beside me and hear this crazy old man's tale of when I asked
+Rust for too much"
+author: "Mario Ortiz Manero"
+tags: ["rust", "async", "macros"]
+date: 2021-09-15
+GHissueID: 20
+---
+
+== Introduction
+
+Imagine you want to create a new library in Rust. All it does is wrap up a
+public API that you need for something else, like
+https://developer.spotify.com/documentation/web-api/[the Spotify API] or even a
+database like https://www.arangodb.com/[ArangoDB]. It's not rocket science, you
+aren't inventing something new or dealing with complex algorithms.
+
+You decide to implement the library with async. Most of the work in your library
+has to do with performing HTTP requests, which are mostly I/O, so it makes
+sense. That, and because it's what the cool kids use in Rust nowadays. You start
+coding and have the v0.1.0 release ready in a few days. "`Neat`", you say as
+`cargo publish` finishes successfully and uploads your work to
+https://crates.io[crates.io].
+
+A couple days pass and you get a new notification on GitHub. Someone opened an
+issue:
+
+____
+*How can I use this library synchronously?*
+
+My project doesn't use async because it's overly complex for what I need. I
+wanted to try your new library, but I'm not sure how to do it easily. I would
+rather not fill my code with `block_on(endpoint())`. I've seen crates like {{<
+crate reqwest >}} exporting a
+https://docs.rs/reqwest/0.11.4/reqwest/blocking/index.html[`blocking` module]
+with the exact same functionality, could you perhaps do that as well?
+____
+
+Now, low-level wise that sounds like a very complicated task. Having a common
+interface for both async code -- which requires a runtime like {{< crate tokio
+>}}, awaiting futures, pinning, etc -- and regular sync code? I mean, they asked
+nicely, so maybe we can try. After all the only difference in your crate would
+be the occurrences of the `async` and `await` keywords because you aren't doing
+anything fancy.
+
+Well, this is _more or less_ what happened with the crate {{< crate rspotify
+>}}, which I maintain along with its creator
+https://github.com/ramsayleung/[Ramsay]. For those who don't know, it's a
+wrapper for the Spotify Web API. Did we get this working in the end? If so, how?
+I'll try to explain the situation in this article.
+
+== Approaches
+
+To put the reader more into context, here's what Rspotify's client looks like,
+more or less:
+
+[source, rust]
+----
+struct Spotify { /* ... */ }
+
+impl Spotify {
+    async fn some_endpoint(&self, param: String) -> SpotifyResult<String> {
+        let mut params = HashMap::new();
+        params.insert("param", param);
+
+        self.http.get("/some-endpoint", params).await
+    }
+}
+----
+
+Essentially, we would have to make `some_endpoint` available for both
+asynchronous and blocking users. Which is quite simple in 99% of your library;
+you just have to remove `async` and `.await`.
+
+The important question here is, how do you do this once you have hundreds of
+endpoints? And how can you make it easy to switch between async and sync for the
+user?
+
+=== Copy-pasting
+
+This is what was first implemented.
+
+=== `block_on`
+
+=== `maybe_async`
+
+== Conclusion
+
+And yes, it's a problem that I've imposed to myself. We could just say "`No. We
+only support async`" or "`No. We only support sync`". While there are users
+interested in being able to use both, sometimes you just have to say no. If such
+a feature becomes so complicated to deal with that your entire codebase becomes
+a mess, and you don't have the enough engineering power to maintain it, then
+it's your only choice.
