@@ -257,8 +257,8 @@ attempts:
 * Quite easy to use; just configure a flag in you `Cargo.toml`
 
 However, stop reading for a couple minutes and try to figure out why you
-shouldn't do this. In fact, I'll give you 10 months, which is how long it took
-me to do so.
+shouldn't do this. In fact, I'll give you 9 months, which is how long it took me
+to do so.
 
 == Conclusion
 
@@ -273,10 +273,11 @@ it's your only choice.
 TODO list crates that intentionally don't support this
 ////
 
-I don't really regret spending so much time walking on circles, though. I was
-contributing to Rspotify in the first place just to _learn_. I had no deadlines,
-and no stress, I just wanted to try to improve a library in Rust in my free
-time. And I _have_ learned a lot; hopefully you too, after reading this.
+Even though it was quite frustrating at times, I don't really regret spending so
+much time walking on circles. I was contributing to Rspotify in the first place
+just to _learn_. I had no deadlines, and no stress, I just wanted to try to
+improve a library in Rust in my free time. And I _have_ learned a lot; hopefully
+you too, after reading this.
 
 [bibliography]
 == References
