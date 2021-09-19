@@ -15,7 +15,7 @@ public API that you need for something else, like
 https://developer.spotify.com/documentation/web-api/[the Spotify API] or maybe a
 database like https://www.arangodb.com/[ArangoDB]. It's not rocket science, you
 aren't inventing something new or dealing with complex algorithms, so you expect
-it to be easy.
+it to be relatively straightforward.
 
 You decide to implement the library with async. Most of the work in your library
 has to do with performing HTTP requests, which are mostly I/O, so it makes sense
@@ -103,18 +103,18 @@ sides look alright -- which sounds incredibly prone to human errors.
 In my experience it really slowed down the development of Rspotify, specially
 for new contributors who weren't used to this whole ordeal. And so as a new
 excited maintainer of Rspotify, I began to
-https://github.com/ramsayleung/rspotify/issues/112[investigate] other possible
-solutions.
+https://github.com/ramsayleung/rspotify/issues/112[investigate other possible
+solutions].
 
 === Calling `block_on`
 
 https://github.com/ramsayleung/rspotify/pull/120[Our second approach] consisted
 on implementing everything in the async side. Then, you just make wrappers for
-the blocking code, which just calls
+the blocking code calling
 https://docs.rs/tokio/latest/tokio/runtime/struct.Runtime.html#method.block_on[`block_on`
 internally]. `block_on` will run the future until completion, basically
 converting it into blocking code. This way you need to copy the _definitions_,
-but the implementation is written once only.
+and the implementation is written once only.
 
 [source, rust]
 ----
@@ -173,7 +173,7 @@ order to achieve even more performance. Without getting into nasty details, it
 basically spawns a thread that calls `block_on` waiting on a channel with jobs
 <<block-on-channels>> <<block-on-reqwest>>.
 
-Unfortunately this still has quite the overhead. You have to pull in `futures`,
+Unfortunately this has quite the overhead. You have to pull in `futures`,
 `tokio`, etc, and include them in your binary in order to... actually end up
 writing blocking code. So not only is it a cost at runtime, but also at compile
 time. It just feels wrong to me.
@@ -181,7 +181,8 @@ time. It just feels wrong to me.
 And you still have a good amount of duplicate code. Mostly definitions, since
 the implementation is only written in the async side, but still, there are _a
 lot_ of definitions. {{< crate reqwest >}} is a huge project and can probably
-afford this for their `blocking` module.
+afford this for their `blocking` module. But this doesn't really apply to
+`rspotify`.
 
 I wonder, is there something better than this?
 
@@ -317,12 +318,15 @@ example of conflicting features, which breaks with any feature resolver.
 
 There are a a few crates that have this problem currently:
 
-* {{< crate k8s-openapi >}}
-* {{< crate arangors >}}: uses `maybe_async` (the author is the same, in fact)
-* {{< crate aragog >}}: uses `maybe_async`
-* {{< crate inkwell >}}
+* {{< crate arangors >}} and {{< crate aragog >}}: wrappers for ArangoDB. Both
+  use `maybe_async` to switch between async and sync (``arangors``'s author is
+  the same, in fact) <<arangors-error>> <<aragog-error>>.
+* {{< crate inkwell >}}: a wrapper for LLVM. It supports multiple versions of
+  LLVM, which are not compatible with eachother <<inkwell-error>>.
+* {{< crate k8s-openapi >}}: a wrapper for Kubernetes, with the same issue as
+  `inkwell` <<k8s-error>>.
 
-These crates 
+These crates do warn that they have  
 
 === Fixing `maybe_async`
 
@@ -366,8 +370,8 @@ tree in the first place. Perhaps we could ask the Cargo devs for help?
 
 === Support from Cargo
 
-Turns out that this is something that's common in embedded programming, so there
-had been some discussion about it already.
+Rspotify is far from being the first who has been through this problem, so there
+has been some discussion about it already:
 
 * https://github.com/rust-lang/rfcs/pull/2962[This RFC for the Rust compiler]
   suggested adding the `oneof` configuration predicate (think `#[cfg(any(...))]`
@@ -396,7 +400,7 @@ much progress yet.
 
 == Conclusion
 
-And yes, it's a problem that I've imposed to myself. We could just say "`No. We
+I know, this is a problem that I've imposed to myself. We could just say "`No. We
 only support async`" or "`No. We only support sync`". While there are users
 interested in being able to use both, sometimes you just have to say no. If such
 a feature becomes so complicated to deal with that your entire codebase becomes
@@ -404,11 +408,12 @@ a mess, and you don't have the enough engineering power to maintain it, then
 it's your only choice.
 
 Most API wrappers and the like only support either asynchronous or blocking
-code. {{< crate serenity >}}, for the Discord API, is just async
+code. {{< crate serenity >}} (Discord API), {{< crate sqlx >}} (SQL toolkit) and
+{{< crate teloxide >}} (Telegram API) are async-only, for example.
 
-So I'm seriously considering just dropping support for both sync and async code.
-It's just become a mess that we don't have the manpower to deal with. The
-problem is that some crates that depend on rspotify like
+This means that I'm seriously considering just dropping support for both sync
+and async code. It's just become a mess that we don't have the manpower to deal
+with. The problem is that some crates that depend on rspotify like
 https://github.com/hrkfdn/ncspot[`ncspot`] or
 https://github.com/Spotifyd/spotifyd[`spotifyd`] are blocking, and others like
 https://github.com/Rigellute/spotify-tui[`spotify-tui`] use async, so I'm not
@@ -427,3 +432,7 @@ you too, after reading this.
 - [[[block-on-channels, 2]]] https://github.com/seanmonstar/reqwest/blob/0.10.x/src/blocking/client.rs#L757
 - [[[block-on-reqwest,  3]]] https://github.com/ramsayleung/rspotify/issues/112#issuecomment-683249563
 - [[[features-additive, 4]]] https://github.com/rust-lang/cargo/blob/master/src/doc/src/reference/features.md#feature-unification
+- [[[arangors-error,    5]]] https://github.com/SergioBenitez/Rocket/pull/1433
+- [[[aragog-error,      6]]] https://gitlab.com/qonfucius/aragog/-/blob/0.140.0/src/lib.rs#L488
+- [[[inkwell-error,     7]]] https://github.com/TheDan64/inkwell/blob/bfb0e32bc329fd35f6c5a529a1a6209936a147f8/src/lib.rs#L107
+- [[[k8s-error,         8]]] https://github.com/Arnavion/k8s-openapi/blob/v0.13.0/build.rs#L31
