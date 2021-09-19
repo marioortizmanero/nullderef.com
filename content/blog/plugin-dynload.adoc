@@ -25,9 +25,9 @@ example with dynamic loading and work towards the final implementation.
 As always, these articles include a first section with content specific to
 Tremor that you might <<actual_start,want to skip>>. Unfortunately, with time
 this series will become more and more specific to Tremor; after all I'm just
-reporting my progress on Tremor's PDK. Still, having a step-by-step walkthrough
-for a real-life Plugin System will surely be helpful to those attempting to do
-the same.
+reporting my progress on their PDK. Still, having a step-by-step walkthrough for
+a real-life Plugin System will surely be helpful to those attempting to do the
+same.
 
 == About Tremor
 
@@ -278,6 +278,40 @@ implementation] of connectors as a standalone program:
 ==== The `Connector` trait
 
 ==== The `Value` struct
+
+== Plugin Architecture
+
+In order to load the plugin, one must ensure that the versions of the `common`
+crate match for both the runtime and the plugin. Basic metadata such as
+versioning must be defined with fully stable types. For example, we can't use
+`abi_stable::RStr` to save the version; there might be a version mismatch of
+`abi_stable` between the crate and the plugin, and since this happens *before*
+making sure they're compatible, it may not work.
+
+All of this is simplified if the macro `define_plugin` is used:
+
+// TODO: explain macro
+
+For now, the version checks are done for the entire crate for simplicity,
+but in the future we can make this more flexible. For instance, if a version
+bump in this crate only modifies structures for codec plugins, the rest of
+the plugins would still work. This would require versioning each of the
+types of plugins and bumping them as they're modified. Note that this is
+prone to human errors however, as it's a manual process.
+
+// TODO: research https://github.com/doctorn/obake
+
+There may be helpful crates like {{< crate obake >}}.
+
+We'll keep it simple for now, but by exporting the kind of plugin separately
+(instead of having an enum `PluginData::Connector`) we can future-proof this.
+This is because if we were to deduce the kind of plugin by matching `PluginData`
+but one of the single versions that don't affect us mismatched, it may break, as
+the layout of the entire enum would change.
+
+== Error Handling
+
+== Setting Up Miri
 
 == Generics
 
