@@ -196,6 +196,10 @@ create a new crate within a macro. We could define a file format with a specific
 syntax and replace parts of the code like `async`/`.await` inside the
 `build.rs`. But that sounds completely out of scope.
 
+////
+TODO: research https://github.com/bodil/im-rs
+////
+
 == What ended up "`working`": the `maybe_async` crate
 
 https://github.com/ramsayleung/rspotify/pull/129[The third attempt] is based on
@@ -316,6 +320,7 @@ There are a a few crates that have this problem currently:
 * {{< crate k8s-openapi >}}
 * {{< crate arangors >}}: uses `maybe_async` (the author is the same, in fact)
 * {{< crate aragog >}}: uses `maybe_async`
+* {{< crate inkwell >}}
 
 These crates 
 
@@ -365,23 +370,29 @@ Turns out that this is something that's common in embedded programming, so there
 had been some discussion about it already.
 
 * https://github.com/rust-lang/rfcs/pull/2962[This RFC for the Rust compiler]
-  suggested adding the `oneof` configuration predicate to support exclusive
-  features. This only makes it easier to have conflicting features for cases
-  where there's no choice, but features should still be strictly additive.
-* https://github.com/rust-lang/cargo/issues/8367
-* https://github.com/rust-lang/cargo/issues/7924
-* https://github.com/rust-lang/cargo/issues/4328
-* https://github.com/rust-lang/cargo/issues/2980
+  suggested adding the `oneof` configuration predicate (think `#[cfg(any(...))]`
+  and similars) to support exclusive features. This only makes it easier to have
+  conflicting features for cases where there's no choice, but features should
+  still be strictly additive.
+* The previous RFC started
+  https://internals.rust-lang.org/t/pre-rfc-cargo-mutually-exclusive-features/13182/27[some
+  discussion] in the context of allowing exclusive features in Cargo itself, and
+  although it has some interesting info, it didn't go too far.
+* https://github.com/rust-lang/cargo/issues/2980[This issue in Cargo] explains
+  how additive features are impossible for the Windows API. The discussion
+  includes more examples and ideas for a solution.
+* https://github.com/rust-lang/cargo/issues/4803[Another issue in Cargo] asks
+  for a way to test/build with combinations of flags easily. If features are
+  strictly additive, then `cargo test --all-features` will cover everything. But
+  in case it doesn't, the user has to run the command with multiple combinations
+  of feature flags, which is quite cumbersome. This is already possible
+  unofficially thanks to https://github.com/taiki-e/cargo-hack[`cargo-hack`].
 
 According to
 https://github.com/rust-lang/rfcs/pull/2962#issuecomment-664656377[this
-comment], it's not something the Rust team doesn't want to support. But these
-discussions are relatively recent, so there hasn't been much progress yet.
-
-Later on
-https://internals.rust-lang.org/t/pre-rfc-cargo-mutually-exclusive-features/13182/27[this
-was discussed in the context of Cargo].
-
+comment], it's not something the Rust team has already discarded; it's still
+being discussed. But these threads are relatively recent, so there hasn't been
+much progress yet.
 
 == Conclusion
 
