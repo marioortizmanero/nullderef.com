@@ -387,22 +387,16 @@ goal for this project so I don't plan on using it. And the
 https://github.com/vberger/dlib[`dlib`] crate provides macros to make the
 library loading simpler, based on `libloading`.
 
-I already discussed about Rust-to-C FFIs in detail in the
-https://nullderef.com/blog/gsoc-proposal/[proposal] and came to the conclusion
-that, the same way as with <<scripting-langs>>, it's too much work to create an
-internal interface for Tremor through C (with enough time and resources this
-would possibly be the best option, though). This leaves us with Rust-to-Rust as
-the only option, which is the easiest, but still has important inconvenients:
-
-. Awful safety: lots of `unsafe` usage is required with plenty of caveats
-  <<ffi-caveat-1>> <<ffi-caveat-2>>, including subtle differences
-  in the interface between Operating Systems <<ffi-cross-platform>>,
-  although `dlopen` seems to be better in that regard <<ffi-dlopen-safety>>. No
-  sandboxing either. And plugins can abort Tremor's core execution when
-  panicking/leaking memory/similars (I haven't been able to find information
-  about using `catch_unwind` with Rust-to-Rust FFIs).
-. Binary compatibility is not good. Any minor change to either Tremor's
-  interface or the version it was compiled with will break the plugin.
+I already briefly discussed about Rust-to-C FFIs in detail in the
+https://nullderef.com/blog/gsoc-proposal/[proposal]. It's a lot of work to
+create an internal interface for Tremor through C. But it's unfortunately the
+only way to do this, since Rust-to-Rust FFI is not stable. It also has awful
+safety; lots of `unsafe` usage is required with plenty of caveats
+<<ffi-caveat-1>> <<ffi-caveat-2>>, including subtle differences in the interface
+between Operating Systems <<ffi-cross-platform>>, although `dlopen` seems to be
+better in that regard <<ffi-dlopen-safety>>. No sandboxing either. And plugins
+can abort Tremor's core execution when panicking/leaking memory/similars (I
+haven't been able to find information about using `catch_unwind`).
 
 I recently discovered the
 https://github.com/rodrimati1992/abi_stable_crates[`abi_stable`] crate, which
@@ -436,13 +430,10 @@ inconvenients are the following:
 While it's a really interesting concept and look forward to seeing how it
 evolves, I'm not a big fan of having to resort to it. And the fact that it's
 unofficial and not that popular doesn't give me full confidence that this will
-still work in 5 years, or that it won't be outdated/abandoned. If the FFI method
-were to be chosen in the end, perhaps the first version could try without
-`abi_stable`, and if ABI breakage ends up being a big problem, the plugin system
-could be updated to include it.
+still work in 5 years, or that it won't be outdated/abandoned.
 
-More people have tried writing Rust FFIs in the past, thankfully, so we can take
-a look at existing tutorials in order to see their experience:
+More people have tried writing Rust FFIs in the past, so we can take a look at
+existing tutorials in order to see their experience:
 
 * The one and only Amos wrote an extremely detailed blog post on fasterthanlime
   https://fasterthanli.me/articles/so-you-want-to-live-reload-rust[here],
