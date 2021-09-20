@@ -56,6 +56,13 @@ templates would have to be transformed down to the C ABI. Not only would this be
 an incredibly tedious and complicated task, but it'd also introduce a small
 overhead for every function in the plugin.
 
+WARNING: Upon further investigation, in future articles I've discovered that the
+following statement is not true. Do note that Rust to Rust FFI is completely
+unstable and should not be used at all for a plugin system; using the C ABI is
+the best way to do it. This is
+https://nullderef.com/blog/plugin-start/#_abi_unstability_its_much_worse_than_it_seems[explained
+in the next articles in detail].
+
 Thus, the only viable solution is a Rust to Rust FFI, using
 https://doc.rust-lang.org/rustc/command-line-arguments.html#--crate-type-a-list-of-types-of-crates-for-the-compiler-to-emit[`dylib`]
 libraries for the plugins. The problem in this case is that Rust doesn't have a
