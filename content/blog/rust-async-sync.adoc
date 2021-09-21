@@ -7,7 +7,7 @@ the Rspotify library. I did get it working in the end thanks to `maybe_async`,
 but Cargo doesn't like that solution, so it's far from perfect."
 author: "Mario Ortiz Manero"
 tags: ["rust", "async", "macros"]
-date: 2021-09-21
+date: 2021-09-22
 GHissueID: 34
 ---
 
