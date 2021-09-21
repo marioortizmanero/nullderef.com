@@ -20,7 +20,7 @@ it to be relatively straightforward.
 You decide to implement the library with async. Most of the work in your library
 has to do with performing HTTP requests, which are mostly I/O, so it makes sense
 (that, and because it's what the cool kids use in Rust nowadays). You start
-coding and have the v0.1.0 release ready in a few days. "`Neat`", you say as
+coding and have the v0.1.0 release ready in a few days. "`Neat`", you say, as
 `cargo publish` finishes successfully and uploads your work to
 https://crates.io[crates.io].
 
@@ -80,9 +80,11 @@ between async and sync for the user?
 This is what was first implemented. It was quite simple and it worked. You just
 need to copy the regular client code into a new
 https://github.com/ramsayleung/rspotify/tree/v0.9/src/blocking[`blocking` module
-in Rspotify]. Since the `reqwest` and `reqwest::blocking` clients share the same
-interface, manually removing `async`/`.await` and importing `reqwest::blocking`
-instead in the new module will work without much complexity overhead.
+in Rspotify]. Since https://docs.rs/reqwest[`reqwest`] (our HTTP client) and
+https://docs.rs/reqwest/latest/reqwest/blocking/index.html[`reqwest::blocking`]
+share the same interface, manually removing `async`/`.await` and importing
+`reqwest::blocking` instead of `reqwest` in the new module will work without
+much complexity overhead.
 
 The Rspotify user just has to import `rspotify::blocking::Client` instead of
 `rspotify::Client`, and voilà! Their code is now blocking. And if we don't want
@@ -109,12 +111,12 @@ solutions].
 === Calling `block_on`
 
 https://github.com/ramsayleung/rspotify/pull/120[Our second approach] consisted
-on implementing everything in the async side. Then, you just make wrappers for
+on implementing everything on the async side. Then, you just make wrappers for
 the blocking code calling
-https://docs.rs/tokio/latest/tokio/runtime/struct.Runtime.html#method.block_on[`block_on`
-internally]. `block_on` will run the future until completion, basically
-converting it into blocking code. This way you need to copy the _definitions_,
-and the implementation is written once only.
+https://docs.rs/tokio/latest/tokio/runtime/struct.Runtime.html#method.block_on[`block_on`]
+internally. `block_on` will run the future until completion, basically
+converting it into blocking code. This way you still need to copy the
+_definitions_, but the implementation is written once only.
 
 [source, rust]
 ----
@@ -198,8 +200,8 @@ without copy-pasting the entire crate], even with Cargo tricks like two
 
 With this idea we can't even use procedural macros because you can't just create
 a new crate within a macro. We could define a file format to write templates of
-Rust code in order to replace parts of the code like `async`/`.await` inside the
-`build.rs`. But that sounds completely out of scope.
+Rust code in order to replace parts of the code like `async`/`.await`. But that
+sounds completely out of scope.
 
 == What ended up "`working`": the `maybe_async` crate
 
@@ -363,9 +365,10 @@ no way to fix it currently.
 Once more people became aware of this problem,
 https://github.com/fMeow/maybe-async-rs/issues/6[this issue was opened in
 `maybe_async`], which basically explains the situation and tries to provide a
-fix. It's actually not that complicated; `maybe_async` would generate the
-functions in the same way, but with a `_sync` or `_async` suffix appended to the
-identifier. That way they wouldn't be conflicting. For example:
+fix. It's actually not that complicated. `maybe_async` would now have two
+feature flags: `is_sync` and `is_async`. It would generate the functions in the
+same way, but with a `_sync` or `_async` suffix appended to the identifier so
+that they wouldn't be conflicting. For example:
 
 [source, rust]
 ----
@@ -451,7 +454,7 @@ interested in being able to use both, sometimes you just have to say no. If such
 a feature becomes so complicated to deal with that your entire codebase becomes
 a mess, and you don't have the engineering power to maintain it, then it's your
 only choice. If someone cared enough they could just fork the crate and convert
-it to synchronous for their own use.
+it to synchronous for their own usage.
 +
 After all, most API wrappers and the like only support either asynchronous or
 blocking code. {{< crate serenity >}} (Discord API), {{< crate sqlx >}} (SQL
@@ -459,10 +462,10 @@ toolkit) and {{< crate teloxide >}} (Telegram API) are async-only, for example,
 and they're quite popular.
 
 Even though it was quite frustrating at times, I don't really regret spending so
-much time walking on circles. I was contributing to Rspotify in the first place
-just to _learn_. I had no deadlines, and no stress, I just wanted to try to
-improve a library in Rust in my free time. And I _have_ learned a lot; hopefully
-you too, after reading this.
+much time walking in circles trying to get both async and sync to work. I was
+contributing to Rspotify in the first place just to _learn_. I had no deadlines,
+and no stress, I just wanted to try to improve a library in Rust in my free
+time. And I _have_ learned a lot; hopefully you too, after reading this.
 
 Perhaps the lesson today is that we should remember that Rust is a low level
 language after all, and there are some things that aren't possible without a lot
