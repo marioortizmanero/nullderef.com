@@ -2,10 +2,13 @@
 title: "The bane of my existence: Supporting both async and sync code in Rust"
 description: "Sit beside me and hear this crazy old man's tale of when I asked
 Rust for too much"
+summary: "My journey trying to support both asynchronous and blocking code in
+the Rspotify library. I did get it working in the end thanks to `maybe_async`,
+but Cargo doesn't like that solution, so it's far from perfect."
 author: "Mario Ortiz Manero"
 tags: ["rust", "async", "macros"]
-date: 2021-09-15
-GHissueID: 20
+date: 2021-09-21
+GHissueID: 34
 ---
 
 == Introduction
