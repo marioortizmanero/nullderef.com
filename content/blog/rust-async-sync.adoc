@@ -307,6 +307,8 @@ to do so...
 
 === The problem
 
+image::/blog/rust-async-sync/preview.jpg[width = 100%]
+
 Well, the thing is that features in Rust must be *additive*: "`enabling a
 feature should not disable functionality, and it should usually be safe to
 enable any combination of features`". Cargo may merge features of a crate when
