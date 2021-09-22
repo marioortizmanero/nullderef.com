@@ -22,14 +22,107 @@ experiments of plugins both with WebAssembly and dynamic loading. After
 discarding Wasm for this specific PDK, I wanted to try to get a more realistic
 example with dynamic loading and work towards the final implementation.
 
+Since the Tremor team suggested to begin by implementing connectors, we'll first
+have to learn more about them. Matthias ran me through their current state in a
+meeting, which I'll try to summarize:
+
+== Learning more about connectors
+
+////
+2021-09-07 MEETING NOTES (CONNECTORS):
+
+Connector trait:
+* can contain a source, a sink, or both
+* handlers like `on_start`, `on_pause`, etc
+* `connect` retries until it returns `true`
+* {Sink,Source}ManagerBuilder and similars are not actually generic, they *have*
+  a generic function.
+* how are plugins loaded and how are they specified: automatically if possible
+
+Later on:
+* Automatically search plugins, maybe $TREMORPATH
+* Check all functions are exported in the plugin
+* Make sure a plugin crash doesn't crash Tremor itself if possible. Can panics
+  be caught?
+* Check conflicting plugin names
+////
+
+First of all, Tremor is an event processing system for unstructured data. For
+example, you could use it to:
+
+. Receive logs from different applications in your business
+. Filter, transform, and mix them up following the same structure
+. Send all the now structured logs to your database
+
+This currently works with https://www.tremor.rs/docs/artefacts/onramps/[onramps]
+and https://www.tremor.rs/docs/artefacts/offramps/[offramps]:
+
+* An onramp specifies how Tremor connects to the outside world in order to
+  *receive from external systems*, such as
+  https://www.tremor.rs/docs/artefacts/onramps/#tcp[TCP],
+  https://www.tremor.rs/docs/artefacts/onramps/#metronome[periodically] or
+  https://www.tremor.rs/docs/artefacts/onramps/#postgresql[PostgreSQL].
+* An offramp specifies how Tremor connects to the outside world in order to
+  *publish to external systems*, such as
+  https://www.tremor.rs/docs/artefacts/offramps/#stdout[stdout],
+  https://www.tremor.rs/docs/artefacts/offramps/#kafka[Kafka] or
+  https://www.tremor.rs/docs/artefacts/offramps/#elastic[ElasticSearch].
+
+The thing is that some onramps may not only want to receive from external
+systems, but also respond to them directly, acting like an offramp, and
+vice-versa. This is currently implemented with what's called
+https://www.tremor.rs/docs/operations/linked-transports/["`linked transports`"],
+and it's specifically useful for some onramps and offramps like REST and
+websocket, where the protocol already provides facility for responding to events
+with a single connection.
+
+Basically,
+https://github.com/tremor-rs/tremor-rfcs/blob/connectors-n-streams/text/0000-connectors-streams.md[connectors]
+are just a way to abstract over both onramps and offramps under the same
+concept, including linked transports. As the time of writing this article
+they're still being implemented by Matthias in the
+https://github.com/tremor-rs/tremor-runtime/tree/connectors[`connectors` branch]
+of https://github.com/tremor-rs/tremor-runtime[tremor-rs/tremor-runtime], but
+their interface, defined with the
+https://github.com/tremor-rs/tremor-runtime/blob/883f13e29b4c6ec7b6703f2487aac321c738e7c8/src/connectors.rs#L739[`Connector`
+trait], is somewhat stable.
+
+After the interface is done, we could implement the two following connector
+plugins:
+
+* https://github.com/tremor-rs/tremor-runtime/blob/main/src/sink/blackhole.rs[Blackhole]
+  is used for benchmarking. It takes measurements of the end to end times of each
+  event traversing the pipeline and at the end prints an HDR (High Dynamic
+  Range) http://hdrhistogram.org/[histogram].
+* https://github.com/tremor-rs/tremor-runtime/blob/main/src/source/blaster.rs[Blaster]
+  replays a series of events specified in a file, which is specially useful for
+  performance testing.
+
+Both of these are relatively simple and will be helpful to benchmark the PDK
+later on. But that isn't really important right now; we first need to get the
+PDK working, and then we can care about performance.
+
+We will have to keep the plugin interface as simple as possible. We don't need
+to run multiple connectors at the same time, and we should keep the
+communication details to the runtime. The plugin can be simplified so that it
+just exports a number of synchronous functions. With this we can avoid passing
+some complex types (`async`, channels, etc) between the runtime and plugin,
+which can be complicated if you have to maintain ABI stability.
+
+Once this lean plugin interface is defined, we can create some kind of wrapper
+in the runtime (a _manager_, in Tremor terms) that handles all of this. This
+exact same thing is done by other crates such as {{< crate rdkafka >}}, which is
+based on the C library {{< crate rdkafka-sys >}}, and implements the
+asynchronous interface on top of it.
+
+== About Tremor
+
 As always, these articles include a first section with content specific to
 Tremor that you might <<actual_start,want to skip>>. Unfortunately, with time
 this series will become more and more specific to Tremor; after all I'm just
 reporting my progress on their PDK. Still, having a step-by-step walkthrough for
 a real-life Plugin System will surely be helpful to those attempting to do the
 same.
-
-== About Tremor
 
 === My next steps
 
@@ -104,6 +197,100 @@ incredibly helpful.
 * take good rest, breathe, coding is mentally exhausting
 ////
 
+=== How Tremor works
+
+After starting to write the PDK example for connectors and failing because I
+didn't know what I was doing, I decided to step back and try to understand in
+detail how Tremor works. Once I had that covered, I could try to simplify the
+PDK as much as possible in order to keep my sanity.
+
+I jumped into the codebase of `tremor/tremor-runtime` and tried to figure out
+how it was structured, also with the help of the team later on. First of all
+it's important to know that Tremor is based on the actor model. Quoting
+Wikipedia:
+
+[quote, 'https://en.wikipedia.org/wiki/Actor_model[Actor model, Wikipedia]']
+____
+[The actor model treats the] actor as the universal primitive of concurrent
+computation. In response to a message it receives, an actor can: make local
+decisions, create more actors, send more messages, and determine how to respond
+to the next message received. Actors may modify their own private state, but can
+only affect each other indirectly through messaging (removing the need for
+lock-based synchronization). 
+____
+
+Tremor is currently implemented with
+https://en.wikipedia.org/wiki/Asynchrony_(computer_programming)[asynchronous
+programming], which means that instead of threads we'll be working with _tasks_,
+a higher level concept. From the {{< crate async-std >}} documentation:
+
+[quote, 'https://docs.rs/async-std/1.10.0/async_std/task/index.html[`async_std::task`], docs.rs']
+____
+An executing asynchronous Rust program consists of a collection of native OS
+threads, on top of which multiple stackless coroutines are multiplexed. We refer
+to these as “tasks”. Tasks can be named, and provide some built-in support for
+synchronization.
+____
+
+We could summarize this with the sentence "`Tremor is based on actors running in
+separate tasks which communicate asynchronously via channels`". The main actor
+is called the `World`. It contains the state of the program, such as the
+available artifacts (_repositories_) and the running ones (_registries_), and
+it's used to initialize and control the program.
+
+I'll try to follow what Tremor does in order to get a connector running with the
+help of a few diagrams. The following diagram showcases what happens when a
+`World` is created. This introduces the concept of _Managers_, which simply are
+actors in the system that wrap up some functionality.
+
+Managers help decouple the communication and the implementation of the
+underlying functionality. They are also useful to remove some boilerplate when
+initializing the components, such as creating the communication channel or
+spawning the component in a separate task.
+
+Note that they don't necessarily wrap just one component. The top-level
+`Manager` helps group up other managers such as `connectors::Manager` or
+`pipeline::Manager`:
+
+image::/blog/plugin-dynload/registering.png[width = 100%]
+
+// TODO: builtin types might not be necessary
+
+Once all the managers are initialized, Tremor currently registers all the
+built-in artifacts in a "`hardcoded`" way with `register_builtin_types`. But
+after the PDK is implemented, this will happen dynamically, i.e. Tremor will
+automatically look for DLL/SO files in its configured directory and try to
+register all the plugins it can find. The user may additionally request a
+specific plugin to be loaded while Tremor is running.
+
+Note that the initialization of the connectors is done in two steps: first
+they're _registered_, which just means that the connector is now available for
+loading (they're added to the _repository_). The connector doesn't actually
+start running until a binding is created with it, for example with
+`launch_binding`, which will remove it from the repository and add it to the
+_registry_, with the currently running artifacts.
+
+`connectors::Manager` contains all the connectors running in Tremor, which we'll
+now try to understand:
+
+image::/blog/plugin-dynload/initializing.png[width = 100%]
+
+Since it's a two-step process, the registering part of it already provides the
+tools to initialize the connector (mainly the builder). When someone asks for
+the connector to start running, the builder helps to construct it generically
+with the provided configuration details. Finally, it's moved into a task of its
+own, so that it may communicate with other parts of Tremor.
+
+Now that we have a connector running, let's see how it's split up into the
+source and sink parts. In a very similar way, a builder is used to initialize
+the underlying source, sink, or both, and then a new task is spawned for them.
+
+A manager is also created for each source and sink, which will handle the
+communication with other actors. This way, the source and sink interfaces can be
+kept as simple as possible.
+
+image::/blog/plugin-dynload/setting-up.png[width = 100%]
+
 [[actual_start]]
 == Taking a look at eBPF first
 
@@ -135,94 +322,6 @@ happen at runtime. This makes it faster to fix vulnerabilities until it's
 properly updated upstream, among other things. TODO add links. Pretty cool :)
 
 == Extending our example
-
-Since the Tremor team suggested to begin by implementing connectors, we'll first
-have to learn more about them. Matthias ran me through their current state in a
-meeting, which I'll try to summarize:
-
-=== Learning more about connectors
-
-////
-2021-09-07 MEETING NOTES (CONNECTORS):
-
-Connector trait:
-* can contain a source, a sink, or both
-* handlers like `on_start`, `on_pause`, etc
-* `connect` retries until it returns `true`
-* {Sink,Source}ManagerBuilder and similars are not actually generic, they *have*
-  a generic function.
-* how are plugins loaded and how are they specified: automatically if possible
-
-Later on:
-* Automatically search plugins, maybe $TREMORPATH
-* Check all functions are exported in the plugin
-* Make sure a plugin crash doesn't crash Tremor itself if possible. Can panics
-  be caught?
-* Check conflicting plugin names
-////
-
-First of all, Tremor is an event processing system for unstructured data. For
-example, you could use it to:
-
-. Receive logs from different applications in your business
-. Filter, transform, and mix them up following the same structure
-. Send all the now structured logs to your database
-
-This currently works with https://docs.tremor.rs/artefacts/onramps/[onramps]
-and https://docs.tremor.rs/artefacts/offramps/[offramps]:
-
-* An onramp specifies how Tremor connects to the outside world in order to
-  *receive from external systems*, such as
-  https://docs.tremor.rs/artefacts/onramps/#tcp[TCP],
-  https://docs.tremor.rs/artefacts/onramps/#metronome[periodically] or
-  https://docs.tremor.rs/artefacts/onramps/#postgresql[PostgreSQL].
-* An offramp specifies how Tremor connects to the outside world in order to
-  *publish to external systems*, such as
-  https://docs.tremor.rs/artefacts/offramps/#stdout[stdout],
-  https://docs.tremor.rs/artefacts/offramps/#kafka[Kafka] or
-  https://docs.tremor.rs/artefacts/offramps/#elastic[ElasticSearch].
-
-The thing is that some onramps may not only want to receive from external
-systems, but also respond to them directly, acting like an offramp, and
-vice-versa. This is currently implemented with what's called
-https://docs.tremor.rs/operations/linked-transports/["`linked transports`"], and
-it's specifically useful for some onramps and offramps like REST and websocket,
-where the protocol already provides facility for responding to events with a
-single connection.  Thanks to this, Tremor has become a platform for
-implementing a wider variety of applications -- think servers, proxies, bridges
-etc., and not just ETL-style use cases.
-
-Basically,
-https://github.com/tremor-rs/tremor-rfcs/blob/connectors-n-streams/text/0000-connectors-streams.md[connectors]
-are just a way to abstract over both onramps and offramps under the same
-concept, including linked transports. As the time of writing this article
-they're still being implemented by Matthias in the
-https://github.com/tremor-rs/tremor-runtime/tree/connectors[`connectors` branch]
-of https://github.com/tremor-rs/tremor-runtime[tremor-rs/tremor-runtime], but
-their interface, defined with the
-https://github.com/tremor-rs/tremor-runtime/blob/883f13e29b4c6ec7b6703f2487aac321c738e7c8/src/connectors.rs#L739[`Connector`
-trait], is somewhat stable.
-
-After the interface is done, we could implement the two following connector
-plugins:
-
-* https://github.com/tremor-rs/tremor-runtime/blob/main/src/sink/blackhole.rs[Blackhole]
-  is used for benchmarking. It takes measurements of the end to end times of each
-  event traversing the pipeline and at the end prints an HDR (High Dynamic
-  Range) http://hdrhistogram.org/[histogram].
-* https://github.com/tremor-rs/tremor-runtime/blob/main/src/source/blaster.rs[Blaster]
-  replays a series of events specified in a file, which is specially useful for
-  performance testing.
-
-Both of these are relatively simple and will be helpful to benchmark the PDK
-later on. But that isn't really important right now; we first need to get the
-PDK working, and then we can care about performance.
-
-What would be more complicated is handling `async` with C's ABI. For now I will
-try to get it to work in the simplest possible way -- possibly callbacks, and
-we'll actually work on it later on. Crates like
-https://github.com/fede1024/rust-rdkafka[`libkafka`] do something similar, so I
-should take a look.
 
 === Setting up cbindgen
 
