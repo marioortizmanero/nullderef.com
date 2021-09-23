@@ -287,9 +287,29 @@ the underlying source, sink, or both, and then a new task is spawned for them.
 
 A manager is also created for each source and sink, which will handle the
 communication with other actors. This way, the source and sink interfaces can be
-kept as simple as possible.
+kept as simple as possible. These managers will receive connection requests from
+the pipeline and then redirect or read from it.
+
+The main difference between sinks and sources currently is that the former can
+also reply to messages within the same connection. This is useful to acknowledge
+the package ("`Ack`") or to notify something has failed in the sink ("`Fail`"
+for a specific event, "`CircutBreaker`" to completely stop data from being
+sent).
 
 image::/blog/plugin-dynload/setting-up.png[width = 100%]
+
+Some connectors are based on _streams_. They are equivalent for example to TCP
+streams, which help to group up messages and avoid mixing them up. They are
+manually started and ended via messages, and the manager saves their state in a
+field called `states` (since for instance preprocessors may need to keep a
+state). If a connector doesn't need this, such as the `metronome`, it may simply
+specify `DEFAULT_STREAM_ID` as the stream ID always.
+
+Codecs and preprocessors are involved here both at the source and sink levels.
+In the source part, `build_events` first pre-processes the raw binary data and
+then the codec is applied. For the sinks, the inverse process is followed: in
+`serialize_for_stream`, the data is first decoded with the codec, and then it's
+post-processed as raw binary data in `on_event`.
 
 [[actual_start]]
 == Taking a look at eBPF first
@@ -315,19 +335,35 @@ manually within the runtime. You can get started quickly with
 https://blog.redsift.com/labs/writing-bpf-code-in-rust/[this tutorial from Red
 Sift], but I feel like there's less documentation than in the case of Wasm.
 
-Cheers to Dr. TODO for letting me know about this technology -- though he's
-considering switching to WebAssembly. He's currently using it to research
-pluggable anonymous protocols like Tor, which would allow patches to its code to
-happen at runtime. This makes it faster to fix vulnerabilities until it's
-properly updated upstream, among other things. TODO add links. Pretty cool :)
+Cheers to Dr. Florentin Rochet for letting me know about this technology --
+though he's considering switching to WebAssembly. He's currently using it to
+research _pluggable_ anonymous protocols like Tor, which would allow patches to
+their code to happen at runtime <<florentin-1>> <<florentin-2>> <<florentin-3>>
+<<florentin-4>>. This makes it faster to fix vulnerabilities until it's properly
+updated upstream, among other things. Pretty cool :)
 
-== Extending our example
+== Creating a minimal example
 
-=== Setting up cbindgen
+Now that we know more or less how to approach the PDK, let's try getting a more
+complex example running. The plan is to try to simulate the final implementation
+of the PDK so that we can run some benchmarks and analyze the overhead it will
+introduce. For this, I'll add the `native-connector` and `dynamic-connector`
+examples to https://github.com/marioortizmanero/pdk-experiments[the
+pdk-experiments repository]. `native-connector` is simply how it currently
+works, in a single static executable, and `dynamic-connector` loads the
+connectors dynamically as plugins.
 
-For these first steps I think {{< crate cbindgen >}} will help us understand
-what's going on. We can take a look at the generated headers and see how it
-works internally. Unfortunately, it fails to run for the `abi_stable` crate:
+Since it may be simpler to get `native-connector` running, let's start with
+that. We'll just copy all the necessary code for the
+https://github.com/tremor-rs/tremor-runtime/tree/883f13e29b4c6ec7b6703f2487aac321c738e7c8[current
+implementation] of connectors as a standalone program:
+
+== Setting up cbindgen
+
+For the first steps with dynamic loading I think {{< crate cbindgen >}} will
+help us understand what's going on. We can take a look at the generated headers
+and see how it works internally. Unfortunately, it fails to run for the
+`abi_stable` crate:
 
 [source, text]
 ----
@@ -339,7 +375,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 ----
 
 This _probably_ has to do with the following warning found in
-https://github.com/eqrion/cbindgen/blob/master/docs.md[`cbindgen`'s
+https://github.com/eqrion/cbindgen/blob/master/docs.md[``cbindgen``'s
 documentation]:
 
 ____
@@ -358,27 +394,7 @@ pointed out that this was expected and that they don't plan on supporting
 `cbindgen` because it would take too much effort. Understandable, so let's move
 on.
 
-=== Modifying the `Connector` trait for dynamic loading
-
-Now that we know more or less how to approach the PDK, let's try getting a more
-complex example running. The plan is to try to simulate the final implementation
-of the PDK so that we can run some benchmarks and analyze the overhead it will
-introduce. For this, I'll add the `native-connector` and `dynamic-connector`
-examples to https://github.com/marioortizmanero/pdk-experiments[the
-pdk-experiments repository]. `native-connector` is simply how it currently
-works, in a single static executable, and `dynamic-connector` loads the
-connectors dynamically as plugins.
-
-Since it may be simpler to get `native-connector` running, let's start with
-that. We'll just copy all the necessary code for the
-https://github.com/tremor-rs/tremor-runtime/tree/883f13e29b4c6ec7b6703f2487aac321c738e7c8[current
-implementation] of connectors as a standalone program:
-
-==== The `Connector` trait
-
-==== The `Value` struct
-
-== Plugin Architecture
+== Adding dynamic loading to the example
 
 In order to load the plugin, one must ensure that the versions of the `common`
 crate match for both the runtime and the plugin. Basic metadata such as
@@ -409,6 +425,54 @@ but one of the single versions that don't affect us mismatched, it may break, as
 the layout of the entire enum would change.
 
 == Error Handling
+
+I also wanted to create some experiments about error handling in the PDK. Since
+in the end we aren't using a sandbox, I wonder what kind of errors we _can't_
+recover from. We should treat these cases with care in order to avoid them at
+all costs.
+
+I've written the following plugins for now:
+
+=== Missing field
+
+The `plugin-missing` directory is an empty plugin. It doesn't export any fields
+at all, like the name or the version. This one is already handled by
+`libloading`, actually. When using `library.get("name")`, if `"name"` is
+unavailable in the shared object, the following error will show up:
+
+[source, text]
+----
+$ make debug-missing
+Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.so: undefined symbol: get_name
+----
+
+=== Version mismatch
+
+[source, text]
+----
+$ make debug-versionmismatch
+Initializing plugin versionmismatch
+Version mismatch. Aborting.
+Error when setting up the plugin: version mismatch: 0.0.0 incompatible with 0.1.0
+----
+
+=== Wrong type
+
+[source, text]
+----
+$ make debug-wrongtype
+Segmentation fault (core dumped)
+----
+
+=== Wrong address
+
+[source, text]
+----
+$ make debug-wrongaddress
+Segmentation fault (core dumped)
+----
+
+== Thread safety
 
 == Setting Up Miri
 
@@ -526,4 +590,8 @@ benchmarking system] (which requires nightly for now)
 [bibliography]
 == References
 
+- [[[florentin-1,     1]]] https://pluginized-protocols.org/
+- [[[florentin-2,     2]]] https://pquic.org/
+- [[[florentin-3,     3]]] https://petsymposium.org/2019/files/hotpets/proposals/rochet-fan.pdf
+- [[[florentin-4,     4]]] https://petsymposium.org/2019/files/hotpets/slides/rochet-fan-slides.pdf
 - [[[generics,       11]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
