@@ -11,6 +11,7 @@ GHissueID: ??
 ---
 
 :sectnums:
+:stem: latexmath
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
@@ -107,7 +108,8 @@ to run multiple connectors at the same time, and we should keep the
 communication details to the runtime. The plugin can be simplified so that it
 just exports a number of synchronous functions. With this we can avoid passing
 some complex types (`async`, channels, etc) between the runtime and plugin,
-which can be complicated if you have to maintain ABI stability.
+which can be impossible if you have to maintain ABI stability (`abi_stable`
+doesn't even support `async`).
 
 Once this lean plugin interface is defined, we can create some kind of wrapper
 in the runtime (a _manager_, in Tremor terms) that handles all of this. This
@@ -396,14 +398,50 @@ on.
 
 == Adding dynamic loading to the example
 
-In order to load the plugin, one must ensure that the versions of the `common`
-crate match for both the runtime and the plugin. Basic metadata such as
-versioning must be defined with fully stable types. For example, we can't use
-`abi_stable::RStr` to save the version; there might be a version mismatch of
-`abi_stable` between the crate and the plugin, and since this happens *before*
-making sure they're compatible, it may not work.
+In order to safely load the plugin, one must ensure that the versions of the
+`common` crate match for both the runtime and the plugin, so we have to save it
+somewhere in the metadata of the plugin. However, there's a catch: its layout
+must not only be FFI-safe but also fully backward-compatible. For example, we
+can't just to export the version with `abi_stable::RStr` and then use
+`libloading` to import it. There might be a version mismatch of `abi_stable`
+between the crate and the plugin, and since this happens _before_ making sure
+they're compatible, their layouts might be different.
 
-All of this is simplified if the macro `define_plugin` is used:
+[quote, 'https://github.com/rodrimati1992/abi_stable_crates#safety[`abi_stable` README]']
+____
+This library ensures that the loaded libraries are safe to use through these
+mechanisms:
+
+* The abi_stable ABI of the library is checked, Each `0.y.0` version and `x.0.0`
+  version of abi_stable defines its own ABI which is incompatible with previous
+  versions.
+* Types are recursively checked when the dynamic library is loaded, before any
+  function can be called.
+____
+
+To prove this, let's write the `dynamic-abi-stable` experiment, which follows
+the higher-level dynamic loading procedure established by `abi_stable`, instead
+of using raw {repr-c} and `libloading`. `abi_stable` provides utilities to load
+plugins with no `unsafe` at all, and with versioning and other goodies built-in.
+We can take a look at the
+https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples[examples]
+in order to make it easier.
+
+`abi_stable` plugins are structured in modules, which can help us split up our
+functionality into smaller independent pieces. There must always be a
+https://docs.rs/abi_stable/latest/abi_stable/library/trait.RootModule.html[root
+module] that initializes the entire library. We'll just call it `MinMod` and
+implement the `min` function:
+
+[source, rust]
+----
+// todo copy stuff from exp
+----
+
+https://docs.rs/abi_stable/0.10.2/abi_stable/derive.StableAbi.html
+
+In order to make it easier for the plugin developer, we can create the macro
+`define_plugin`:
 
 // TODO: explain macro
 
@@ -413,6 +451,10 @@ bump in this crate only modifies structures for codec plugins, the rest of
 the plugins would still work. This would require versioning each of the
 types of plugins and bumping them as they're modified. Note that this is
 prone to human errors however, as it's a manual process.
+
+Versioning could also be based on semantic versioning, which establishes that
+incompatible API changes happen only when the major (__x__.0.0) version is
+bumped.
 
 // TODO: research https://github.com/doctorn/obake
 
@@ -471,6 +513,86 @@ Segmentation fault (core dumped)
 $ make debug-wrongaddress
 Segmentation fault (core dumped)
 ----
+
+== Conversions to `abi_stable`
+
+It's important to know the complexity of conversions from/to `abi_stable` types.
+If `std::Vec` -> `abi_stable::RVec` wasn't stem:[O(n)] it might be worth using
+only the latter throughout the entirety of Tremor.
+
+This means that I should spend at least a bit of my time on understanding how
+the `abi_stable` types are implemented and making sure this isn't the case. In
+`std`, the definition of `Vec` is actually quite simple if we remove most of the
+noise:
+
+[source, rust]
+----
+// A non-null pointer to `T` that indicates ownership.
+pub struct Unique<T: ?Sized> {
+    pointer: *const T, // The data itself
+    _marker: PhantomData<T>, // Indicating that we own a `T`
+}
+
+// Low level type related to allocation
+pub struct RawVec<T> {
+    ptr: Unique<T>,
+    cap: usize,
+}
+
+pub struct Vec<T> {
+    buf: RawVec<T>,
+    len: usize,
+}
+----
+
+It's mostly self-explanatory; a `Vec<T>` is a pointer to `T` with a set capacity
+and length. What about ``abi_stable``'s implementation?
+
+[source, rust]
+----
+#[repr(C)] // Notice this, so that it's FFI-safe
+#[derive(StableAbi)] // This trait marks `RVec` as FFI-safe, with info about its layout
+pub struct RVec<T> {
+    pub(super) buffer: *mut T,
+    pub(super) length: usize,
+    capacity: usize,
+    vtable: VecVTable_Ref<T>,
+    _marker: PhantomData<T>,
+}
+----
+
+Yup, basically the same, but packed inside a single struct. The only real
+difference is that we have a field with the vtable, which I'll cover later on.
+The conversion between these types is written with a macro, but if expanded, it
+looks like this:
+
+[source, rust]
+----
+impl<T> From<Vec<T>> for RVec<T> {
+    fn from(this: Vec<T>) -> RVec<T> {
+        let mut this = std::mem::ManuallyDrop::new(this);
+        RVec {
+            vtable: VTableGetter::<T>::LIB_VTABLE,
+            buffer: this.as_mut_ptr(),
+            length: this.len(),
+            capacity: this.capacity(),
+            _marker: PhantomData,
+        }
+    }
+}
+----
+
+The only "`weird`" part is the usage of `std::mem::ManuallyDrop`, which simply
+is a wrapper that indicates Rust to not call the destructor of its contents
+automatically. In this case it's basically a less error prone
+`std::mem::forget`, as
+https://doc.rust-lang.org/stable/std/mem/fn.forget.html#relationship-with-manuallydrop[its
+docs explain]. Thanks to it, the memory from the vector won't be dropped when
+this function ends, and it can be safely moved into the `RVec`, with no copying.
+
+This happens for every type I checked in `abi_stable`, including `RSlice<T>`,
+which contains a reference to a slice, `RStr`, which is just a `RSlice<u8>`, and
+`RString`, which is just a `RVec`.
 
 == Thread safety
 
