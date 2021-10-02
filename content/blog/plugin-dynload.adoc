@@ -333,16 +333,34 @@ to how Wasm works.
 
 There are multiple active crates for eBPF in Rust. {{< crate libbpf_rs >}}, {{<
 crate redbpf >}} and {{< crate aya >}} are specific to the Linux Kernel. {{<
-crate solana_rbpf >}} is a virtual machine, so it only works for user-space. It
-seems to be a fork of the now abandoned {{< crate rbpf >}}.
+crate solana_rbpf >}} is a virtual machine, so it only works for user-space. The
+maintainers of the latter use it to https://solana.com/[safely run apps on the
+blockchain], and their crate seems to be a fork of the now abandoned (?) {{<
+crate rbpf >}}. https://www.youtube.com/watch?v=xj0PBFjLm1U&t=8701s[This recent
+talk at LPC 2021] explains the situation of eBPF in Rust quite well (mainly for
+Aya, so it's mostly related to the Linux Kernel).
 
-So, is this any better than WebAssembly? Well, not really. In fact, it has the
-same exact caveat that made us discard Wasm; for more complex types, one has to
-serialize them into a shared memory. It also has a few more restrictions like
-only being able to export one function per file or managing imports or exports
-manually within the runtime. You can get started quickly with
-https://blog.redsift.com/labs/writing-bpf-code-in-rust/[this tutorial from Red
-Sift], but I feel like there's less documentation than in the case of Wasm.
+Unlike WebAssembly, you don't necessarily need to serialize or write to an
+intermediate memory. Since you fully control how the virtual machine works, the
+runtime could implement a custom sandbox that simply checks for the read/written
+addresses in the plugins to make sure they aren't out of bounds, while still
+sharing the same memory space. So in terms of performance, Tremor itself _could_
+use it -- though there's still the penalty of interpreting plugins.
+
+The problem in this case is that, for what I've found, Rust support leaves to be
+desired. Most people seem to use C for eBPF and I think it shows; the number of
+tutorials/guides/articles about eBPF on Rust is incredibly small. There's no
+official target to compile Rust to eBPF, and the only user-space runtime we can
+use is `rbpf` and its derivatives. Looking for information about this topic was
+somewhat frustrating, specially because the search results are mixed up with
+kernel-only BPF, which is not relevant to us.
+
+It doesn't really seem like the best choice right now. We would have to write
+almost everything about the plugin system from scratch, including the sandbox
+itself (allowing only different sets of syscalls, bounds checking, etc). It
+would be considerably more cumbersome than using something like `abi_stable`.
+Maybe in the future it'd be worth trying it out in detail and running some
+benchmarks, but for now I think dynamic loading is still the clear winner.
 
 Cheers to Dr. Florentin Rochet for letting me know about this technology --
 though he's considering switching to WebAssembly. He's currently using it to
@@ -600,6 +618,24 @@ this function ends, and it can be safely moved into the `RVec`, with no copying.
 This happens for every type I checked in `abi_stable`, including `RSlice<T>`,
 which contains a reference to a slice, `RStr`, which is just a `RSlice<u8>`, and
 `RString`, which is just a `RVec`.
+
+== Panicking
+
+`abi_stable` can't do anything about the unsafety of panicking in plugins. It
+will simply abort the program:
+
+[source]
+----
+Loading plugin min
+initial state: State { counter: 0 }
+thread '<unnamed>' panicked at 'This will crash everything', src/lib.rs:26:5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+file:src/lib.rs
+line:24
+Attempted to panic across the ffi boundary.
+Aborting to handle the panic...
+----
 
 == Thread safety
 
