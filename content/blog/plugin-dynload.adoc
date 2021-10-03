@@ -383,7 +383,7 @@ repository]. In this one we'll try to get an implementation that's closer to
 what we need for connectors, so we'll call the new experiment
 `dynamic-connectors`.
 
-=== Embedding metadata
+=== Versioning
 
 In order to get more advanced things running, we should figure out how to
 properly embed metadata in the plugin. In order to export any type, we already
@@ -434,24 +434,116 @@ fn main() -> Result<(), anyhow::Error> {
 
 In the code above, we can see that, even though both versions of `PluginData`
 are FFI-safe, their layouts aren't the same, because the last one has a new
-field.
+field. When trying to read `PLUGIN_DATA`, undefined behaviour will occur (most
+likely accessing to an invalid memory address).
 
-`data.connect` will probably point to garbage
+Every plugin should export the version of `common` it uses, and the runtime
+should check it before anything else. In summary, the type used for the version
+has to be:
 
-This means that
-we have to use types such as `*const c_char` rather than `&str`.
-`CStr` is a wrapper and not `repr(C)`, so that won't work either.
+* *FFI-safe*, so `&str` or `CStr` are discarded (the latter is a Rust wrapper and
+  not {repr-c}).
+* *Stable*. `abi_stable::Rstr` won't work either because the versions for
+  `abi_stable` might mismatch as well, since we're reading the symbol before
+  knowing that. Its layout must be always the same.
+* *Thread-safe* (implement `Sync`). If we wanted to use something like `*const
+  c_char`, the compiler would throw the following error, since it's a pointer:
++
+[source, text]
+----
+error[E0277]: `*const i8` cannot be shared between threads safely
+ --> src/lib.rs:4:1
+  |
+4 | pub static VERSION: *const c_char = b"0.1.0\0".as_ptr() as _;
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `*const i8` cannot be shared between threads safely
+  |
+  = help: the trait `Sync` is not implemented for `*const i8`
+  = note: shared static variables must have a type that implements `Sync`
+----
++
+Instead, we can use a function that returns the string:
++
+[source, rust]
+----
+#[no_mangle]
+pub extern "C" fn get_version() -> *const c_char {
+    b"0.1.0\0".as_ptr() as _
+}
+----
 
-Furthermore, the exported data must be thread-safe (implement
-`Sync`). Since `*const c_char` itself does not implement `Sync`
-because it's a pointer, we have to use a function that returns the
-string instead.
+Finally, there are multiple ways to handle versioning in the runtime, depending
+on how fine-grained (but also more error-prone) it should be:
+
+* The simplest way possible: both version strings must be the same.
+* The plugin system could take advantage of https://semver.org/[semantic
+  versioning]. Only differences in the major version (X.0.0) would be
+  incompatible. The problem in this case is that this is kept track of manually,
+  and it's possible that a breaking change is introduced by mistake.
+* Since there are actually many kinds of plugins (connectors, codecs, etc),
+  rather than checking the version for the entire `common` crate, there could be
+  a version _per type of plugin_. If a change in the `common` crate only
+  modifies structures for codec plugins, the rest of the plugins would still
+  work.
+
+=== Automatically loading plugins
+
+Another complicated topic is plugin distribution and management. In order to
+make it easier for the user, plugins should be found and loaded automatically.
+But how exactly should this work? I'll explain a few ideas.
+
+First of all, the plugins can be found automatically by searching one or more
+user-configurable directories. For instance, in Tremor's case we could use
+https://www.tremor.rs/docs/tremor-query/modules#defaults[`TREMOR_PATH`]. Once we
+have a list of directories where we should look for plugins there are two ways
+to do it:
+
+* Only checking the immediate files in the directory
+* Recursively, which is more convenient but might cause issues if the node is
+  too deep. If the user specified `/` as a directory, the runtime would most
+  likely crash unless we used something efficient like
+  https://github.com/sharkdp/fd[`fd`] or added a depth limit.
+
+Once we're traversing a directory, we have to figure out which files are plugins
+and which aren't. The easiest way to do it is with file extensions, but this
+introduces the problem of cross-compatibility. Dynamic libraries usually have a
+different extension name for each Operating System: Windows uses `.dll`, Linux
+and FreeBSD use `.so`, and MacOS uses `.dylib`, as specified by
+https://doc.rust-lang.org/std/env/consts/constant.DLL_EXTENSION.html[`std::env::consts::DLL_EXTENSION`].
+It would make sense that our runtime only tried to load plugins with their
+respective extensions.
+
+However, these extensions are just conventions; we could just enforce a single
+extension name, as
+https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#tips[`libloading`
+suggests]. It might be easier if we just used `.module` for everything, for
+example.
+
+Additionally, the Tremor plugin system requires that plugins can be loaded _both
+at initialization time and at runtime_. There is a decision to be made in here
+about how the latter should work:
+
+* Manually: the user would input in some way that a new plugin should be loaded
+  (for example with the CLI tool). They could either specify a path in which
+  it's saved, or just add it to the configured directories that were checked at
+  initialization time, and the runtime would try to find it.
+* Automatically: the runtime could detect whenever a new plugin is added to the
+  list with a crate like {{< crate notify >}}. Most Operating Systems have some
+  way to get a notification whenever a file or directory changes. In case a new
+  file was added to any of the configured directories, the runtime could try to
+  load it.
+* A combination of both: if the directories configured to look for plugins can't
+  be changed at runtime it might be interesting to also let the user manually
+  load plugins in specific paths.
+
+=== Handling state
+
+== Moving to `abi_stable`
 
 === Versioning
 
 === Handling state
 
-== Fully moving to `abi_stable`
+=== Automatically loading plugins
 
 == Adding dynamic loading to the example
 
@@ -499,29 +591,6 @@ https://docs.rs/abi_stable/0.10.2/abi_stable/derive.StableAbi.html
 
 In order to make it easier for the plugin developer, we can create the macro
 `define_plugin`:
-
-// TODO: explain macro
-
-For now, the version checks are done for the entire crate for simplicity,
-but in the future we can make this more flexible. For instance, if a version
-bump in this crate only modifies structures for codec plugins, the rest of
-the plugins would still work. This would require versioning each of the
-types of plugins and bumping them as they're modified. Note that this is
-prone to human errors however, as it's a manual process.
-
-Versioning could also be based on semantic versioning, which establishes that
-incompatible API changes happen only when the major (__x__.0.0) version is
-bumped.
-
-// TODO: research https://github.com/doctorn/obake
-
-There may be helpful crates like {{< crate obake >}}.
-
-We'll keep it simple for now, but by exporting the kind of plugin separately
-(instead of having an enum `PluginData::Connector`) we can future-proof this.
-This is because if we were to deduce the kind of plugin by matching `PluginData`
-but one of the single versions that don't affect us mismatched, it may break, as
-the layout of the entire enum would change.
 
 == Setting up cbindgen
 
