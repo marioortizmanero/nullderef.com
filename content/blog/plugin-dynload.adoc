@@ -369,57 +369,89 @@ their code to happen at runtime <<florentin-1>> <<florentin-2>> <<florentin-3>>
 <<florentin-4>>. This makes it faster to fix vulnerabilities until it's properly
 updated upstream, among other things. Pretty cool :)
 
-== Creating a minimal example
+== Trying raw dynamic linking
 
-Now that we know more or less how to approach the PDK, let's try getting a more
-complex example running. The plan is to try to simulate the final implementation
-of the PDK so that we can run some benchmarks and analyze the overhead it will
-introduce. For this, I'll add the `native-connector` and `dynamic-connector`
-examples to https://github.com/marioortizmanero/pdk-experiments[the
-pdk-experiments repository]. `native-connector` is simply how it currently
-works, in a single static executable, and `dynamic-connector` loads the
-connectors dynamically as plugins.
+Now that we definitely know how to approach the PDK, we have two choices: using
+raw dynamic linking with the C ABI, or trying out the `stable_abi` crate. I
+suggest we do both. We'll most likely end up using the latter because it should
+be easier and safer, but it's still a very good idea to know how `stable_abi`
+works under the hood.
 
-Since it may be simpler to get `native-connector` running, let's start with
-that. We'll just copy all the necessary code for the
-https://github.com/tremor-rs/tremor-runtime/tree/883f13e29b4c6ec7b6703f2487aac321c738e7c8[current
-implementation] of connectors as a standalone program:
+In the previous article I created a `dynamic-simple` experiment in examples to
+https://github.com/marioortizmanero/pdk-experiments[the pdk-experiments
+repository]. In this one we'll try to get an implementation that's closer to
+what we need for connectors, so we'll call the new experiment
+`dynamic-connectors`.
 
-== Setting up cbindgen
+=== Embedding metadata
 
-For the first steps with dynamic loading I think {{< crate cbindgen >}} will
-help us understand what's going on. We can take a look at the generated headers
-and see how it works internally. Unfortunately, it fails to run for the
-`abi_stable` crate:
+In order to get more advanced things running, we should figure out how to
+properly embed metadata in the plugin. In order to export any type, we already
+know that it must be FFI-safe. But there's something else of great importance:
+versioning. In order to safely load the plugin, one must ensure that the
+versions of the `common` crate match -- or at least that they're compatible --
+for both the runtime and the plugin. Here's an example of how this could go
+wrong if we don't save information about versioning:
 
-[source, text]
+.Plugin implementation
+[source, rust]
 ----
-(...)
-WARN: Skip abi_stable::CONST - (...)
- 
-thread 'main' panicked at 'RResult has 2 params but is being instantiated with 1 values', src/bindgen/ir/enumeration.rs:596:9
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+// This is the declaration for the plugin data in version 0.1
+#[repr(C)]
+pub struct PluginData {
+    pub name: &'static [u8],
+    pub new: unsafe extern "C" fn() -> State,
+}
+
+#[no_mangle]
+pub static PLUGIN_DATA: PluginData = PluginData { name: b"test", new };
 ----
 
-This _probably_ has to do with the following warning found in
-https://github.com/eqrion/cbindgen/blob/master/docs.md[``cbindgen``'s
-documentation]:
+.Runtime implementation
+[source, rust]
+----
+// And this is the same type, but in version 0.2
+#[repr(C)]
+struct PluginData {
+    pub name: &[u8],
+    pub new: unsafe extern "C" fn() -> State,
+    // NOTE: this field is new here!
+    pub connect: unsafe extern "C" fn(&mut State) -> bool
+}
 
-____
-pass:[NOTE:] A major limitation of cbindgen is that it does not understand
-Rust's module system or namespacing. This means that if cbindgen sees that it
-needs the definition for `MyType` and there exists two things in your project
-with the type name `MyType`, it won't know what to do. Currently, cbindgen's
-behaviour is unspecified if this happens. However this may be ok if they have
-https://github.com/eqrion/cbindgen/blob/master/docs.md#defines-and-cfgs[different
-cfgs].
-____
+fn main() -> Result<(), anyhow::Error> {
+    unsafe {
+        let library = Library::new(path)?;
 
-After letting the maintainers of `abi_stable` know about this in
-https://github.com/rodrimati1992/abi_stable_crates/issues/52[an issue], they
-pointed out that this was expected and that they don't plan on supporting
-`cbindgen` because it would take too much effort. Understandable, so let's move
-on.
+        let data = library
+            .get::<*const PluginData>(b"PLUGIN_DATA")?
+            .read(); // !!! UNDEFINED BEHAVIOUR !!! What will `data.connect` be?
+    }
+
+    Ok(())
+}
+----
+
+In the code above, we can see that, even though both versions of `PluginData`
+are FFI-safe, their layouts aren't the same, because the last one has a new
+field.
+
+`data.connect` will probably point to garbage
+
+This means that
+we have to use types such as `*const c_char` rather than `&str`.
+`CStr` is a wrapper and not `repr(C)`, so that won't work either.
+
+Furthermore, the exported data must be thread-safe (implement
+`Sync`). Since `*const c_char` itself does not implement `Sync`
+because it's a pointer, we have to use a function that returns the
+string instead.
+
+=== Versioning
+
+=== Handling state
+
+== Fully moving to `abi_stable`
 
 == Adding dynamic loading to the example
 
@@ -490,6 +522,42 @@ We'll keep it simple for now, but by exporting the kind of plugin separately
 This is because if we were to deduce the kind of plugin by matching `PluginData`
 but one of the single versions that don't affect us mismatched, it may break, as
 the layout of the entire enum would change.
+
+== Setting up cbindgen
+
+For the first steps with dynamic loading I think {{< crate cbindgen >}} will
+help us understand what's going on. We can take a look at the generated headers
+and see how it works internally. Unfortunately, it fails to run for the
+`abi_stable` crate:
+
+[source, text]
+----
+(...)
+WARN: Skip abi_stable::CONST - (...)
+ 
+thread 'main' panicked at 'RResult has 2 params but is being instantiated with 1 values', src/bindgen/ir/enumeration.rs:596:9
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+----
+
+This _probably_ has to do with the following warning found in
+https://github.com/eqrion/cbindgen/blob/master/docs.md[``cbindgen``'s
+documentation]:
+
+____
+pass:[NOTE:] A major limitation of cbindgen is that it does not understand
+Rust's module system or namespacing. This means that if cbindgen sees that it
+needs the definition for `MyType` and there exists two things in your project
+with the type name `MyType`, it won't know what to do. Currently, cbindgen's
+behaviour is unspecified if this happens. However this may be ok if they have
+https://github.com/eqrion/cbindgen/blob/master/docs.md#defines-and-cfgs[different
+cfgs].
+____
+
+After letting the maintainers of `abi_stable` know about this in
+https://github.com/rodrimati1992/abi_stable_crates/issues/52[an issue], they
+pointed out that this was expected and that they don't plan on supporting
+`cbindgen` because it would take too much effort. Understandable, so let's move
+on.
 
 == Error Handling
 
@@ -730,6 +798,13 @@ https://docs.rs/typetag/0.1.7/typetag/
 https://docs.rs/serde_traitobject/0.2.7/serde_traitobject/
 https://docs.rs/thin_trait_object/1.1.2/thin_trait_object/
 ////
+
+== Tremor connectors
+
+Since it may be simpler to get `native-connector` running, let's start with
+that. We'll just copy all the necessary code for the
+https://github.com/tremor-rs/tremor-runtime/tree/883f13e29b4c6ec7b6703f2487aac321c738e7c8[current
+implementation] of connectors as a standalone program:
 
 == Conclusion
 
