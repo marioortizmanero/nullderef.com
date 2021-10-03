@@ -537,6 +537,186 @@ about how the latter should work:
 
 === Handling state
 
+Most plugins will want to keep some kind of state between calls to its
+interface. For example, the TCP connector will need to keep its socket after the
+connection in order to send or receive messages. This means that most of them
+will follow the following pattern:
+
+[source, rust]
+----
+let state = plugin.new();
+plugin.something(&mut state);
+----
+
+The state is first created with a `new` function that initializes everything as
+needed, and then a mutable reference is passed to its functions. The main
+problem here is, if each plugin is going to have its own type of state, what's
+the function signature of `Plugin::something`, defined in `common`?
+
+==== Generics in plugins?
+
+In a regular Rust project we'd just make `Plugin::something` generic over a
+common trait that all states should implement. Unfortunately, generics in
+plugins are fundamentally impossible. In Rust, monomorphization turns generic
+code into specific code by filling in the concrete types that are used when
+*compiled* <<generics>>. Plugins are loaded at runtime, so they may want to use
+types the compiler didn't generate code for.
+
+It's really easy to prove in Rust with the following example. We'll try to
+_load_ an external function with generics:
+
+[source, rust]
+----
+extern "C" {
+    fn foo<T>(_: T);
+}
+----
+
+This results in the following error:
+
+[source, text]
+----
+error[E0044]: foreign items may not have type parameters
+ --> src/lib.rs:2:5
+  |
+2 |     fn foo<T>(_: T);
+  |     ^^^^^^^^^^^^^^^^ can't have type parameters
+  |
+  = help: replace the type parameters with concrete types like `u32`
+
+error: aborting due to previous error
+
+For more information about this error, try `rustc --explain E0044`.
+----
+
+Interestingly enough, the compiler lets you export generic functions declared
+_in Rust_:
+
+[source, rust]
+----
+extern fn foo<T>(_: T) {}
+----
+
+This confused me in the beginning; it made me think generic functions through
+FFI were somehow be possible. But as described in
+https://github.com/rust-lang/rust/pull/15831[the original issue that allowed
+them], they're only supported to pass callbacks to C functions.
+
+Do note that generics in plugins do work for lifetimes. This will compile:
+
+[source, rust]
+----
+extern "C" {
+    fn foo<'a>(_: &'a str) -> &'a str;
+}
+----
+
+That is mainly because even though lifetimes and generics share the same syntax,
+in the case of lifetimes they are only annotations for the Rust compiler;
+monomorphization is not applied.
+
+==== `dyn` in plugins?
+
+The alternative to generics is often using trait object types with `dyn`. Again,
+will that work for plugins? Let's try:
+
+[source, rust]
+----
+pub trait PluginState {}
+pub extern fn foo<T>(_: &dyn PluginState) {}
+----
+
+Compiling...
+
+[source, text]
+----
+warning: `extern` fn uses type `dyn PluginState`, which is not FFI-safe
+ --> src/lib.rs:2:25
+  |
+2 | pub extern fn foo<T>(_: &dyn PluginState) {}
+  |                         ^^^^^^^^^^^^^^^^ not FFI-safe
+  |
+  = note: `#[warn(improper_ctypes_definitions)]` on by default
+  = note: trait objects have no C equivalent
+----
+
+Nope. `dyn` is strictly part of the Rust ABI, so it's not stable for our plugin
+system. Let's try something simpler.
+
+==== The C way
+
+There are two popular ways to approach this in C:
+
+. Globals, but they are hard to deal with in concurrent programs
+. `void*`, which is a pointer with no associated type <<void-ptr>>
+
+For safety's sake, let's see how the second one works. This pattern is used for
+example in PulseAudio <<pulseaudio-ptr>>, in which callbacks pass a `void*`
+parameter for user data. Here's a simpler example:
+
+[source, c]
+----
+#include <stdio.h>
+#include <stdlib.h>
+
+// The state of the plugin
+typedef struct {
+    int counter;
+} plugin_state_t;
+
+// Exported by the plugin, initializes the state
+void* new() {
+    plugin_state_t* plugin_state = malloc(sizeof(plugin_state_t));
+    plugin_state->counter = 0;
+    return (void*) plugin_state;
+}
+
+// Exported by the plugin, which takes a pointer to its state
+void something(void* state) {
+    // We know the runtime used `new` to initialize the state, so we can cast it
+    // back to its original type.
+    plugin_state_t* plugin_state = (plugin_state_t*) state;
+
+    printf("Current state: { counter = %d }\n", plugin_state->counter);
+    plugin_state->counter++;
+    printf("Final state: { counter = %d }\n", plugin_state->counter);
+}
+
+int main() {
+    // We initialize the plugin, which returns its state
+    void* state = new();
+    // When calling anything from the plugin we pass its state
+    something(state);
+    // Don't forget!
+    free(state);
+}
+----
+
+TODO
+
+[source, rust]
+----
+struct 
+
+#[repr(C)]
+struct PluginData {
+   
+    pub mime_types: RSlice<'static, RStr<'static>>,
+    // Initializes the plugin by creating a new state
+    pub new: unsafe extern "C" fn() -> ConnectorState,
+    // A stub function exported by the connector
+    pub some_function: unsafe extern "C" fn(state: &mut ConnectorState, data: RSliceMut<'input, u8>) -> i32,
+}
+----
+
+==== Alternatives to `dyn` in plugins
+
+
+=== Writing the example
+
+The example at X approaches the topics covered in this section in the simplest
+of ways.
+
 == Moving to `abi_stable`
 
 === Versioning
@@ -791,64 +971,6 @@ in the plugins?
 
 === Why they are impossible
 
-Well, no, generics in plugins are fundamentally impossible. In Rust,
-monomorphization turns generic code into specific code by filling in the
-concrete types that are used when *compiled* <<generics>>. Plugins are loaded at
-runtime, so they may want to use types the compiler didn't generate code for.
-
-It's really easy to prove in Rust with the following example. We'll try to
-_load_ an external function with generics:
-
-[source, rust]
-----
-extern "C" {
-    fn foo<T>(_: T);
-}
-----
-
-This results in the following error:
-
-[source, text]
-----
-error[E0044]: foreign items may not have type parameters
- --> src/lib.rs:2:5
-  |
-2 |     fn foo<T>(_: T);
-  |     ^^^^^^^^^^^^^^^^ can't have type parameters
-  |
-  = help: replace the type parameters with concrete types like `u32`
-
-error: aborting due to previous error
-
-For more information about this error, try `rustc --explain E0044`.
-----
-
-Interestingly enough, the compiler lets you export generic functions declared
-_in Rust_:
-
-[source, rust]
-----
-extern fn foo<T>(_: T) {}
-----
-
-This confused me in the beginning; it made me think generic functions through
-FFI would be possible. But as described in
-https://github.com/rust-lang/rust/pull/15831[the original issue that allowed
-them], they're only supported to pass callbacks to C functions.
-
-Another interesting thing about generics in plugins is that it does work for
-lifetimes. This will compile:
-
-[source, rust]
-----
-extern "C" {
-    fn foo<'a>(_: &'a str) -> &'a str;
-}
-----
-
-That is mainly because even though lifetimes and generics share the same syntax,
-in the case of lifetimes they are only annotations. No new versions of the
-function are generated.
 
 === Alternatives
 
@@ -903,4 +1025,6 @@ benchmarking system] (which requires nightly for now)
 - [[[florentin-2,     2]]] https://pquic.org/
 - [[[florentin-3,     3]]] https://petsymposium.org/2019/files/hotpets/proposals/rochet-fan.pdf
 - [[[florentin-4,     4]]] https://petsymposium.org/2019/files/hotpets/slides/rochet-fan-slides.pdf
+- [[[void-ptr,       11]]] https://www.learncpp.com/cpp-tutorial/void-pointers/
+- [[[pulseaudio-ptr, 11]]] https://freedesktop.org/software/pulseaudio/doxygen/stream_8h.html#a2dcc985c65964da290a0c2e1bf103175
 - [[[generics,       11]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
