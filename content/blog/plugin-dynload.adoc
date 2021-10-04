@@ -59,8 +59,8 @@ unstructured data. One of its many usages may be to:
 image::/blog/plugin-dynload/example.png[width=100%]
 
 This currently works with
-https://www.tremor.rs/docs/artefacts/onramps/[onramps],
-https://www.tremor.rs/docs/artefacts/offramps/[offramps] and pipelines:
+https://www.tremor.rs/docs/artefacts/onramps/[onramps/sources],
+https://www.tremor.rs/docs/artefacts/offramps/[offramps/sinks] and pipelines:
 
 * A pipeline is a set of operations (transformation, aggregation, dropping, etc)
   through which events can be routed.
@@ -370,21 +370,21 @@ their code to happen at runtime <<florentin-1>> <<florentin-2>> <<florentin-3>>
 <<florentin-4>>. This makes it faster to fix vulnerabilities until it's properly
 updated upstream, among other things. Pretty cool :)
 
-== Trying raw dynamic linking
+== Getting deeper into dynamic linking
 
 Now that we definitely know how to approach the PDK, we have two choices: using
-raw dynamic linking with the C ABI, or trying out the `stable_abi` crate. I
-suggest we do both. We'll most likely end up using the latter because it should
-be easier and safer, but it's still a very good idea to know how `stable_abi`
-works under the hood.
+raw dynamic linking with the C ABI and `libloading`, or trying out the
+`stable_abi` crate. I suggest we do both. We'll most likely end up using the
+latter because it should be easier and safer, but it's still a very good idea to
+know how `stable_abi` works under the hood.
 
 In the previous article I created a `dynamic-simple` experiment in examples to
 https://github.com/marioortizmanero/pdk-experiments[the pdk-experiments
 repository]. In this one we'll try to get an implementation that's closer to
-what we need for connectors, so we'll call the new experiment
-`dynamic-connectors`.
+what we need for connectors, so I'll call the new experiment
+https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors[`dynamic-connectors`].
 
-=== Versioning
+== Versioning
 
 In order to get more advanced things running, we should figure out how to
 properly embed metadata in the plugin. In order to export any type, we already
@@ -494,7 +494,7 @@ depending on how fine-grained (but also more error-prone) it should be:
   modifies structures for codec plugins, the rest of the plugins would still
   work.
 
-=== Automatically loading plugins
+== Automatically loading plugins
 
 Another complicated topic is plugin distribution and management. In order to
 make it easier for the user, plugins should be found and loaded automatically.
@@ -550,7 +550,7 @@ about how the latter should work:
   be changed at runtime it might be interesting to also let the user manually
   load plugins in specific paths.
 
-=== Handling state
+== Handling state
 
 Most plugins will want to keep some kind of state between calls to its
 interface. For example, the TCP connector will need to keep its socket after the
@@ -568,7 +568,7 @@ needed, and then a mutable reference is passed to its functions. The main
 problem here is, if each plugin is going to have its own type of state, what's
 the function signature of `Plugin::something`, defined in `common`?
 
-==== Generics in plugins?
+=== Generics in plugins?
 
 In a regular Rust project we'd just make `Plugin::something` generic over a
 common trait that all states should implement. Unfortunately, generics in
@@ -633,7 +633,7 @@ not applied.
 If you want to know more about this topic I'd suggest watching
 https://www.youtube.com/watch?v=xcygqF5LVmM[this video by Jon Gjengset].
 
-==== `dyn` in plugins?
+=== `dyn` in plugins?
 
 The alternative to generics is often using trait object types with `dyn`. Again,
 will that work for plugins? Let's try:
@@ -661,7 +661,7 @@ warning: `extern` fn uses type `dyn PluginState`, which is not FFI-safe
 Nope. `dyn` is strictly part of the Rust ABI, so it's not stable for our plugin
 system.
 
-==== The C way
+=== The C way
 
 There are two popular ways to approach this in C:
 
@@ -798,13 +798,14 @@ https://www.youtube.com/watch?v=xcygqF5LVmM&feature=emb_title
 https://docs.rs/thin_trait_object/1.1.2//
 ////
 
-=== Error Handling
+[[error_handling]]
+== Error Handling
 
 I've created a few more plugins to see how this approach reacts to some common
 errors. Since in the end we aren't using a sandbox, I wonder what kind of errors
 we _can't_ recover from.
 
-==== Missing fields
+=== Missing fields
 
 The `plugin-missing` directory contains an empty plugin. It doesn't export any
 fields at all, like the name or the version. This one is already handled by
@@ -817,7 +818,7 @@ $ make debug-missing
 Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.so: undefined symbol: get_name
 ----
 
-==== Version mismatch
+=== Version mismatch
 
 After implementing the versioning system, we can see how these kinds of errors
 can be caught safely:
@@ -830,7 +831,7 @@ Version mismatch. Aborting.
 Error when setting up the plugin: version mismatch: 0.0.0 incompatible with 0.1.0
 ----
 
-==== Wrong type
+=== Wrong type
 
 Libloading assumes the type that's being loaded is correct. If for example the
 plugin exported the `get_name` function, but it returned an integer instead of a
@@ -850,7 +851,7 @@ $ make debug-wrongtype
 Segmentation fault (core dumped)
 ----
 
-==== Wrong address
+=== Wrong address
 
 Unfortunately, there's not much we can do about out of bounds pointers. If the
 plugin exports e.g. the name with a null pointer, we'll just get a segmentation
@@ -867,7 +868,7 @@ zero, the usual value for null. But the same would still happen if the pointer's
 value was 1 instead of 0. And even if it was within bounds, it could just point
 to garbage anyway.
 
-==== Panicking
+=== Panicking
 
 Panicking is not supported in the C ABI; it's considered undefined behaviour
 <<panic-ffi>>. If a plugin panics, the entire program will most likely abort.
@@ -881,10 +882,59 @@ $ make debug-panic
 Segmentation fault (core dumped)
 ----
 
-=== Full implementation
+== Full implementation
 
-The example at X approaches the topics covered in this section in the simplest
-of ways.
+The example at
+https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors[`dynamic-connectors`]
+approaches the topics covered in this section in the simplest of ways, while
+still implementing a working plugin system. More specifically:
+
+* Versioning requires an exact match between the version of `common` in the
+  plugin and the runtime.
+* The plugins are manually loaded given a directory.
+* The runtime looks for plugins in the immediate files of the directory, i.e.
+  non-recursively.
+* The state is passed as a void pointer, rather than trying to use inheritance.
+
+Most of these are just decisions to be made by the designer of the system. I
+chose to go for the easiest options so that we can focus on `abi_stable` sooner.
+
+I did implement a declarative macro to make plugin-writing easier and less
+error-prone, just to see how it'd work. It takes care of most of the
+boilerplate, which basically consists on creating functions for the name, kind,
+and version returning `*const c_char`, and exporting the plugin data struct. For
+the curious, it's defined in the `common` directory.
+
+.Sample usage of the macro
+[source, rust]
+----
+define_connector_plugin! {
+    name: "metronome",
+    data: ConnectorPlugin {
+        new,
+        something,
+        is_sink: false,
+        is_source: true
+    }
+}
+----
+
+Apart from the examples listed in the <<error_handling>> section, I've created a
+proper plugin that is supposed to work, with the name `plugin-metronome`. It was
+supposed to implement the
+https://www.tremor.rs/docs/artefacts/onramps#metronome[`metronome` connector],
+but I've decided to just leave that for the next post. I'd rather spend my time
+writing the real-life example with the `abi_stable` version, because it's what
+we'll end up using.
+
+== Conclusion
+
+This article has covered a lot of questions that one may encounter when trying
+to use dynamic loading for a plugin system.
+
+In the next article I'll cover the same points when using `abi_stable`. Although
+in my opinion it's a very large crate and somewhat hard to learn, most of the
+problems this post exposes are greatly simplified thanks to it.
 
 [bibliography]
 == References
