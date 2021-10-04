@@ -25,7 +25,8 @@ example with dynamic loading and work towards the final implementation.
 
 Since the Tremor team suggested to begin by implementing connectors, we'll first
 have to learn more about them. Matthias ran me through their current state in a
-meeting, which I'll try to summarize:
+meeting, which I'll try to summarize. We won't need to know much for this
+specific article, though.
 
 == Learning more about connectors
 
@@ -48,8 +49,8 @@ Later on:
 * Check conflicting plugin names
 ////
 
-First of all, Tremor is an event processing system for unstructured data. One of
-its many usages may be to:
+First of all, https://www.tremor.rs/[Tremor] is an event processing system for
+unstructured data. One of its many usages may be to:
 
 . Receive logs from different applications in your business
 . Filter, transform, and mix them up following the same structure
@@ -396,27 +397,34 @@ wrong if we don't save information about versioning:
 .Plugin implementation
 [source, rust]
 ----
-// This is the declaration for the plugin data in version 0.1
-#[repr(C)]
-pub struct PluginData {
-    pub name: &'static [u8],
-    pub new: unsafe extern "C" fn() -> State,
+pub mod common {
+    // This is the declaration for the plugin data in version 0.1
+    #[repr(C)]
+    pub struct PluginData {
+        pub name: &'static [u8],
+        pub new: unsafe extern "C" fn() -> State,
+    }
 }
 
 #[no_mangle]
-pub static PLUGIN_DATA: PluginData = PluginData { name: b"test", new };
+pub static PLUGIN_DATA: common::PluginData = common::PluginData {
+    name: b"test",
+    new
+};
 ----
 
 .Runtime implementation
 [source, rust]
 ----
-// And this is the same type, but in version 0.2
-#[repr(C)]
-struct PluginData {
-    pub name: &[u8],
-    pub new: unsafe extern "C" fn() -> State,
-    // NOTE: this field is new here!
-    pub connect: unsafe extern "C" fn(&mut State) -> bool
+pub mod common {
+    // And this is the same type, but in version 0.2
+    #[repr(C)]
+    pub struct PluginData {
+        pub name: &[u8],
+        pub new: unsafe extern "C" fn() -> State,
+        // NOTE: this field is new here!
+        pub connect: unsafe extern "C" fn(&mut State) -> bool
+    }
 }
 
 fn main() -> Result<(), anyhow::Error> {
@@ -424,7 +432,7 @@ fn main() -> Result<(), anyhow::Error> {
         let library = Library::new(path)?;
 
         let data = library
-            .get::<*const PluginData>(b"PLUGIN_DATA")?
+            .get::<*const common::PluginData>(b"PLUGIN_DATA")?
             .read(); // !!! UNDEFINED BEHAVIOUR !!! What will `data.connect` be?
     }
 
@@ -437,17 +445,18 @@ are FFI-safe, their layouts aren't the same, because the last one has a new
 field. When trying to read `PLUGIN_DATA`, undefined behaviour will occur (most
 likely accessing to an invalid memory address).
 
-Every plugin should export the version of `common` it uses, and the runtime
-should check it before anything else. In summary, the type used for the version
-has to be:
+Every plugin should at least export the version of `common` it uses, and the
+runtime should check it before anything else.
+
+Specifically, the type used to export the version has to be:
 
 * *FFI-safe*, so `&str` or `CStr` are discarded (the latter is a Rust wrapper and
   not {repr-c}).
 * *Stable*. `abi_stable::Rstr` won't work either because the versions for
-  `abi_stable` might mismatch as well, since we're reading the symbol before
-  knowing that. Its layout must be always the same.
+  `abi_stable` might mismatch, since we're reading the symbol before knowing
+  that. Its layout must be _always_ the same.
 * *Thread-safe* (implement `Sync`). If we wanted to use something like `*const
-  c_char`, the compiler would throw the following error, since it's a pointer:
+  c_char`, the compiler would throw the following error, because it's a pointer:
 +
 [source, text]
 ----
@@ -471,10 +480,10 @@ pub extern "C" fn get_version() -> *const c_char {
 }
 ----
 
-Finally, there are multiple ways to handle versioning in the runtime, depending
-on how fine-grained (but also more error-prone) it should be:
+Finally, there are multiple ways to handle versioning within the runtime,
+depending on how fine-grained (but also more error-prone) it should be:
 
-* The simplest way possible: both version strings must be the same.
+* The simplest way possible: both version strings must be strictly the same.
 * The plugin system could take advantage of https://semver.org/[semantic
   versioning]. Only differences in the major version (X.0.0) would be
   incompatible. The problem in this case is that this is kept track of manually,
@@ -492,7 +501,8 @@ make it easier for the user, plugins should be found and loaded automatically.
 But how exactly should this work? I'll explain a few ideas.
 
 First of all, the plugins can be found automatically by searching one or more
-user-configurable directories. For instance, in Tremor's case we could use
+user-configurable directories. For instance, in Tremor's case we could use the
+environment variable
 https://www.tremor.rs/docs/tremor-query/modules#defaults[`TREMOR_PATH`]. Once we
 have a list of directories where we should look for plugins there are two ways
 to do it:
@@ -501,7 +511,8 @@ to do it:
 * Recursively, which is more convenient but might cause issues if the node is
   too deep. If the user specified `/` as a directory, the runtime would most
   likely crash unless we used something efficient like
-  https://github.com/sharkdp/fd[`fd`] or added a depth limit.
+  https://github.com/sharkdp/fd[`fd`] or added a depth limit (which is probably
+  the most sensible choice here).
 
 Once we're traversing a directory, we have to figure out which files are plugins
 and which aren't. The easiest way to do it is with file extensions, but this
@@ -781,12 +792,78 @@ https://www.youtube.com/watch?v=xcygqF5LVmM&feature=emb_title
 https://docs.rs/thin_trait_object/1.1.2//
 ////
 
+=== Error Handling
+
+I've created a few more plugins to see how this approach reacts to some common
+errors. Since in the end we aren't using a sandbox, I wonder what kind of errors
+we _can't_ recover from.
+
+==== Missing fields
+
+The `plugin-missing` directory is an empty plugin. It doesn't export any fields
+at all, like the name or the version. This one is already handled by
+`libloading`, actually. When using `library.get("name")`, if `"name"` is
+unavailable in the shared object, the following error will show up:
+
+[source, text]
+----
+$ make debug-missing
+Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.so: undefined symbol: get_name
+----
+
+==== Version mismatch
+
+If the 
+
+[source, text]
+----
+$ make debug-versionmismatch
+Initializing plugin versionmismatch
+Version mismatch. Aborting.
+Error when setting up the plugin: version mismatch: 0.0.0 incompatible with 0.1.0
+----
+
+==== Wrong type
+
+Libloading assumes the type that's being loaded is correct. If for example the
+plugin exported the `get_name` function, but returning an integer instead of a
+string, we'd be in undefined-behaviour-land:
+
+[quote, 'https://docs.rs/libloading/latest/libloading/struct.Library.html#safety-1']
+____
+Users of this API must specify the correct type of the function or variable
+loaded. Using a `Symbol` with a wrong type is undefined.
+____
+
+Ignoring this will cause an unavoidable segfault:
+
+[source, text]
+----
+$ make debug-wrongtype
+Segmentation fault (core dumped)
+----
+
+==== Wrong address
+
+Unfortunately, there's not much we can do about out of bounds pointers. If the
+plugin exports e.g. the name with a null pointer, we'll just get a segmentation
+fault:
+
+[source, text]
+----
+$ make debug-wrongaddress
+Segmentation fault (core dumped)
+----
+
+In order to avoid this, the runtime could manually check that the pointer isn't
+zero, the usual value for null. But the same would still happen if the pointer's
+value was 1 instead of 0. And even if it was within bounds, it could just point
+to garbage anyway.
+
 === Writing the example
 
 The example at X approaches the topics covered in this section in the simplest
 of ways.
-
-=== Error handling
 
 == Moving to `abi_stable`
 
@@ -878,54 +955,6 @@ https://github.com/rodrimati1992/abi_stable_crates/issues/52[an issue], they
 pointed out that this was expected and that they don't plan on supporting
 `cbindgen` because it would take too much effort. Understandable, so let's move
 on.
-
-== Error Handling
-
-I also wanted to create some experiments about error handling in the PDK. Since
-in the end we aren't using a sandbox, I wonder what kind of errors we _can't_
-recover from. We should treat these cases with care in order to avoid them at
-all costs.
-
-I've written the following plugins for now:
-
-=== Missing field
-
-The `plugin-missing` directory is an empty plugin. It doesn't export any fields
-at all, like the name or the version. This one is already handled by
-`libloading`, actually. When using `library.get("name")`, if `"name"` is
-unavailable in the shared object, the following error will show up:
-
-[source, text]
-----
-$ make debug-missing
-Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.so: undefined symbol: get_name
-----
-
-=== Version mismatch
-
-[source, text]
-----
-$ make debug-versionmismatch
-Initializing plugin versionmismatch
-Version mismatch. Aborting.
-Error when setting up the plugin: version mismatch: 0.0.0 incompatible with 0.1.0
-----
-
-=== Wrong type
-
-[source, text]
-----
-$ make debug-wrongtype
-Segmentation fault (core dumped)
-----
-
-=== Wrong address
-
-[source, text]
-----
-$ make debug-wrongaddress
-Segmentation fault (core dumped)
-----
 
 == Conversions to `abi_stable`
 
