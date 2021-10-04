@@ -527,21 +527,25 @@ However, these extensions are just conventions; we could just enforce a single
 extension name, as
 https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#tips[`libloading`
 suggests]. It might be easier if we just used `.module` for everything, for
-example.
+example. In order to make them even more convenient, it'd be nice if they also
+worked for all of these Operating Systems within a single file. Apparently, this
+is called a https://en.wikipedia.org/wiki/Fat_binary["`Fat binary`"] and it was
+used in the past, but it'd be extremely complicated to get working now
+<<fat-binaries>>, so we'll just forget about it.
 
 Additionally, the Tremor plugin system requires that plugins can be loaded _both
 at initialization time and at runtime_. There is a decision to be made in here
 about how the latter should work:
 
-* Manually: the user would input in some way that a new plugin should be loaded
-  (for example with the CLI tool). They could either specify a path in which
-  it's saved, or just add it to the configured directories that were checked at
-  initialization time, and the runtime would try to find it.
+* Manually: after adding the new plugin to the configured directories (or
+  specifying its full path), the user would input in some way that it should be
+  loaded (for example with the CLI tool).
 * Automatically: the runtime could detect whenever a new plugin is added to the
   list with a crate like {{< crate notify >}}. Most Operating Systems have some
   way to get a notification whenever a file or directory changes. In case a new
   file was added to any of the configured directories, the runtime could try to
-  load it.
+  load it. This way, it'd work with no user interaction, other than adding the
+  file to one of the directories.
 * A combination of both: if the directories configured to look for plugins can't
   be changed at runtime it might be interesting to also let the user manually
   load plugins in specific paths.
@@ -613,7 +617,7 @@ FFI were somehow be possible. But as described in
 https://github.com/rust-lang/rust/pull/15831[the original issue that allowed
 them], they're only supported to pass callbacks to C functions.
 
-Do note that generics in plugins do work for lifetimes. This will compile:
+Note that generics in plugins do work for lifetimes. This will compile:
 
 [source, rust]
 ----
@@ -622,11 +626,12 @@ extern "C" {
 }
 ----
 
-That is mainly because even though lifetimes and generics share the same syntax,
-in the case of lifetimes they are only annotations for the Rust compiler;
-monomorphization is not applied. If you want to know more about this topic I'd
-suggest watching https://www.youtube.com/watch?v=xcygqF5LVmM[this video by Jon
-Gjengset].
+Even though lifetimes and generics share the same syntax, in the case of
+lifetimes they are only annotations for the Rust compiler; monomorphization is
+not applied.
+
+If you want to know more about this topic I'd suggest watching
+https://www.youtube.com/watch?v=xcygqF5LVmM[this video by Jon Gjengset].
 
 ==== `dyn` in plugins?
 
@@ -654,7 +659,7 @@ warning: `extern` fn uses type `dyn PluginState`, which is not FFI-safe
 ----
 
 Nope. `dyn` is strictly part of the Rust ABI, so it's not stable for our plugin
-system. Let's try something simpler.
+system.
 
 ==== The C way
 
@@ -708,10 +713,11 @@ int main() {
 This does work perfectly, and we could port it to Rust as a straightforward
 solution. However, it has the following inconvenients:
 
-* It's very `unsafe`. We'd need to add some kind of wrapper/macro on the plugin
-  side to avoid invoking undefined behaviour.
+* It's very `unsafe`. We'd need to add some kind of wrapper/macro for the plugin
+  developers to avoid invoking undefined behaviour.
 * We know nothing about the state. A `void*` can't enforce `Debug` being
-  implemented, nor any other method or trait that might be of interest to us.
+  implemented, nor any base other method or trait that might be of interest to
+  us.
 
 Based on how this works, we can try to extend it by implementing
 intheritance-based polymorphism manually.
@@ -719,8 +725,8 @@ https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/[This
 blog post by Michael
 F. Bryan's] covers the topic extremely well.
 
-Here's how our previous example would look like, which would absolutely work in
-Rust:
+Here's how our previous example would look like, which could be translated to
+Rust with no problems whatsoever:
 
 [source, c]
 ----
@@ -778,12 +784,12 @@ The main difference in the code is the new base class `plugin_base_t`. It
 defines a single function `print` that should be implemented by its children,
 and it could also include other fields that would be inherited. Casting between
 `base_state_t` and `plugin_base_t` is explicitly allowed by the C standard as
-long as it's the first member in the struct, so this is sound.
+long as the base class is the first member in the struct, so this is sound.
 
 This covers all of our necessities. The only remaining problem is that it's
-still quite unsafe to use. Thankfully can be improved by using the crate {{<
-crate thin_trait_object >}}, which provides a very flexible procedural macro to
-automatically write all the necessary boilerplate in Rust.
+still quite unsafe to use. Thankfully, we can avoid most user errors by using
+the crate {{< crate thin_trait_object >}}, which provides a very flexible
+procedural macro to automatically write all the necessary boilerplate in Rust.
 
 ////
 https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/
@@ -800,10 +806,10 @@ we _can't_ recover from.
 
 ==== Missing fields
 
-The `plugin-missing` directory is an empty plugin. It doesn't export any fields
-at all, like the name or the version. This one is already handled by
-`libloading`, actually. When using `library.get("name")`, if `"name"` is
-unavailable in the shared object, the following error will show up:
+The `plugin-missing` directory contains an empty plugin. It doesn't export any
+fields at all, like the name or the version. This one is already handled by
+`libloading`, actually. When using `library.get("name")`, if `"name"` is not
+exported by the shared object, the following error will show up:
 
 [source, text]
 ----
@@ -813,7 +819,8 @@ Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.
 
 ==== Version mismatch
 
-If the 
+After implementing the versioning system, we can see how these kinds of errors
+can be caught safely:
 
 [source, text]
 ----
@@ -826,7 +833,7 @@ Error when setting up the plugin: version mismatch: 0.0.0 incompatible with 0.1.
 ==== Wrong type
 
 Libloading assumes the type that's being loaded is correct. If for example the
-plugin exported the `get_name` function, but returning an integer instead of a
+plugin exported the `get_name` function, but it returned an integer instead of a
 string, we'd be in undefined-behaviour-land:
 
 [quote, 'https://docs.rs/libloading/latest/libloading/struct.Library.html#safety-1']
@@ -860,231 +867,24 @@ zero, the usual value for null. But the same would still happen if the pointer's
 value was 1 instead of 0. And even if it was within bounds, it could just point
 to garbage anyway.
 
-=== Writing the example
+==== Panicking
 
-The example at X approaches the topics covered in this section in the simplest
-of ways.
-
-== Moving to `abi_stable`
-
-=== Versioning
-
-=== Handling state
-
-=== Automatically loading plugins
-
-== Adding dynamic loading to the example
-
-In order to safely load the plugin, one must ensure that the versions of the
-`common` crate match for both the runtime and the plugin, so we have to save it
-somewhere in the metadata of the plugin. However, there's a catch: its layout
-must not only be FFI-safe but also fully backward-compatible. For example, we
-can't just to export the version with `abi_stable::RStr` and then use
-`libloading` to import it. There might be a version mismatch of `abi_stable`
-between the crate and the plugin, and since this happens _before_ making sure
-they're compatible, their layouts might be different.
-
-[quote, 'https://github.com/rodrimati1992/abi_stable_crates#safety[`abi_stable` README]']
-____
-This library ensures that the loaded libraries are safe to use through these
-mechanisms:
-
-* The abi_stable ABI of the library is checked, Each `0.y.0` version and `x.0.0`
-  version of abi_stable defines its own ABI which is incompatible with previous
-  versions.
-* Types are recursively checked when the dynamic library is loaded, before any
-  function can be called.
-____
-
-To prove this, let's write the `dynamic-abi-stable` experiment, which follows
-the higher-level dynamic loading procedure established by `abi_stable`, instead
-of using raw {repr-c} and `libloading`. `abi_stable` provides utilities to load
-plugins with no `unsafe` at all, and with versioning and other goodies built-in.
-We can take a look at the
-https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples[examples]
-in order to make it easier.
-
-`abi_stable` plugins are structured in modules, which can help us split up our
-functionality into smaller independent pieces. There must always be a
-https://docs.rs/abi_stable/latest/abi_stable/library/trait.RootModule.html[root
-module] that initializes the entire library. We'll just call it `MinMod` and
-implement the `min` function:
-
-[source, rust]
-----
-// todo copy stuff from exp
-----
-
-https://docs.rs/abi_stable/0.10.2/abi_stable/derive.StableAbi.html
-
-In order to make it easier for the plugin developer, we can create the macro
-`define_plugin`:
-
-== Setting up cbindgen
-
-For the first steps with dynamic loading I think {{< crate cbindgen >}} will
-help us understand what's going on. We can take a look at the generated headers
-and see how it works internally. Unfortunately, it fails to run for the
-`abi_stable` crate:
+Panicking is not supported in the C ABI; it's considered undefined behaviour
+<<panic-ffi>>. If a plugin panics, the entire program will most likely abort.
+Plugin developers should wrap every single exported function in
+https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`] in
+order to not crash the entire runtime when something goes wrong:
 
 [source, text]
 ----
-(...)
-WARN: Skip abi_stable::CONST - (...)
- 
-thread 'main' panicked at 'RResult has 2 params but is being instantiated with 1 values', src/bindgen/ir/enumeration.rs:596:9
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+$ make debug-panic
+Segmentation fault (core dumped)
 ----
 
-This _probably_ has to do with the following warning found in
-https://github.com/eqrion/cbindgen/blob/master/docs.md[``cbindgen``'s
-documentation]:
+=== Full implementation
 
-____
-pass:[NOTE:] A major limitation of cbindgen is that it does not understand
-Rust's module system or namespacing. This means that if cbindgen sees that it
-needs the definition for `MyType` and there exists two things in your project
-with the type name `MyType`, it won't know what to do. Currently, cbindgen's
-behaviour is unspecified if this happens. However this may be ok if they have
-https://github.com/eqrion/cbindgen/blob/master/docs.md#defines-and-cfgs[different
-cfgs].
-____
-
-After letting the maintainers of `abi_stable` know about this in
-https://github.com/rodrimati1992/abi_stable_crates/issues/52[an issue], they
-pointed out that this was expected and that they don't plan on supporting
-`cbindgen` because it would take too much effort. Understandable, so let's move
-on.
-
-== Conversions to `abi_stable`
-
-It's important to know the complexity of conversions from/to `abi_stable` types.
-If `std::Vec` -> `abi_stable::RVec` wasn't stem:[O(n)] it might be worth using
-only the latter throughout the entirety of Tremor.
-
-This means that I should spend at least a bit of my time on understanding how
-the `abi_stable` types are implemented and making sure this isn't the case. In
-`std`, the definition of `Vec` is actually quite simple if we remove most of the
-noise:
-
-[source, rust]
-----
-// A non-null pointer to `T` that indicates ownership.
-pub struct Unique<T: ?Sized> {
-    pointer: *const T, // The data itself
-    _marker: PhantomData<T>, // Indicating that we own a `T`
-}
-
-// Low level type related to allocation
-pub struct RawVec<T> {
-    ptr: Unique<T>,
-    cap: usize,
-}
-
-pub struct Vec<T> {
-    buf: RawVec<T>,
-    len: usize,
-}
-----
-
-It's mostly self-explanatory; a `Vec<T>` is a pointer to `T` with a set capacity
-and length. What about ``abi_stable``'s implementation?
-
-[source, rust]
-----
-#[repr(C)] // Notice this, so that it's FFI-safe
-#[derive(StableAbi)] // This trait marks `RVec` as FFI-safe, with info about its layout
-pub struct RVec<T> {
-    pub(super) buffer: *mut T,
-    pub(super) length: usize,
-    capacity: usize,
-    vtable: VecVTable_Ref<T>,
-    _marker: PhantomData<T>,
-}
-----
-
-Yup, basically the same, but packed inside a single struct. The only real
-difference is that we have a field with the vtable, which I'll cover later on.
-The conversion between these types is written with a macro, but if expanded, it
-looks like this:
-
-[source, rust]
-----
-impl<T> From<Vec<T>> for RVec<T> {
-    fn from(this: Vec<T>) -> RVec<T> {
-        let mut this = std::mem::ManuallyDrop::new(this);
-        RVec {
-            vtable: VTableGetter::<T>::LIB_VTABLE,
-            buffer: this.as_mut_ptr(),
-            length: this.len(),
-            capacity: this.capacity(),
-            _marker: PhantomData,
-        }
-    }
-}
-----
-
-The only "`weird`" part is the usage of `std::mem::ManuallyDrop`, which simply
-is a wrapper that indicates Rust to not call the destructor of its contents
-automatically. In this case it's basically a less error prone
-`std::mem::forget`, as
-https://doc.rust-lang.org/stable/std/mem/fn.forget.html#relationship-with-manuallydrop[its
-docs explain]. Thanks to it, the memory from the vector won't be dropped when
-this function ends, and it can be safely moved into the `RVec`, with no copying.
-
-This happens for every type I checked in `abi_stable`, including `RSlice<T>`,
-which contains a reference to a slice, `RStr`, which is just a `RSlice<u8>`, and
-`RString`, which is just a `RVec`.
-
-== Panicking
-
-`abi_stable` can't do anything about the unsafety of panicking in plugins. It
-will simply abort the program:
-
-[source]
-----
-Loading plugin min
-initial state: State { counter: 0 }
-thread '<unnamed>' panicked at 'This will crash everything', src/lib.rs:26:5
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-
-file:src/lib.rs
-line:24
-Attempted to panic across the ffi boundary.
-Aborting to handle the panic...
-----
-
-== Thread safety
-
-== Setting Up Miri
-
-== Tremor connectors
-
-Since it may be simpler to get `native-connector` running, let's start with
-that. We'll just copy all the necessary code for the
-https://github.com/tremor-rs/tremor-runtime/tree/883f13e29b4c6ec7b6703f2487aac321c738e7c8[current
-implementation] of connectors as a standalone program:
-
-== Conclusion
-
-////
-== Benchmarking
-
-I've always wanted to run some benchmarks in order to find out the actual
-difference in performance between dynamic loading (with native code) and Wasm
-(with interpreted code). Of course, the former will be faster. But, is it
-noticeable?
-
-TODO compare with already existing benchmarks, what to expect, etc
-
-Now that I have some examples of both dynamic loading and Wasm plugins, I can
-make a few benchmarks in order to see the difference by myself. The `wasm-bench`
-and `dynamic-bench` directories in
-https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] can be
-compiled and then ran with
-https://doc.rust-lang.org/1.7.0/book/benchmark-tests.html[Rust's integrated
-benchmarking system] (which requires nightly for now)
-////
+The example at X approaches the topics covered in this section in the simplest
+of ways.
 
 [bibliography]
 == References
@@ -1096,3 +896,5 @@ benchmarking system] (which requires nightly for now)
 - [[[void-ptr,       11]]] https://www.learncpp.com/cpp-tutorial/void-pointers/
 - [[[pulseaudio-ptr, 11]]] https://freedesktop.org/software/pulseaudio/doxygen/stream_8h.html#a2dcc985c65964da290a0c2e1bf103175
 - [[[generics,       11]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
+- [[[fat-binaries,   11]]] https://stackoverflow.com/a/63346857/11488352
+- [[[panic-ffi,      11]]] https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics
