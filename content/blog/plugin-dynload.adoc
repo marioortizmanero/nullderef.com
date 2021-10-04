@@ -613,7 +613,9 @@ extern "C" {
 
 That is mainly because even though lifetimes and generics share the same syntax,
 in the case of lifetimes they are only annotations for the Rust compiler;
-monomorphization is not applied.
+monomorphization is not applied. If you want to know more about this topic I'd
+suggest watching https://www.youtube.com/watch?v=xcygqF5LVmM[this video by Jon
+Gjengset].
 
 ==== `dyn` in plugins?
 
@@ -764,18 +766,13 @@ int main() {
 The main difference in the code is the new base class `plugin_base_t`. It
 defines a single function `print` that should be implemented by its children,
 and it could also include other fields that would be inherited. Casting between
-`base_state_t` and `plugin_base_t` is sound because it's the first member in the
-struct, so it's allowed by the C standard.
+`base_state_t` and `plugin_base_t` is explicitly allowed by the C standard as
+long as it's the first member in the struct, so this is sound.
 
 This covers all of our necessities. The only remaining problem is that it's
-still quite unsafe to use. This can be improved by using the crate {{< crate
-thin_trait_object >}}:
-
-[source, rust]
-----
-#[thin_trait_object]
-trait 
-----
+still quite unsafe to use. Thankfully can be improved by using the crate {{<
+crate thin_trait_object >}}, which provides a very flexible procedural macro to
+automatically write all the necessary boilerplate in Rust.
 
 ////
 https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/
