@@ -652,7 +652,7 @@ There are two popular ways to approach this in C:
 
 For safety's sake, let's see how the second one works. This pattern is used for
 example in PulseAudio <<pulseaudio-ptr>>, in which callbacks pass a `void*`
-parameter for user data. Here's a simpler example:
+parameter for user data. Here's a simpler program:
 
 [source, c]
 ----
@@ -692,30 +692,104 @@ int main() {
 }
 ----
 
-TODO
+This does work perfectly, and we could port it to Rust as a straightforward
+solution. However, it has the following inconvenients:
 
-[source, rust]
+* It's very `unsafe`. We'd need to add some kind of wrapper/macro on the plugin
+  side to avoid invoking undefined behaviour.
+* We know nothing about the state. A `void*` can't enforce `Debug` being
+  implemented, nor any other method or trait that might be of interest to us.
+
+Based on how this works, we can try to extend it by implementing
+intheritance-based polymorphism manually.
+https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/[This
+blog post by Michael
+F. Bryan's] covers the topic extremely well.
+
+Here's how our previous example would look like, which would absolutely work in
+Rust:
+
+[source, c]
 ----
-struct 
+#include <stdio.h>
+#include <stdlib.h>
 
-#[repr(C)]
-struct PluginData {
-   
-    pub mime_types: RSlice<'static, RStr<'static>>,
-    // Initializes the plugin by creating a new state
-    pub new: unsafe extern "C" fn() -> ConnectorState,
-    // A stub function exported by the connector
-    pub some_function: unsafe extern "C" fn(state: &mut ConnectorState, data: RSliceMut<'input, u8>) -> i32,
+// The base plugin type
+typedef struct base_state_t {
+    void (*print)(struct base_state_t *);
+} base_state_t;
+
+// The state of the plugin, child of the above type
+typedef struct {
+    base_state_t base;
+    int counter;
+} plugin_state_t;
+
+// The implementation of `print` for the `plugin_state_t` child
+void print(base_state_t* state) {
+    plugin_state_t* plugin_state = (plugin_state_t*) state;
+    printf("Current state: { counter = %d }\n", plugin_state->counter);
+}
+
+// Exported by the plugin, initializes the state
+base_state_t* new() {
+    base_state_t base = {print};
+
+    plugin_state_t* plugin_state = malloc(sizeof(plugin_state_t));
+    plugin_state->base = base;
+    plugin_state->counter = 0;
+    return (base_state_t*) plugin_state;
+}
+
+// Exported by the plugin, which takes a pointer to its state
+void something(void* state) {
+    // We know the runtime used `new` to initialize the state, so we can cast it
+    // back to its original type.
+    plugin_state_t* plugin_state = (plugin_state_t*) state;
+    plugin_state->counter++;
+}
+
+int main() {
+    // We initialize the plugin, which returns its state
+    base_state_t* state = new();
+    // When calling anything from the plugin we pass its state
+    state->print(state);
+    something((void*) state);
+    state->print(state);
+    // Don't forget!
+    free(state);
 }
 ----
 
-==== Alternatives to `dyn` in plugins
+The main difference in the code is the new base class `plugin_base_t`. It
+defines a single function `print` that should be implemented by its children,
+and it could also include other fields that would be inherited. Casting between
+`base_state_t` and `plugin_base_t` is sound because it's the first member in the
+struct, so it's allowed by the C standard.
 
+This covers all of our necessities. The only remaining problem is that it's
+still quite unsafe to use. This can be improved by using the crate {{< crate
+thin_trait_object >}}:
+
+[source, rust]
+----
+#[thin_trait_object]
+trait 
+----
+
+////
+https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/
+https://www.youtube.com/watch?v=xcygqF5LVmM&feature=emb_title
+
+https://docs.rs/thin_trait_object/1.1.2//
+////
 
 === Writing the example
 
 The example at X approaches the topics covered in this section in the simplest
 of ways.
+
+=== Error handling
 
 == Moving to `abi_stable`
 
@@ -957,38 +1031,6 @@ Aborting to handle the panic...
 == Thread safety
 
 == Setting Up Miri
-
-== Generics
-
-The traits I was trying to make plugin-compatible in Tremor had some instances
-of generics. And they'd only get worse in the future with
-https://github.com/rust-lang/rust/issues/44265[GATs] and `async` methods in
-traits actually being generic as well (we currently use {{< crate async_trait
->}}).
-
-So, first of all let's cross this one out of the checklist. Can we use generics
-in the plugins?
-
-=== Why they are impossible
-
-
-=== Alternatives
-
-https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/[Michael
-F. Bryan's blog post about `Box<dyn Trait>`] covers pretty well the different
-alternatives we have available. Since we can't use generics, `Box<dyn Trait>` is
-what we should be using, which makes polymorphism available at runtime. However,
-the ABI for `Box<dyn Trait>` is unstable, as it's written in Rust, so we'll have
-to find an equivalent alternative.
-
-////
-https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/
-https://www.youtube.com/watch?v=xcygqF5LVmM&feature=emb_title
-
-https://docs.rs/typetag/0.1.7/typetag/
-https://docs.rs/serde_traitobject/0.2.7/serde_traitobject/
-https://docs.rs/thin_trait_object/1.1.2/thin_trait_object/
-////
 
 == Tremor connectors
 
