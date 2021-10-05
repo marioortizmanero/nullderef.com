@@ -1,13 +1,14 @@
 ---
-title: "Plugins in Rust: Diving into dynamic loading"
+title: "Plugins in Rust: Diving into Dynamic Loading"
 description: "A closer look at dynamic loading in Rust"
-summary: "Writing a more advanced example of dynamic loading working, and
-analyzing the results."
+summary: "Dynamic loading is a complicated task if you start from the scratch.
+You'll have to figure out how to handle versioning, plugin loading, state, and
+error handling, among other things."
 author: "Mario Ortiz Manero"
-tags: ["rust", "journal"]
+tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
-date: 2021-09-09
-GHissueID: ??
+date: 2021-10-05
+GHissueID: 38
 ---
 
 :sectnums:
