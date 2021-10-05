@@ -3205,30 +3205,26 @@ already know about it. It’s open source and made with Hugo, go check it out :)
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><a href="https://fasterthanli.me/"><strong>fasterthanlime</strong></a>: this site features extremely
-thorough posts about computers (mostly Rust) in a very dynamic way. Amos, the
-author, really puts in effort and you can tell.</p>
+<p><a href="https://fasterthanli.me/"><strong>fasterthanlime</strong></a>: thorough posts about computers in
+a very fun way.</p>
 </li>
 <li>
-<p><a href="https://adventures.michaelfbryan.com/"><strong>Michael-F-Bryan</strong></a>: another programming
-blog about various topics, including Rust. His articles are explained with
-lots of code, examples, and diagrams.</p>
+<p><a href="https://adventures.michaelfbryan.com/"><strong>Michael-F-Bryan</strong></a>: interesting Rust
+articles with lots of examples and diagrams.</p>
 </li>
 <li>
-<p><a href="https://0x709394.me/index"><strong>Ramsay’s Eden</strong></a>: my friend’s
-<a href="https://github.com/ramsayleung">Ramsay</a> blog site, with very detailed posts. I
-met him maintaining <a href="https://github.com/ramsayleung/rspotify">Rspotify</a>, a
-library in Rust, but he writes about other things as well.</p>
+<p><a href="https://robertheaton.com/"><strong>Robert Heaton</strong></a>: very unique style of narration,
+often about pentesting.</p>
 </li>
 <li>
-<p><a href="https://robertheaton.com/"><strong>Robert Heaton</strong></a>: a blog with a very unique style of
-narration, often about either pentesting or personal stories from Robert.</p>
+<p><a href="https://matklad.github.io/"><strong>matklad</strong></a>: technical blog posts from the
+development leader of <a href="https://github.com/rust-analyzer/rust-analyzer">Rust
+Analyzer</a>.</p>
 </li>
 <li>
-<p><a href="https://matklad.github.io/"><strong>matklad</strong></a>: this author shares his extensive
-experience as the development leader of
-<a href="https://github.com/rust-analyzer/rust-analyzer">Rust Analyzer</a>, in the form of
-technical blog posts.</p>
+<p><a href="https://0x709394.me/index"><strong>Ramsay’s Eden</strong></a>: my friend
+<a href="https://github.com/ramsayleung">Ramsay’s</a> site about Rust and distributed
+systems.</p>
 </li>
 </ol>
 </div>

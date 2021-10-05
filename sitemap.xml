@@ -5,7 +5,7 @@
     <loc>https://nullderef.com/blog/</loc>
     <lastmod>2021-09-05T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/journal/</loc>
+    <loc>https://nullderef.com/tags/dynamic-loading/</loc>
     <lastmod>2021-09-05T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/</loc>
@@ -36,9 +36,6 @@
     <lastmod>2021-07-06T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/plugin-tech/</loc>
-    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/project/</loc>
     <lastmod>2021-05-17T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/gsoc-proposal/</loc>
