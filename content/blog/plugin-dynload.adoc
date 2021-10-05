@@ -62,18 +62,18 @@ This currently works with
 https://www.tremor.rs/docs/artefacts/onramps/[onramps/sources],
 https://www.tremor.rs/docs/artefacts/offramps/[offramps/sinks] and pipelines:
 
-* A pipeline is a set of operations (transformation, aggregation, dropping, etc)
-  through which events can be routed.
 * An onramp specifies how Tremor connects to the outside world (or pipeline) in
-  order to *receive from external systems*, such as
+  order to _receive_ from external systems, such as
   https://www.tremor.rs/docs/artefacts/onramps/#tcp[TCP],
   https://www.tremor.rs/docs/artefacts/onramps/#metronome[periodically] or
   https://www.tremor.rs/docs/artefacts/onramps/#postgresql[PostgreSQL].
 * An offramp specifies how Tremor connects to the outside world (or pipeline) in
-  order to *publish to external systems*, such as
+  order to _publish_ to external systems, such as
   https://www.tremor.rs/docs/artefacts/offramps/#stdout[stdout],
   https://www.tremor.rs/docs/artefacts/offramps/#kafka[Kafka] or
   https://www.tremor.rs/docs/artefacts/offramps/#elastic[ElasticSearch].
+* A pipeline is a set of operations (transformation, aggregation, dropping, etc)
+  through which events can be routed.
 
 The thing is that some onramps may not only want to receive from external
 systems, but also respond to them directly, acting like an offramp, and
@@ -81,7 +81,7 @@ vice-versa. This is currently implemented with what's called
 https://www.tremor.rs/docs/operations/linked-transports/["`linked transports`"],
 and it's specifically useful for some onramps and offramps like REST and
 websocket, where the protocol already provides facility for responding to events
-with a single connection.
+with a single connection, for example with an ACK.
 
 Basically,
 https://github.com/tremor-rs/tremor-rfcs/blob/connectors-n-streams/text/0000-connectors-streams.md[connectors]
@@ -94,34 +94,18 @@ their interface, defined with the
 https://github.com/tremor-rs/tremor-runtime/blob/883f13e29b4c6ec7b6703f2487aac321c738e7c8/src/connectors.rs#L739[`Connector`
 trait], is somewhat stable.
 
-After the interface is done, we could implement the two following connector
-plugins:
-
-* https://github.com/tremor-rs/tremor-runtime/blob/main/src/sink/blackhole.rs[Blackhole]
-  is used for benchmarking. It takes measurements of the end to end times of each
-  event traversing the pipeline and at the end prints an HDR (High Dynamic
-  Range) http://hdrhistogram.org/[histogram].
-* https://github.com/tremor-rs/tremor-runtime/blob/main/src/source/blaster.rs[Blaster]
-  replays a series of events specified in a file, which is specially useful for
-  performance testing.
-
-Both of these are relatively simple and will be helpful to benchmark the PDK
-later on. But that isn't really important right now; we first need to get the
-PDK working, and then we can care about performance.
-
-We will have to keep the plugin interface as simple as possible. We don't need
-to run multiple connectors at the same time, and we should keep the
-communication details to the runtime. The plugin can be simplified so that it
-just exports a number of synchronous functions. With this we can avoid passing
-some complex types (`async`, channels, etc) between the runtime and plugin,
-which can be impossible if you have to maintain ABI stability (`abi_stable`
-doesn't even support `async`).
+It's important to keep the plugin interface as simple as possible. The
+communication details should be left to the runtime, so that  the plugin can be
+simplified to just exporting a number of synchronous functions. With this we can
+avoid passing some complex types (`async`, channels, etc) between the runtime
+and plugin, which can be impossible if you have to maintain ABI stability
+({{< crate abi_stable >}} doesn't even support `async`).
 
 Once this lean plugin interface is defined, we can create some kind of wrapper
-in the runtime (a _manager_, in Tremor terms) that handles all of this. This
-exact same thing is done by other crates such as {{< crate rdkafka >}}, which is
-based on the C library {{< crate rdkafka-sys >}}, and implements the
-asynchronous interface on top of it.
+in the runtime (a _manager_, in Tremor terms) that handles communication and
+other similar tasks. This exact same thing is done by other crates such as {{<
+crate rdkafka >}}, which is based on the C library {{< crate rdkafka-sys >}},
+and implements a higher-level asynchronous interface on top of it.
 
 == About Tremor
 
@@ -321,6 +305,21 @@ preprocessors and then the codec is applied. For the sinks, the inverse process
 is followed: the data is first encoded into bytes with the codec, and then a
 series of post-processors are applied to the raw binary data.
 
+After the full interface of connectors is done, I could implement the two
+following connector plugins:
+
+* https://github.com/tremor-rs/tremor-runtime/blob/main/src/sink/blackhole.rs[Blackhole]
+  is used for benchmarking. It takes measurements of the end to end times of each
+  event traversing the pipeline and at the end prints an HDR (High Dynamic
+  Range) http://hdrhistogram.org/[histogram].
+* https://github.com/tremor-rs/tremor-runtime/blob/main/src/source/blaster.rs[Blaster]
+  replays a series of events specified in a file, which is specially useful for
+  performance testing.
+
+Both of these are relatively simple and will be helpful to benchmark the PDK
+later on. But that isn't really important right now; I first need to get the PDK
+working, and then I can care about performance.
+
 [[actual_start]]
 == Taking a look at eBPF first
 
@@ -346,7 +345,8 @@ intermediate memory. Since you fully control how the virtual machine works, the
 runtime could implement a custom sandbox that simply checks for the read/written
 addresses in the plugins to make sure they aren't out of bounds, while still
 sharing the same memory space. So in terms of performance, Tremor itself _could_
-use it -- though there's still the penalty of interpreting plugins.
+use it -- though there's still the penalty of interpreting plugins instead of
+running them natively.
 
 The problem in this case is that, for what I've found, Rust support leaves to be
 desired. Most people seem to use C for eBPF and I think it shows; the number of
@@ -356,19 +356,21 @@ use is `rbpf` and its derivatives. Looking for information about this topic was
 somewhat frustrating, specially because the search results are mixed up with
 kernel-only BPF, which is not relevant to us.
 
-It doesn't really seem like the best choice right now. We would have to write
-almost everything about the plugin system from scratch, including the sandbox
-itself (allowing only different sets of syscalls, bounds checking, etc). It
-would be considerably more cumbersome than using something like `abi_stable`.
-Maybe in the future it'd be worth trying it out in detail and running some
-benchmarks, but for now I think dynamic loading is still the clear winner.
+It doesn't really seem like the best choice right now, in my opinion. We would
+have to write almost everything about the plugin system from scratch, including
+the sandbox itself (allowing only different sets of syscalls, bounds checking,
+etc). It would be considerably more cumbersome than using something like
+`abi_stable`. Maybe in the future it'd be worth considering it in detail and
+running some benchmarks, but for now I think dynamic loading is still the clear
+winner for Tremor. Still, I'm surprised by how flexible eBPF seems to be, and
+how it's possible to avoid the memory barrier problem found in Wasm.
 
 Cheers to Dr. Florentin Rochet for letting me know about this technology --
-though he's considering switching to WebAssembly. He's currently using it to
-research _pluggable_ anonymous protocols like Tor, which would allow patches to
-their code to happen at runtime <<florentin-1>> <<florentin-2>> <<florentin-3>>
-<<florentin-4>>. This makes it faster to fix vulnerabilities until it's properly
-updated upstream, among other things. Pretty cool :)
+though he's considering switching to WebAssembly for his project. He's currently
+using it to research _pluggable_ anonymous protocols like Tor, which would allow
+patches to their code to happen at runtime <<florentin-1>> <<florentin-2>>
+<<florentin-3>> <<florentin-4>>. This makes it faster to fix vulnerabilities
+until it's properly updated upstream, among other things. Pretty cool :)
 
 == Getting deeper into dynamic linking
 
@@ -494,7 +496,7 @@ depending on how fine-grained (but also more error-prone) it should be:
   modifies structures for codec plugins, the rest of the plugins would still
   work.
 
-== Automatically loading plugins
+== Loading plugins
 
 Another complicated topic is plugin distribution and management. In order to
 make it easier for the user, plugins should be found and loaded automatically.
@@ -553,9 +555,9 @@ about how the latter should work:
 == Handling state
 
 Most plugins will want to keep some kind of state between calls to its
-interface. For example, the TCP connector will need to keep its socket after the
-connection in order to send or receive messages. This means that most of them
-will follow the following pattern:
+interface. For example, the TCP connector will need to keep its socket after its
+initialization in order to send or receive messages. This means that most of
+them will follow the following pattern:
 
 [source, rust]
 ----
@@ -919,6 +921,9 @@ define_connector_plugin! {
 }
 ----
 
+The plugin system supports multiple types of plugins (connectors, codecs, etc),
+so there's actually a specific macro and data structure for each of them.
+
 Apart from the examples listed in the <<error_handling>> section, I've created a
 proper plugin that is supposed to work, with the name `plugin-metronome`. It was
 supposed to implement the
@@ -930,11 +935,14 @@ we'll end up using.
 == Conclusion
 
 This article has covered a lot of questions that one may encounter when trying
-to use dynamic loading for a plugin system.
+to use dynamic loading for a plugin system. It's definitely a complicated task
+with lots of decisions to make, and plenty of pitfalls. This is why I'd love to
+try `abi_stable` in detail, which would let us do the same things but without a
+line of `unsafe`.
 
-In the next article I'll cover the same points when using `abi_stable`. Although
-in my opinion it's a very large crate and somewhat hard to learn, most of the
-problems this post exposes are greatly simplified thanks to it.
+In my opinion, although `abi_stable` is a very large crate and somewhat hard to
+learn, most of the problems this post exposes are greatly simplified thanks to
+it. In the next article I'll see the differences between both approaches. 
 
 [bibliography]
 == References
@@ -943,8 +951,8 @@ problems this post exposes are greatly simplified thanks to it.
 - [[[florentin-2,     2]]] https://pquic.org/
 - [[[florentin-3,     3]]] https://petsymposium.org/2019/files/hotpets/proposals/rochet-fan.pdf
 - [[[florentin-4,     4]]] https://petsymposium.org/2019/files/hotpets/slides/rochet-fan-slides.pdf
-- [[[void-ptr,       11]]] https://www.learncpp.com/cpp-tutorial/void-pointers/
-- [[[pulseaudio-ptr, 11]]] https://freedesktop.org/software/pulseaudio/doxygen/stream_8h.html#a2dcc985c65964da290a0c2e1bf103175
-- [[[generics,       11]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
-- [[[fat-binaries,   11]]] https://stackoverflow.com/a/63346857/11488352
-- [[[panic-ffi,      11]]] https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics
+- [[[fat-binaries,    5]]] https://stackoverflow.com/a/63346857/11488352
+- [[[generics,        6]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
+- [[[void-ptr,        7]]] https://www.learncpp.com/cpp-tutorial/void-pointers/
+- [[[pulseaudio-ptr,  8]]] https://freedesktop.org/software/pulseaudio/doxygen/stream_8h.html#a2dcc985c65964da290a0c2e1bf103175
+- [[[panic-ffi,       9]]] https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics
