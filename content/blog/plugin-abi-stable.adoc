@@ -12,87 +12,17 @@ GHissueID: 30
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
-== Moving to `abi_stable`
+https://nullderef.com/blog/plugin-start/[The last article] of this
+https://nullderef.com/series/rust-plugins/[series] covered how the plugin system
+could be implemented from scratch. We all know that this isn't a good idea, so
+let's try doing the same things with the {{< crate abi_stable >}} crate, which
+was specifically created for this kind of task.
 
-=== Versioning
+TODO intro for abi_stable
 
-[quote, 'https://github.com/rodrimati1992/abi_stable_crates#safety[`abi_stable` README]']
-____
-This library ensures that the loaded libraries are safe to use through these
-mechanisms:
+== About Tremor
 
-* The abi_stable ABI of the library is checked, Each `0.y.0` version and `x.0.0`
-  version of abi_stable defines its own ABI which is incompatible with previous
-  versions.
-* Types are recursively checked when the dynamic library is loaded, before any
-  function can be called.
-____
-
-=== Handling state
-
-=== Automatically loading plugins
-
-Let's write the `dynamic-abi-stable` experiment, which follows
-the higher-level dynamic loading procedure established by `abi_stable`, instead
-of using raw {repr-c} and `libloading`. `abi_stable` provides utilities to load
-plugins with no `unsafe` at all, and with versioning and other goodies built-in.
-We can take a look at the
-https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples[examples]
-in order to make it easier.
-
-`abi_stable` plugins are structured in modules, which can help us split up our
-functionality into smaller independent pieces. There must always be a
-https://docs.rs/abi_stable/latest/abi_stable/library/trait.RootModule.html[root
-module] that initializes the entire library. We'll just call it `MinMod` and
-implement the `min` function:
-
-[source, rust]
-----
-// todo copy stuff from exp
-----
-
-https://docs.rs/abi_stable/0.10.2/abi_stable/derive.StableAbi.html
-
-In order to make it easier for the plugin developer, we can create the macro
-`define_plugin`:
-
-== Setting up cbindgen
-
-For the first steps with dynamic loading I think {{< crate cbindgen >}} will
-help us understand what's going on. We can take a look at the generated headers
-and see how it works internally. Unfortunately, it fails to run for the
-`abi_stable` crate:
-
-[source, text]
-----
-(...)
-WARN: Skip abi_stable::CONST - (...)
- 
-thread 'main' panicked at 'RResult has 2 params but is being instantiated with 1 values', src/bindgen/ir/enumeration.rs:596:9
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-----
-
-This _probably_ has to do with the following warning found in
-https://github.com/eqrion/cbindgen/blob/master/docs.md[``cbindgen``'s
-documentation]:
-
-____
-pass:[NOTE:] A major limitation of cbindgen is that it does not understand
-Rust's module system or namespacing. This means that if cbindgen sees that it
-needs the definition for `MyType` and there exists two things in your project
-with the type name `MyType`, it won't know what to do. Currently, cbindgen's
-behaviour is unspecified if this happens. However this may be ok if they have
-https://github.com/eqrion/cbindgen/blob/master/docs.md#defines-and-cfgs[different
-cfgs].
-____
-
-After letting the maintainers of `abi_stable` know about this in
-https://github.com/rodrimati1992/abi_stable_crates/issues/52[an issue], they
-pointed out that this was expected and that they don't plan on supporting
-`cbindgen` because it would take too much effort. Understandable, so let's move
-on.
-
-== Conversions to `abi_stable`
+== Type conversions to `abi_stable`
 
 It's important to know the complexity of conversions from/to `abi_stable` types.
 If `std::Vec` -> `abi_stable::RVec` wasn't stem:[O(n)] it might be worth using
@@ -172,7 +102,99 @@ This happens for every type I checked in `abi_stable`, including `RSlice<T>`,
 which contains a reference to a slice, `RStr`, which is just a `RSlice<u8>`, and
 `RString`, which is just a `RVec`.
 
-== Panicking
+== Setting up Miri (?)
+
+== Setting up cbindgen
+
+For the first steps with dynamic loading I think {{< crate cbindgen >}} will
+help us understand what's going on. We can take a look at the generated headers
+and see how it works internally. Unfortunately, it fails to run for the
+`abi_stable` crate:
+
+[source, text]
+----
+(...)
+WARN: Skip abi_stable::CONST - (...)
+ 
+thread 'main' panicked at 'RResult has 2 params but is being instantiated with 1 values', src/bindgen/ir/enumeration.rs:596:9
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+----
+
+This _probably_ has to do with the following warning found in
+https://github.com/eqrion/cbindgen/blob/master/docs.md[``cbindgen``'s
+documentation]:
+
+____
+pass:[NOTE:] A major limitation of cbindgen is that it does not understand
+Rust's module system or namespacing. This means that if cbindgen sees that it
+needs the definition for `MyType` and there exists two things in your project
+with the type name `MyType`, it won't know what to do. Currently, cbindgen's
+behaviour is unspecified if this happens. However this may be ok if they have
+https://github.com/eqrion/cbindgen/blob/master/docs.md#defines-and-cfgs[different
+cfgs].
+____
+
+After letting the maintainers of `abi_stable` know about this in
+https://github.com/rodrimati1992/abi_stable_crates/issues/52[an issue], they
+pointed out that this was expected and that they don't plan on supporting
+`cbindgen` because it would take too much effort. Understandable, so let's move
+on.
+
+== Versioning
+
+[quote, 'https://github.com/rodrimati1992/abi_stable_crates#safety[`abi_stable` README]']
+____
+This library ensures that the loaded libraries are safe to use through these
+mechanisms:
+
+* The abi_stable ABI of the library is checked, Each `0.y.0` version and `x.0.0`
+  version of abi_stable defines its own ABI which is incompatible with previous
+  versions.
+* Types are recursively checked when the dynamic library is loaded, before any
+  function can be called.
+____
+
+== Loading plugins
+
+Let's write the `dynamic-abi-stable` experiment, which follows
+the higher-level dynamic loading procedure established by `abi_stable`, instead
+of using raw {repr-c} and `libloading`. `abi_stable` provides utilities to load
+plugins with no `unsafe` at all, and with versioning and other goodies built-in.
+We can take a look at the
+https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples[examples]
+in order to make it easier.
+
+`abi_stable` plugins are structured in modules, which can help us split up our
+functionality into smaller independent pieces. There must always be a
+https://docs.rs/abi_stable/latest/abi_stable/library/trait.RootModule.html[root
+module] that initializes the entire library. We'll just call it `MinMod` and
+implement the `min` function:
+
+[source, rust]
+----
+// todo copy stuff from exp
+----
+
+https://docs.rs/abi_stable/0.10.2/abi_stable/derive.StableAbi.html
+
+In order to make it easier for the plugin developer, we can create the macro
+`define_plugin`:
+
+== Handling state
+
+== `dyn` support
+
+== Error handling
+
+=== Missing fields
+
+=== Version mismatch
+
+=== Wrong type
+
+=== Wrong address
+
+=== Panicking
 
 `abi_stable` can't do anything about the unsafety of panicking in plugins. It
 will simply abort the program:
@@ -190,11 +212,9 @@ Attempted to panic across the ffi boundary.
 Aborting to handle the panic...
 ----
 
-== Thread safety
+== Thread safety (?)
 
-== Setting Up Miri
-
-== Tremor connectors
+== Full implementation
 
 Since it may be simpler to get `native-connector` running, let's start with
 that. We'll just copy all the necessary code for the
