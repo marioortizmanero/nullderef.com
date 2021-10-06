@@ -15,10 +15,7 @@
       
       <guid>https://nullderef.com/blog/plugin-dynload/</guid>
       <description>A closer look at dynamic loading in Rust</description>
-      <content:encoded><![CDATA[<div class="sect1">
-<h2 id="_introduction">1. Introduction</h2>
-<div class="sectionbody">
-<div class="paragraph">
+      <content:encoded><![CDATA[<div class="paragraph">
 <p>In the <a href="https://nullderef.com/blog/plugin-start/">last part</a> of this
 <a href="https://nullderef.com/series/rust-plugins/">series</a> I wrote some simple
 experiments of plugins both with WebAssembly and dynamic loading. After
@@ -31,10 +28,8 @@ have to learn more about them. Matthias ran me through their current state in a
 meeting, which I’ll try to summarize. We won’t need to know much for this
 specific article, though.</p>
 </div>
-</div>
-</div>
 <div class="sect1">
-<h2 id="_learning_more_about_connectors">2. Learning more about connectors</h2>
+<h2 id="_learning_more_about_connectors">1. Learning more about connectors</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>First of all, <a href="https://www.tremor.rs/">Tremor</a> is an event processing system for
@@ -126,7 +121,7 @@ and implements a higher-level asynchronous interface on top of it.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_about_tremor">3. About Tremor</h2>
+<h2 id="_about_tremor">2. About Tremor</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>As always, these articles include a first section with content specific to
@@ -137,7 +132,7 @@ a real-life Plugin System will surely be helpful to those attempting to do the
 same.</p>
 </div>
 <div class="sect2">
-<h3 id="_my_next_steps">3.1. My next steps</h3>
+<h3 id="_my_next_steps">2.1. My next steps</h3>
 <div class="paragraph">
 <p>In the first meeting we discussed the work I had exposed in my last update.
 Despite the complications (being forced to use <code>#[repr(C)]</code>), the team liked where
@@ -157,7 +152,7 @@ trait had a workaround to avoid generics with <code>SinkManagerBuilder</code>.</
 </div>
 </div>
 <div class="sect2">
-<h3 id="_on_software_engineering">3.2. On software engineering</h3>
+<h3 id="_on_software_engineering">2.2. On software engineering</h3>
 <div class="paragraph">
 <p>At the end of the first meeting, Darach gave some very interesting advice for my
 software engineering career, so I took note of it and reflected for a bit:</p>
@@ -197,7 +192,7 @@ incredibly helpful.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_how_tremor_works">3.3. How Tremor works</h3>
+<h3 id="_how_tremor_works">2.3. How Tremor works</h3>
 <div class="paragraph">
 <p>After starting to write the PDK example for connectors and failing because I
 didn’t know what I was doing, I decided to step back and try to understand in
@@ -376,7 +371,7 @@ working, and then I can care about performance.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="actual_start">4. Taking a look at eBPF first</h2>
+<h2 id="actual_start">3. Taking a look at eBPF first</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In the previous articles I mostly considered using either WebAssembly or Dynamic
@@ -437,7 +432,7 @@ until it’s properly updated upstream, among other things. Pretty cool :)</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_getting_deeper_into_dynamic_linking">5. Getting deeper into dynamic linking</h2>
+<h2 id="_getting_deeper_into_dynamic_linking">4. Getting deeper into dynamic linking</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Now that we definitely know how to approach the PDK, we have two choices: using
@@ -456,7 +451,7 @@ what we need for connectors, so I’ll call the new experiment
 </div>
 </div>
 <div class="sect1">
-<h2 id="_versioning">6. Versioning</h2>
+<h2 id="_versioning">5. Versioning</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In order to get more advanced things running, we should figure out how to
@@ -592,7 +587,7 @@ work.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_loading_plugins">7. Loading plugins</h2>
+<h2 id="_loading_plugins">6. Loading plugins</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Another complicated topic is plugin distribution and management. In order to
@@ -673,7 +668,7 @@ load plugins in specific paths.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_handling_state">8. Handling state</h2>
+<h2 id="_handling_state">7. Handling state</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Most plugins will want to keep some kind of state between calls to its
@@ -694,7 +689,7 @@ problem here is, if each plugin is going to have its own type of state, what’s
 the function signature of <code>Plugin::something</code>, defined in <code>common</code>?</p>
 </div>
 <div class="sect2">
-<h3 id="_generics_in_plugins">8.1. Generics in plugins?</h3>
+<h3 id="_generics_in_plugins">7.1. Generics in plugins?</h3>
 <div class="paragraph">
 <p>In a regular Rust project we’d just make <code>Plugin::something</code> generic over a
 common trait that all states should implement. Unfortunately, generics in
@@ -768,7 +763,7 @@ not applied.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_dyn_in_plugins">8.2. <code>dyn</code> in plugins?</h3>
+<h3 id="_dyn_in_plugins">7.2. <code>dyn</code> in plugins?</h3>
 <div class="paragraph">
 <p>The alternative to generics is often using trait object types with <code>dyn</code>. Again,
 will that work for plugins? Let’s try:</p>
@@ -800,7 +795,7 @@ system.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_the_c_way">8.3. The C way</h3>
+<h3 id="_the_c_way">7.3. The C way</h3>
 <div class="paragraph">
 <p>There are two popular ways to approach this in C:</p>
 </div>
@@ -955,7 +950,7 @@ procedural macro to automatically write all the necessary boilerplate in Rust.</
 </div>
 </div>
 <div class="sect1">
-<h2 id="error_handling">9. Error Handling</h2>
+<h2 id="error_handling">8. Error Handling</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>I’ve created a few more plugins to see how this approach reacts to some common
@@ -963,7 +958,7 @@ errors. Since in the end we aren’t using a sandbox, I wonder what kind of erro
 we <em>can’t</em> recover from.</p>
 </div>
 <div class="sect2">
-<h3 id="_missing_fields">9.1. Missing fields</h3>
+<h3 id="_missing_fields">8.1. Missing fields</h3>
 <div class="paragraph">
 <p>The <code>plugin-missing</code> directory contains an empty plugin. It doesn’t export any
 fields at all, like the name or the version. This one is already handled by
@@ -978,7 +973,7 @@ Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.
 </div>
 </div>
 <div class="sect2">
-<h3 id="_version_mismatch">9.2. Version mismatch</h3>
+<h3 id="_version_mismatch">8.2. Version mismatch</h3>
 <div class="paragraph">
 <p>After implementing the versioning system, we can see how these kinds of errors
 can be caught safely:</p>
@@ -993,7 +988,7 @@ Error when setting up the plugin: version mismatch: 0.0.0 incompatible with 0.1.
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wrong_type">9.3. Wrong type</h3>
+<h3 id="_wrong_type">8.3. Wrong type</h3>
 <div class="paragraph">
 <p>Libloading assumes the type that’s being loaded is correct. If for example the
 plugin exported the <code>get_name</code> function, but it returned an integer instead of a
@@ -1021,7 +1016,7 @@ Segmentation fault (core dumped)</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wrong_address">9.4. Wrong address</h3>
+<h3 id="_wrong_address">8.4. Wrong address</h3>
 <div class="paragraph">
 <p>Unfortunately, there’s not much we can do about out of bounds pointers. If the
 plugin exports e.g. the name with a null pointer, we’ll just get a segmentation
@@ -1041,7 +1036,7 @@ to garbage anyway.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_panicking">9.5. Panicking</h3>
+<h3 id="_panicking">8.5. Panicking</h3>
 <div class="paragraph">
 <p>Panicking is not supported in the C ABI; it’s considered undefined behaviour
 <a href="#panic-ffi">[9]</a>. If a plugin panics, the entire program will most likely abort.
@@ -1059,7 +1054,7 @@ Segmentation fault (core dumped)</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_full_implementation">10. Full implementation</h2>
+<h2 id="_full_implementation">9. Full implementation</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The example at
@@ -1126,7 +1121,7 @@ we’ll end up using.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_conclusion">11. Conclusion</h2>
+<h2 id="_conclusion">10. Conclusion</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This article has covered a lot of questions that one may encounter when trying
@@ -1188,10 +1183,7 @@ it. In the next article I’ll see the differences between both approaches.</p>
       
       <guid>https://nullderef.com/blog/plugin-start/</guid>
       <description>My first steps trying to implement the PDK</description>
-      <content:encoded><![CDATA[<div class="sect1">
-<h2 id="_introduction">1. Introduction</h2>
-<div class="sectionbody">
-<div class="paragraph">
+      <content:encoded><![CDATA[<div class="paragraph">
 <p>Welcome to my second article about Plugins in Rust! Here I will try to actually
 write some simple code of what a PDK (<em>Plugin Development Kit</em>) might look like,
 and also do some research about questions that arise while doing so. Please note
@@ -1213,13 +1205,11 @@ generic so that it’s useful to future rustaceans interested in plugins. If you
 don’t really care about Tremor’s specific case, you can skip to the
 <a href="#actual_start">next section</a>.</p>
 </div>
-</div>
-</div>
 <div class="sect1">
-<h2 id="_about_tremor">2. About Tremor</h2>
+<h2 id="_about_tremor">1. About Tremor</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_getting_to_know_the_team">2.1. Getting to know the team</h3>
+<h3 id="_getting_to_know_the_team">1.1. Getting to know the team</h3>
 <div class="paragraph">
 <p>My first official meeting with the Tremor team took place in the beginnings of
 August. I had already been lurking in their Discord server before, and I had
@@ -1274,7 +1264,7 @@ has taken me longer than usual to release. Thanks a lot to all of them ❤️.</
 </div>
 </div>
 <div class="sect2">
-<h3 id="_getting_to_know_other_mentees">2.2. Getting to know other mentees</h3>
+<h3 id="_getting_to_know_other_mentees">1.2. Getting to know other mentees</h3>
 <div class="paragraph">
 <p>In the first reunion I was suggested to meet the other LFX mentee at that
 moment, @aryan9600 on Discord, which seemed like a good idea. I’d seen him a
@@ -1293,7 +1283,7 @@ interconnected than I thought.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_learning_about_the_internals_of_tremor">2.3. Learning about the internals of Tremor</h3>
+<h3 id="_learning_about_the_internals_of_tremor">1.3. Learning about the internals of Tremor</h3>
 <div class="paragraph">
 <p>I’ve always known that the original intent for the PDK was the typical
 architecture via dynamic linking, but I wanted to explore the viability of Wasm
@@ -1326,7 +1316,7 @@ might not be compatible with dynamic loading.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="actual_start">3. The first steps</h2>
+<h2 id="actual_start">2. The first steps</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Up until now I had mostly investigated about the
@@ -1385,10 +1375,10 @@ Wasm work in Rust. Thanks a lot to him!</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_experimenting_with_dynamic_loading">4. Experimenting with dynamic loading</h2>
+<h2 id="_experimenting_with_dynamic_loading">3. Experimenting with dynamic loading</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_abi_unstability_its_much_worse_than_it_seems">4.1. ABI unstability, it’s much worse than it seems</h3>
+<h3 id="_abi_unstability_its_much_worse_than_it_seems">3.1. ABI unstability, it’s much worse than it seems</h3>
 <div class="paragraph">
 <p>I recently had this very late realization about ABI stability in Rust. Up until
 this point I thought that even though Rust’s ABI is <em>unstable</em>, one could
@@ -1438,7 +1428,7 @@ anyway.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_getting_a_simple_example_running">4.2. Getting a simple example running</h3>
+<h3 id="_getting_a_simple_example_running">3.2. Getting a simple example running</h3>
 <div class="paragraph">
 <p>I’ve created the
 <a href="https://github.com/marioortizmanero/pdk-experiments">pdk-experiments</a> repository,
@@ -1555,7 +1545,7 @@ like JAR files in Java?</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_generating_bindings">4.3. Generating bindings</h3>
+<h3 id="_generating_bindings">3.3. Generating bindings</h3>
 <div class="paragraph">
 <p>The public interface for the plugins can be written either in Rust (thanks to
 <code>extern &#34;C&#34;</code>) or directly in C. There are two commonly used projects when
@@ -1600,7 +1590,7 @@ now — it’d be as “easy” as setting up <code>cbindgen</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_crate_type_values">4.4. <code>crate-type</code> values</h3>
+<h3 id="_crate_type_values">3.4. <code>crate-type</code> values</h3>
 <div class="paragraph">
 <p>There are <a href="https://doc.rust-lang.org/reference/linkage.html">two ways to configure
 dynamic linking with the <code>crate-type</code> field</a> in the crate’s <code>Cargo.toml</code>:</p>
@@ -1629,7 +1619,7 @@ appropiate choice.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_rlib_files">4.5. <code>rlib</code> files</h3>
+<h3 id="_rlib_files">3.5. <code>rlib</code> files</h3>
 <div class="paragraph">
 <p><code>rlib</code> is another value for <code>crate-type</code> to generate Rust <strong>static</strong> libraries,
 which can then be imported with <code>extern crate crate_name</code> <a href="#dylib">[3]</a>. But since
@@ -1695,7 +1685,7 @@ about :)</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_can_we_use_webassembly_for_this">5. Can we use WebAssembly for this?</h2>
+<h2 id="_can_we_use_webassembly_for_this">4. Can we use WebAssembly for this?</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>I also tried to write a simple example of how plugins would work with
@@ -1816,7 +1806,7 @@ export a struct that implements a specific trait?</p>
 </ul>
 </div>
 <div class="sect2">
-<h3 id="_webassembly_targets">5.1. WebAssembly targets</h3>
+<h3 id="_webassembly_targets">4.1. WebAssembly targets</h3>
 <div class="paragraph">
 <p>Wasmer docs don’t mention this much because targets are related to the plugin,
 rather than the runtime. But Wasmtime’s book does include a section about
@@ -1857,7 +1847,7 @@ and well-organized.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wasmer_vs_wasmer_runtime">5.2. <code>wasmer</code> vs <code>wasmer_runtime</code></h3>
+<h3 id="_wasmer_vs_wasmer_runtime">4.2. <code>wasmer</code> vs <code>wasmer_runtime</code></h3>
 <div class="paragraph">
 <p>This was confusing for me at first, since both crates seem to have a very
 similar interface and almost the same set of authors. Some tutorials used
@@ -1877,7 +1867,7 @@ that this is hopefully more clear to future users.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_more_complex_types">5.3. More complex types</h3>
+<h3 id="_more_complex_types">4.3. More complex types</h3>
 <div class="paragraph">
 <p>The WebAssembly specification only defines integers and floating point as its
 supported types <a href="#wasmer-types">[6]</a>. There are a few ways to handle non-trivial
@@ -2048,7 +2038,7 @@ want to go.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_wrapping_up">6. Wrapping up</h2>
+<h2 id="_wrapping_up">5. Wrapping up</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Today we’ve learned a lot of things both about dynamic loading and WebAssembly.
@@ -2424,20 +2414,15 @@ reminder! If you have any suggestions please leave them in the section below :)<
       
       <guid>https://nullderef.com/blog/plugin-tech/</guid>
       <description>A more in-depth look at Rust PDKs</description>
-      <content:encoded><![CDATA[<div class="sect1">
-<h2 id="_introduction">1. Introduction</h2>
-<div class="sectionbody">
-<div class="paragraph">
+      <content:encoded><![CDATA[<div class="paragraph">
 <p>In this first article I will further analyze how a Plugin Development Kit (PDK)
 could be implemented in Rust. Note that I’m no expert in the topic; my objective
 is to merely collect all the information I’ve found so far and present it as a
 summary, with enough resources for the reader to learn more on their own and
 make their own decisions.</p>
 </div>
-</div>
-</div>
 <div class="sect1">
-<h2 id="requirements">2. The Problem</h2>
+<h2 id="requirements">1. The Problem</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This is actually part of my Google Summer of Code project for
@@ -2506,7 +2491,7 @@ run-time.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="safety">3. Safety Concerns</h2>
+<h2 id="safety">2. Safety Concerns</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>I’ve been wanting to take a look at the possible safety concerns a PDK could
@@ -2528,7 +2513,7 @@ have to be aware of.
 </tbody></table>
 </div>
 <div class="sect2">
-<h3 id="_unsafe_code">3.1. Unsafe Code</h3>
+<h3 id="_unsafe_code">2.1. Unsafe Code</h3>
 <div class="paragraph">
 <p>Many of the technologies that can be used to implement a Plugin System work with
 unsafe code, like <a href="#ffi">FFIs</a> or <a href="#memory-sharing">IPC Memory Sharing</a>. This
@@ -2543,7 +2528,7 @@ integrating into Tremor if I do end up having to use <code>unsafe</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_error_resilience">3.2. Error Resilience</h3>
+<h3 id="_error_resilience">2.2. Error Resilience</h3>
 <div class="paragraph">
 <p>Rust doesn’t protect its users from leaking memory. In fact, it’s as easy as
 calling <code>mem::forget</code>. The thing is that if a plugin leaks memory, the entire
@@ -2562,7 +2547,7 @@ error resilience.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_remote_code_execution_via_plugins">3.3. Remote Code Execution via Plugins</h3>
+<h3 id="_remote_code_execution_via_plugins">2.3. Remote Code Execution via Plugins</h3>
 <div class="paragraph">
 <p><a href="https://en.wikipedia.org/wiki/Component_Object_Model#Security">This was a problem
 with Internet Explorer</a>, for example. It used COM and ActiveX, which implement
@@ -2610,7 +2595,7 @@ which may have sensitive logs you don’t want anyone to see.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="back-comp">4. Backward Compatibility</h2>
+<h2 id="back-comp">3. Backward Compatibility</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>As I discovered in the last post, backward compatibility is complicated for
@@ -2626,7 +2611,7 @@ libraries. If the plugin receives a struct from the core, but the struct had one
 of its members removed in a new version, it’s all broken again.</p>
 </div>
 <div class="sect2">
-<h3 id="_possible_solutions">4.1. Possible Solutions</h3>
+<h3 id="_possible_solutions">3.1. Possible Solutions</h3>
 <div class="paragraph">
 <p>The easiest fix for backward compatibility issues I can come up with is to
 serialize and deserialize the data with a flexible protocol rather than using
@@ -2662,7 +2647,7 @@ the community available, like <code>abi_stable</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_avoiding_breakage">4.2. Avoiding Breakage</h3>
+<h3 id="_avoiding_breakage">3.2. Avoiding Breakage</h3>
 <div class="paragraph">
 <p>There are times when breakage is inevitable. Tremor may want to rewrite part of
 its core or finally remove a deprecated feature without being afraid of breaking
@@ -2679,7 +2664,7 @@ talked about this in the past</a>, so I won’t get into the details.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_possible_approaches">5. Possible Approaches</h2>
+<h2 id="_possible_approaches">4. Possible Approaches</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The following are the most viable technologies that could be used as the base of
@@ -2690,7 +2675,7 @@ could investigate more about it. I will rate each of the alternatives in a scale
 from 1 to 5 (approximately) in order to easen the decision-taking.</p>
 </div>
 <div class="sect2">
-<h3 id="scripting-langs">5.1. Scripting Languages</h3>
+<h3 id="scripting-langs">4.1. Scripting Languages</h3>
 <div class="paragraph">
 <p>Plenty of projects use scripting languages to extend their functionality at
 runtime, like Python, Ruby, Perl, Bash or JavaScript. Most notably, Vim created
@@ -2772,7 +2757,7 @@ use.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ipc">5.2. Inter-Process Communication</h3>
+<h3 id="ipc">4.2. Inter-Process Communication</h3>
 <div class="paragraph">
 <p>Another possibility for plugins is to define a protocol for Inter-Process
 Communication, turning your program into a server that extends its capabilities
@@ -2792,7 +2777,7 @@ Performance-wise, this graph shows a comparison of the overhead of each of them
 </div>
 </div>
 <div class="sect3">
-<h4 id="sockets">5.2.1. Based on Sockets</h4>
+<h4 id="sockets">4.2.1. Based on Sockets</h4>
 <div class="paragraph">
 <p>Sockets are the “worst”-performing alternative in the previous chart, but they’re
 so common and easy to use in most languages that it’s worth taking a look at.
@@ -2851,7 +2836,7 @@ worth my time.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="pipes">5.2.2. Based on Pipes</h4>
+<h4 id="pipes">4.2.2. Based on Pipes</h4>
 <div class="paragraph">
 <p>Pipes have always been fairly popular specifically on Unix systems, and enable
 Inter-Process Communication with less overhead than sockets. They are made to be
@@ -2897,7 +2882,7 @@ vastly simplified.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="memory-sharing">5.2.3. Based on Memory Sharing</h4>
+<h4 id="memory-sharing">4.2.3. Based on Memory Sharing</h4>
 <div class="paragraph">
 <p>Knowing that the plugins are intended to be on the same machine as the core of
 Tremor, there’s no need to actually send and receive messages. One can share
@@ -2944,7 +2929,7 @@ doesn’t seem to be any better than FFIs overall.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ffi">5.3. FFI</h3>
+<h3 id="ffi">4.3. FFI</h3>
 <div class="paragraph">
 <p>This is possibly the <em>least weird</em> way to implement a Plugin Development Kit,
 i.e. it’s the most popular method I’ve seen outside of Rust. A <em>Foreign Function
@@ -3118,7 +3103,7 @@ using <code>abi_stable</code>)</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="wasm">5.4. WebAssembly Interface</h3>
+<h3 id="wasm">4.4. WebAssembly Interface</h3>
 <div class="paragraph">
 <p>Now, this is what I wanted to emphasize in this article! Turns out WebAssembly
 isn’t limited to web development anymore; it’s slowly evolving into a portable
@@ -3255,7 +3240,7 @@ more important.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_prior_art">6. Prior Art</h2>
+<h2 id="_prior_art">5. Prior Art</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>It’s very important to take a look at projects that have already done this in
@@ -3344,7 +3329,7 @@ little code</a>.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_conclusion">7. Conclusion</h2>
+<h2 id="_conclusion">6. Conclusion</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This article has covered quite a few ways to approach a Plugin System. The final
