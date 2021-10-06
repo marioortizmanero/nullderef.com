@@ -437,9 +437,9 @@ until it’s properly updated upstream, among other things. Pretty cool :)</p>
 <div class="paragraph">
 <p>Now that we definitely know how to approach the PDK, we have two choices: using
 raw dynamic linking with the C ABI and <code>libloading</code>, or trying out the
-<code>stable_abi</code> crate. I suggest we do both. We’ll most likely end up using the
+<code>abi_stable</code> crate. I suggest we do both. We’ll most likely end up using the
 latter because it should be easier and safer, but it’s still a very good idea to
-know how <code>stable_abi</code> works under the hood.</p>
+know how <code>abi_stable</code> works under the hood.</p>
 </div>
 <div class="paragraph">
 <p>In the previous article I created a <code>dynamic-simple</code> experiment in examples to
