@@ -372,9 +372,9 @@ until it's properly updated upstream, among other things. Pretty cool :)
 
 Now that we definitely know how to approach the PDK, we have two choices: using
 raw dynamic linking with the C ABI and `libloading`, or trying out the
-`stable_abi` crate. I suggest we do both. We'll most likely end up using the
+`abi_stable` crate. I suggest we do both. We'll most likely end up using the
 latter because it should be easier and safer, but it's still a very good idea to
-know how `stable_abi` works under the hood.
+know how `abi_stable` works under the hood.
 
 In the previous article I created a `dynamic-simple` experiment in examples to
 https://github.com/marioortizmanero/pdk-experiments[the pdk-experiments
