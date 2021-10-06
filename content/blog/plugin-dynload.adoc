@@ -1,9 +1,6 @@
 ---
 title: "Plugins in Rust: Diving into Dynamic Loading"
 description: "A closer look at dynamic loading in Rust"
-summary: "Dynamic loading is a complicated task if you start from the scratch.
-You'll have to figure out how to handle versioning, plugin loading, state, and
-error handling, among other things."
 author: "Mario Ortiz Manero"
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
@@ -15,8 +12,6 @@ GHissueID: 38
 :stem: latexmath
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
-
-== Introduction
 
 In the https://nullderef.com/blog/plugin-start/[last part] of this
 https://nullderef.com/series/rust-plugins/[series] I wrote some simple

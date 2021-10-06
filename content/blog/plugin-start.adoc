@@ -1,9 +1,6 @@
 ---
 title: "Plugins in Rust: Getting Started"
 description: "My first steps trying to implement the PDK"
-summary: "Getting to know the Tremor team was exciting. Implementing the PDK
-wasn't going to be easy, but it certainly sounded fun thanks to their dynamics.
-I had to start somewhere, and this was the moment."
 author: "Mario Ortiz Manero"
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
@@ -14,8 +11,6 @@ GHissueID: 30
 :sectnums:
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
-
-== Introduction
 
 Welcome to my second article about Plugins in Rust! Here I will try to actually
 write some simple code of what a PDK (_Plugin Development Kit_) might look like,
