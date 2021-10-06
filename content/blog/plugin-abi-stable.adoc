@@ -1,13 +1,11 @@
 ---
-title: "Plugins in Rust: Getting Started"
-description: "My first steps trying to implement the PDK"
-summary: "Getting to know the Tremor team was exciting. Implementing the PDK
-wasn't going to be easy, but it certainly sounded fun thanks to their dynamics.
-I had to start somewhere, and this was the moment."
+title: "Plugins in Rust: Reducing the Pain with `abi_stable`"
+description: "TODO"
+summary: "TODO"
 author: "Mario Ortiz Manero"
-tags: ["rust", "journal"]
+tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
-date: 2021-09-05
+date: 2021-09-06
 GHissueID: 30
 ---
 
