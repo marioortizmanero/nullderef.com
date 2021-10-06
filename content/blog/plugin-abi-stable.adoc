@@ -1,7 +1,6 @@
 ---
 title: "Plugins in Rust: Reducing the Pain with `abi_stable`"
 description: "TODO"
-summary: "TODO"
 author: "Mario Ortiz Manero"
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
@@ -12,8 +11,6 @@ GHissueID: 30
 :sectnums:
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
-
-== Introduction
 
 == Moving to `abi_stable`
 
