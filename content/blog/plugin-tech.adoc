@@ -1,11 +1,11 @@
 ---
 title: "Plugins in Rust: The Technologies"
 description: "A more in-depth look at Rust PDKs"
-summary: "In this article I further analyze how a Plugin Development Kit (PDK)
-could be implemented in Rust. It merely collects all the information I've found
-so far and present it as a summary."
+summary: "In this first article I further analyze how a Plugin Development Kit
+(PDK) could be implemented in Rust. It merely collects all the information I've
+found so far and presents it as a summary."
 author: "Mario Ortiz Manero"
-tags: ["rust", "project"]
+tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
 date: 2021-05-17
 GHissueID: 5
@@ -16,9 +16,9 @@ GHissueID: 5
 
 == Introduction
 
-In this article I will further analyze how a Plugin Development Kit (PDK) could
-be implemented in Rust. Note that I'm no expert in the topic; my objective is to
-merely collect all the information I've found so far and present it as a
+In this first article I will further analyze how a Plugin Development Kit (PDK)
+could be implemented in Rust. Note that I'm no expert in the topic; my objective
+is to merely collect all the information I've found so far and present it as a
 summary, with enough resources for the reader to learn more on their own and
 make their own decisions.
 

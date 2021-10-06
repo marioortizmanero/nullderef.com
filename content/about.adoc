@@ -29,19 +29,15 @@ mailto:marioortizmanero@gmail.com[e-mail].
 
 Here are some interesting blogs from friends or that I just enjoy reading:
 
-. https://fasterthanli.me/[*fasterthanlime*]: this site features extremely
-  thorough posts about computers (mostly Rust) in a very dynamic way. Amos, the
-  author, really puts in effort and you can tell.
-. https://adventures.michaelfbryan.com/[*Michael-F-Bryan*]: another programming
-  blog about various topics, including Rust. His articles are explained with
-  lots of code, examples, and diagrams.
-. https://0x709394.me/index[*Ramsay's Eden*]: my friend's
-  https://github.com/ramsayleung[Ramsay] blog site, with very detailed posts. I
-  met him maintaining https://github.com/ramsayleung/rspotify[Rspotify], a
-  library in Rust, but he writes about other things as well.
-. https://robertheaton.com/[*Robert Heaton*]: a blog with a very unique style of
-  narration, often about either pentesting or personal stories from Robert.
-. https://matklad.github.io/[*matklad*]: this author shares his extensive
-  experience as the development leader of
-  https://github.com/rust-analyzer/rust-analyzer[Rust Analyzer], in the form of
-  technical blog posts.
+. https://fasterthanli.me/[*fasterthanlime*]: thorough posts about computers in
+  a very fun way.
+. https://adventures.michaelfbryan.com/[*Michael-F-Bryan*]: interesting Rust
+  articles with lots of examples and diagrams.
+. https://robertheaton.com/[*Robert Heaton*]: very unique style of narration,
+  often about pentesting.
+. https://matklad.github.io/[*matklad*]: technical blog posts from the
+  development leader of https://github.com/rust-analyzer/rust-analyzer[Rust
+  Analyzer].
+. https://0x709394.me/index[*Ramsay's Eden*]: my friend
+  https://github.com/ramsayleung[Ramsay's] site about Rust and distributed
+  systems.
