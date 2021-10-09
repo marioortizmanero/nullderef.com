@@ -1,10 +1,10 @@
 ---
-title: "Plugins in Rust: Reducing the Pain with `abi_stable`"
+title: "Plugins in Rust: Reducing the Pain with abi_stable"
 description: "TODO"
 author: "Mario Ortiz Manero"
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
-date: 2021-09-06
+date: 2021-10-09
 GHissueID: 30
 ---
 
@@ -18,9 +18,113 @@ could be implemented from scratch. We all know that this isn't a good idea, so
 let's try doing the same things with the {{< crate abi_stable >}} crate, which
 was specifically created for this kind of task.
 
-TODO intro for abi_stable
+I've already talked a lot about `abi_stable` in this series, but I haven't
+really tried it out myself. Will it actually make plugin-writing an easier and
+safer task, or is the additional complexity too much? Are there any alternatives
+that we perhaps should consider? This is what I'll try to cover in this post.
 
 == About Tremor
+
+== Async with the C ABI
+
+In a previous post I mentioned that async was not supported in `abi_stable`.
+While this is true, because there is no FFI-safe `Future` in the crate, it's
+certainly possible, and it might be of interest later on.
+
+Matthew recently let me know about the {{< crate async_ffi >}} crate, which lets
+us do exactly that. It exports the type `FfiFuture<T>`, which provides the same
+functionality as `Box<dyn Future<Output = T> + Send>`:
+
+[source, rust]
+----
+// This is how regular async works: the first function is practically equivalent
+// to the second.
+async fn example() -> String {
+    read_file().await
+}
+fn example() -> impl Future<Output = String> {
+    async {
+        read_file().await
+    }
+}
+
+// For FFI-safe interfaces there can't be generics involved, so the future is a
+// struct instead of a trait. This conversion from `Future` to `FfiFuture` can
+//be done with `into_ffi`.
+fn example() -> FfiFuture<String> {
+    async move {
+        read_file().await
+    }
+    .into_ffi()
+}
+// `FfiFuture<T>` implements `Future<Output = T>`, so it can be awaited as usual
+async fn user() {
+    example().await
+}
+----
+
+https://github.com/rodrimati1992/abi_stable_crates/issues/25[Someone asked for
+this feature in `abi_stable` back in 2019], but noone seemed interested enough
+to implement it at that time, so maybe in the future.
+
+== An alternative to `abi_stable`: `cglue`
+
+I very recently discovered the {{< crate cglue >}} crate. It takes a different
+approach to ABI stability, which I think is pretty interesting. Instead of
+rewriting parts of the standard library using {repr-c}, `cglue` achieves
+FFI-safety by using _opaque types_.
+
+An opaque type is simply one for which you don't know its concrete layout.
+There's no {repr-c} needed at all, because one can only interact with it via a
+`void*` or similars.
+
+`cglue` is not a simple library either. I would say it's easier to use than
+`abi_stable`, but that might be because it's more barebones; `abi_stable`
+provides functionality to even load the plugins safely. For example:
+
+
+[source, rust]
+----
+use cglue::*;
+
+// One annotation for the trait.
+#[cglue_trait]
+pub trait InfoPrinter {
+    fn print_info(&self);
+}
+
+struct Info {
+    value: usize
+}
+
+impl InfoPrinter for Info {
+    fn print_info(&self) {
+        println!("Info struct: {}", self.value);
+    }
+}
+
+fn use_info_printer(printer: &impl InfoPrinter) {
+    println!("Printing info:");
+    printer.print_info();
+}
+
+fn main() -> () {
+    let mut info = Info {
+        value: 5
+    };
+
+    // Here, the object is fully opaque, and is FFI and ABI safe.
+    let obj = trait_obj!(&mut info as InfoPrinter);
+
+    use_info_printer(&obj);
+}
+----
+
+== Safety
+
+TODO nginx modules: https://www.nginx.com/resources/wiki/extending/
+
+TODO apache https modules: http://httpd.apache.org/docs/2.4/developer/modguide.html http://httpd.apache.org/docs/2.4/dso.html
 
 == Type conversions to `abi_stable`
 
