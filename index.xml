@@ -4360,8 +4360,8 @@ already know about it. It’s open source and made with Hugo, go check it out :)
 <div class="paragraph">
 <p>Here are some interesting blogs from friends or that I just enjoy reading:</p>
 </div>
-<div class="olist arabic">
-<ol class="arabic">
+<div class="ulist">
+<ul>
 <li>
 <p><a href="https://fasterthanli.me/"><strong>fasterthanlime</strong></a>: thorough posts about computers in
 a very fun way.</p>
@@ -4384,7 +4384,7 @@ Analyzer</a>.</p>
 <a href="https://github.com/ramsayleung">Ramsay’s</a> site about Rust and distributed
 systems.</p>
 </li>
-</ol>
+</ul>
 </div>
 </div>
 </div>
