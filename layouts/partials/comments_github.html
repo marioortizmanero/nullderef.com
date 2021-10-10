@@ -1,0 +1,83 @@
+<script>
+// Taken from:
+// https://retifrav.github.io/blog/2019/04/19/github-comments-hugo/
+var id = {{ .Params.GHissueID }};
+
+if (id) {
+  let url = "https://github.com/marioortizmanero/nullderef.com/".concat(id);
+  let full_url = "https://github.com/marioortizmanero/nullderef.com/issues/".concat(id);
+  let api_url = "https://api.github.com/repos/marioortizmanero/nullderef.com/issues/".concat(id, "/comments");
+  
+  var commentsDiv = document.getElementById("comments");
+
+  let xhr = new XMLHttpRequest();
+  xhr.responseType = "json";
+  xhr.open("GET", api_url);
+  xhr.setRequestHeader("Accept", "application/vnd.github.v3.html+json");
+  xhr.send();
+
+  function showErrorMsg(msg) {
+    console.log(xhr.response);
+    let errorText = document.createElement("p");
+    errorText.innerHTML = "<i>".concat(msg, "</i>");
+    commentsDiv.appendChild(errorText);
+    return;
+  }
+
+  xhr.onload = function() {
+    let issueHref = "<a href='".concat(full_url, "'>GitHub issue</a>");
+    if (xhr.status != 200) {
+      switch (xhr.status) {
+        case 404:
+          showErrorMsg("Comments for this post yet are not opened yet.");
+          break;
+        case 403:
+          showErrorMsg("You've reached the GitHub API rate limit. Go to the ".concat(issueHref, " to leave a comment instead."));
+          break;
+        default:
+          showErrorMsg("Unable to show comments from GitHub.");
+          break;
+      }
+
+      return;
+    }
+
+    let comments = xhr.response;
+
+    let mainHeader = document.createElement("h2");
+    mainHeader.innerHTML = "Comments: ".concat(comments.length);
+    commentsDiv.appendChild(mainHeader);
+
+    let issueLink = document.createElement("p");
+    issueLink.innerHTML = "<i>You can leave a comment using this ".concat(issueHref, ".</i>");
+    commentsDiv.appendChild(issueLink);
+    
+    comments.forEach(function(comment) {
+      let creationDate = new Date(comment.created_at);
+
+      let commentContent = document.createElement("div");
+
+      commentContent.setAttribute('class', 'gh-comment')
+      commentContent.innerHTML = "".concat(
+          "<div class='gh-header'>",
+            "<img src='", comment.user.avatar_url, "' />",
+            "<div style='margin:auto 0;'>",
+              "<b><a class='gh-username' href='", comment.user.html_url, "'>", comment.user.login, "</a></b>",
+              " commented at <em>", creationDate.toLocaleString(), "</em>",
+            "</div>",
+          "</div>",
+          "<div class='gh-body'>",
+            comment.body_html,
+          "</div>"
+      );
+      commentsDiv.appendChild(commentContent);
+    });
+  };
+
+  xhr.onerror = function() {
+    let errorText = document.createElement("p");
+    errorText.innerHTML = "<i>Some error loading comments.</i>";
+    commentsDiv.appendChild(errorText);
+  };
+}
+</script>

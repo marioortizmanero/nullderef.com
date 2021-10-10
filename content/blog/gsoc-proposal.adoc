@@ -2,9 +2,10 @@
 title: "GSoC Proposal: Implementing a Plugin Development Kit for Tremor"
 description: "My proposal for 2021's GSoC"
 author: "Mario Ortiz Manero"
-tags: ["rust", "gsoc"]
-categories: ["project"]
+tags: ["rust", "dynamic-loading"]
+series: ["rust-plugins"]
 date: 2021-04-13
+GHissueID: 6
 ---
 
 == Abstract
@@ -51,6 +52,13 @@ traits]), error handling, and other advanced features like lifetimes or
 templates would have to be transformed down to the C ABI. Not only would this be
 an incredibly tedious and complicated task, but it'd also introduce a small
 overhead for every function in the plugin.
+
+WARNING: Upon further investigation, in future articles I've discovered that the
+following statement is not true. Do note that Rust to Rust FFI is completely
+unstable and should not be used at all for a plugin system; using the C ABI is
+the best way to do it. This is
+https://nullderef.com/blog/plugin-start/#_abi_unstability_its_much_worse_than_it_seems[explained
+in the next articles in detail].
 
 Thus, the only viable solution is a Rust to Rust FFI, using
 https://doc.rust-lang.org/rustc/command-line-arguments.html#--crate-type-a-list-of-types-of-crates-for-the-compiler-to-emit[`dylib`]

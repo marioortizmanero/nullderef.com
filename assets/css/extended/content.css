@@ -15,6 +15,11 @@ li > .paragraph {
   margin-top: 7px;
 }
 
+/* Fixing margins in lists with open blocks */
+.post-content li .openblock .paragraph {
+  margin-top: 10px;
+}
+
 /* Fixing other attributes */
 .line-through {
   text-decoration: line-through;
@@ -76,3 +81,9 @@ blockquote, blockquote p {
 }
 .txt-margin-right { margin-right: 5px; }
 .txt-margin-left { margin-left: 5px; }
+
+/* Fix selection colors for dark mode */
+::selection {
+  background: var(--primary);
+  color: var(--theme);
+}

@@ -1,0 +1,43 @@
+{{- define "main" }}
+
+<header class="page-header">
+    <h1>Tags</h1>
+</header>
+
+<ul class="terms-tags">
+    {{- range $name, $taxonomy := .Site.Taxonomies.tags }}
+    {{- $count := .Count }}
+    {{- with $.Site.GetPage (printf "/tags/%s" $name) }}
+    <li>
+        <a href="{{ .Permalink }}">{{ $name }} <sup><strong><sup>{{ $count }}</sup></strong></sup> </a>
+    </li>
+    {{- end }}
+    {{- end }}
+</ul>
+
+<header class="page-header">
+    <h1>Search&nbsp;
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+    </h1>
+    {{- if .Description }}
+    <div class="post-description">
+        {{ .Description }}
+    </div>
+    {{- end }}
+    {{- if not (.Param "hideMeta") }}
+    <div class="post-meta">
+        {{- partial "translation_list.html" . -}}
+    </div>
+    {{- end }}
+</header>
+
+<div id="searchbox">
+    <input id="searchInput" autofocus placeholder="{{ .Params.placeholder | default (printf "%s ↵" .Title) }}" aria-label="search" type="search">
+    <ul id="searchResults" aria-label="search results"></ul>
+</div>
+
+{{- end }}{{/* end main */}}
