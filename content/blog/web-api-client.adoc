@@ -1,10 +1,10 @@
 ---
 title: "Designing a Web API Wrapper in Rust: New Rspotify Version a Year Later"
-description: "Inspired by the Rspotify rewrite, a guide on how to make a solid wrapper for most web APIs"
+description: "Inspired by the Rspotify rewrite, a few tips on how to make a solid wrapper for most web APIs"
 author: "Mario Ortiz Manero"
 tags: ["rust", "open-source", "rspotify", "web-api"]
-categories: ["project"]
 date: 2021-10-10
+GHissueID: TODO
 ---
 
 This article describes my journey of basically rewriting the entirety of
