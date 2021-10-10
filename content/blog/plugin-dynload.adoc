@@ -12,7 +12,6 @@ GHissueID: 38
 ---
 
 :sectnums:
-:stem: latexmath
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
