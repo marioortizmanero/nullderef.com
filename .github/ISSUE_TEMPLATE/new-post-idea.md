@@ -21,3 +21,4 @@ TODO list:
   + [ ] series (optionally)
   + [ ] date
   + [ ] GHissueID
+- Share on other platforms (lobste.rs, reddit, hackernews?)
