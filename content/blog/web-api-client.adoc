@@ -213,7 +213,189 @@ separate crate] once it's working as I want it to. I think it's a pretty neat
 feature for an API client that will hopefully become easier to implement with in
 the future.
 
-== Architecture based on authentication methods
+== Architecture based on authorization methods
+
+Another interesting refactor I worked on for Rspotify was its architecture. The
+Spotify API in particular has
+https://developer.spotify.com/documentation/general/guides/authorization-guide/[multiple
+authorization methods] that give you access to a different set of endpoints. For
+example, if you're using _client credentials_ (the most basic one), then you
+can't access an endpoint to modify the user's data. It used to work with the
+https://doc.rust-lang.org/1.0.0/style/ownership/builders.html[_builder
+pattern_], following this structure (though not exactly the same):
+
+[source, rust]
+----
+// OAuth information
+let oauth = SpotifyOAuth::default()
+    .redirect_uri("http://localhost:8888/callback")
+    .scope("user-modify-playback-state")
+    .build()
+    .unwrap();
+
+// Basic information
+let creds = SpotifyClientCredentials::default()
+    .client_id("this-is-my-client-id")
+    .client_secret("this-is-my-client-secret")
+    .build()
+    .unwrap();
+
+// Obtaining the access token
+let token = get_token(&mut oauth).unwrap();
+
+// The client itself
+let spotify = Spotify::default()
+    .client_credentials_manager(creds)
+    .token_info(token)
+    .build()
+    .unwrap();
+
+// Performing a request
+spotify.seek_track(25000, None).unwrap();
+----
+
+I wanted something more tailored towards our specific application. I think the
+builder pattern is great, but it might become too verbose or confusing:
+
+* Do we really need it for `Credentials`, which always takes the same two
+  parameters?
+* Which authorization method are we using above again? Currently it's possible
+  to call `seek_track` after having followed an authorization process that
+  doesn't give access to it. So what if we have a Spotify client for each
+  authorization method?
+* Wouldn't it be better have some type safety? The `unwrap` hurts my eyes.
+
+After removing the builder pattern and being more explicit about the
+authorization method that's being used, this is what we get:
+
+[source, rust]
+----
+// OAuth information
+let oauth = OAuth::new("http://localhost:8888/callback", "user-read-currently-playing");
+// Basic information
+let creds = Credentials::new("my-client-id", "my-client-secret");
+// The client itself, now clearly with the "authorization code" method
+let mut spotify = AuthCodeSpotify::new(creds, oauth);
+
+// Obtaining the access token
+let url = spotify.get_authorize_url(false).unwrap();
+spotify.prompt_for_token(&url).await.unwrap();
+
+// Performing a request
+spotify.seek_track(25000, None).unwrap();
+----
+
+And if the user wants something more advanced, they can always write this:
+
+[source, rust]
+----
+let oauth = OAuth {
+    redirect_uri: "http://localhost:8888/callback",
+    state: generate_random_string(16, alphabets::ALPHANUM),
+    scopes: "user-read-currently-playing",
+    ..Default::default()
+};
+----
+
+Using the regular initialization pattern is more than enough for this case
+because we don't even need validation. If we did, we could always just add a few
+setters and we're done. Ask yourself: do you really need the builder pattern? In
+this case we certainly didn't.
+
+The most complicated part about this is having a client for each authorization
+method. While their auth process may vary, the endpoints and the rest of the
+code is still shared between all the clients. There are _many_ ways to approach
+this, I just had to decide which one was the best. I gave this a lot of thought
+<<gh-auth>> <<reddit-auth>>.
+
+We could follow the "`composition over inheritance`" principle, but we'd be
+repeating a ton of code, and it'd end up quite messy:
+
+[source, rust]
+----
+pub struct EndpointsBase {
+    http: Rc<Http> // Shared with the rest of the endpoints
+}
+impl EndpointsBase {
+    pub fn endpoint1(&self) { self.http.put("/endpoint1") }
+    pub fn endpoint2(&self) { self.http.get("/endpoint2") }
+    // etc
+}
+
+pub struct EndpointsOAuth {
+    token: Token,
+    http: Rc<Http>
+}
+impl EndpointsOAuth {
+    pub fn endpoint3(&self) { self.http.get("/endpoint3", self.token) }
+    pub fn endpoint4(&self) { self.http.post("/endpoint4", self.token) }
+    // etc
+}
+
+pub struct AuthCodeSpotify(EndpointsBase, EndpointsOAuth);
+impl AuthCodeSpotify {
+    pub fn authenticate(&self) { /* ... */ }
+
+    pub fn endpoint1(&self) { self.0.endpoint1() }
+    pub fn endpoint2(&self) { self.0.endpoint2() }
+    pub fn endpoint3(&self) { self.1.endpoint3() }
+    pub fn endpoint4(&self) { self.1.endpoint4() }
+    // etc
+}
+----
+
+In order to make requests in each group of endpoints we'd have to share a single
+HTTP client and other information such as the config or the token, which can
+become complicated. If we want to make it easy for the user, we also need to
+manually delegate every single endpoint into each of the specific clients. You
+could also use `Deref` and `DerefMut` in order to avoid the delegation, but
+that'd be a common anti-pattern <<deref-antipattern>>.
+
+I tried different approaches, but they ended up falling apart at some point.
+What ended up working best for me was a trait-based interface:
+
+[source, rust]
+----
+pub trait EndpointsBase {
+    fn get_http(&self) -> &Http;
+
+    fn endpoint1(&self) { self.get_http().put("/endpoint1") }
+    fn endpoint2(&self) { self.get_http().get("/endpoint2") }
+    // etc
+}
+
+pub trait EndpointsOAuth: EndpointsBase {
+    fn get_token(&self) -> &Token;
+
+    fn endpoint3(&self) { self.get_http().get("/endpoint3", self.get_token()) }
+    fn endpoint4(&self) { self.get_http().post("/endpoint4", self.get_token()) }
+    // etc
+}
+
+pub struct AuthCodeSpotify(Http, Token);
+impl AuthCodeSpotify {
+    pub fn authenticate(&self) { /* ... */ }
+}
+impl EndpointsBase for AuthCodeSpotify {
+    fn get_http(&self) -> &Http { &self.0 }
+}
+impl EndpointsOAuth for AuthCodeSpotify {
+    fn get_token(&self) -> &Http { &self.1 }
+}
+----
+
+TODO
+
+The only part I don't like of this approach is that you can't really have
+private functions in the trait. For instance, we have a `endpoint_get` method
+that wraps `http.get` to include the authentication headers used for the
+endpoints. It's defined in the trait because it's useful for every client, but
+the end user doesn't really need access to it; it's just noise in the
+documentation. There are two possible workarounds, so it's not a big deal:
+
+* Declare the method in the trait with `#[doc(hidden)]` so that it doesn't
+  appear in the documentation.
+* Use a private function outside the trait instead.
 
 * PKCE Authentication <<gh-pkce>>.
 
@@ -239,6 +421,7 @@ There were several parts of the Spotify client that could be configured.
 == Sane defaults
 
 * Saner <<gh-wrappers>> and more lightweight defaults <<gh-cleanup>>, more consistent interface <<gh-meta>> <<gh-opt>>.
+* Using `from_env`
 
 == Helping with the changes
 
@@ -290,6 +473,13 @@ This release has been possible thanks to:
 - [[[gh-auth,            2]]]
   https://github.com/ramsayleung/rspotify/issues/173[#173 - Restructure the
   authentication process]
+- [[[reddit-auth,        2]]]
+  https://www.reddit.com/r/rust/comments/lkdw6o/designing_a_new_architecture_for_rspotify_based/[Designing
+  a new architecture for Rspotify based on trait inheritance, need opinions -
+  Reddit]
+- [[[deref-antipattern,  2]]]
+  https://github.com/rust-unofficial/patterns/blob/main/anti_patterns/deref.md[`Deref`
+  polymorphism]
 - [[[gh-ids,             3]]]
   https://github.com/ramsayleung/rspotify/pull/161[#161 - Initial id type
   proposal] and https://github.com/ramsayleung/rspotify/pull/244[#244 - Fix IDs
