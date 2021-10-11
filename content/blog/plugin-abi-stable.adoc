@@ -237,11 +237,22 @@ When loading directories, it makes the following decisions, by default (we could
 change them if we wanted to):
 
 * It does so non-recursively, i.e. only checking the immediate files in the
-given directory.
+  given directory.
 * The name of the library must be the `RootModule::BASE_NAME` in lowercase,
-according to the https://doc.rust-lang.org/std/env/consts/index.html[Operating
-System's defaults]. For example, in Linux our plugin would be `libmin.so`, and
-on Windows it'd be `min.dll`.
+  according to the https://doc.rust-lang.org/std/env/consts/index.html[Operating
+  System's defaults]. For example, in Linux our plugin would be `libmin.so`, and
+  on Windows it'd be `min.dll`.
+
+This means that we should add the following parameter to the plugin's
+`Cargo.toml` file:
+
+[source, toml]
+----
+[lib]
+# This way, the shared object will be saved as `abi_stable` prefers, for example
+# `libmin.so`.
+name = "min"
+----
 
 == Handling state
 
