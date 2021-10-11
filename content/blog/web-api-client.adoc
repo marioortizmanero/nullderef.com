@@ -67,7 +67,7 @@ Rspotify developer, and see what his thoughts were. I proposed some big changes
 like rewriting the `blocking` module <<gh-block-cleanup>> and @Kestrer wrote up
 an issue with ~80 issues he had found when using the library <<gh-meta>>.
 
-I think it's fair to release the new version as such rather than as a new
+I think it's fair to release the new version 0.11 as such rather than as a new
 library because of the following reasons:
 
 * Ramsay, the author, also wanted to help.
@@ -91,17 +91,135 @@ CHANGELOG]. The following sections will talk about what I learned about API
 Design, and some tips for those writing one in Rust.
 
 [[actual_start]]
-== Configuration
-
 == Making the API HTTP-client agnostic
 
-* HTTP-client agnostic: Rspotify now works with both
-  https://docs.rs/ureq[`ureq`] (synchronous) and
-  https://docs.rs/reqwest[`reqwest`] (asynchronous) <<gh-clients>>.
+Rspotify is now HTTP-client agnostic, which means that it can work with
+whichever HTTP library the user configures, with no considerable overhead. For
+now, we support {{< crate ureq >}} and {{< crate reqwest >}} <<gh-clients>>. The
+HTTP client can be either blocking (`ureq`) or asynchronous (`reqwest`), which
+is the non-trivial part.
+
+While it's fully implemented in the new version, it's the only part of the new
+version that isn't finished yet and that's subject to change. This has to do
+with the way we support both async and sync HTTP clients under the same trait.
+In order to have a common interface for both kinds of programming, we use the
+{{< crate maybe_async >}}, which lets us switch between them with a feature.
+
+The trait used as a base for any HTTP client is implemented with async. That
+way, if the `maybe_async/is_sync` feature is disabled, the trait and its
+implementations remain the same, and if it's enabled, all the occurrences of
+`async` and `.await` are removed. This works perfectly, but unfortunately breaks
+a rule in Cargo's feature system: features must be strictly additive, and
+``maybe_async``'s feature is a _toggle_ -- you can't have both a sync and an
+async client at the same time.
+
+Since we don't follow that rule, those who depend on Rspotify with both async
+and async (directly or indirectly) won't be able to compile their project. I
+won't get into much detail beacuse I'm writing an entire separate post dedicated
+for this issue that I'll publish once this whole ordeal is fixed. We're keeping
+track of it in https://github.com/ramsayleung/rspotify/issues/221[#221] for now,
+for those who want to lean more.
+
+For now, I'll just explain how it works for clients of the same type: either
+synchronous or asynchronous. Since the usage for an HTTP client in an API is
+often very basic, i.e. you only need to make requests and get the results, we
+can cover its usage under a single interface. For example:
+
+[source, rust]
+----
+pub trait HttpClient: Send + Default {
+   type Error;
+
+    fn get(
+        &self,
+        url: &str,
+        headers: Option<&Headers>,
+        payload: &Query,
+    ) -> Result<String, Self::Error>;
+
+    fn post(
+        &self,
+        url: &str,
+        headers: Option<&Headers>,
+        payload: &Value,
+    ) -> Result<String, Self::Error>;
+    
+    // etc
+}
+----
+
+Then, we can add an implementation for each of our supported clients:
+
+[source, rust]
+----
+#[derive(Default, Debug, Clone)]
+pub struct UreqClient {}
+
+impl HttpClient for UreqClient {
+    type Error = ureq::Transport;
+
+    #[inline]
+    fn get(
+        &self,
+        url: &str,
+        headers: Option<&Headers>,
+        payload: &Query,
+    ) -> Result<String, Self::Error> {
+        let request = ureq::get(url);
+        let sender = |mut req: Request| {
+            for (key, val) in payload.iter() {
+                req = req.query(key, val)
+            }
+            req.call()
+        };
+        self.request(request, headers, sender) // Internal more complex handler
+    }
+
+    // etc
+}
+----
+
+And we can finally make our client generic over its internal HTTP client:
+
+[source, rust]
+----
+#[derive(Default, Debug, Clone)]
+pub struct Spotify<Http: HttpClient> {
+    http: Http,
+    // etc
+}
+
+impl<Http: HttpClient> Spotify<Http> {
+    pub fn endpoint(&self) -> String {
+        let headers = todo!();
+        let payload = todo!();
+        self.http.get("/some/endpoint", headers, payload)
+    }
+}
+----
+
+While this additional complexity might be completely unnecessary for your own
+API wrapper, this was definitely something interesting for Rspotify. Some crates
+that already depend on us like https://github.com/hrkfdn/ncspot[`ncspot`] or
+https://github.com/Spotifyd/spotifyd[`spotifyd`] are blocking, and others like
+https://github.com/Rigellute/spotify-tui[`spotify-tui`] use async. I thought I
+might as well try, and I've finally figured out how to make it work, even for
+both async and sync.
+
+We implement all of this in the crate
+https://github.com/ramsayleung/rspotify/tree/master/rspotify-http[`rspotify-http`],
+which I plan on https://github.com/ramsayleung/rspotify/issues/234[moving into a
+separate crate] once it's working as I want it to. I think it's a pretty neat
+feature for an API client that will hopefully become easier to implement with in
+the future.
 
 == Architecture based on authentication methods
 
 * PKCE Authentication <<gh-pkce>>.
+
+== Configuration
+
+There were several parts of the Spotify client that could be configured. 
 
 == Documentation
 
