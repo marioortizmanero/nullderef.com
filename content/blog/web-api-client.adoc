@@ -303,13 +303,13 @@ setters and we're done. Ask yourself: do you really need the builder pattern? In
 this case we certainly didn't.
 
 The most complicated part about this is having a client for each authorization
-method. While their auth process may vary, the endpoints and the rest of the
-code is still shared between all the clients. There are _many_ ways to approach
-this, I just had to decide which one was the best. I gave this a lot of thought
-<<gh-auth>> <<reddit-auth>>.
+method, and making sure the user can only call those endpoints they have access
+to. There are _many_ ways to approach this, I just had to decide which one was
+the best. I gave this a lot of thought <<gh-auth>> <<reddit-auth>>.
 
-We could follow the "`composition over inheritance`" principle, but we'd be
-repeating a ton of code, and it'd end up quite messy:
+Having multiple clients seems trivial with inheritance, with a base from which
+they can extend. We could follow the typical "`composition over inheritance`"
+principle, but we'd be repeating a ton of code, and it'd end up quite messy:
 
 [source, rust]
 ----
@@ -347,7 +347,7 @@ impl AuthCodeSpotify {
 In order to make requests in each group of endpoints we'd have to share a single
 HTTP client and other information such as the config or the token, which can
 become complicated. If we want to make it easy for the user, we also need to
-manually delegate every single endpoint into each of the specific clients. You
+manually delegate every single endpoint into each of the specific clients. We
 could also use `Deref` and `DerefMut` in order to avoid the delegation, but
 that'd be a common anti-pattern <<deref-antipattern>>.
 
@@ -384,18 +384,36 @@ impl EndpointsOAuth for AuthCodeSpotify {
 }
 ----
 
-TODO
+With traits, we don't have any problems regarding sharing HTTP clients or
+tokens. All we need to do is provide them as getters, and then the default
+implementations can implement the endpoints.
 
-The only part I don't like of this approach is that you can't really have
-private functions in the trait. For instance, we have a `endpoint_get` method
-that wraps `http.get` to include the authentication headers used for the
-endpoints. It's defined in the trait because it's useful for every client, but
-the end user doesn't really need access to it; it's just noise in the
-documentation. There are two possible workarounds, so it's not a big deal:
+However, I've found the following downsides:
 
-* Declare the method in the trait with `#[doc(hidden)]` so that it doesn't
-  appear in the documentation.
-* Use a private function outside the trait instead.
+* Since the functionality is provided by the trait, and not the client, the user
+  will always need to import the trait in order to use the endpoints. This can
+  be fixed somewhat easily by
+  https://stackoverflow.com/questions/36384840/what-is-the-prelude[providing a
+  prelude] with whatever traits are necessary, so that the user can just do `use
+  rspotify::prelude::*` and forget about it.
+* You can't really have private functions in the trait. For instance, we have a
+  `endpoint_get` method that wraps `http.get` to include the authentication
+  headers used for the endpoints. It's defined in the trait because it's useful
+  for every client, but the end user doesn't really need access to it; it's just
+  noise in the documentation. There are two possible workarounds, so it's not a
+  big deal:
+** Declare the method in the trait with `#[doc(hidden)]` so that it doesn't
+   appear in the documentation.
+** Use a private function outside the trait instead.
+* You can't use `\-> impl Trait` in trait methods as of Rust 1.55
+  <<trait-ret-impl>>, which we unfortunately need. Specially if you're using an
+  asynchronous client, because async trait methods are `\-> impl Future` after
+  all. We can erase these types with the {{< crate async-trait >}} crate for
+  now, until this is fixed thanks to GATs being implemented, which isn't too far
+  off <<gats>>.
+
+So yeah, it's far from an ideal solution, but it's definitely the best one I
+could find.
 
 * PKCE Authentication <<gh-pkce>>.
 
@@ -480,6 +498,13 @@ This release has been possible thanks to:
 - [[[deref-antipattern,  2]]]
   https://github.com/rust-unofficial/patterns/blob/main/anti_patterns/deref.md[`Deref`
   polymorphism]
+- [[[trait-ret-impl,     2]]]
+  https://stackoverflow.com/questions/39482131/is-it-possible-to-use-impl-trait-as-a-functions-return-type-in-a-trait-defini[Is
+  it possible to use `impl Trait` as a function's return type in a trait
+  definition? - StackOverFlow]
+- [[[gats,               2]]]
+  https://github.com/rust-lang/rust/issues/44265[rust-lang/rust#4426 - Tracking
+  issue for generic associated types (GAT)]
 - [[[gh-ids,             3]]]
   https://github.com/ramsayleung/rspotify/pull/161[#161 - Initial id type
   proposal] and https://github.com/ramsayleung/rspotify/pull/244[#244 - Fix IDs
