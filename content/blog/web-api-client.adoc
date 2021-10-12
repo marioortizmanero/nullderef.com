@@ -261,8 +261,10 @@ builder pattern is great, but it might become too verbose or confusing:
   parameters?
 * Which authorization method are we using above again? Currently it's possible
   to call `seek_track` after having followed an authorization process that
-  doesn't give access to it. So what if we have a Spotify client for each
-  authorization method?
+  doesn't give access to it. And since we're mixing all of them under the same
+  client it quickly becomes a mess, having many `Option` fields that are only
+  `Some` for specific authorization methods. So, what if we have a Spotify
+  client for each authorization method?
 * Wouldn't it be better have some type safety? The `unwrap` hurts my eyes.
 
 After removing the builder pattern and being more explicit about the
@@ -302,14 +304,14 @@ because we don't even need validation. If we did, we could always just add a few
 setters and we're done. Ask yourself: do you really need the builder pattern? In
 this case we certainly didn't.
 
-The most complicated part about this is having a client for each authorization
-method, and making sure the user can only call those endpoints they have access
-to. There are _many_ ways to approach this, I just had to decide which one was
-the best. I gave this a lot of thought <<gh-auth>> <<reddit-auth>>.
+The most complicated part is having a client for each authorization method, and
+making sure the user can only call those endpoints they have access to. There
+are _many_ ways to approach this, I just had to decide which one was the best. I
+gave this a lot of thought <<gh-auth>> <<reddit-auth>>.
 
 Having multiple clients seems trivial with inheritance, with a base from which
-they can extend. We could follow the typical "`composition over inheritance`"
-principle, but we'd be repeating a ton of code, and it'd end up quite messy:
+they can extend. In Rust, we could follow the typical "`composition over
+inheritance`" principle:
 
 [source, rust]
 ----
@@ -317,7 +319,7 @@ pub struct EndpointsBase {
     http: Rc<Http> // Shared with the rest of the endpoints
 }
 impl EndpointsBase {
-    pub fn endpoint1(&self) { self.http.put("/endpoint1") }
+    pub fn endpoint1(&self) { self.http.get("/endpoint1") }
     pub fn endpoint2(&self) { self.http.get("/endpoint2") }
     // etc
 }
@@ -327,8 +329,8 @@ pub struct EndpointsOAuth {
     http: Rc<Http>
 }
 impl EndpointsOAuth {
-    pub fn endpoint3(&self) { self.http.get("/endpoint3", self.token) }
-    pub fn endpoint4(&self) { self.http.post("/endpoint4", self.token) }
+    pub fn endpoint3(&self) { self.http.get_oauth("/endpoint3", self.token) }
+    pub fn endpoint4(&self) { self.http.get_oauth("/endpoint4", self.token) }
     // etc
 }
 
@@ -336,30 +338,75 @@ pub struct AuthCodeSpotify(EndpointsBase, EndpointsOAuth);
 impl AuthCodeSpotify {
     pub fn authenticate(&self) { /* ... */ }
 
-    pub fn endpoint1(&self) { self.0.endpoint1() }
-    pub fn endpoint2(&self) { self.0.endpoint2() }
-    pub fn endpoint3(&self) { self.1.endpoint3() }
-    pub fn endpoint4(&self) { self.1.endpoint4() }
-    // etc
+    pub fn base(&self) -> &EndpointsBase { &self.0 }
+    pub fn oauth(&self) -> &EndpointsOAuth { &self.1 }
 }
 ----
 
-In order to make requests in each group of endpoints we'd have to share a single
-HTTP client and other information such as the config or the token, which can
-become complicated. If we want to make it easy for the user, we also need to
-manually delegate every single endpoint into each of the specific clients. We
-could also use `Deref` and `DerefMut` in order to avoid the delegation, but
-that'd be a common anti-pattern <<deref-antipattern>>.
+The user can then write `spotify.base().endpoint1()` or
+`spotify.oauth().endpoint3()` to access the endpoints in their different groups.
+However, all of them have to share a single HTTP client and other information
+such as the config or the token, so we have to use something like `Rc`. We can
+improve this by taking ideas from {{< crate aspotify >}}, another popular crate
+for the Spotify API, which group up the endpoints by categories. Their endpoint
+groups take a reference to the client itself instead:
 
-I tried different approaches, but they ended up falling apart at some point.
-What ended up working best for me was a trait-based interface:
+.https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=6cce195451518fcf644e7506ca7b51b2[Simplified from the working example on the Rust playground]
+[source, rust]
+----
+pub trait Spotify {
+    fn get_http(&self) -> &Http;
+    fn get_token(&self) -> &Token;
+}
 
+pub struct EndpointsBase<'a, S: Spotify>(&'a S);
+impl<S: Spotify> EndpointsBase<'_, S> {
+    pub fn endpoint1(&self) { self.0.get_http().get("/endpoint1") }
+    pub fn endpoint2(&self) { self.0.get_http().get("/endpoint2") }
+    // etc
+}
+
+pub struct EndpointsOAuth<'a, S: Spotify>(&'a S);
+impl<S: Spotify> EndpointsOAuth<'_, S> {
+    pub fn endpoint3(&self) { self.0.get_http().get_oauth("/endpoint3", self.0.get_token()) }
+    pub fn endpoint4(&self) { self.0.get_http().get_oauth("/endpoint4", self.0.get_token()) }
+    // etc
+}
+
+pub struct AuthCodeSpotify {
+    pub http: Http,
+    pub token: Token
+}
+impl Spotify for AuthCodeSpotify {
+    fn get_http(&self) -> &Http { &self.http }
+    fn get_token(&self) -> &Token { &self.token }
+}
+impl AuthCodeSpotify {
+    pub fn authenticate(&self) { /* ... */ }
+
+    pub fn base(&self) -> EndpointsBase<'_, Self> { EndpointsBase(self) }
+    pub fn oauth(&self) -> EndpointsOAuth<'_, Self> { EndpointsOAuth(self) }
+}
+----
+
+This is pretty neat and works perfectly. But you might personally think using
+just `spotify.endpoint1()` instead of `spotify.base().endpoint1()` is more
+suitable for your specific API client. The only way to do that would be to
+delegate every single endpoint manually into the main client. Some people use
+`Deref` and `DerefMut` in order to automatically do it, but that's a common
+anti-pattern <<deref-antipattern>>.
+
+I tried different approaches, and my favorite ended up being a trait-based
+interface. All you need is a couple traits with the endpoint implementations
+which require a getter to the HTTP client or similars:
+
+.https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=901e41d16172e17368328c5a7744f673[Simplified from the working example on the Rust playground]
 [source, rust]
 ----
 pub trait EndpointsBase {
     fn get_http(&self) -> &Http;
 
-    fn endpoint1(&self) { self.get_http().put("/endpoint1") }
+    fn endpoint1(&self) { self.get_http().get("/endpoint1") }
     fn endpoint2(&self) { self.get_http().get("/endpoint2") }
     // etc
 }
@@ -367,8 +414,8 @@ pub trait EndpointsBase {
 pub trait EndpointsOAuth: EndpointsBase {
     fn get_token(&self) -> &Token;
 
-    fn endpoint3(&self) { self.get_http().get("/endpoint3", self.get_token()) }
-    fn endpoint4(&self) { self.get_http().post("/endpoint4", self.get_token()) }
+    fn endpoint3(&self) { self.get_http().get_oauth("/endpoint3", self.get_token()) }
+    fn endpoint4(&self) { self.get_http().get_oauth("/endpoint4", self.get_token()) }
     // etc
 }
 
@@ -380,42 +427,37 @@ impl EndpointsBase for AuthCodeSpotify {
     fn get_http(&self) -> &Http { &self.0 }
 }
 impl EndpointsOAuth for AuthCodeSpotify {
-    fn get_token(&self) -> &Http { &self.1 }
+    fn get_token(&self) -> &Token { &self.1 }
 }
 ----
 
-With traits, we don't have any problems regarding sharing HTTP clients or
-tokens. All we need to do is provide them as getters, and then the default
-implementations can implement the endpoints.
+This way, as long as the user has these traits in scope, they can access the
+endpoints with just `spotify.endpoint1()`. We can make that easier by including
+a https://stackoverflow.com/questions/36384840/what-is-the-prelude[prelude] in
+the library with these traits, so that all the user has to do is `use
+rspotify::prelude::*`.
 
-However, I've found the following downsides:
+The main issue with the trait-based solution is that you can't use `\-> impl
+Trait` in trait methods as of Rust 1.55 <<trait-ret-impl>>. We unfortunately
+need these, specially with asynchronous clients, because async trait methods are
+`\-> impl Future` after all. For now, we can work around it by erasing the types
+with the {{< crate async-trait >}} crate. Supposedly, this will be temporary
+until GATs are implemented, which isn't too far off <<gats>>.
 
-* Since the functionality is provided by the trait, and not the client, the user
-  will always need to import the trait in order to use the endpoints. This can
-  be fixed somewhat easily by
-  https://stackoverflow.com/questions/36384840/what-is-the-prelude[providing a
-  prelude] with whatever traits are necessary, so that the user can just do `use
-  rspotify::prelude::*` and forget about it.
-* You can't really have private functions in the trait. For instance, we have a
-  `endpoint_get` method that wraps `http.get` to include the authentication
-  headers used for the endpoints. It's defined in the trait because it's useful
-  for every client, but the end user doesn't really need access to it; it's just
-  noise in the documentation. There are two possible workarounds, so it's not a
-  big deal:
-** Declare the method in the trait with `#[doc(hidden)]` so that it doesn't
-   appear in the documentation.
-** Use a private function outside the trait instead.
-* You can't use `\-> impl Trait` in trait methods as of Rust 1.55
-  <<trait-ret-impl>>, which we unfortunately need. Specially if you're using an
-  asynchronous client, because async trait methods are `\-> impl Future` after
-  all. We can erase these types with the {{< crate async-trait >}} crate for
-  now, until this is fixed thanks to GATs being implemented, which isn't too far
-  off <<gats>>.
+This also makes it hard to have private functions in the main client. We don't
+really want the user to have access to the methods `get` or `get_oauth`. It's
+defined in the client/trait because it's useful for every client, but for the
+end user it's just noise in the documentation. There are two possible
+workarounds, so it's not a big deal:
 
-So yeah, it's far from an ideal solution, but it's definitely the best one I
-could find.
+* Declare the method with `#[doc(hidden)]` so that it doesn't appear in the
+  documentation.
+* Use private functions outside the client instead.
 
-* PKCE Authentication <<gh-pkce>>.
+So yeah, there are no _perfect_ solutions, but these are two of the best ones I
+could find. The choice is up to the designer of the library and their needs.
+Having multiple clients let us implement PKCE Authentication for Rspotify quite
+easily <<gh-pkce>>, so it's worth it in the end anyway.
 
 == Configuration
 
