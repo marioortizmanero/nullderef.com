@@ -10,8 +10,8 @@ GHissueID: TODO
 This article describes my journey of basically rewriting the entirety of
 Rspotify; around 13 months of work (in my free time), starting at September of
 2020, up until October of 2021. I think this has given me enough experience for
-an article regarding API design on Rust, and hopefully it'll be useful for those
-who attempt the same in the future. Specially considering how much I've gone in
+an article regarding API design on Rust, and perhaps those who attempt the same
+in the future can take some ideas. Specially considering how much I've gone in
 circles and how much time I've "`wasted`" implementing things that ended up
 being discarded.
 
@@ -301,8 +301,8 @@ let oauth = OAuth {
 
 Using the regular initialization pattern is more than enough for this case
 because we don't even need validation. If we did, we could always just add a few
-setters and we're done. Ask yourself: do you really need the builder pattern? In
-this case we certainly didn't.
+setters or checks before its usage and we're done. Ask yourself: do you really
+need the builder pattern? In this case we certainly didn't.
 
 The most complicated part is having a client for each authorization method, and
 making sure the user can only call those endpoints they have access to. There
@@ -348,7 +348,7 @@ The user can then write `spotify.base().endpoint1()` or
 However, all of them have to share a single HTTP client and other information
 such as the config or the token, so we have to use something like `Rc`. We can
 improve this by taking ideas from {{< crate aspotify >}}, another popular crate
-for the Spotify API, which group up the endpoints by categories. Their endpoint
+for the Spotify API, which groups up the endpoints by categories. Their endpoint
 groups take a reference to the client itself instead:
 
 .https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=6cce195451518fcf644e7506ca7b51b2[Simplified from the working example on the Rust playground]
@@ -391,7 +391,7 @@ impl AuthCodeSpotify {
 
 This is pretty neat and works perfectly. But you might personally think using
 just `spotify.endpoint1()` instead of `spotify.base().endpoint1()` is more
-suitable for your specific API client. The only way to do that would be to
+suitable for your particular API client. The only way to do that would be to
 delegate every single endpoint manually into the main client. Some people use
 `Deref` and `DerefMut` in order to automatically do it, but that's a common
 anti-pattern <<deref-antipattern>>.
@@ -452,7 +452,7 @@ workarounds, so it's not a big deal:
 
 * Declare the method with `#[doc(hidden)]` so that it doesn't appear in the
   documentation.
-* Use private functions outside the client instead.
+* Use private functions outside the trait instead.
 
 So yeah, there are no _perfect_ solutions, but these are two of the best ones I
 could find. The choice is up to the designer of the library and their needs.
@@ -461,9 +461,87 @@ easily <<gh-pkce>>, so it's worth it in the end anyway.
 
 == Configuration
 
-There were several parts of the Spotify client that could be configured. 
+There are a few parts of the Spotify client that can be customized by the user.
+Previously, these were just fields of the main client, but since we now have
+multiple clients, it might be worth moving into a separate struct to avoid
+duplication. Really, even if we still had a single client, a `Config` struct
+might be easier to understand for the user.
+
+Another one of our fails was attempting to use features instead of the `Config`
+struct for configuration, on the assumption that features would be more
+performant:
+
+.Which is faster?
+[source, rust]
+----
+if self.config.cached_token {
+    println!("Saving cache token to the file!");
+}
+
+#[cfg(feature = "cached_token")]
+{
+    println!("Saving cache token to the file!");
+}
+----
+
+Turns out that both of these are usually compiled to the same machine code
+anyway. Since `self.config.cached_token` is most times specified as a constant,
+optimizing it away is one of the more basic tasks a compiler can do. Features
+are drastically less flexible and harder to use than runtime variables, so
+before introducing one you should really think about it. Apart from the fact
+that you obviously can't use features at runtime, they are applied globally, so
+you can't have two different clients, one with cached tokens and another without
+it. In order to take this decision I actually wrote an entire article about it,
+so https://nullderef.com/blog/rust-features/[check it out if you want more
+details].
+
+One correct usage would be our new `cli` feature. We have some utilities for
+command-line programs, such as prompting for the user's credentials. However,
+not everyone needs these, such as servers, and it introduced the {{< crate
+webbrowser >}} dependency and a few unecessary functions. So we decided to move
+this into a separate feature for those interested, which is disabled by default.
+
+On the topic of configuration, it's important to have sane defaults as well.
+This is highly subjective, but I prefer to do as little as possible under the
+hood without the user knowing about it. When initializing a client we used to
+automatically try to read from the environment variables, and if that didn't
+work then we tried to use the default values or we just panicked:
+
+[source, rust]
+----
+let creds = SpotifyClientCredentials::default() // this reads the env variables
+    .client_id("this-is-my-client-id")
+    .client_secret("this-is-my-client-secret")
+    .build()
+    .unwrap();
+----
+
+This is a pretty useful feature, but we can't be sure the writer/reader of the
+code knows about it, and it could potentially cause cause unintended behaviour.
+Instead, we can just have a `default` method that does nothing special, which is
+what the user would expect, and also `from_env`, which _explicitly_ tells us
+what it does:
+
+[source, rust]
+----
+let creds = SpotifyClientCredentials::from_env() // this reads the env variables
+    .client_id("this-is-my-client-id")
+    .client_secret("this-is-my-client-secret")
+    .build()
+    .unwrap();
+----
+
+* Saner <<gh-wrappers>> and more lightweight defaults <<gh-cleanup>>, more consistent interface <<gh-meta>> <<gh-opt>>.
+* Using `from_env`
+
+== Flexibility
+
+The same way you would rather pass a `&str` than a `String` to a function, you
+don't really want to 
 
 == Documentation
+
+This might be obvious to some, but 
 
 == Type safety
 
@@ -471,17 +549,77 @@ There were several parts of the Spotify client that could be configured.
 
 == Macros
 
-== Goodies
+Macros in Rust are pretty cool! But you don't want to overdo them either. In
+`rspotify` we frequently had to build hashmaps or JSON objects; at least once
+per endpoint. Some of the parameters in the endpoints were mandatory, and others
+optional (passed as an `Option`):
+
+[source, rust]
+----
+let mut params = Query::with_capacity(3);
+params.insert("ids", ids);
+params.insert("limit", limit.to_string());
+if let Some(ref market) = market {
+    params.insert("market", market.as_ref());
+}
+----
+
+I first tried to simplify this by using macros to their full strength, so my
+initial attempts looked like this:
+
+[source, rust]
+----
+let params = build_map! {
+    ids,
+    limit => limit.to_string(),
+    optional market => market.as_ref(),
+};
+----
+
+Or this:
+
+[source, rust]
+----
+let params = build_map! {
+    ids,
+    limit => limit.to_string(),
+    Some(market) => market.as_ref()
+};
+----
+
+Yes, they are _very_ concise and we remove a lot of boilerplate, but they're bad
+for two reasons:
+
+* There's too much magic going on:
+** They turn the `ids` identifier into a string with
+   https://doc.rust-lang.org/std/macro.stringify.html[`stringify!`] and use that
+   as the key for the hashmap insertion.
+** In the expression to the right of an optional parameter, its value isn't
+   treated as an `Option` anymore; there's a hidden `if let Some(market)`.
+* The syntax is weird. In order to understand them correctly, you'd probably
+  have to look up their documentation and read it first.
+
+The final design <<gh-macros>> still reduces the boilerplate needed in each
+endpoint considerably, but there's no magic going on. It's basically the same as
+a regular hashmap builder macro like you'd find on
+https://docs.rs/maplit/1.0.2/maplit/[`maplit`], and the macro doesn't hide
+anything:
+
+[source, rust]
+----
+let params = build_map! {
+    "ids": ids,
+    "limit": limit.to_string(),
+    optional "market": market.map(|x| x.as_ref()),
+};
+----
+
+== Other goodies
 
 * Automatically refreshing token
 * Cached token
 * Automatic pagination <<gh-pagination>>
-* ??
-
-== Sane defaults
-
-* Saner <<gh-wrappers>> and more lightweight defaults <<gh-cleanup>>, more consistent interface <<gh-meta>> <<gh-opt>>.
-* Using `from_env`
+* Simplify wrappers <<gh-wrappers>>
 
 == Helping with the changes
 
@@ -491,26 +629,99 @@ TODO mention changelog
 
 == Measuring the changes
 
-TODO talk about the bench
+Since this release changed so much stuff and took so long, I wanted to get a
+detailed comparison between v0.10 and v0.11 for different aspects of the
+library -- not just performance.
 
-=== The Good
+The full source for these benchmarks is available at the
+https://github.com/marioortizmanero/rspotify-bench[marioortizmanero/rspotify-bench]
+repository. Note that I had to apply a small patch to the v0.10 version because
+by now it didn't work correctly.
 
-TODO: make graphs and similars
+=== Statistics
 
-* async code has dropped from 206 (!!) compilation units (~1 min 29s on my machine) to 154 (~1min 10s)
-* blocking code has dropped from 207 compilation units (~1min 34s) to 103 (~1 min 1s) and now uses ureq
-* LoC? Not really fair
-* Benchmarks
+Some parts of Rspotify can be analyzed statically, such as the lines of code
+that will need to be maintained, or its number of dependencies.
 
-=== The Bad
+.Results example as of 2021-10-12
+|===
+|Version |Rust LoC |Dependencies in tree |Dependencies in tree (all features)
 
-* New bugs! Probably lots of 'em!
-* Lots of work: I started in ~August of 2020.
-* Somewhat more complex codebase.
+|0.10.0 |11281 |132 |141
+
+|master |7525 |101 |123
+|===
+
+The Lines of Code in the old version were quite bloated because of the
+`blocking` module, which was a copy-paste of the async client. Still, these were
+lines that needed to be maintained, so they count just as much. On the other
+hand, we now have a much more extensive set of tests and new features. It sums
+up to about 33% less lines to be maintained in total.
+
+The number of dependencies has decreased both for the default features, and with
+all of them enabled. We cleaned up a lot of them <<gh-cleanup>> and tried to
+keep the defaults leaner. Since the new version adds more features such as PKCE,
+we even had to add new dependencies like {{< crate sha2 >}}, but it's still a
+clear win.
+
+=== Execution time
+
+The execution benchmarks use
+https://github.com/bheisler/criterion.rs[Criterion], with a total of 100
+iterations on my Dell Vostro 5481 laptop, or more specifically, Intel i5-8265U
+(8) @ 3.900GHz. The full reports are available in the `report` directory of each
+benchmark.
+
+Taking a look at the Criterion reports, it seems that the Spotify API doesn't
+intentionally slow down responses when it's being "`spammed`", so it should be
+fine in that regard:
+
+image::/blog/web-api-client/iterations.png[align=center]
+
+Note that comparing the blocking clients for now is unfair, because instead of
+using `reqwest::blocking`, now it's `ureq`. Furthermore, the async and sync
+versions can't be compared either, because the former requires setting up the
+tokio runtime and a bunch of other stuff.
+
+The asynchronous clients in both versions should give a rough idea of the actual
+differences, though you can tell it's just a quick benchmark; the results
+shouldn't be taken too seriously.
+
+.Results example as of 2021-10-12
+[width="100%",cols="^16%,^16%,^17%,^16%,^15%,^20%",options="header",]
+|===
+|Version |Debug Compilation Time (s) |Release Compilation Time (s)
+|Benchmarking Time (ms/iter) |Release Binary Size (MB) |Release Stripped
+Binary Size (MB)
+|0.10.0, blocking |72.712 |126.229 |271.31 |9.9 |4.9
+
+|0.10.0, async |72.244 |115.703 |428.02 |11 |5.2
+
+|master, blocking (ureq) |38.549 |55.934 |503.68 |7.3 |2.6
+
+|master, async (reqwest) |51.014 |86.594 |432.49 |8.5 |4.0
+|===
+
+I also wanted to reflect the compilation time, since it's a possibility that we
+have less dependencies, but of larger size. The results show that this isn't the
+case, however, since it takes 29% less time in debug mode, and 25% less time in
+release mode.
+
+In terms of execution time, I didn't expect it to be any better. Even though the
+architecture and implementation is cleaner, some of the new features introduce
+noticeable overhead. For example, now that we have automatically refreshing
+tokens, the `Token` has to be saved in an `Arc<Mutex<T>>`, which means we're
+locking and unlocking at least once per request. Still, the difference is almost
+negligible: just a 1% increase.
+
+The cleanup and all these dependencies we removed mean that the resulting binary
+is also smaller, and by a lot: a 23% decrease.
 
 == Thanks to
 
 This release has been possible thanks to:
+
+// TODO: add their contributions
 
 * https://github.com/ramsayleung[@ramsayleung]
 * https://github.com/kstep[@kstep]
@@ -520,6 +731,19 @@ This release has been possible thanks to:
 * https://github.com/aramperes[@aramperes]
 * https://github.com/Sydpy[@Sydpy]
 * https://github.com/arlyon[@arlyon]
+
+I'm specially grateful towards Ramsay, who read and reviewed _every single one
+of my issues and pull requests_. I've learned how important it is to have a
+second opinon, and someone else who proofreads everything before you merge dumb
+stuff into `master`. Note that I _did_ proofread my own ideas and pull requests,
+but there's some things that you just don't realize on time, as much as you try
+to. This is a problem that I think is particularly relevant in open source. I
+personally had worked on projects alone most of the times, and the difference is
+huge. I would suggest everyone to try to join forces with at least one more
+person when working in side projects.
+
+Lots of love, +
+Mario
 
 [bibliography]
 == References
@@ -579,3 +803,6 @@ This release has been possible thanks to:
 - [[[aspotify-release,   11]]]
   https://www.reddit.com/r/rust/comments/ehz66s/aspotify_an_asynchronous_rust_spotify_web_api/[aspotify:
   An asynchronous Rust Spotify web API client - r/rust]
+- [[[gh-macros,          12]]]
+  https://github.com/ramsayleung/rspotify/pull/202[#202 - Remove Rspotify
+  default parameters and add parameter macros]
