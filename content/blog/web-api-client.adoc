@@ -11,61 +11,57 @@ This article describes my journey of basically rewriting the entirety of
 https://github.com/ramsayleung/rspotify[Rspotify]; around 13 months of work (in
 my free time), starting at September of 2020, up until October of 2021. I think
 this has given me enough experience for an article regarding API design on Rust,
-and perhaps those who attempt the same in the future can take some ideas.
-Specially considering how much I've gone in circles and how much time I've
-"`wasted`" implementing things that ended up being discarded.
+and perhaps those who attempt the same in the future can take some ideas and
+save time. Specially considering how much I've gone in circles and how much time
+I've "`wasted`" implementing things that ended up being discarded.
 
-// TODO: fact check
-This is also going to be quite lengthy because I would like to give my reasoning
-for every decision taken; every one of them isn't necessarily the most
-appropiate one for your case, or you might just disagree. Most times there isn't
-a perfect solution and you just have to pick whichever you consider is the best
-one for your project's goals.
-
-== The Story
+== The story
 
 If you don't care about Rspotify's specific story, you can jump to the
 <<actual_start>> section, but I think knowing a bit the motives for this
 rewrite is interesting for other open source maintainers in the same situation
 as me. This all started when I wanted to use a Rust Spotify API wrapper for one
 of my projects at that time, https://vidify.org/[Vidify]. I went to
-https://crates.io/[crates.io] and looked for "Spotify", and all I found was
-`rspotify`, the most popular one, `aspotify`, an asynchronous-only alternative,
-and a bunch of other outdated or incomplete libraries.
+https://crates.io/[crates.io] and looked for "Spotify", and all I found was {{<
+crate rspotify >}} (the most popular one at that time), {{< crate aspotify >}} (
+an asynchronous-only alternative), and a bunch of other outdated or incomplete
+libraries.
 
 The author of `aspotify` had made a brand new library from scratch, because as
 he commented in its release, "`[rspotify's] API in general I found hard to use
-and confusing`" <<aspotify-release>>. Depending on the state of the original
-library this is the easiest choice because you don't have to worry about
-backwards compatibility, old code, etc.
+and confusing`" <<aspotify-release>>. Honestly, depending on the state of the
+original library this is the easiest choice because you don't have to worry
+about backwards compatibility, old code, etc.
 
 A year back I had also helped with the first steps of
 https://github.com/felix-hilden/tekore[`tekore`], an alternative to
 https://github.com/plamere/spotipy[`spotipy`], the most popular Spotify library
-for Python out there. The problem was that back then Paul, spotipy's creator and
-maintainer, was absent <<spotipy-absent>>, and the library really needed a push
-to upgrade from Python 2 and improve the overall interface and
-user-friendliness.
+for Python out there. The problem was that back then, Paul, spotipy's creator
+and maintainer, was absent <<spotipy-absent>>, and the library really needed a
+push to upgrade from Python 2 and improve the overall interface and
+user-friendliness, which had become pretty poor.
 
-So Felix and a few more devs tried to start from scratch. Felix was the most
-dedicated one and eventually got permissions from Paul to upload new spotipy
-releases, meaning that he could rewrite the entire thing and upload it to PyPi
-(Python's official third-party repositories) if he wanted to. The difference in
-this case was that spotipy had a good amount of users at that point, and a
-couple of them ended up stopping Felix from completely breaking backward
-compatibility, so he made it into a brand new library instead and left the
-maintainance tasks to the new devs in charge. Tekore still is, in my very biased
-opinion and at the time of this writing, a much nicer to use library than
-spotipy, but it has taken a lot of time to get a user base starting from
-scratch, and it's still not as popular as spotipy by far.
+https://github.com/felix-hilden[Felix] and a few more devs tried to start from
+scratch. Felix was the most dedicated one and eventually got permissions from
+Paul to upload new spotipy releases, meaning that he could rewrite the entire
+thing and upload it to PyPi (Python's official third-party repositories) if he
+wanted to. The difference in this case was that spotipy had a good amount of
+users at that point, and a couple of them ended up stopping Felix from
+completely breaking backward compatibility, so he made it into a brand new
+library instead and left the maintainance tasks to the new devs in charge.
+Tekore still is, in my very biased opinion and at the time of this writing, a
+much nicer to use library than spotipy, but it has taken a lot of time to get a
+user base starting from scratch, and it's still not as popular as spotipy by
+far.
 
 Having gone through this, I also wanted to see if it would be possible to give
 Rspotify a face wash without anyone complaining. Rspotify was still in beta --
 version 0.10 -- so you can't expect to have a stable API, but that's far from a
 full rewrite. At the very least I wanted to talk with Ramsay, the original
 Rspotify developer, and see what his thoughts were. I proposed some big changes
-like rewriting the `blocking` module <<gh-block-cleanup>> and @Kestrer wrote up
-an issue with ~80 issues he had found when using the library <<gh-meta>>.
+like rewriting the `blocking` module <<gh-block-cleanup>> and
+https://github.com/Kestrer[Kestrer] wrote up an issue with ~80 issues he had
+found when using the library <<gh-meta>>.
 
 I think it's fair to release the new version 0.11 as such rather than as a new
 library because of the following reasons:
@@ -77,12 +73,12 @@ library because of the following reasons:
   without a big rewrite. Otherwise it'd eventually become really hard to maintain and work
   with. I admit that said breaking changes could've been
   smaller, but I thought that while I'm at it I might as well make it as close
-  as possible to my perfect Rust interface.
+  as possible to a perfect Rust interface.
 
-Note that I am in no way associated with Spotify. I'm just a Computer Science
-student whose sole goal was to use Rust for a non-trivial case, from start to
-finish. I was somewhat experienced with the Spotify API, so I decided Rspotify
-was a good choice.
+Also, note that I am in no way associated with Spotify (though open to offers
+:P). I'm just a Computer Science student whose sole goal was to use Rust for a
+non-trivial case, from start to finish. I was somewhat experienced with the
+Spotify API, so I decided Rspotify was a good choice.
 
 Now that most of the stuff I talk about in this article is finished, you can
 read about the changes in detail
@@ -94,24 +90,25 @@ Design, and some tips for those writing one in Rust.
 == Making the API HTTP-client agnostic
 
 Rspotify is now HTTP-client agnostic, which means that it can work with
-whichever HTTP library the user configures, with no considerable overhead. For
+whichever HTTP library the user configures without adding much overhead. For
 now, we support {{< crate ureq >}} and {{< crate reqwest >}} <<gh-clients>>. The
-HTTP client can be either blocking (`ureq`) or asynchronous (`reqwest`), which
-is the non-trivial part.
+non-trivial part about this is that the HTTP client can be either blocking
+(`ureq`) or asynchronous (`reqwest`).
 
-While it's fully implemented in the new version, it's the only part of the new
-version that isn't finished yet and that's subject to change. This has to do
-with the way we support both async and sync HTTP clients under the same trait.
-In order to have a common interface for both kinds of programming, we use the
-{{< crate maybe_async >}}, which lets us switch between them with a feature.
+While it's fully implemented in the new version, it's the only part that isn't
+finished yet and that's subject to change. This has to do with the way we
+support both async and sync HTTP clients under the same trait. In order to have
+a common interface for both kinds of programming, we use the {{< crate
+maybe_async >}} crate, which lets us switch between them with a feature.
 
 The trait used as a base for any HTTP client is implemented with async. That
-way, if the `maybe_async/is_sync` feature is disabled, the trait and its
-implementations remain the same, and if it's enabled, all the occurrences of
-`async` and `.await` are removed. This works perfectly, but unfortunately breaks
-a rule in Cargo's feature system: features must be strictly additive, and
-``maybe_async``'s feature is a _toggle_ -- you can't have both a sync and an
-async client at the same time.
+way, if the `maybe_async/is_sync` feature is disabled in the `Cargo.toml`, the
+trait and its implementations remain the same, and if it's enabled, all the
+occurrences of `async` and `.await` are removed. It's also possible to add
+special cases where removing `async`/`.await` isn't enough. This works
+perfectly, but unfortunately breaks a rule in Cargo's feature system: features
+must be strictly additive, and ``maybe_async``'s feature is a _toggle_ -- you
+can't have both a sync and an async client at the same time.
 
 Since we don't follow that rule, those who depend on Rspotify with both async
 and async (directly or indirectly) won't be able to compile their project. I
@@ -198,9 +195,10 @@ impl<Http: HttpClient> Spotify<Http> {
 }
 ----
 
-While this additional complexity might be completely unnecessary for your own
-API wrapper, this was definitely something interesting for Rspotify. Some crates
-that already depend on us like https://github.com/hrkfdn/ncspot[`ncspot`] or
+Beware that this introduces a good amount of additional complexity which is
+probably unnecessary for your own API wrapper. But this was definitely something
+interesting for Rspotify: some crates that already depend on us like
+https://github.com/hrkfdn/ncspot[`ncspot`] or
 https://github.com/Spotifyd/spotifyd[`spotifyd`] are blocking, and others like
 https://github.com/Rigellute/spotify-tui[`spotify-tui`] use async. I thought I
 might as well try, and I've finally figured out how to make it work, even for
@@ -209,14 +207,14 @@ both async and sync.
 We implement all of this in the crate
 https://github.com/ramsayleung/rspotify/tree/master/rspotify-http[`rspotify-http`],
 which I plan on https://github.com/ramsayleung/rspotify/issues/234[moving into a
-separate crate] once it's working as I want it to. I think it's a pretty neat
-feature for an API client that will hopefully become easier to implement with in
-the future.
+separate crate] for the whole community to use once it's working as I want it
+to. I think this is a pretty neat feature for an API client that will hopefully
+become easier to implement in the future (and first of all work properly).
 
-== Architecture based on authorization methods
+== Finding a more robust architecture
 
-Another interesting refactor I worked on for Rspotify was its architecture. The
-Spotify API in particular has
+Another key refactor I worked on for Rspotify was its architecture. The Spotify
+API in particular has
 https://developer.spotify.com/documentation/general/guides/authorization-guide/[multiple
 authorization methods] that give you access to a different set of endpoints. For
 example, if you're using _client credentials_ (the most basic one), then you
@@ -461,15 +459,16 @@ easily <<gh-pkce>>, so it's worth it in the end anyway.
 
 == Configuration
 
+=== Runtime configuration over compile-time configuration
+
 There are a few parts of the Spotify client that can be customized by the user.
 Previously, these were just fields of the main client, but since we now have
 multiple clients, it might be worth moving into a separate struct to avoid
 duplication. Really, even if we still had a single client, a `Config` struct
 might be easier to understand for the user.
 
-Another one of our fails was attempting to use features instead of the `Config`
-struct for configuration, on the assumption that features would be more
-performant:
+One of our fails was attempting to use features instead of the `Config` struct
+for configuration, on the assumption that features would be more performant:
 
 .Which is faster?
 [source, rust]
@@ -489,10 +488,11 @@ anyway. Since `self.config.cached_token` is most times specified as a constant,
 optimizing it away is one of the more basic tasks a compiler can do. Features
 are drastically less flexible and harder to use than runtime variables, so
 before introducing one you should really think about it. Apart from the fact
-that you obviously can't use features at runtime, they are applied globally, so
-you can't have two different clients, one with cached tokens and another without
-it. In order to take this decision I actually wrote an entire article about it,
-so https://nullderef.com/blog/rust-features/[check it out if you want more
+that you obviously can't use features at runtime (which would be interesting in
+this example), they are applied globally, so you can't have two different
+clients, one with cached tokens and another without them. In order to take this
+decision I actually wrote an entire article about it, so
+https://nullderef.com/blog/rust-features/[check it out if you want more
 details].
 
 One correct usage would be our new `cli` feature. We have some utilities for
@@ -501,9 +501,11 @@ not everyone needs these, such as servers, and it introduced the {{< crate
 webbrowser >}} dependency and a few unecessary functions. So we decided to move
 this into a separate feature for those interested, which is disabled by default.
 
+=== Sane defaults
+
 On the topic of configuration, it's important to have sane defaults as well.
 This is highly subjective, but I prefer to do as little as possible under the
-hood without the user knowing about it. When initializing a client we used to
+hood _without the user knowing about it_. When initializing a client we used to
 automatically try to read from the environment variables, and if that didn't
 work then we tried to use the default values or we just panicked:
 
@@ -531,15 +533,34 @@ let creds = SpotifyClientCredentials::from_env() // this reads the env variables
     .unwrap();
 ----
 
-* Saner <<gh-wrappers>> and more lightweight defaults <<gh-cleanup>>, more consistent interface <<gh-meta>> <<gh-opt>>.
-* Using `from_env`
-
 == Flexibility
 
-The same way you would rather pass a `&str` than a `String` to a function, you
-don't really want to 
+=== Taking borrowed parameters
 
-TODO crate separation
+Friendly reminder: generally, it's better to take a `&str` than a `String` in a
+function <<str-param>>. The same thing applies to the owned type `Vec<T>`; it's
+probably a better idea to take a `&[T]` instead, or the even more fancy `impl
+IntoIterator<Item = T>`. The last option makes it possible to pass iterators to
+the function without requiring a `collect`, which not only is more user
+friendly, but also avoids a memory allocation. Its only downside is that the
+function signatures become a bit uglier, and all the consequences of using
+generics. Either of these options are fine, really, so it's up to you.
+
+=== Optional parameters
+
+Similarly, if the functions your library frequently include optional parameters
+(i.e. of type `Option<T>`), you might want to consider other ways to handle
+them. In our case, we were using generics with `Into<Option<T>>` in order to not
+have to wrap the parameters in `Some` when passing them to the function, but it
+wasn't consistent. We finally agreed that using plain `Option<T>` was good
+enough because it simplifies the function definition in the docs and it's less
+magic <<gh-optional-params>>. But the important part is that we made it
+_consistent_; the decision itself between `Into<Option<T>>` or `Option<T>`
+wasn't that important. After doing research about this topic, I wrote up an
+article with more details https://nullderef.com/blog/rust-parameters/[here], in
+case you want to learn more.
+
+=== Splitting up into multiple crates
 
 Another cool idea that promotes flexibility is separating the wrapper into
 multiple crates. In Rspotify, we now have a total of four of them:
@@ -560,11 +581,15 @@ outside of Rspotify. This means that users can still avoid lots of complexity
 and maintainance work by pulling our model, even if they have to implement their
 own custom clients for whatever reason <<model-separation>>. It can also be
 shared with other public crates, such as `aspotify`, and join forces in keeping
-the model up to date.
+the model up to date <<gh-aspotify-share>>.
 
 == Documentation
 
 This might be obvious to some, but 
+
+TODO tracking issue about new version
+
+TODO mention changelog
 
 == Type safety
 
@@ -654,12 +679,6 @@ HashMap::from([
 * Cached token
 * Automatic pagination <<gh-pagination>>
 * Simplify wrappers <<gh-wrappers>>
-
-== Helping with the changes
-
-TODO issue about new version
-
-TODO mention changelog
 
 == Measuring the changes
 
@@ -850,3 +869,11 @@ Mario
 - [[[gh-http-universal,  15]]]
   https://github.com/ramsayleung/rspotify/issues/234[#234 - Use an external HTTP
   universal interface instead of `rspotify-http`]
+- [[[gh-aspotify-share,  16]]]
+  https://github.com/KaiJewson/aspotify/issues/14[KaiJewson/aspotify#14 -
+  Sharing the model with rspotify-model]
+- [[[str-param,          17]]]
+  https://hermanradtke.com/2015/05/03/string-vs-str-in-rust-functions.html[String
+  vs &str in Rust functions - hermanradtke.com]
+- [[[gh-optional-params, 18]]]
+  https://github.com/ramsayleung/rspotify/issues/134[#134 - Optional parameters]
