@@ -72,6 +72,9 @@ params:
     - name: rss
       url: "https://nullderef.com/index.xml"
 
+social:
+  twitter: null_deref
+
 minify:
     disableXML: true
     minifyOutput: true
