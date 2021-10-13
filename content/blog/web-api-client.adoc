@@ -498,6 +498,13 @@ actually wrote an entire article about it, so
 https://nullderef.com/blog/rust-features/[check it out if you want more
 details].
 
+Even though it's basic, I keep forgetting about this: don't get obsessed with
+performance. As you add new features to the crate, it's completely natural that
+some overheads are introduced here and there. And even then, they might not even
+be noticeable. First of all get that new feature working. Then, measure the
+actual effect on performance. And finally, if it's more than you expected, then
+actually think about optimizing it.
+
 One correct usage would be our new `cli` feature. We have some utilities for
 command-line programs, such as prompting for the user's credentials. However,
 not everyone needs these, such as servers, and it introduced the {{< crate
