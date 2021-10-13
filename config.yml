@@ -67,6 +67,8 @@ params:
       url: "https://github.com/marioortizmanero/"
     - name: linkedin
       url: "https://www.linkedin.com/in/marioortizmanero/"
+    - name: twitter
+      url: "https://twitter.com/null_deref"
     - name: rss
       url: "https://nullderef.com/index.xml"
 

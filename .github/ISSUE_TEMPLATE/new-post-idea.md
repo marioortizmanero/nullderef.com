@@ -21,4 +21,4 @@ TODO list:
   + [ ] date
   + [ ] GHissueID
 - [ ] Clean up bibliography
-- [ ] Share on other platforms (lobste.rs, reddit, hackernews?)
+- [ ] Share on other platforms (lobste.rs, reddit, hackernews, twitter?)
