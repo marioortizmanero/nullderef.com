@@ -8,12 +8,12 @@ GHissueID: TODO
 ---
 
 This article describes my journey of basically rewriting the entirety of
-Rspotify; around 13 months of work (in my free time), starting at September of
-2020, up until October of 2021. I think this has given me enough experience for
-an article regarding API design on Rust, and perhaps those who attempt the same
-in the future can take some ideas. Specially considering how much I've gone in
-circles and how much time I've "`wasted`" implementing things that ended up
-being discarded.
+https://github.com/ramsayleung/rspotify[Rspotify]; around 13 months of work (in
+my free time), starting at September of 2020, up until October of 2021. I think
+this has given me enough experience for an article regarding API design on Rust,
+and perhaps those who attempt the same in the future can take some ideas.
+Specially considering how much I've gone in circles and how much time I've
+"`wasted`" implementing things that ended up being discarded.
 
 // TODO: fact check
 This is also going to be quite lengthy because I would like to give my reasoning
@@ -539,6 +539,29 @@ let creds = SpotifyClientCredentials::from_env() // this reads the env variables
 The same way you would rather pass a `&str` than a `String` to a function, you
 don't really want to 
 
+TODO crate separation
+
+Another cool idea that promotes flexibility is separating the wrapper into
+multiple crates. In Rspotify, we now have a total of four of them:
+
+* `rspotify-http`: the multi-HTTP client abstraction, which I plan on making
+  more generic and moving into a separate crate for everyone to use
+  <<gh-http-universal>>
+* `rspotify-macros`: a small crate with macros
+* `rspotify-model`: the full model for the Rspotify crate
+* `rspotify`: the implementation of the clients
+
+.Diagram by Ramsay
+image::/blog/web-api-client/crate_hierarchy.png[align=center]
+
+The most important one here is splitting up the wrapper into the model and the
+clients. The model is generic enough that it can be used by any client, even
+outside of Rspotify. This means that users can still avoid lots of complexity
+and maintainance work by pulling our model, even if they have to implement their
+own custom clients for whatever reason <<model-separation>>. It can also be
+shared with other public crates, such as `aspotify`, and join forces in keeping
+the model up to date.
+
 == Documentation
 
 This might be obvious to some, but 
@@ -612,6 +635,17 @@ let params = build_map! {
     "limit": limit.to_string(),
     optional "market": market.map(|x| x.as_ref()),
 };
+----
+
+Anyhow, we might remove it in the future, since this syntax will soon work as
+well <<hashmap-new>>:
+
+[source, rust]
+----
+HashMap::from([
+  (k1, v1),
+  (k2, v2)
+]);
 ----
 
 == Other goodies
@@ -732,12 +766,13 @@ This release has been possible thanks to:
 * https://github.com/Sydpy[@Sydpy]
 * https://github.com/arlyon[@arlyon]
 
-I'm specially grateful towards Ramsay, who read and reviewed _every single one
-of my issues and pull requests_. I've learned how important it is to have a
-second opinon, and someone else who proofreads everything before you merge dumb
-stuff into `master`. Note that I _did_ proofread my own ideas and pull requests,
-but there's some things that you just don't realize on time, as much as you try
-to. This is a problem that I think is particularly relevant in open source. I
+I'm specially grateful towards Ramsay, who apart from contributing many of the
+features I listed here, read and reviewed _every single one of my issues and
+pull requests_. I've learned how important it is to have a second opinon, and
+someone else who proofreads everything before you merge dumb stuff into
+`master`. Note that I _did_ proofread my own ideas and pull requests, but
+there's some things that you just don't realize on time, as much as you try to.
+This is a problem that I think is particularly relevant in open source. I
 personally had worked on projects alone most of the times, and the difference is
 huge. I would suggest everyone to try to join forces with at least one more
 person when working in side projects.
@@ -806,3 +841,12 @@ Mario
 - [[[gh-macros,          12]]]
   https://github.com/ramsayleung/rspotify/pull/202[#202 - Remove Rspotify
   default parameters and add parameter macros]
+- [[[hashmap-new,        13]]]
+  https://twitter.com/mgattozzi/status/1447983152669020160?t=jAGevaOOh___cWGERcLLgQ[New
+  hashmap constructor - @gmattozzi, Twitter]
+- [[[model-separation,   14]]]
+  https://github.com/ramsayleung/rspotify/pull/191[#191 - Move model into a
+  separate rspotify-model crate]
+- [[[gh-http-universal,  15]]]
+  https://github.com/ramsayleung/rspotify/issues/234[#234 - Use an external HTTP
+  universal interface instead of `rspotify-http`]
