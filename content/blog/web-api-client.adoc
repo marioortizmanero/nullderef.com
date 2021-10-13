@@ -897,7 +897,7 @@ negligible: just a 1% increase.
 The cleanup and all these dependencies we removed mean that the resulting binary
 is also smaller, and by a lot: there's a 23% decrease in its size.
 
-== Thanks to
+== Special thanks
 
 This release has been possible thanks to:
 
@@ -911,6 +911,8 @@ This release has been possible thanks to:
 * https://github.com/aramperes[@aramperes]
 * https://github.com/Sydpy[@Sydpy]
 * https://github.com/arlyon[@arlyon]
+* https://github.com/flip1995[@flip1995]
+* https://github.com/Rigellute[@Rigellute]
 
 I'm specially grateful towards Ramsay, who apart from contributing many of the
 features I listed here, read and reviewed _every single one of my issues and
