@@ -21,4 +21,5 @@ TODO list:
   + [ ] series (optionally)
   + [ ] date
   + [ ] GHissueID
+- Clean up bibliography
 - Share on other platforms (lobste.rs, reddit, hackernews?)
