@@ -719,20 +719,16 @@ for other web API wrappers:
 
 === Cached and self-refreshing tokens
 
-https://github.com/ramsayleung/rspotify/issues/223[#223 - Implement cache token
-and refresh token]
+Cached tokens are automatically saved into a file, encoded for example in JSON,
+and then attempted to be loaded again when restarting the application.
 
-* Cached tokens are automatically saved into a file, encoded for example in
-  JSON, and then attempted to be loaded again when restarting the application.
+Before making a request, self-refreshing tokens check if they are expired, and
+in that case perform the re-authorization process automatically.
 
-* Before making a request, self-refreshing tokens check if they are expired, and
-  in that case perform the re-authorization process automatically.
+[.text-center]
+{{< gh issue "ramsayleung/rspotify" 233 "Implement cache token and refresh token" >}} 
 
 === Type-safe wrappers for ID types
-
-https://github.com/ramsayleung/rspotify/pull/161[#161 - Initial id type
-proposal] and https://github.com/ramsayleung/rspotify/pull/244[#244 - Fix IDs
-v4].
 
 In the Spotify API, items such as artists or tracks are identified by a unique
 ID string. The URI is the ID, but prefixed by its type, for example
@@ -747,10 +743,11 @@ Instead, we now have an `Id` trait and structs that implement it, like
 runtime with `dyn Id`. If you take a `TrackId` as a parameter, then you already
 know its type, and that its contents are valid, so you're ready to use it.
 
-=== Automatic pagination
+[.text-center]
+{{< gh pr "ramsayleung/rspotify" 161 "Initial id type proposal" >}} and
+{{< gh pr "ramsayleung/rspotify" 244 "Fix IDs v4" >}}
 
-https://github.com/ramsayleung/rspotify/issues/124[#124 - Add unlimited
-endpoints]
+=== Automatic pagination
 
 Many API servers have paginated replies for large lists. Instead of sending a
 huge object, it splits it up into multiple packets, and sends them one by one
@@ -765,10 +762,10 @@ https://rust-lang.github.io/async-book/05_streams/01_chapter.html[streams] for
 async. The latter can be implemented easily in your crate thanks to {{< crate
 async_stream >}}.
 
-=== Simplify wrapper model objects
+[.text-center]
+{{< gh issue "ramsayleung/rspotify" 124 "Add unlimited endpoints" >}}
 
-https://github.com/ramsayleung/rspotify/issues/149[#149 - The way to reduce
-wrapper object]
+=== Simplify wrapper model objects
 
 Due to how JSON works, sometimes an object will always have a single field:
 
@@ -806,6 +803,9 @@ fn endpoint() -> Result<Vec<Artists>> {
     serde_json::from_str::<ArtistCollection>(response).map(|x| x.many_artists)
 }
 ----
+
+[.text-center]
+{{< gh issue "ramsayleung/rspotify" 149 "The way to reduce wrapper object" >}}
 
 == Measuring the changes
 

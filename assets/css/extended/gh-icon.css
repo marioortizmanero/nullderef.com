@@ -1,0 +1,25 @@
+.gh-reference {
+  font-weight: 600;
+  white-space: nowrap;
+  word-wrap: break-word;
+}
+
+.gh-icon {
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-right: 4px !important;
+  fill: #57ab5a;
+  overflow: visible;
+}
+
+.gh-icon-path {
+}
+
+.gh-title {
+  white-space: normal;
+}
+
+.gh-number {
+  font-weight: 400;
+  opacity: 70%;
+}
