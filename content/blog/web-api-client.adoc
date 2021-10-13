@@ -717,26 +717,61 @@ HashMap::from([
 Some new features we added to Rspotify that might be of interest specifically
 for other web API wrappers:
 
-* *Cached and self-refreshing tokens* <<gh-tokens>>:
-** Cached tokens are automatically saved into a file, encoded for example in
-   JSON, and then attempted to be loaded again when restarting the application.
-** Before making a request, self-refreshing tokens check if they are expired,
-   and in that case perform the re-authorization process automatically.
-* *Automatic pagination* <<gh-pagination>>: many API servers have paginated
-  replies for large lists. Instead of sending a huge object, it splits it up
-  into multiple packets, and sends them one by one along with an index to the
-  position in the list. Then, the user can stop requesting them at any time and
-  potentially only end up using a portion of that originally huge object.
-+
+=== Cached and self-refreshing tokens
+
+https://github.com/ramsayleung/rspotify/issues/223[#223 - Implement cache token
+and refresh token]
+
+* Cached tokens are automatically saved into a file, encoded for example in
+  JSON, and then attempted to be loaded again when restarting the application.
+
+* Before making a request, self-refreshing tokens check if they are expired, and
+  in that case perform the re-authorization process automatically.
+
+=== Type-safe wrappers for ID types
+
+https://github.com/ramsayleung/rspotify/pull/161[#161 - Initial id type
+proposal] and https://github.com/ramsayleung/rspotify/pull/244[#244 - Fix IDs
+v4].
+
+In the Spotify API, items such as artists or tracks are identified by a unique
+ID string. The URI is the ID, but prefixed by its type, for example
+`spotify:track:4cOdK2wGLETKBW3PvgPWqT`.
+
+Many endpoints previously took the URI parameters as a String. That meant we had
+to manually check that their type were what we were expecting, and also that
+they were valid (they're usually made up of alphanumeric characters).
+
+Instead, we now have an `Id` trait and structs that implement it, like
+`ArtistId` or `TrackId`, keeping its type known at compile time and also at
+runtime with `dyn Id`. If you take a `TrackId` as a parameter, then you already
+know its type, and that its contents are valid, so you're ready to use it.
+
+=== Automatic pagination
+
+https://github.com/ramsayleung/rspotify/issues/124[#124 - Add unlimited
+endpoints]
+
+Many API servers have paginated replies for large lists. Instead of sending a
+huge object, it splits it up into multiple packets, and sends them one by one
+along with an index to the position in the list. Then, the user can stop
+requesting them at any time and potentially only end up using a portion of that
+originally huge object.
+
 In Rust, this can be abstracted away very naturally with
 https://doc.rust-lang.org/std/iter/trait.Iterator.html[iterators] in sync
 programs, and
 https://rust-lang.github.io/async-book/05_streams/01_chapter.html[streams] for
 async. The latter can be implemented easily in your crate thanks to {{< crate
 async_stream >}}.
-* *Simplify wrapper model objects* <<gh-wrappers>>: due to how JSON works,
-  sometimes an object will always have a single field:
-+
+
+=== Simplify wrapper model objects
+
+https://github.com/ramsayleung/rspotify/issues/149[#149 - The way to reduce
+wrapper object]
+
+Due to how JSON works, sometimes an object will always have a single field:
+
 [source, javascript]
 ----
 {
@@ -748,10 +783,10 @@ async_stream >}}.
     ]
 }
 ----
-+
+
 In that case, instead of just deserializing that object with {{< crate serde >}}
 and returning it to the user, you can just return that one field in the object:
-+
+
 [source, rust]
 ----
 #[derive(Deserialize)]
@@ -898,12 +933,12 @@ Mario
 [bibliography]
 == References
 
+- [[[aspotify-release,   1]]]
+  https://www.reddit.com/r/rust/comments/ehz66s/aspotify_an_asynchronous_rust_spotify_web_api/[aspotify:
+  An asynchronous Rust Spotify web API client - r/rust]
 - [[[gh-clients,         1]]]
   https://github.com/ramsayleung/rspotify/pull/129[#129 - Multiple clients via
   features]
-- [[[gh-pagination,      2]]]
-  https://github.com/ramsayleung/rspotify/issues/124[#124 - Add unlimited
-  endpoints]
 - [[[gh-auth,            2]]]
   https://github.com/ramsayleung/rspotify/issues/173[#173 - Restructure the
   authentication process]
@@ -921,19 +956,12 @@ Mario
 - [[[gats,               2]]]
   https://github.com/rust-lang/rust/issues/44265[rust-lang/rust#4426 - Tracking
   issue for generic associated types (GAT)]
-- [[[gh-ids,             3]]]
-  https://github.com/ramsayleung/rspotify/pull/161[#161 - Initial id type
-  proposal] and https://github.com/ramsayleung/rspotify/pull/244[#244 - Fix IDs
-  v4].
 - [[[gh-errors,          3]]]
   https://github.com/ramsayleung/rspotify/issues/137[#137 - Clean up and
   re-structure the errors]
 - [[[gh-cleanup,         4]]]
   https://github.com/ramsayleung/rspotify/issues/108[#108 - Reducing rspotify's
   core dependencies]
-- [[[gh-wrappers,        5]]]
-  https://github.com/ramsayleung/rspotify/issues/149[#149 - The way to reduce
-  wrapper object]
 - [[[gh-derive-builder,  6]]]
   https://github.com/ramsayleung/rspotify/issues/109[#109 - Using
   `derive_builder` to avoid repetition with the builder pattern]
@@ -950,9 +978,6 @@ Mario
   and http://localhost:1313/blog/rust-parameters/[Optional Parameters In Rust
   (nullderef.com)].
 - [[[spotipy-absent,     10]]] https://github.com/plamere/spotipy/issues/387
-- [[[aspotify-release,   11]]]
-  https://www.reddit.com/r/rust/comments/ehz66s/aspotify_an_asynchronous_rust_spotify_web_api/[aspotify:
-  An asynchronous Rust Spotify web API client - r/rust]
 - [[[gh-macros,          12]]]
   https://github.com/ramsayleung/rspotify/pull/202[#202 - Remove Rspotify
   default parameters and add parameter macros]
@@ -976,6 +1001,3 @@ Mario
 - [[[gh-iterators,       19]]]
   https://github.com/ramsayleung/rspotify/pull/206[#206 - Pass parameters by
   reference and use iterators wherever possible]
-- [[[gh-tokens,          20]]]
-  https://github.com/ramsayleung/rspotify/issues/223[#223 - Implement cache
-  token and refresh token]
