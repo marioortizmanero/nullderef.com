@@ -584,15 +584,28 @@ crates, such as `aspotify`, and join forces in keeping the model up to date
 
 == Documentation
 
+=== Introducing how to use the crate
+
 This might be obvious to some, but 
 
-TODO tracking issue about new version
+=== Helping users upgrade
 
-TODO mention changelog
+Since this change was going to break so much code, I wanted to make sure that
+the upgrade is as less painful as possible. This can be achieved in many ways:
 
-== Type safety
-
-* More idiomatic code: type safety <<gh-ids>><<gh-derive-builder>>, less `unwrap`s, macros, error handling <<gh-errors>>.
+* Make sure you prove why these breaking changes are actually necessary. It will
+  feel like less of a waste of time to the user.
+* Include a
+  https://github.com/ramsayleung/rspotify/blob/master/CHANGELOG.md[changelog],
+  either as an indepent file, or in the release notes. In Rspotify, we make
+  habit of adding a new line to the changelog for every release that includes a
+  new feature or breaking changes. To be honest, in our case it's turned out
+  quite messy because we had _so many changes_, but in a regular update it
+  should be nicer to read.
+* It might be a good idea to
+  https://github.com/ramsayleung/rspotify/issues/218[create an issue in your
+  repository] where you provide help directly to those who try to upgrade and
+  have problems with it.
 
 == Macros
 
