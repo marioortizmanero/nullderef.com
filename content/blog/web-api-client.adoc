@@ -454,7 +454,11 @@ documentation.
 So yeah, there are no _perfect_ solutions, but these are two of the best ones I
 could find. The choice is up to the designer of the library and their needs.
 Having multiple clients let us implement PKCE Authentication for Rspotify quite
-easily <<gh-pkce>>, so it's worth it in the end anyway.
+easily <<gh-pkce>>, so it's worth it in the end anyway. Our final architecture
+looks like this:
+
+.Diagram by Ramsay
+image::/blog/web-api-client/trait_hierarchy.png[align=center]
 
 == Configuration
 
@@ -586,7 +590,22 @@ crates, such as `aspotify`, and join forces in keeping the model up to date
 
 === Introducing how to use the crate
 
-This might be obvious to some, but 
+This might be obvious to some, but it isn't enough to document every single
+public item in your library. You also have to introduce the user how to work
+with it in the top-level documentation. Some ideas:
+
+* List the goals, current and future features of the crate, and things you don't
+  plan working on. Perhaps also add a comparison with similar crates; these are
+  usually super helpful.
+* Write a small getting started guide, explaining the most important items in
+  the crate and what they do.
+* Add some notes about the architecture of your crate. This is specially useul
+  to those who want to contribute. For Rspotify, Ramsay created the diagrams
+  included in this article, and added more details in the
+  https://github.com/ramsayleung/rspotify/blob/master/README.md[README].
+* Explain the Cargo features in your crate and how to use them.
+* Make sure you have a few examples working. It's the easiest way to get
+  started, in my opinion.
 
 === Helping users upgrade
 
