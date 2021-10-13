@@ -936,6 +936,12 @@ Mario
 - [[[aspotify-release,   1]]]
   https://www.reddit.com/r/rust/comments/ehz66s/aspotify_an_asynchronous_rust_spotify_web_api/[aspotify:
   An asynchronous Rust Spotify web API client - r/rust]
+- [[[spotipy-absent,     10]]] https://github.com/plamere/spotipy/issues/387
+- [[[gh-block-cleanup,   TODO]]]
+  https://github.com/ramsayleung/rspotify/issues/112[#112 - Cleaning up the
+  blocking module]
+- [[[gh-meta,            8]]]
+  https://github.com/ramsayleung/rspotify/issues/127[#127 - Meta-Issue]
 - [[[gh-clients,         1]]]
   https://github.com/ramsayleung/rspotify/pull/129[#129 - Multiple clients via
   features]
@@ -956,48 +962,32 @@ Mario
 - [[[gats,               2]]]
   https://github.com/rust-lang/rust/issues/44265[rust-lang/rust#4426 - Tracking
   issue for generic associated types (GAT)]
-- [[[gh-errors,          3]]]
-  https://github.com/ramsayleung/rspotify/issues/137[#137 - Clean up and
-  re-structure the errors]
-- [[[gh-cleanup,         4]]]
-  https://github.com/ramsayleung/rspotify/issues/108[#108 - Reducing rspotify's
-  core dependencies]
-- [[[gh-derive-builder,  6]]]
-  https://github.com/ramsayleung/rspotify/issues/109[#109 - Using
-  `derive_builder` to avoid repetition with the builder pattern]
-- [[[gh-block-cleanup,   TODO]]]
-  https://github.com/ramsayleung/rspotify/issues/112[#112 - Cleaning up the
-  blocking module]
 - [[[gh-pkce,            7]]]
   https://github.com/ramsayleung/rspotify/issues/150[#150 - Authorization Code
   Flow with Proof Key for Code Exchange (PKCE) is missing]
-- [[[gh-meta,            8]]]
-  https://github.com/ramsayleung/rspotify/issues/127[#127 - Meta-Issue]
-- [[[gh-opt,             9]]]
-  https://github.com/ramsayleung/rspotify/issues/134[#134 - Optional Parameters]
-  and http://localhost:1313/blog/rust-parameters/[Optional Parameters In Rust
-  (nullderef.com)].
-- [[[spotipy-absent,     10]]] https://github.com/plamere/spotipy/issues/387
+- [[[str-param,          17]]]
+  https://hermanradtke.com/2015/05/03/string-vs-str-in-rust-functions.html[String
+  vs &str in Rust functions - hermanradtke.com]
+- [[[gh-iterators,       19]]]
+  https://github.com/ramsayleung/rspotify/pull/206[#206 - Pass parameters by
+  reference and use iterators wherever possible]
+- [[[gh-optional-params, 18]]]
+  https://github.com/ramsayleung/rspotify/issues/134[#134 - Optional parameters]
+- [[[gh-http-universal,  15]]]
+  https://github.com/ramsayleung/rspotify/issues/234[#234 - Use an external HTTP
+  universal interface instead of `rspotify-http`]
+- [[[model-separation,   14]]]
+  https://github.com/ramsayleung/rspotify/pull/191[#191 - Move model into a
+  separate rspotify-model crate]
+- [[[gh-aspotify-share,  16]]]
+  https://github.com/KaiJewson/aspotify/issues/14[KaiJewson/aspotify#14 -
+  Sharing the model with rspotify-model]
 - [[[gh-macros,          12]]]
   https://github.com/ramsayleung/rspotify/pull/202[#202 - Remove Rspotify
   default parameters and add parameter macros]
 - [[[hashmap-new,        13]]]
   https://twitter.com/mgattozzi/status/1447983152669020160?t=jAGevaOOh___cWGERcLLgQ[New
   hashmap constructor - @gmattozzi, Twitter]
-- [[[model-separation,   14]]]
-  https://github.com/ramsayleung/rspotify/pull/191[#191 - Move model into a
-  separate rspotify-model crate]
-- [[[gh-http-universal,  15]]]
-  https://github.com/ramsayleung/rspotify/issues/234[#234 - Use an external HTTP
-  universal interface instead of `rspotify-http`]
-- [[[gh-aspotify-share,  16]]]
-  https://github.com/KaiJewson/aspotify/issues/14[KaiJewson/aspotify#14 -
-  Sharing the model with rspotify-model]
-- [[[str-param,          17]]]
-  https://hermanradtke.com/2015/05/03/string-vs-str-in-rust-functions.html[String
-  vs &str in Rust functions - hermanradtke.com]
-- [[[gh-optional-params, 18]]]
-  https://github.com/ramsayleung/rspotify/issues/134[#134 - Optional parameters]
-- [[[gh-iterators,       19]]]
-  https://github.com/ramsayleung/rspotify/pull/206[#206 - Pass parameters by
-  reference and use iterators wherever possible]
+- [[[gh-cleanup,         4]]]
+  https://github.com/ramsayleung/rspotify/issues/108[#108 - Reducing rspotify's
+  core dependencies]
