@@ -218,8 +218,9 @@ API in particular has
 https://developer.spotify.com/documentation/general/guides/authorization-guide/[multiple
 authorization methods] that give you access to a different set of endpoints. For
 example, if you're using _client credentials_ (the most basic one), then you
-can't access an endpoint to modify the user's data. It used to work with the
-https://doc.rust-lang.org/1.0.0/style/ownership/builders.html[_builder
+can't access an endpoint to modify the user's data; you need
+https://en.wikipedia.org/wiki/OAuth[OAuth information]. This used to work with
+the https://doc.rust-lang.org/1.0.0/style/ownership/builders.html[_builder
 pattern_], following this structure (though not exactly the same):
 
 [source, rust]
@@ -260,13 +261,13 @@ builder pattern is great, but it might become too verbose or confusing:
 * Which authorization method are we using above again? Currently it's possible
   to call `seek_track` after having followed an authorization process that
   doesn't give access to it. And since we're mixing all of them under the same
-  client it quickly becomes a mess, having many `Option` fields that are only
+  client it quickly becomes a mess, having many `Option<T>` fields that are only
   `Some` for specific authorization methods. So, what if we have a Spotify
   client for each authorization method?
-* Wouldn't it be better have some type safety? The `unwrap` hurts my eyes.
+* Wouldn't it be nice have some type safety, too? The `unwrap` hurts my eyes.
 
 After removing the builder pattern and being more explicit about the
-authorization method that's being used, this is what we get:
+authorization method that's being used, this is more or less what we get:
 
 [source, rust]
 ----
@@ -278,8 +279,7 @@ let creds = Credentials::new("my-client-id", "my-client-secret");
 let mut spotify = AuthCodeSpotify::new(creds, oauth);
 
 // Obtaining the access token
-let url = spotify.get_authorize_url(false).unwrap();
-spotify.prompt_for_token(&url).await.unwrap();
+spotify.prompt_for_token().unwrap();
 
 // Performing a request
 spotify.seek_track(25000, None).unwrap();
@@ -302,10 +302,11 @@ because we don't even need validation. If we did, we could always just add a few
 setters or checks before its usage and we're done. Ask yourself: do you really
 need the builder pattern? In this case we certainly didn't.
 
-The most complicated part is having a client for each authorization method, and
-making sure the user can only call those endpoints they have access to. There
-are _many_ ways to approach this, I just had to decide which one was the best. I
-gave this a lot of thought <<gh-auth>> <<reddit-auth>>.
+The most complicated part of the refactor is having a client for each
+authorization method, and making sure the user can only call those endpoints
+they have access to. There are _many_ ways to approach this, I just had to
+decide which one was the best. I gave this a lot of thought <<gh-auth>>
+<<reddit-auth>>.
 
 Having multiple clients seems trivial with inheritance, with a base from which
 they can extend. In Rust, we could follow the typical "`composition over
@@ -347,7 +348,8 @@ However, all of them have to share a single HTTP client and other information
 such as the config or the token, so we have to use something like `Rc`. We can
 improve this by taking ideas from {{< crate aspotify >}}, another popular crate
 for the Spotify API, which groups up the endpoints by categories. Their endpoint
-groups take a reference to the client itself instead:
+groups take a reference to the client itself instead, which is pretty neat and
+works just as well:
 
 .https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=6cce195451518fcf644e7506ca7b51b2[Simplified from the working example on the Rust playground]
 [source, rust]
@@ -387,12 +389,11 @@ impl AuthCodeSpotify {
 }
 ----
 
-This is pretty neat and works perfectly. But you might personally think using
-just `spotify.endpoint1()` instead of `spotify.base().endpoint1()` is more
-suitable for your particular API client. The only way to do that would be to
-delegate every single endpoint manually into the main client. Some people use
-`Deref` and `DerefMut` in order to automatically do it, but that's a common
-anti-pattern <<deref-antipattern>>.
+However, you might personally think using just `spotify.endpoint1()` instead of
+`spotify.base().endpoint1()` is more suitable for your particular API client.
+The only way to do that would be to delegate every single endpoint manually into
+the main client. Some people use `Deref` and `DerefMut` in order to
+automatically do it, but that's a common anti-pattern <<deref-antipattern>>.
 
 I tried different approaches, and my favorite ended up being a trait-based
 interface. All you need is a couple traits with the endpoint implementations
@@ -442,15 +443,13 @@ need these, specially with asynchronous clients, because async trait methods are
 with the {{< crate async-trait >}} crate. Supposedly, this will be temporary
 until GATs are implemented, which isn't too far off <<gats>>.
 
-This also makes it hard to have private functions in the main client. We don't
-really want the user to have access to the methods `get` or `get_oauth`. It's
-defined in the client/trait because it's useful for every client, but for the
-end user it's just noise in the documentation. There are two possible
-workarounds, so it's not a big deal:
-
-* Declare the method with `#[doc(hidden)]` so that it doesn't appear in the
-  documentation.
-* Use private functions outside the trait instead.
+Both of these solutions also make it hard to have private functions in the base
+client, because the shared parts are in a trait. We don't really want the user
+to have access to the methods `get` or `get_oauth`. It's defined in the
+client/trait because it's useful for every client, but for the end user it's
+just noise in the documentation. This isn't that much of a big deal because you
+can just declare the item with `#[doc(hidden)]` so that it doesn't appear in the
+documentation.
 
 So yeah, there are no _perfect_ solutions, but these are two of the best ones I
 could find. The choice is up to the designer of the library and their needs.
@@ -459,16 +458,16 @@ easily <<gh-pkce>>, so it's worth it in the end anyway.
 
 == Configuration
 
-=== Runtime configuration over compile-time configuration
+=== Runtime over compile-time
 
 There are a few parts of the Spotify client that can be customized by the user.
 Previously, these were just fields of the main client, but since we now have
 multiple clients, it might be worth moving into a separate struct to avoid
-duplication. Really, even if we still had a single client, a `Config` struct
-might be easier to understand for the user.
+duplication.
 
-One of our fails was attempting to use features instead of the `Config` struct
-for configuration, on the assumption that features would be more performant:
+Anyhow, one of our fails was attempting to use features instead of the `Config`
+struct for configuration, on the assumption that features would be more
+performant:
 
 .Which is faster?
 [source, rust]
@@ -488,10 +487,10 @@ anyway. Since `self.config.cached_token` is most times specified as a constant,
 optimizing it away is one of the more basic tasks a compiler can do. Features
 are drastically less flexible and harder to use than runtime variables, so
 before introducing one you should really think about it. Apart from the fact
-that you obviously can't use features at runtime (which would be interesting in
-this example), they are applied globally, so you can't have two different
-clients, one with cached tokens and another without them. In order to take this
-decision I actually wrote an entire article about it, so
+that you obviously can't use features at runtime (which is a possible use-case
+here), they are applied globally, so you can't have two different clients, one
+with cached tokens and another without them. In order to take this decision I
+actually wrote an entire article about it, so
 https://nullderef.com/blog/rust-features/[check it out if you want more
 details].
 
@@ -507,7 +506,7 @@ On the topic of configuration, it's important to have sane defaults as well.
 This is highly subjective, but I prefer to do as little as possible under the
 hood _without the user knowing about it_. When initializing a client we used to
 automatically try to read from the environment variables, and if that didn't
-work then we tried to use the default values or we just panicked:
+work then we tried to use the default values or we just panicked in the builder:
 
 [source, rust]
 ----
@@ -535,16 +534,16 @@ let creds = SpotifyClientCredentials::from_env() // this reads the env variables
 
 == Flexibility
 
-=== Taking borrowed parameters
+=== Taking borrowed/generic parameters
 
 Friendly reminder: generally, it's better to take a `&str` than a `String` in a
-function <<str-param>>. The same thing applies to the owned type `Vec<T>`; it's
-probably a better idea to take a `&[T]` instead, or the even more fancy `impl
-IntoIterator<Item = T>`. The last option makes it possible to pass iterators to
-the function without requiring a `collect`, which not only is more user
-friendly, but also avoids a memory allocation. Its only downside is that the
-function signatures become a bit uglier, and all the consequences of using
-generics. Either of these options are fine, really, so it's up to you.
+function <<str-param>> <<gh-iterators>>. The same thing applies to the owned
+type `Vec<T>`; it's probably a better idea to take a `&[T]` instead, or the even
+more fancy `impl IntoIterator<Item = T>`. The last option makes it possible to
+pass iterators to the function without requiring a `collect`, which not only is
+more user friendly, but also avoids a memory allocation. Its only downside is
+that the function signatures become a bit uglier, and all the consequences of
+using generics. Either of these options are fine, really, so it's up to you.
 
 === Optional parameters
 
@@ -577,11 +576,11 @@ image::/blog/web-api-client/crate_hierarchy.png[align=center]
 
 The most important one here is splitting up the wrapper into the model and the
 clients. The model is generic enough that it can be used by any client, even
-outside of Rspotify. This means that users can still avoid lots of complexity
-and maintainance work by pulling our model, even if they have to implement their
-own custom clients for whatever reason <<model-separation>>. It can also be
-shared with other public crates, such as `aspotify`, and join forces in keeping
-the model up to date <<gh-aspotify-share>>.
+outside of Rspotify. Some users have to implement their own custom clients for
+different reasons, and pulling our model helps avoiding lots of complexity and
+maintainance work <<model-separation>>. It can also be shared with other public
+crates, such as `aspotify`, and join forces in keeping the model up to date
+<<gh-aspotify-share>>.
 
 == Documentation
 
@@ -639,7 +638,7 @@ Yes, they are _very_ concise and we remove a lot of boilerplate, but they're bad
 for two reasons:
 
 * There's too much magic going on:
-** They turn the `ids` identifier into a string with
+** They turn the `ids`/`limit`/`market` identifiers into a string with
    https://doc.rust-lang.org/std/macro.stringify.html[`stringify!`] and use that
    as the key for the hashmap insertion.
 ** In the expression to the right of an optional parameter, its value isn't
@@ -694,7 +693,7 @@ by now it didn't work correctly.
 === Statistics
 
 Some parts of Rspotify can be analyzed statically, such as the lines of code
-that will need to be maintained, or its number of dependencies.
+that will need to be maintained, or its number of dependencies:
 
 .Results example as of 2021-10-12
 |===
@@ -708,14 +707,14 @@ that will need to be maintained, or its number of dependencies.
 The Lines of Code in the old version were quite bloated because of the
 `blocking` module, which was a copy-paste of the async client. Still, these were
 lines that needed to be maintained, so they count just as much. On the other
-hand, we now have a much more extensive set of tests and new features. It sums
-up to about 33% less lines to be maintained in total.
+hand, we now have a much more extensive set of tests and new features that add
+up. In total, we have about 33% less lines to be maintained in total.
 
-The number of dependencies has decreased both for the default features, and with
-all of them enabled. We cleaned up a lot of them <<gh-cleanup>> and tried to
-keep the defaults leaner. Since the new version adds more features such as PKCE,
-we even had to add new dependencies like {{< crate sha2 >}}, but it's still a
-clear win.
+The number of dependencies has decreased both by default and with all of the
+features enabled. We cleaned up a lot of them and tried to keep the defaults
+leaner <<gh-cleanup>>. Since the new version adds more features such as PKCE, we
+even had to add new dependencies like {{< crate sha2 >}}, but it's still a clear
+win.
 
 === Execution time
 
@@ -738,7 +737,7 @@ tokio runtime and a bunch of other stuff.
 
 The asynchronous clients in both versions should give a rough idea of the actual
 differences, though you can tell it's just a quick benchmark; the results
-shouldn't be taken too seriously.
+shouldn't be taken too seriously in the first place:
 
 .Results example as of 2021-10-12
 [width="100%",cols="^16%,^16%,^17%,^16%,^15%,^20%",options="header",]
@@ -757,7 +756,7 @@ Binary Size (MB)
 
 I also wanted to reflect the compilation time, since it's a possibility that we
 have less dependencies, but of larger size. The results show that this isn't the
-case, however, since it takes 29% less time in debug mode, and 25% less time in
+case, since it takes 29% less time to build in debug mode, and 25% less time in
 release mode.
 
 In terms of execution time, I didn't expect it to be any better. Even though the
@@ -768,7 +767,7 @@ locking and unlocking at least once per request. Still, the difference is almost
 negligible: just a 1% increase.
 
 The cleanup and all these dependencies we removed mean that the resulting binary
-is also smaller, and by a lot: a 23% decrease.
+is also smaller, and by a lot: there's a 23% decrease in its size.
 
 == Thanks to
 
@@ -795,6 +794,10 @@ This is a problem that I think is particularly relevant in open source. I
 personally had worked on projects alone most of the times, and the difference is
 huge. I would suggest everyone to try to join forces with at least one more
 person when working in side projects.
+
+That's all! I hope this post provided insightful information and that you
+learned something from it. Remember that you can leave a comment at the bottom
+in case you want to discuss about it.
 
 Lots of love, +
 Mario
@@ -877,3 +880,6 @@ Mario
   vs &str in Rust functions - hermanradtke.com]
 - [[[gh-optional-params, 18]]]
   https://github.com/ramsayleung/rspotify/issues/134[#134 - Optional parameters]
+- [[[gh-iterators,       19]]]
+  https://github.com/ramsayleung/rspotify/pull/206[#206 - Pass parameters by
+  reference and use iterators wherever possible]
