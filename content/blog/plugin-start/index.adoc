@@ -2,6 +2,7 @@
 title: "Plugins in Rust: Getting Started"
 description: "My first steps trying to implement the PDK"
 author: "Mario Ortiz Manero"
+images: ["/blog/plugin-start/connectors.png"]
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
 date: 2021-09-05
@@ -102,7 +103,7 @@ Progress, and Matthias needed to know how the PDK would work to modify the
 `Connector` interface. Mainly how to combine plugins and generics, which is what
 I'll try to figure out in this article.
 
-image::/blog/plugin-start/connectors.png[width=100%, align=center]
+image::connectors.png[width=100%, align=center]
 
 Back when I talked to Aryan we ended up asking ourselves the same exact things.
 Turns out that the generated code with `tonic` for gRPC uses generics, which

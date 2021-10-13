@@ -2,6 +2,7 @@
 title: "Plugins in Rust: Diving into Dynamic Loading"
 description: "A closer look at dynamic loading in Rust"
 author: "Mario Ortiz Manero"
+images: ["/blog/plugin-dynload/example.png"]
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
 date: 2021-10-05
@@ -52,7 +53,7 @@ unstructured data. One of its many usages may be to:
 . Filter, transform, and mix them up following the same structure
 . Send all the now structured logs to your database
 
-image::/blog/plugin-dynload/example.png[width=100%]
+image::example.png[width=100%]
 
 This currently works with
 https://www.tremor.rs/docs/artefacts/onramps/[onramps/sources],
@@ -242,7 +243,7 @@ Generally, there's one manager per artefact type, which helps with their
 initialization process, and then there's one manager per running instance,
 handling their communication details.
 
-image::/blog/plugin-dynload/registering.png[width = 100%]
+image::registering.png[width = 100%]
 
 Once all the managers are initialized, Tremor currently registers all the
 built-in artifacts in a "`hardcoded`" way with `register_builtin_types`. But
@@ -261,7 +262,7 @@ _registry_, with the currently running artifacts.
 `connectors::Manager` contains all the connectors running in Tremor, which we'll
 now try to understand:
 
-image::/blog/plugin-dynload/initializing.png[width = 100%]
+image::initializing.png[width = 100%]
 
 Since it's a multi-step process (it's actually more complicated than
 registration + creation), the first part of it already provides the tools to
@@ -283,10 +284,10 @@ requests from the pipeline and then redirect or read from it.
 The main difference between sinks and sources currently is that the former can
 also reply to messages within the same connection. This is useful to acknowledge
 the package ("`Ack`") or to notify something has failed in the sink ("`Fail`"
-for a specific event, "`CircutBreaker`" to completely stop data from being
+for a specific event, "`CircuitBreaker`" to completely stop data from being
 sent).
 
-image::/blog/plugin-dynload/setting-up.png[width = 100%]
+image::setting-up.png[width = 100%]
 
 Some connectors are based on _streams_. They are equivalent for example to TCP
 streams, which help to group up messages and avoid mixing them up. They are
