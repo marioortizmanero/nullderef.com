@@ -713,10 +713,63 @@ HashMap::from([
 
 == Other goodies
 
-* Automatically refreshing token
-* Cached token
-* Automatic pagination <<gh-pagination>>
-* Simplify wrappers <<gh-wrappers>>
+Some new features we added to Rspotify that might be of interest specifically
+for other web API wrappers:
+
+* *Cached and self-refreshing tokens* <<gh-tokens>>:
+** Cached tokens are automatically saved into a file, encoded for example in
+   JSON, and then attempted to be loaded again when restarting the application.
+** Before making a request, self-refreshing tokens check if they are expired,
+   and in that case perform the re-authorization process automatically.
+* *Automatic pagination* <<gh-pagination>>: many API servers have paginated
+  replies for large lists. Instead of sending a huge object, it splits it up
+  into multiple packets, and sends them one by one along with an index to the
+  position in the list. Then, the user can stop requesting them at any time and
+  potentially only end up using a portion of that originally huge object.
++
+In Rust, this can be abstracted away very naturally with
+https://doc.rust-lang.org/std/iter/trait.Iterator.html[iterators] in sync
+programs, and
+https://rust-lang.github.io/async-book/05_streams/01_chapter.html[streams] for
+async. The latter can be implemented easily in your crate thanks to {{< crate
+async_stream >}}.
+* *Simplify wrapper model objects* <<gh-wrappers>>: due to how JSON works,
+  sometimes an object will always have a single field:
++
+[source, javascript]
+----
+{
+    "many_artists": [
+        {
+            // ..
+        },
+        // ...
+    ]
+}
+----
++
+In that case, instead of just deserializing that object with {{< crate serde >}}
+and returning it to the user, you can just return that one field in the object:
++
+[source, rust]
+----
+#[derive(Deserialize)]
+struct ArtistCollection {
+    many_artists: Vec<Artists>
+}
+
+// Before
+fn endpoint() -> Result<ArtistCollection> {
+    let response = request();
+    serde_json::from_str(response)
+}
+
+// After
+fn endpoint() -> Result<Vec<Artists>> {
+    let response = request();
+    serde_json::from_str::<ArtistCollection>(response).map(|x| x.many_artists)
+}
+----
 
 == Measuring the changes
 
@@ -922,3 +975,6 @@ Mario
 - [[[gh-iterators,       19]]]
   https://github.com/ramsayleung/rspotify/pull/206[#206 - Pass parameters by
   reference and use iterators wherever possible]
+- [[[gh-tokens,          20]]]
+  https://github.com/ramsayleung/rspotify/issues/223[#223 - Implement cache
+  token and refresh token]
