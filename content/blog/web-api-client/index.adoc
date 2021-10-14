@@ -872,11 +872,11 @@ shouldn't be taken too seriously in the first place:
 |Version |Debug Compilation Time (s) |Release Compilation Time (s)
 |Benchmarking Time (ms/iter) |Release Binary Size (MB) |Release Stripped
 Binary Size (MB)
-|0.10.0, blocking |72.712 |126.229 |271.31 |9.9 |4.9
+|0.10.0, blocking |72.7 |126.2 |271.3 |9.9 |4.9
 
-|0.10.0, async |72.244 |115.703 |428.02 |11 |5.2
+|0.10.0, async |72.2 |115.7 |428.0 |11 |5.2
 
-|master, blocking (ureq) |38.549 |55.934 |503.68 |7.3 |2.6
+|master, blocking (ureq) |38.5 |55.9 |503.6 |7.3 |2.6
 
 |master, async (reqwest) |51.014 |86.594 |432.49 |8.5 |4.0
 |===
