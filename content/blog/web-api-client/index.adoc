@@ -835,7 +835,7 @@ The Lines of Code in the old version were quite bloated because of the
 `blocking` module, which was a copy-paste of the async client. Still, these were
 lines that needed to be maintained, so they count just as much. On the other
 hand, we now have a much more extensive set of tests and new features that add
-up. In total, we have about 33% less lines to be maintained in total.
+up. In total, we have about 33% less lines to be maintained.
 
 The number of dependencies has decreased both by default and with all of the
 features enabled. We cleaned up a lot of them and tried to keep the defaults
