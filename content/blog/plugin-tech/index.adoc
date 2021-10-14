@@ -2,6 +2,7 @@
 title: "Plugins in Rust: The Technologies"
 description: "A more in-depth look at Rust PDKs"
 author: "Mario Ortiz Manero"
+images: ["/blog/plugin-tech/triangle.png"]
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
 date: 2021-05-17
@@ -259,7 +260,7 @@ There are of course multiple ways to do IPC, which I'll briefly list below.
 Performance-wise, this graph shows a comparison of the overhead of each of them
 <<ipc-wisc>>:
 
-image::/blog/plugin-tech/ipc-comparison.png[IPC comparison, width=60%, align=center]
+image::ipc-comparison.png[IPC comparison, width=60%, align=center]
 
 [[sockets]]
 ==== Based on Sockets
@@ -643,7 +644,7 @@ choice depends on what trade-offs the project wants to make. Most of them
 require sacrificing some level of performance for safety or usability. Here's a
 drawing that *_very roughly_* compares the main methods:
 
-image::/blog/plugin-tech/triangle.svg[Triangle Chart, align=center, width=70%]
+image::triangle.svg[Triangle Chart, align=center, width=70%]
 
 There's never a single answer in programming: how much performance are you
 willing to lose in exchange for safety and usability? Is that performance

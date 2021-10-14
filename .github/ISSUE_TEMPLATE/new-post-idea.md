@@ -16,6 +16,7 @@ TODO list:
   + [ ] title
   + [ ] description
   + [ ] author
+  + [ ] images
   + [ ] tags
   + [ ] series (optionally)
   + [ ] date
