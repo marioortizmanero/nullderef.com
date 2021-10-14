@@ -7,7 +7,1707 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Tue, 05 Oct 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 13 Oct 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Designing an API Client in Rust: New Rspotify Version a Year Later</title>
+      <link>https://nullderef.com/blog/web-api-client/</link>
+      <pubDate>Wed, 13 Oct 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/blog/web-api-client/</guid>
+      <description>Inspired by the Rspotify rewrite, a few tips on how to make a solid wrapper for most web API wrappers.</description>
+      <content:encoded><![CDATA[<div class="paragraph">
+<p>This article describes my journey of basically rewriting the entirety of
+<a href="https://github.com/ramsayleung/rspotify">Rspotify</a>; around 13 months of work (in
+my free time), starting at September of 2020, up until October of 2021. I think
+this has given me enough experience for an article regarding API design on Rust,
+and perhaps those who attempt the same in the future can take some ideas and
+save time. Specially considering how much I’ve gone in circles and how much time
+I’ve “wasted” implementing things that ended up being discarded.</p>
+</div>
+<div class="sect1">
+<h2 id="_the_story">The story</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you don’t care about Rspotify’s specific story, you can jump to the
+<a href="#actual_start">Making the API HTTP-client agnostic</a> section, but I think knowing a bit the motives for this
+rewrite is interesting for other open source maintainers in the same situation
+as me. This all started when I wanted to use a Rust Spotify API wrapper for one
+of my projects at that time, <a href="https://vidify.org/">Vidify</a>. I went to
+<a href="https://crates.io/">crates.io</a> and looked for &#34;Spotify&#34;, and all I found was <a href="https://crates.io/crates/rspotify"><code>rspotify</code></a>
+ (the most popular one at that time), <a href="https://crates.io/crates/aspotify"><code>aspotify</code></a>
+ (
+an asynchronous-only alternative), and a bunch of other outdated or incomplete
+libraries.</p>
+</div>
+<div class="paragraph">
+<p>The author of <code>aspotify</code> had made a brand new library from scratch, because as
+he commented in its release, “[rspotify’s] API in general I found hard to use
+and confusing” <a href="#aspotify-release">[1]</a>. Honestly, depending on the state of the
+original library this is the easiest choice because you don’t have to worry
+about backwards compatibility, old code, etc.</p>
+</div>
+<div class="paragraph">
+<p>A year back I had also helped with the first steps of
+<a href="https://github.com/felix-hilden/tekore"><code>tekore</code></a>, an alternative to
+<a href="https://github.com/plamere/spotipy"><code>spotipy</code></a>, the most popular Spotify library
+for Python out there. The problem was that back then, Paul, spotipy’s creator
+and maintainer, was absent <a href="#spotipy-absent">[2]</a>, and the library really needed a
+push to upgrade from Python 2 and improve the overall interface and
+user-friendliness, which had become pretty poor.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/felix-hilden">Felix</a> and a few more devs tried to start from
+scratch. Felix was the most dedicated one and eventually got permissions from
+Paul to upload new spotipy releases, meaning that he could rewrite the entire
+thing and upload it to PyPi (Python’s official third-party repositories) if he
+wanted to. The difference in this case was that spotipy had a good amount of
+users at that point, and a couple of them ended up stopping Felix from
+completely breaking backward compatibility, so he made it into a brand new
+library instead and left the maintainance tasks to the new devs in charge.
+Tekore still is, in my very biased opinion and at the time of this writing, a
+much nicer to use library than spotipy, but it has taken a lot of time to get a
+user base starting from scratch, and it’s still not as popular as spotipy by
+far.</p>
+</div>
+<div class="paragraph">
+<p>Having gone through this, I also wanted to see if it would be possible to give
+Rspotify a face wash without anyone complaining. Rspotify was still in beta — version 0.10 — so you can’t expect to have a stable API, but that’s far from a
+full rewrite. At the very least I wanted to talk with Ramsay, the original
+Rspotify developer, and see what his thoughts were. I proposed some big changes
+like rewriting the <code>blocking</code> module <a href="#gh-block-cleanup">[3]</a> and
+<a href="https://github.com/Kestrer">Kestrer</a> wrote up an issue with ~80 issues he had
+found when using the library <a href="#gh-meta">[4]</a>.</p>
+</div>
+<div class="paragraph">
+<p>I think it’s fair to release the new version 0.11 as such rather than as a new
+library because of the following reasons:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Ramsay, the author, also wanted to help.</p>
+</li>
+<li>
+<p>The fundamentals of the library would remain the same: being the most
+user-friendly feature-full library for the Spotify API.</p>
+</li>
+<li>
+<p>It was considered a necessary evil. In my opinion, the library was doomed
+without a big rewrite. Otherwise it’d eventually become really hard to maintain and work
+with. I admit that said breaking changes could’ve been
+smaller, but I thought that while I’m at it I might as well make it as close
+as possible to a perfect Rust interface.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Also, note that I am in no way associated with Spotify (though open to offers
+:P). I’m just a Computer Science student whose sole goal was to use Rust for a
+non-trivial case, from start to finish. I was somewhat experienced with the
+Spotify API, so I decided Rspotify was a good choice.</p>
+</div>
+<div class="paragraph">
+<p>Now that most of the stuff I talk about in this article is finished, you can
+read about the changes in detail
+<a href="https://github.com/ramsayleung/rspotify/blob/master/CHANGELOG.md">in the
+CHANGELOG</a>. The following sections will talk about what I learned about API
+Design, and some tips for those writing one in Rust.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="actual_start">Making the API HTTP-client agnostic</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Rspotify is now HTTP-client agnostic, which means that it can work with
+whichever HTTP library the user configures without adding much overhead. For
+now, we support <a href="https://crates.io/crates/ureq"><code>ureq</code></a>
+ and <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a>
+ <a href="#gh-clients">[5]</a>. The
+non-trivial part about this is that the HTTP client can be either blocking
+(<code>ureq</code>) or asynchronous (<code>reqwest</code>).</p>
+</div>
+<div class="paragraph">
+<p>While it’s fully implemented in the new version, it’s the only part that isn’t
+finished yet and that’s subject to change. This has to do with the way we
+support both async and sync HTTP clients under the same trait. In order to have
+a common interface for both kinds of programming, we use the <a href="https://crates.io/crates/maybe_async"><code>maybe_async</code></a>
+ crate, which lets us switch between them with a feature.</p>
+</div>
+<div class="paragraph">
+<p>The trait used as a base for any HTTP client is implemented with async. That
+way, if the <code>maybe_async/is_sync</code> feature is disabled in the <code>Cargo.toml</code>, the
+trait and its implementations remain the same, and if it’s enabled, all the
+occurrences of <code>async</code> and <code>.await</code> are removed. It’s also possible to add
+special cases where removing <code>async</code>/<code>.await</code> isn’t enough. This works
+perfectly, but unfortunately breaks a rule in Cargo’s feature system: features
+must be strictly additive, and <code>maybe_async</code>&#39;s feature is a <em>toggle</em> — you
+can’t have both a sync and an async client at the same time.</p>
+</div>
+<div class="paragraph">
+<p>Since we don’t follow that rule, those who depend on Rspotify with both async
+and async (directly or indirectly) won’t be able to compile their project. I
+won’t get into much detail beacuse I’m writing an entire separate post dedicated
+for this issue that I’ll publish once this whole ordeal is fixed. We’re keeping
+track of it in <a href="https://github.com/ramsayleung/rspotify/issues/221">#221</a> for now,
+for those who want to lean more.</p>
+</div>
+<div class="paragraph">
+<p>For now, I’ll just explain how it works for clients of the same type: either
+synchronous or asynchronous. Since the usage for an HTTP client in an API is
+often very basic, i.e. you only need to make requests and get the results, we
+can cover its usage under a single interface. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub trait HttpClient: Send + Default {
+   type Error;
+
+    fn get(
+        &amp;self,
+        url: &amp;str,
+        headers: Option&lt;&amp;Headers&gt;,
+        payload: &amp;Query,
+    ) -&gt; Result&lt;String, Self::Error&gt;;
+
+    fn post(
+        &amp;self,
+        url: &amp;str,
+        headers: Option&lt;&amp;Headers&gt;,
+        payload: &amp;Value,
+    ) -&gt; Result&lt;String, Self::Error&gt;;
+
+    // etc
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then, we can add an implementation for each of our supported clients:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[derive(Default, Debug, Clone)]
+pub struct UreqClient {}
+
+impl HttpClient for UreqClient {
+    type Error = ureq::Transport;
+
+    #[inline]
+    fn get(
+        &amp;self,
+        url: &amp;str,
+        headers: Option&lt;&amp;Headers&gt;,
+        payload: &amp;Query,
+    ) -&gt; Result&lt;String, Self::Error&gt; {
+        let request = ureq::get(url);
+        let sender = |mut req: Request| {
+            for (key, val) in payload.iter() {
+                req = req.query(key, val)
+            }
+            req.call()
+        };
+        self.request(request, headers, sender) // Internal more complex handler
+    }
+
+    // etc
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And we can finally make our client generic over its internal HTTP client:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[derive(Default, Debug, Clone)]
+pub struct Spotify&lt;Http: HttpClient&gt; {
+    http: Http,
+    // etc
+}
+
+impl&lt;Http: HttpClient&gt; Spotify&lt;Http&gt; {
+    pub fn endpoint(&amp;self) -&gt; String {
+        let headers = todo!();
+        let payload = todo!();
+        self.http.get(&#34;/some/endpoint&#34;, headers, payload)
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Beware that this introduces a good amount of additional complexity which is
+probably unnecessary for your own API wrapper. But this was definitely something
+interesting for Rspotify: some crates that already depend on us like
+<a href="https://github.com/hrkfdn/ncspot"><code>ncspot</code></a> or
+<a href="https://github.com/Spotifyd/spotifyd"><code>spotifyd</code></a> are blocking, and others like
+<a href="https://github.com/Rigellute/spotify-tui"><code>spotify-tui</code></a> use async. I thought I
+might as well try, and I’ve finally figured out how to make it work, even for
+both async and sync.</p>
+</div>
+<div class="paragraph">
+<p>We implement all of this in the crate
+<a href="https://github.com/ramsayleung/rspotify/tree/master/rspotify-http"><code>rspotify-http</code></a>,
+which I plan on <a href="https://github.com/ramsayleung/rspotify/issues/234">moving into a
+separate crate</a> for the whole community to use once it’s working as I want it
+to. I think this is a pretty neat feature for an API client that will hopefully
+become easier to implement in the future (and first of all work properly).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_finding_a_more_robust_architecture">Finding a more robust architecture</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Another key refactor I worked on for Rspotify was its architecture. The Spotify
+API in particular has
+<a href="https://developer.spotify.com/documentation/general/guides/authorization-guide/">multiple
+authorization methods</a> that give you access to a different set of endpoints. For
+example, if you’re using <em>client credentials</em> (the most basic one), then you
+can’t access an endpoint to modify the user’s data; you need
+<a href="https://en.wikipedia.org/wiki/OAuth">OAuth information</a>. This used to work with
+the <a href="https://doc.rust-lang.org/1.0.0/style/ownership/builders.html"><em>builder
+pattern</em></a>, following this structure (though not exactly the same):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// OAuth information
+let oauth = SpotifyOAuth::default()
+    .redirect_uri(&#34;http://localhost:8888/callback&#34;)
+    .scope(&#34;user-modify-playback-state&#34;)
+    .build()
+    .unwrap();
+
+// Basic information
+let creds = SpotifyClientCredentials::default()
+    .client_id(&#34;this-is-my-client-id&#34;)
+    .client_secret(&#34;this-is-my-client-secret&#34;)
+    .build()
+    .unwrap();
+
+// Obtaining the access token
+let token = get_token(&amp;mut oauth).unwrap();
+
+// The client itself
+let spotify = Spotify::default()
+    .client_credentials_manager(creds)
+    .token_info(token)
+    .build()
+    .unwrap();
+
+// Performing a request
+spotify.seek_track(25000, None).unwrap();</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I wanted something more tailored towards our specific application. I think the
+builder pattern is great, but it might become too verbose or confusing:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Do we really need it for <code>Credentials</code>, which always takes the same two
+parameters?</p>
+</li>
+<li>
+<p>Which authorization method are we using above again? Currently it’s possible
+to call <code>seek_track</code> after having followed an authorization process that
+doesn’t give access to it. And since we’re mixing all of them under the same
+client it quickly becomes a mess, having many <code>Option&lt;T&gt;</code> fields that are only
+<code>Some</code> for specific authorization methods. So, what if we have a Spotify
+client for each authorization method?</p>
+</li>
+<li>
+<p>Wouldn’t it be nice have some type safety, too? The <code>unwrap</code> hurts my eyes.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>After removing the builder pattern and being more explicit about the
+authorization method that’s being used, this is more or less what we get:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// OAuth information
+let oauth = OAuth::new(&#34;http://localhost:8888/callback&#34;, &#34;user-read-currently-playing&#34;);
+// Basic information
+let creds = Credentials::new(&#34;my-client-id&#34;, &#34;my-client-secret&#34;);
+// The client itself, now clearly with the &#34;authorization code&#34; method
+let mut spotify = AuthCodeSpotify::new(creds, oauth);
+
+// Obtaining the access token
+spotify.prompt_for_token().unwrap();
+
+// Performing a request
+spotify.seek_track(25000, None).unwrap();</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And if the user wants something more advanced, they can always write this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">let oauth = OAuth {
+    redirect_uri: &#34;http://localhost:8888/callback&#34;,
+    state: generate_random_string(16, alphabets::ALPHANUM),
+    scopes: &#34;user-read-currently-playing&#34;,
+    ..Default::default()
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Using the regular initialization pattern is more than enough for this case
+because we don’t even need validation. If we did, we could always just add a few
+setters or checks before its usage and we’re done. Ask yourself: do you really
+need the builder pattern? In this case we certainly didn’t.</p>
+</div>
+<div class="paragraph">
+<p>The most complicated part of the refactor is having a client for each
+authorization method, and making sure the user can only call those endpoints
+they have access to. There are <em>many</em> ways to approach this, I just had to
+decide which one was the best. I gave this a lot of thought <a href="#gh-auth">[6]</a>
+<a href="#reddit-auth">[7]</a>.</p>
+</div>
+<div class="paragraph">
+<p>Having multiple clients seems trivial with inheritance, with a base from which
+they can extend. In Rust, we could follow the typical “composition over
+inheritance” principle:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub struct EndpointsBase {
+    http: Rc&lt;Http&gt; // Shared with the rest of the endpoints
+}
+impl EndpointsBase {
+    pub fn endpoint1(&amp;self) { self.http.get(&#34;/endpoint1&#34;) }
+    pub fn endpoint2(&amp;self) { self.http.get(&#34;/endpoint2&#34;) }
+    // etc
+}
+
+pub struct EndpointsOAuth {
+    token: Token,
+    http: Rc&lt;Http&gt;
+}
+impl EndpointsOAuth {
+    pub fn endpoint3(&amp;self) { self.http.get_oauth(&#34;/endpoint3&#34;, self.token) }
+    pub fn endpoint4(&amp;self) { self.http.get_oauth(&#34;/endpoint4&#34;, self.token) }
+    // etc
+}
+
+pub struct AuthCodeSpotify(EndpointsBase, EndpointsOAuth);
+impl AuthCodeSpotify {
+    pub fn authenticate(&amp;self) { /* ... */ }
+
+    pub fn base(&amp;self) -&gt; &amp;EndpointsBase { &amp;self.0 }
+    pub fn oauth(&amp;self) -&gt; &amp;EndpointsOAuth { &amp;self.1 }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The user can then write <code>spotify.base().endpoint1()</code> or
+<code>spotify.oauth().endpoint3()</code> to access the endpoints in their different groups.
+However, all of them have to share a single HTTP client and other information
+such as the config or the token, so we have to use something like <code>Rc</code>. We can
+improve this by taking ideas from <a href="https://crates.io/crates/aspotify"><code>aspotify</code></a>
+, another popular crate
+for the Spotify API, which groups up the endpoints by categories. Their endpoint
+groups take a reference to the client itself instead, which is pretty neat and
+works just as well:</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2018&amp;gist=6cce195451518fcf644e7506ca7b51b2">Simplified from the working example on the Rust playground</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub trait Spotify {
+    fn get_http(&amp;self) -&gt; &amp;Http;
+    fn get_token(&amp;self) -&gt; &amp;Token;
+}
+
+pub struct EndpointsBase&lt;&#39;a, S: Spotify&gt;(&amp;&#39;a S);
+impl&lt;S: Spotify&gt; EndpointsBase&lt;&#39;_, S&gt; {
+    pub fn endpoint1(&amp;self) { self.0.get_http().get(&#34;/endpoint1&#34;) }
+    pub fn endpoint2(&amp;self) { self.0.get_http().get(&#34;/endpoint2&#34;) }
+    // etc
+}
+
+pub struct EndpointsOAuth&lt;&#39;a, S: Spotify&gt;(&amp;&#39;a S);
+impl&lt;S: Spotify&gt; EndpointsOAuth&lt;&#39;_, S&gt; {
+    pub fn endpoint3(&amp;self) { self.0.get_http().get_oauth(&#34;/endpoint3&#34;, self.0.get_token()) }
+    pub fn endpoint4(&amp;self) { self.0.get_http().get_oauth(&#34;/endpoint4&#34;, self.0.get_token()) }
+    // etc
+}
+
+pub struct AuthCodeSpotify {
+    pub http: Http,
+    pub token: Token
+}
+impl Spotify for AuthCodeSpotify {
+    fn get_http(&amp;self) -&gt; &amp;Http { &amp;self.http }
+    fn get_token(&amp;self) -&gt; &amp;Token { &amp;self.token }
+}
+impl AuthCodeSpotify {
+    pub fn authenticate(&amp;self) { /* ... */ }
+
+    pub fn base(&amp;self) -&gt; EndpointsBase&lt;&#39;_, Self&gt; { EndpointsBase(self) }
+    pub fn oauth(&amp;self) -&gt; EndpointsOAuth&lt;&#39;_, Self&gt; { EndpointsOAuth(self) }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>However, you might personally think using just <code>spotify.endpoint1()</code> instead of
+<code>spotify.base().endpoint1()</code> is more suitable for your particular API client.
+The only way to do that would be to delegate every single endpoint manually into
+the main client. Some people use <code>Deref</code> and <code>DerefMut</code> in order to
+automatically do it, but that’s a common anti-pattern <a href="#deref-antipattern">[8]</a>.</p>
+</div>
+<div class="paragraph">
+<p>I tried different approaches, and my favorite ended up being a trait-based
+interface. All you need is a couple traits with the endpoint implementations
+which require a getter to the HTTP client or similars:</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2018&amp;gist=901e41d16172e17368328c5a7744f673">Simplified from the working example on the Rust playground</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub trait EndpointsBase {
+    fn get_http(&amp;self) -&gt; &amp;Http;
+
+    fn endpoint1(&amp;self) { self.get_http().get(&#34;/endpoint1&#34;) }
+    fn endpoint2(&amp;self) { self.get_http().get(&#34;/endpoint2&#34;) }
+    // etc
+}
+
+pub trait EndpointsOAuth: EndpointsBase {
+    fn get_token(&amp;self) -&gt; &amp;Token;
+
+    fn endpoint3(&amp;self) { self.get_http().get_oauth(&#34;/endpoint3&#34;, self.get_token()) }
+    fn endpoint4(&amp;self) { self.get_http().get_oauth(&#34;/endpoint4&#34;, self.get_token()) }
+    // etc
+}
+
+pub struct AuthCodeSpotify(Http, Token);
+impl AuthCodeSpotify {
+    pub fn authenticate(&amp;self) { /* ... */ }
+}
+impl EndpointsBase for AuthCodeSpotify {
+    fn get_http(&amp;self) -&gt; &amp;Http { &amp;self.0 }
+}
+impl EndpointsOAuth for AuthCodeSpotify {
+    fn get_token(&amp;self) -&gt; &amp;Token { &amp;self.1 }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This way, as long as the user has these traits in scope, they can access the
+endpoints with just <code>spotify.endpoint1()</code>. We can make that easier by including
+a <a href="https://stackoverflow.com/questions/36384840/what-is-the-prelude">prelude</a> in
+the library with these traits, so that all the user has to do is <code>use
+rspotify::prelude::*</code>.</p>
+</div>
+<div class="paragraph">
+<p>The main issue with the trait-based solution is that you can’t use <code>-&gt; impl
+Trait</code> in trait methods as of Rust 1.55 <a href="#trait-ret-impl">[9]</a>. We unfortunately
+need these, specially with asynchronous clients, because async trait methods are
+<code>-&gt; impl Future</code> after all. For now, we can work around it by erasing the types
+with the <a href="https://crates.io/crates/async-trait"><code>async-trait</code></a>
+ crate. Supposedly, this will be temporary
+until GATs are implemented, which isn’t too far off <a href="#gats">[10]</a>.</p>
+</div>
+<div class="paragraph">
+<p>Both of these solutions also make it hard to have private functions in the base
+client, because the shared parts are in a trait. We don’t really want the user
+to have access to the methods <code>get</code> or <code>get_oauth</code>. It’s defined in the
+client/trait because it’s useful for every client, but for the end user it’s
+just noise in the documentation. This isn’t that much of a big deal because you
+can just declare the item with <code>#[doc(hidden)]</code> so that it doesn’t appear in the
+documentation.</p>
+</div>
+<div class="paragraph">
+<p>So yeah, there are no <em>perfect</em> solutions, but these are two of the best ones I
+could find. The choice is up to the designer of the library and their needs.
+Having multiple clients let us implement PKCE Authentication for Rspotify quite
+easily <a href="#gh-pkce">[11]</a>, so it’s worth it in the end anyway. Our final architecture
+looks like this:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="/blog/web-api-client/trait_hierarchy.png" alt="trait hierarchy"/>
+</div>
+<div class="title">Figure 1. Diagram by Ramsay</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuration">Configuration</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_runtime_over_compile_time">Runtime over compile-time</h3>
+<div class="paragraph">
+<p>There are a few parts of the Spotify client that can be customized by the user.
+Previously, these were just fields of the main client, but since we now have
+multiple clients, it might be worth moving into a separate struct to avoid
+duplication.</p>
+</div>
+<div class="paragraph">
+<p>Anyhow, one of our fails was attempting to use features instead of the <code>Config</code>
+struct for configuration, on the assumption that features would be more
+performant:</p>
+</div>
+<div class="listingblock">
+<div class="title">Which is faster?</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">if self.config.cached_token {
+    println!(&#34;Saving cache token to the file!&#34;);
+}
+
+#[cfg(feature = &#34;cached_token&#34;)]
+{
+    println!(&#34;Saving cache token to the file!&#34;);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Turns out that both of these are usually compiled to the same machine code
+anyway. Since <code>self.config.cached_token</code> is most times specified as a constant,
+optimizing it away is one of the more basic tasks a compiler can do. Features
+are drastically less flexible and harder to use than runtime variables, so
+before introducing one you should really think about it. Apart from the fact
+that you obviously can’t use features at runtime (which is a possible use-case
+here), they are applied globally, so you can’t have two different clients, one
+with cached tokens and another without them. In order to take this decision I
+actually wrote an entire article about it, so
+<a href="https://nullderef.com/blog/rust-features/">check it out if you want more
+details</a>.</p>
+</div>
+<div class="paragraph">
+<p>Even though it’s basic, I keep forgetting about this: don’t get obsessed with
+performance. As you add new features to the crate, it’s completely natural that
+some overheads are introduced here and there. And even then, they might not even
+be noticeable. First of all get that new feature working. Then, measure the
+actual effect on performance. And finally, if it’s more than you expected, then
+actually think about optimizing it.</p>
+</div>
+<div class="paragraph">
+<p>One correct usage would be our new <code>cli</code> feature. We have some utilities for
+command-line programs, such as prompting for the user’s credentials. However,
+not everyone needs these, such as servers, and it introduced the <a href="https://crates.io/crates/webbrowser"><code>webbrowser</code></a>
+ dependency and a few unecessary functions. So we decided to move
+this into a separate feature for those interested, which is disabled by default.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_sane_defaults">Sane defaults</h3>
+<div class="paragraph">
+<p>On the topic of configuration, it’s important to have sane defaults as well.
+This is highly subjective, but I prefer to do as little as possible under the
+hood <em>without the user knowing about it</em>. When initializing a client we used to
+automatically try to read from the environment variables, and if that didn’t
+work then we tried to use the default values or we just panicked in the builder:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">let creds = SpotifyClientCredentials::default() // this reads the env variables
+    .client_id(&#34;this-is-my-client-id&#34;)
+    .client_secret(&#34;this-is-my-client-secret&#34;)
+    .build()
+    .unwrap();</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is a pretty useful feature, but we can’t be sure the writer/reader of the
+code knows about it, and it could potentially cause cause unintended behaviour.
+Instead, we can just have a <code>default</code> method that does nothing special, which is
+what the user would expect, and also <code>from_env</code>, which <em>explicitly</em> tells us
+what it does:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">let creds = SpotifyClientCredentials::from_env() // this reads the env variables
+    .client_id(&#34;this-is-my-client-id&#34;)
+    .client_secret(&#34;this-is-my-client-secret&#34;)
+    .build()
+    .unwrap();</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_flexibility">Flexibility</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_taking_borrowedgeneric_parameters">Taking borrowed/generic parameters</h3>
+<div class="paragraph">
+<p>Friendly reminder: generally, it’s better to take a <code>&amp;str</code> than a <code>String</code> in a
+function <a href="#str-param">[12]</a> <a href="#gh-iterators">[13]</a>. The same thing applies to the owned
+type <code>Vec&lt;T&gt;</code>; it’s probably a better idea to take a <code>&amp;[T]</code> instead, or the even
+more fancy <code>impl IntoIterator&lt;Item = T&gt;</code>. The last option makes it possible to
+pass iterators to the function without requiring a <code>collect</code>, which not only is
+more user friendly, but also avoids a memory allocation. Its only downside is
+that the function signatures become a bit uglier, and all the consequences of
+using generics. Either of these options are fine, really, so it’s up to you.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_optional_parameters">Optional parameters</h3>
+<div class="paragraph">
+<p>Similarly, if the functions your library frequently include optional parameters
+(i.e. of type <code>Option&lt;T&gt;</code>), you might want to consider other ways to handle
+them. In our case, we were using generics with <code>Into&lt;Option&lt;T&gt;&gt;</code> in order to not
+have to wrap the parameters in <code>Some</code> when passing them to the function, but it
+wasn’t consistent. We finally agreed that using plain <code>Option&lt;T&gt;</code> was good
+enough because it simplifies the function definition in the docs and it’s less
+magic <a href="#gh-optional-params">[14]</a>. But the important part is that we made it
+<em>consistent</em>; the decision itself between <code>Into&lt;Option&lt;T&gt;&gt;</code> or <code>Option&lt;T&gt;</code>
+wasn’t that important. After doing research about this topic, I wrote up an
+article with more details <a href="https://nullderef.com/blog/rust-parameters/">here</a>, in
+case you want to learn more.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_splitting_up_into_multiple_crates">Splitting up into multiple crates</h3>
+<div class="paragraph">
+<p>Another cool idea that promotes flexibility is separating the wrapper into
+multiple crates. In Rspotify, we now have a total of four of them:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>rspotify-http</code>: the multi-HTTP client abstraction, which I plan on making
+more generic and moving into a separate crate for everyone to use
+<a href="#gh-http-universal">[15]</a></p>
+</li>
+<li>
+<p><code>rspotify-macros</code>: a small crate with macros</p>
+</li>
+<li>
+<p><code>rspotify-model</code>: the full model for the Rspotify crate</p>
+</li>
+<li>
+<p><code>rspotify</code>: the implementation of the clients</p>
+</li>
+</ul>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="/blog/web-api-client/crate_hierarchy.png" alt="crate hierarchy"/>
+</div>
+<div class="title">Figure 2. Diagram by Ramsay</div>
+</div>
+<div class="paragraph">
+<p>The most important one here is splitting up the wrapper into the model and the
+clients. The model is generic enough that it can be used by any client, even
+outside of Rspotify. Some users have to implement their own custom clients for
+different reasons, and pulling our model helps avoiding lots of complexity and
+maintainance work <a href="#model-separation">[16]</a>. It can also be shared with other public
+crates, such as <code>aspotify</code>, and join forces in keeping the model up to date
+<a href="#gh-aspotify-share">[17]</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_documentation">Documentation</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_introducing_how_to_use_the_crate">Introducing how to use the crate</h3>
+<div class="paragraph">
+<p>This might be obvious to some, but it isn’t enough to document every single
+public item in your library. You also have to introduce the user how to work
+with it in the top-level documentation. Some ideas:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>List the goals, current and future features of the crate, and things you don’t
+plan working on. Perhaps also add a comparison with similar crates; these are
+usually super helpful.</p>
+</li>
+<li>
+<p>Write a small getting started guide, explaining the most important items in
+the crate and what they do.</p>
+</li>
+<li>
+<p>Add some notes about the architecture of your crate. This is specially useul
+to those who want to contribute. For Rspotify, Ramsay created the diagrams
+included in this article, and added more details in the
+<a href="https://github.com/ramsayleung/rspotify/blob/master/README.md">README</a>.</p>
+</li>
+<li>
+<p>Explain the Cargo features in your crate and how to use them.</p>
+</li>
+<li>
+<p>Make sure you have a few examples working. It’s the easiest way to get
+started, in my opinion.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_helping_users_upgrade">Helping users upgrade</h3>
+<div class="paragraph">
+<p>Since this change was going to break so much code, I wanted to make sure that
+the upgrade is as less painful as possible. This can be achieved in many ways:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Make sure you prove why these breaking changes are actually necessary. It will
+feel like less of a waste of time to the user.</p>
+</li>
+<li>
+<p>Include a
+<a href="https://github.com/ramsayleung/rspotify/blob/master/CHANGELOG.md">changelog</a>,
+either as an indepent file, or in the release notes. In Rspotify, we make
+habit of adding a new line to the changelog for every release that includes a
+new feature or breaking changes. To be honest, in our case it’s turned out
+quite messy because we had <em>so many changes</em>, but in a regular update it
+should be nicer to read.</p>
+</li>
+<li>
+<p>It might be a good idea to
+<a href="https://github.com/ramsayleung/rspotify/issues/218">create an issue in your
+repository</a> where you provide help directly to those who try to upgrade and
+have problems with it.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_macros">Macros</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Macros in Rust are pretty cool! But you don’t want to overdo them either. In
+<code>rspotify</code> we frequently had to build hashmaps or JSON objects; at least once
+per endpoint. Some of the parameters in the endpoints were mandatory, and others
+optional (passed as an <code>Option</code>):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">let mut params = Query::with_capacity(3);
+params.insert(&#34;ids&#34;, ids);
+params.insert(&#34;limit&#34;, limit.to_string());
+if let Some(ref market) = market {
+    params.insert(&#34;market&#34;, market.as_ref());
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I first tried to simplify this by using macros to their full strength, so my
+initial attempts looked like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">let params = build_map! {
+    ids,
+    limit =&gt; limit.to_string(),
+    optional market =&gt; market.as_ref(),
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">let params = build_map! {
+    ids,
+    limit =&gt; limit.to_string(),
+    Some(market) =&gt; market.as_ref()
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Yes, they are <em>very</em> concise and we remove a lot of boilerplate, but they’re bad
+for two reasons:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>There’s too much magic going on:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>They turn the <code>ids</code>/<code>limit</code>/<code>market</code> identifiers into a string with
+<a href="https://doc.rust-lang.org/std/macro.stringify.html"><code>stringify!</code></a> and use that
+as the key for the hashmap insertion.</p>
+</li>
+<li>
+<p>In the expression to the right of an optional parameter, its value isn’t
+treated as an <code>Option</code> anymore; there’s a hidden <code>if let Some(market)</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>The syntax is weird. In order to understand them correctly, you’d probably
+have to look up their documentation and read it first.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The final design <a href="#gh-macros">[18]</a> still reduces the boilerplate needed in each
+endpoint considerably, but there’s no magic going on. It’s basically the same as
+a regular hashmap builder macro like you’d find on
+<a href="https://docs.rs/maplit/1.0.2/maplit/"><code>maplit</code></a>, and the macro doesn’t hide
+anything:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">let params = build_map! {
+    &#34;ids&#34;: ids,
+    &#34;limit&#34;: limit.to_string(),
+    optional &#34;market&#34;: market.map(|x| x.as_ref()),
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Anyhow, we might remove it in the future, since this syntax will soon work as
+well <a href="#hashmap-new">[19]</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">HashMap::from([
+  (k1, v1),
+  (k2, v2)
+]);</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_other_goodies">Other goodies</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Some new features we added to Rspotify that might be of interest specifically
+for other web API wrappers:</p>
+</div>
+<div class="sect2">
+<h3 id="_cached_and_self_refreshing_tokens">Cached and self-refreshing tokens</h3>
+<div class="paragraph">
+<p>Cached tokens are automatically saved into a file, encoded for example in JSON,
+and then attempted to be loaded again when restarting the application.</p>
+</div>
+<div class="paragraph">
+<p>Before making a request, self-refreshing tokens check if they are expired, and
+in that case perform the re-authorization process automatically.</p>
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/233" style="text-decoration: none;">Implement cache token and refresh token
+    <span class="gh-number">ramsayleung/rspotify#233</span></a>
+</span>
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="_type_safe_wrappers_for_id_types">Type-safe wrappers for ID types</h3>
+<div class="paragraph">
+<p>In the Spotify API, items such as artists or tracks are identified by a unique
+ID string. The URI is the ID, but prefixed by its type, for example
+<code>spotify:track:4cOdK2wGLETKBW3PvgPWqT</code>.</p>
+</div>
+<div class="paragraph">
+<p>Many endpoints previously took the URI parameters as a String. That meant we had
+to manually check that their type were what we were expecting, and also that
+they were valid (they’re usually made up of alphanumeric characters).</p>
+</div>
+<div class="paragraph">
+<p>Instead, we now have an <code>Id</code> trait and structs that implement it, like
+<code>ArtistId</code> or <code>TrackId</code>, keeping its type known at compile time and also at
+runtime with <code>dyn Id</code>. If you take a <code>TrackId</code> as a parameter, then you already
+know its type, and that its contents are valid, so you’re ready to use it.</p>
+</div>
+<div class="paragraph text-center">
+<p>
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/161" style="text-decoration: none;">Initial id type proposal
+    <span class="gh-number">ramsayleung/rspotify#161</span></a>
+</span>
+ and
+
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/244" style="text-decoration: none;">Fix IDs v4
+    <span class="gh-number">ramsayleung/rspotify#244</span></a>
+</span>
+</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_automatic_pagination">Automatic pagination</h3>
+<div class="paragraph">
+<p>Many API servers have paginated replies for large lists. Instead of sending a
+huge object, it splits it up into multiple packets, and sends them one by one
+along with an index to the position in the list. Then, the user can stop
+requesting them at any time and potentially only end up using a portion of that
+originally huge object.</p>
+</div>
+<div class="paragraph">
+<p>In Rust, this can be abstracted away very naturally with
+<a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html">iterators</a> in sync
+programs, and
+<a href="https://rust-lang.github.io/async-book/05_streams/01_chapter.html">streams</a> for
+async. The latter can be implemented easily in your crate thanks to <a href="https://crates.io/crates/async_stream"><code>async_stream</code></a>
+.</p>
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/124" style="text-decoration: none;">Add unlimited endpoints
+    <span class="gh-number">ramsayleung/rspotify#124</span></a>
+</span>
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="_simplify_wrapper_model_objects">Simplify wrapper model objects</h3>
+<div class="paragraph">
+<p>Due to how JSON works, sometimes an object will always have a single field:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
+    &#34;many_artists&#34;: [
+        {
+            // ..
+        },
+        // ...
+    ]
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In that case, instead of just deserializing that object with <a href="https://crates.io/crates/serde"><code>serde</code></a>
+
+and returning it to the user, you can just return that one field in the object:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[derive(Deserialize)]
+struct ArtistCollection {
+    many_artists: Vec&lt;Artists&gt;
+}
+
+// Before
+fn endpoint() -&gt; Result&lt;ArtistCollection&gt; {
+    let response = request();
+    serde_json::from_str(response)
+}
+
+// After
+fn endpoint() -&gt; Result&lt;Vec&lt;Artists&gt;&gt; {
+    let response = request();
+    serde_json::from_str::&lt;ArtistCollection&gt;(response).map(|x| x.many_artists)
+}</code></pre>
+</div>
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/149" style="text-decoration: none;">The way to reduce wrapper object
+    <span class="gh-number">ramsayleung/rspotify#149</span></a>
+</span>
+
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_measuring_the_changes">Measuring the changes</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Since this release changed so much stuff and took so long, I wanted to get a
+detailed comparison between v0.10 and v0.11 for different aspects of the
+library — not just performance.</p>
+</div>
+<div class="paragraph">
+<p>The full source for these benchmarks is available at the
+<a href="https://github.com/marioortizmanero/rspotify-bench">marioortizmanero/rspotify-bench</a>
+repository. Note that I had to apply a small patch to the v0.10 version because
+by now it didn’t work correctly.</p>
+</div>
+<div class="sect2">
+<h3 id="_statistics">Statistics</h3>
+<div class="paragraph">
+<p>Some parts of Rspotify can be analyzed statically, such as the lines of code
+that will need to be maintained, or its number of dependencies:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Results example as of 2021-10-12</caption>
+<colgroup>
+<col style="width: 25%;"/>
+<col style="width: 25%;"/>
+<col style="width: 25%;"/>
+<col style="width: 25%;"/>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Version</th>
+<th class="tableblock halign-left valign-top">Rust LoC</th>
+<th class="tableblock halign-left valign-top">Dependencies in tree</th>
+<th class="tableblock halign-left valign-top">Dependencies in tree (all features)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.10.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11281</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">132</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">141</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">master</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">7525</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">101</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">123</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The Lines of Code in the old version were quite bloated because of the
+<code>blocking</code> module, which was a copy-paste of the async client. Still, these were
+lines that needed to be maintained, so they count just as much. On the other
+hand, we now have a much more extensive set of tests and new features that add
+up. In total, we have about 33% less lines to be maintained in total.</p>
+</div>
+<div class="paragraph">
+<p>The number of dependencies has decreased both by default and with all of the
+features enabled. We cleaned up a lot of them and tried to keep the defaults
+leaner <a href="#gh-cleanup">[20]</a>. Since the new version adds more features such as PKCE, we
+even had to add new dependencies like <a href="https://crates.io/crates/sha2"><code>sha2</code></a>
+, but it’s still a clear
+win.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_execution_time">Execution time</h3>
+<div class="paragraph">
+<p>The execution benchmarks use
+<a href="https://github.com/bheisler/criterion.rs">Criterion</a>, with a total of 100
+iterations on my Dell Vostro 5481 laptop, or more specifically, Intel i5-8265U
+(8) @ 3.900GHz. The full reports are available in the <code>report</code> directory of each
+benchmark.</p>
+</div>
+<div class="paragraph">
+<p>Taking a look at the Criterion reports, it seems that the Spotify API doesn’t
+intentionally slow down responses when it’s being “spammed”, so it should be
+fine in that regard:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="/blog/web-api-client/iterations.png" alt="iterations"/>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that comparing the blocking clients for now is unfair, because instead of
+using <code>reqwest::blocking</code>, now it’s <code>ureq</code>. Furthermore, the async and sync
+versions can’t be compared either, because the former requires setting up the
+tokio runtime and a bunch of other stuff.</p>
+</div>
+<div class="paragraph">
+<p>The asynchronous clients in both versions should give a rough idea of the actual
+differences, though you can tell it’s just a quick benchmark; the results
+shouldn’t be taken too seriously in the first place:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Results example as of 2021-10-12</caption>
+<colgroup>
+<col style="width: 16%;"/>
+<col style="width: 16%;"/>
+<col style="width: 17%;"/>
+<col style="width: 16%;"/>
+<col style="width: 15%;"/>
+<col style="width: 20%;"/>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-center valign-top">Version</th>
+<th class="tableblock halign-center valign-top">Debug Compilation Time (s)</th>
+<th class="tableblock halign-center valign-top">Release Compilation Time (s)</th>
+<th class="tableblock halign-center valign-top">Benchmarking Time (ms/iter)</th>
+<th class="tableblock halign-center valign-top">Release Binary Size (MB)</th>
+<th class="tableblock halign-center valign-top">Release Stripped
+Binary Size (MB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0.10.0, blocking</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">72.712</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">126.229</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">271.31</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">9.9</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">4.9</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0.10.0, async</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">72.244</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">115.703</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">428.02</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">11</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">5.2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">master, blocking (ureq)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">38.549</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">55.934</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">503.68</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">7.3</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">2.6</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">master, async (reqwest)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">51.014</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">86.594</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">432.49</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">8.5</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">4.0</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>I also wanted to reflect the compilation time, since it’s a possibility that we
+have less dependencies, but of larger size. The results show that this isn’t the
+case, since it takes 29% less time to build in debug mode, and 25% less time in
+release mode.</p>
+</div>
+<div class="paragraph">
+<p>In terms of execution time, I didn’t expect it to be any better. Even though the
+architecture and implementation is cleaner, some of the new features introduce
+noticeable overhead. For example, now that we have automatically refreshing
+tokens, the <code>Token</code> has to be saved in an <code>Arc&lt;Mutex&lt;T&gt;&gt;</code>, which means we’re
+locking and unlocking at least once per request. Still, the difference is almost
+negligible: just a 1% increase.</p>
+</div>
+<div class="paragraph">
+<p>The cleanup and all these dependencies we removed mean that the resulting binary
+is also smaller, and by a lot: there’s a 23% decrease in its size.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_special_thanks">Special thanks</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This release has been possible thanks to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/ramsayleung">@ramsayleung</a></p>
+</li>
+<li>
+<p><a href="https://github.com/kstep">@kstep</a></p>
+</li>
+<li>
+<p><a href="https://github.com/hellbound22">@hellbound22</a></p>
+</li>
+<li>
+<p><a href="https://github.com/Qluxzz">@Qluxzz</a></p>
+</li>
+<li>
+<p><a href="https://github.com/icewind1991">@icewind1991</a></p>
+</li>
+<li>
+<p><a href="https://github.com/aramperes">@aramperes</a></p>
+</li>
+<li>
+<p><a href="https://github.com/Sydpy">@Sydpy</a></p>
+</li>
+<li>
+<p><a href="https://github.com/arlyon">@arlyon</a></p>
+</li>
+<li>
+<p><a href="https://github.com/flip1995">@flip1995</a></p>
+</li>
+<li>
+<p><a href="https://github.com/Rigellute">@Rigellute</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>I’m specially grateful towards Ramsay, who apart from contributing many of the
+features I listed here, read and reviewed <em>every single one of my issues and
+pull requests</em>. I’ve learned how important it is to have a second opinon, and
+someone else who proofreads everything before you merge dumb stuff into
+<code>master</code>. Note that I <em>did</em> proofread my own ideas and pull requests, but
+there’s some things that you just don’t realize on time, as much as you try to.
+This is a problem that I think is particularly relevant in open source. I
+personally had worked on projects alone most of the times, and the difference is
+huge. I would suggest everyone to try to join forces with at least one more
+person when working in side projects.</p>
+</div>
+<div class="paragraph">
+<p>That’s all! I hope this post provided insightful information and that you
+learned something from it. Remember that you can leave a comment at the bottom
+in case you want to discuss about it.</p>
+</div>
+<div class="paragraph">
+<p>Lots of love,<br/>
+Mario</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="ulist bibliography">
+<ul class="bibliography">
+<li>
+<p><a id="aspotify-release"></a>[1]
+<a href="https://www.reddit.com/r/rust/comments/ehz66s/aspotify_an_asynchronous_rust_spotify_web_api/">aspotify:
+An asynchronous Rust Spotify web API client - r/rust</a></p>
+</li>
+<li>
+<p><a id="spotipy-absent"></a>[2] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/plamere/spotipy/issues/387" style="text-decoration: none;">Is under development?
+    <span class="gh-number">plamere/spotipy#387</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="gh-block-cleanup"></a>[3] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/112" style="text-decoration: none;">Cleaning up the blocking module
+    <span class="gh-number">ramsayleung/rspotify#112</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="gh-meta"></a>[4] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/127" style="text-decoration: none;">Meta-Issue
+    <span class="gh-number">ramsayleung/rspotify#127</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="gh-clients"></a>[5] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/129" style="text-decoration: none;">Multiple clients via features
+    <span class="gh-number">ramsayleung/rspotify#129</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="gh-auth"></a>[6] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/173" style="text-decoration: none;">Restructure the authentication process
+    <span class="gh-number">ramsayleung/rspotify#173</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="reddit-auth"></a>[7]
+<a href="https://www.reddit.com/r/rust/comments/lkdw6o/designing_a_new_architecture_for_rspotify_based/">Designing
+a new architecture for Rspotify based on trait inheritance, need opinions -
+Reddit</a></p>
+</li>
+<li>
+<p><a id="deref-antipattern"></a>[8]
+<a href="https://github.com/rust-unofficial/patterns/blob/main/anti_patterns/deref.md"><code>Deref</code>
+polymorphism</a></p>
+</li>
+<li>
+<p><a id="trait-ret-impl"></a>[9]
+<a href="https://stackoverflow.com/questions/39482131/is-it-possible-to-use-impl-trait-as-a-functions-return-type-in-a-trait-defini">Is
+it possible to use <code>impl Trait</code> as a function’s return type in a trait
+definition? - StackOverFlow</a></p>
+</li>
+<li>
+<p><a id="gats"></a>[10] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rust-lang/rust/issues/4426" style="text-decoration: none;">Tracking issue for generic associated types (GAT)
+    <span class="gh-number">rust-lang/rust#4426</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="gh-pkce"></a>[11] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/150" style="text-decoration: none;">Authorization Code Flow with Proof Key for Code Exchange (PKCE) is missing
+    <span class="gh-number">ramsayleung/rspotify#150</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="str-param"></a>[12]
+<a href="https://hermanradtke.com/2015/05/03/string-vs-str-in-rust-functions.html">String
+vs &amp;str in Rust functions - hermanradtke.com</a></p>
+</li>
+<li>
+<p><a id="gh-iterators"></a>[13] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/206" style="text-decoration: none;">Pass parameters by reference and use iterators wherever possible
+    <span class="gh-number">ramsayleung/rspotify#206</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="gh-optional-params"></a>[14] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/134" style="text-decoration: none;">Optional parameters
+    <span class="gh-number">ramsayleung/rspotify#134</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="gh-http-universal"></a>[15] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/234" style="text-decoration: none;">Use an external HTTP universal interface instead of <code>rspotify-http</code>
+    <span class="gh-number">ramsayleung/rspotify#234</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="model-separation"></a>[16] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/191" style="text-decoration: none;">Move model into a separate rspotify-model crate
+    <span class="gh-number">ramsayleung/rspotify#191</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="gh-aspotify-share"></a>[17] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/aspotify/issues/issues/14" style="text-decoration: none;">Sharing the model with rspotify-model
+    <span class="gh-number">aspotify/issues#14</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="gh-macros"></a>[18] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/202" style="text-decoration: none;">Remove Rspotify default parameters and add parameter macros
+    <span class="gh-number">ramsayleung/rspotify#202</span></a>
+</span>
+</p>
+</li>
+<li>
+<p><a id="hashmap-new"></a>[19]
+<a href="https://twitter.com/mgattozzi/status/1447983152669020160?t=jAGevaOOh___cWGERcLLgQ">New
+hashmap constructor - @gmattozzi, Twitter</a></p>
+</li>
+<li>
+<p><a id="gh-cleanup"></a>[20] 
+
+
+
+
+
+
+  
+
+
+<span class="gh-reference">
+
+  
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/108" style="text-decoration: none;">Reducing rspotify&rsquo;s core dependencies
+    <span class="gh-number">ramsayleung/rspotify#108</span></a>
+</span>
+</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+]]></content:encoded>
+    </item>
+    
     <item>
       <title>Plugins in Rust: Diving into Dynamic Loading</title>
       <link>https://nullderef.com/blog/plugin-dynload/</link>
