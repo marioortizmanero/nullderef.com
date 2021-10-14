@@ -186,8 +186,7 @@ can cover its usage under a single interface. For example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">#[derive(Default, Debug, Clone)]
-pub struct UreqClient {}
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub struct UreqClient {}
 
 impl HttpClient for UreqClient {
     type Error = ureq::Transport;
@@ -218,8 +217,7 @@ impl HttpClient for UreqClient {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">#[derive(Default, Debug, Clone)]
-pub struct Spotify&lt;Http: HttpClient&gt; {
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub struct Spotify&lt;Http: HttpClient&gt; {
     http: Http,
     // etc
 }
