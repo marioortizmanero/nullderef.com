@@ -50,7 +50,7 @@ unstructured data. One of its many usages may be to:</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="/blog/plugin-dynload/example.png" alt="example" width="100%"/>
+<img src="example.png" alt="example" width="100%"/>
 </div>
 </div>
 <div class="paragraph">
@@ -268,7 +268,7 @@ handling their communication details.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="/blog/plugin-dynload/registering.png" alt="registering" width="100%"/>
+<img src="registering.png" alt="registering" width="100%"/>
 </div>
 </div>
 <div class="paragraph">
@@ -293,7 +293,7 @@ now try to understand:</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="/blog/plugin-dynload/initializing.png" alt="initializing" width="100%"/>
+<img src="initializing.png" alt="initializing" width="100%"/>
 </div>
 </div>
 <div class="paragraph">
@@ -320,12 +320,12 @@ requests from the pipeline and then redirect or read from it.</p>
 <p>The main difference between sinks and sources currently is that the former can
 also reply to messages within the same connection. This is useful to acknowledge
 the package (“Ack”) or to notify something has failed in the sink (“Fail”
-for a specific event, “CircutBreaker” to completely stop data from being
+for a specific event, “CircuitBreaker” to completely stop data from being
 sent).</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="/blog/plugin-dynload/setting-up.png" alt="setting up" width="100%"/>
+<img src="setting-up.png" alt="setting up" width="100%"/>
 </div>
 </div>
 <div class="paragraph">
@@ -1304,7 +1304,7 @@ I’ll try to figure out in this article.</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
-<img src="/blog/plugin-start/connectors.png" alt="connectors" width="100%"/>
+<img src="connectors.png" alt="connectors" width="100%"/>
 </div>
 </div>
 <div class="paragraph">
@@ -2485,7 +2485,7 @@ Performance-wise, this graph shows a comparison of the overhead of each of them
 </div>
 <div class="imageblock text-center">
 <div class="content">
-<img src="/blog/plugin-tech/ipc-comparison.png" alt="IPC comparison" width="60%"/>
+<img src="ipc-comparison.png" alt="IPC comparison" width="60%"/>
 </div>
 </div>
 <div class="sect3">
@@ -3051,7 +3051,7 @@ drawing that <strong><em>very roughly</em></strong> compares the main methods:</
 </div>
 <div class="imageblock text-center">
 <div class="content">
-<img src="/blog/plugin-tech/triangle.svg" alt="Triangle Chart" width="70%"/>
+<img src="triangle.svg" alt="Triangle Chart" width="70%"/>
 </div>
 </div>
 <div class="paragraph">

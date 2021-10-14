@@ -188,7 +188,7 @@ snippet</a>:</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
-<img src="/blog/rust-features/compiler-explorer.png" alt="Assembly comparison" width="100%"/>
+<img src="compiler-explorer.png" alt="Assembly comparison" width="100%"/>
 </div>
 </div>
 <div class="paragraph">
@@ -204,7 +204,7 @@ problem for production binaries.</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
-<img src="/blog/rust-features/compiler-explorer-const.png" alt="Assembly comparison" width="100%"/>
+<img src="compiler-explorer-const.png" alt="Assembly comparison" width="100%"/>
 </div>
 </div>
 <div class="paragraph">
