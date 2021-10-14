@@ -151,7 +151,6 @@ Then, we can add an implementation for each of our supported clients:
 
 [source, rust]
 ----
-#[derive(Default, Debug, Clone)]
 pub struct UreqClient {}
 
 impl HttpClient for UreqClient {
@@ -182,7 +181,6 @@ And we can finally make our client generic over its internal HTTP client:
 
 [source, rust]
 ----
-#[derive(Default, Debug, Clone)]
 pub struct Spotify<Http: HttpClient> {
     http: Http,
     // etc
