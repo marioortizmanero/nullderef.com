@@ -58,17 +58,22 @@ params:
     LogoLight: /logo-light-theme.png
     LogoDark: /logo-dark-theme.png
     Content: >
-      Yet Another Programming Blog
+      Yet Another Programming Blog \
 
-      - Written by Mario Ortiz Manero
+      Written by Mario Ortiz Manero
 
   socialIcons:
     - name: github
       url: "https://github.com/marioortizmanero/"
     - name: linkedin
       url: "https://www.linkedin.com/in/marioortizmanero/"
+    - name: twitter
+      url: "https://twitter.com/null_deref"
     - name: rss
       url: "https://nullderef.com/index.xml"
+
+social:
+  twitter: null_deref
 
 minify:
     disableXML: true
