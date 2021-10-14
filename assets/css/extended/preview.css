@@ -1,15 +1,17 @@
-.entry-preview img {
-  float: left;
-  object-fit: cover;
-  border-radius: var(--radius);
-  margin-right: 15px;
-  width: 100px;
-  height: 110px;
+.post-entry {
+  display: flex;
+  /* align-items: center; */
+  flex-flow: row nowrap;
 }
 
-/* Text wrapping around preview */
-.entry-content {
-  display: block !important;
-  overflow: inherit !important;
-  text-overflow: ellipsis !important;
+.entry-preview {
+  margin-right: 15px;
+  flex: 0 0 100px;
+  /* padding: 15px; */
+}
+
+.entry-preview img {
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius);
 }
