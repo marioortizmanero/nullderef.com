@@ -1,13 +1,11 @@
 .post-entry {
   display: flex;
-  /* align-items: center; */
   flex-flow: row nowrap;
 }
 
 .entry-preview {
   margin-right: 15px;
   flex: 0 0 100px;
-  /* padding: 15px; */
 }
 
 .entry-preview img {
