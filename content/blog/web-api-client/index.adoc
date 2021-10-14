@@ -3,6 +3,7 @@ title: "Designing an API Client in Rust: New Rspotify Version a Year Later"
 description: "Inspired by the Rspotify rewrite, a few tips on how to make a
 solid wrapper for most web API wrappers."
 author: "Mario Ortiz Manero"
+images: ["/blog/web-api-client/crate_hierarchy.png"]
 tags: ["rust", "open-source", "rspotify", "web-api"]
 date: 2021-10-13
 GHissueID: 41
