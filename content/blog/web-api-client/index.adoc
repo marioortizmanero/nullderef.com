@@ -942,7 +942,7 @@ Mario
 - [[[spotipy-absent,     2]]] {{< gh issue "plamere/spotipy" 387 "Is under development?" >}}
 - [[[gh-block-cleanup,   3]]] {{< gh issue "ramsayleung/rspotify" 112 "Cleaning up the blocking module" >}}
 - [[[gh-meta,            4]]] {{< gh issue "ramsayleung/rspotify" 127 "Meta-Issue" >}}
-- [[[gh-clients,         5]]] {{< gh issue "ramsayleung/rspotify" 129 "Multiple clients via features" >}}
+- [[[gh-clients,         5]]] {{< gh pr "ramsayleung/rspotify" 129 "Multiple clients via features" >}}
 - [[[gh-auth,            6]]] {{< gh issue "ramsayleung/rspotify" 173 "Restructure the authentication process" >}}
 - [[[reddit-auth,        7]]]
   https://www.reddit.com/r/rust/comments/lkdw6o/designing_a_new_architecture_for_rspotify_based/[Designing
@@ -960,12 +960,12 @@ Mario
 - [[[str-param,         12]]]
   https://hermanradtke.com/2015/05/03/string-vs-str-in-rust-functions.html[String
   vs &str in Rust functions - hermanradtke.com]
-- [[[gh-iterators,      13]]] {{< gh issue "ramsayleung/rspotify" 206 "Pass parameters by reference and use iterators wherever possible" >}}
+- [[[gh-iterators,      13]]] {{< gh pr "ramsayleung/rspotify" 206 "Pass parameters by reference and use iterators wherever possible" >}}
 - [[[gh-optional-params,14]]] {{< gh issue "ramsayleung/rspotify" 134 "Optional parameters" >}}
 - [[[gh-http-universal, 15]]] {{< gh issue "ramsayleung/rspotify" 234 "Use an external HTTP universal interface instead of `rspotify-http`" >}}
-- [[[model-separation,  16]]] {{< gh issue "ramsayleung/rspotify" 191 "Move model into a separate rspotify-model crate" >}}
-- [[[gh-aspotify-share, 17]]] {{< gh issue "aspotify/issues" 14 "Sharing the model with rspotify-model" >}}
-- [[[gh-macros,         18]]] {{< gh issue "ramsayleung/rspotify" 202 "Remove Rspotify default parameters and add parameter macros" >}}
+- [[[model-separation,  16]]] {{< gh pr "ramsayleung/rspotify" 191 "Move model into a separate rspotify-model crate" >}}
+- [[[gh-aspotify-share, 17]]] {{< gh issue "KaiJewson/aspotify" 14 "Sharing the model with rspotify-model" >}}
+- [[[gh-macros,         18]]] {{< gh pr "ramsayleung/rspotify" 202 "Remove Rspotify default parameters and add parameter macros" >}}
 - [[[hashmap-new,       19]]]
   https://twitter.com/mgattozzi/status/1447983152669020160?t=jAGevaOOh___cWGERcLLgQ[New
   hashmap constructor - @gmattozzi, Twitter]
