@@ -863,7 +863,7 @@ versions can't be compared either, because the former requires setting up the
 tokio runtime and a bunch of other stuff.
 
 The asynchronous clients in both versions should give a rough idea of the actual
-differences, though you can tell it's just a quick benchmark; the results
+differences, though you can tell it's just a quick benchmark, and the results
 shouldn't be taken too seriously in the first place:
 
 .Results example as of 2021-10-12
