@@ -1183,7 +1183,7 @@ tokio runtime and a bunch of other stuff.</p>
 </div>
 <div class="paragraph">
 <p>The asynchronous clients in both versions should give a rough idea of the actual
-differences, though you can tell it’s just a quick benchmark; the results
+differences, though you can tell it’s just a quick benchmark, and the results
 shouldn’t be taken too seriously in the first place:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
