@@ -15,6 +15,20 @@ li > .paragraph {
   margin-top: 7px;
 }
 
+/* Fixing alignment */
+.post-content .text-left {
+  text-align: left;
+}
+.post-content .text-center {
+  text-align: center;
+}
+.post-content .text-right {
+  text-align: right;
+}
+.post-content .text-justify {
+  text-align: justify;
+}
+
 /* Fixing margins in lists with open blocks */
 .post-content li .openblock .paragraph {
   margin-top: 10px;
