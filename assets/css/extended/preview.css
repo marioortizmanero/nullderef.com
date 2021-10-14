@@ -6,3 +6,10 @@
   width: 100px;
   height: 110px;
 }
+
+/* Text wrapping around preview */
+.entry-content {
+  display: block !important;
+  overflow: inherit !important;
+  text-overflow: ellipsis !important;
+}

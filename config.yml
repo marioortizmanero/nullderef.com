@@ -58,9 +58,9 @@ params:
     LogoLight: /logo-light-theme.png
     LogoDark: /logo-dark-theme.png
     Content: >
-      Yet Another Programming Blog
+      Yet Another Programming Blog \
 
-      - Written by Mario Ortiz Manero
+      Written by Mario Ortiz Manero
 
   socialIcons:
     - name: github
