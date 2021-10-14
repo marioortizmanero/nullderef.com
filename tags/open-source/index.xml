@@ -146,7 +146,7 @@ can’t have both a sync and an async client at the same time.</p>
 </div>
 <div class="paragraph">
 <p>Since we don’t follow that rule, those who depend on Rspotify with both async
-and async (directly or indirectly) won’t be able to compile their project. I
+and sync (directly or indirectly) won’t be able to compile their project. I
 won’t get into much detail beacuse I’m writing an entire separate post dedicated
 for this issue that I’ll publish once this whole ordeal is fixed. We’re keeping
 track of it in <a href="https://github.com/ramsayleung/rspotify/issues/221">#221</a> for now,
