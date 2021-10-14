@@ -1210,25 +1210,25 @@ Binary Size (MB)</th>
 <tbody>
 <tr>
 <td class="tableblock halign-center valign-top"><p class="tableblock">0.10.0, blocking</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">72.712</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">126.229</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">271.31</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">72.7</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">126.2</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">271.3</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">9.9</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">4.9</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-top"><p class="tableblock">0.10.0, async</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">72.244</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">115.703</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">428.02</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">72.2</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">115.7</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">428.0</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">11</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">5.2</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-top"><p class="tableblock">master, blocking (ureq)</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">38.549</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">55.934</p></td>
-<td class="tableblock halign-center valign-top"><p class="tableblock">503.68</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">38.5</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">55.9</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">503.6</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">7.3</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">2.6</p></td>
 </tr>
