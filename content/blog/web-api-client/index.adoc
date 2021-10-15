@@ -725,7 +725,7 @@ Before making a request, self-refreshing tokens check if they are expired, and
 in that case perform the re-authorization process automatically.
 
 [.text-center]
-{{< gh issue "ramsayleung/rspotify" 233 "Implement cache token and refresh token" >}} 
+{{< gh issue "ramsayleung/rspotify" 223 "Implement cache token and refresh token" >}} 
 
 === Type-safe wrappers for ID types
 
