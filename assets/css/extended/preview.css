@@ -1,0 +1,15 @@
+.post-entry {
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.entry-preview {
+  margin-right: 15px;
+  flex: 0 0 100px;
+}
+
+.entry-preview img {
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius);
+}

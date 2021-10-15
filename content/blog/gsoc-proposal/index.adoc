@@ -1,10 +1,8 @@
 ---
 title: "GSoC Proposal: Implementing a Plugin Development Kit for Tremor"
 description: "My proposal for 2021's GSoC"
-summary: "My 2021 Google Summer of Code project consists on developing a
-universal interface for Tremor plugins. Here I explain how it may work and how
-I'll work on it."
 author: "Mario Ortiz Manero"
+images: ["/blog/gsoc-proposal/logo.png"]
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
 date: 2021-04-13

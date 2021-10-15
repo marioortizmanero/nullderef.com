@@ -10,13 +10,16 @@ assignees: ''
 TODO list:
 
 - [ ] Create an issue for the comments
+- [ ] Add at least one image for previews when sharing
+- [ ] Make sure it doesn't start with section such as "Introduction" (it'll mess up the post preview)
 - Add the following metadata fields:
   + [ ] title
   + [ ] description
-  + [ ] summary
   + [ ] author
+  + [ ] images
   + [ ] tags
   + [ ] series (optionally)
   + [ ] date
   + [ ] GHissueID
-- [ ] Add at least one image for previews when sharing
+- [ ] Clean up bibliography
+- [ ] Share on other platforms (lobste.rs, reddit, hackernews, twitter?)

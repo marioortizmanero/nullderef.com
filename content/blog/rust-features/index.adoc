@@ -2,6 +2,7 @@
 title: "Why you shouldn't obsess about Rust \"features\""
 description: "Friendly reminder: you might not need conditional compilation"
 author: "Mario Ortiz Manero"
+images: ["/blog/rust-features/compiler-explorer.png"]
 tags: ["rust", "guide", "beginners"]
 date: 2021-07-06
 GHissueID: 20
@@ -152,7 +153,7 @@ Thanks to the awesome https://godbolt.org[Compiler Explorer], we can make sure
 this compiles as we expect it to with https://godbolt.org/z/Kr9GP6Gqz[this
 snippet]:
 
-image::/blog/rust-features/compiler-explorer.png[Assembly comparison, width=100%, align=center]
+image::compiler-explorer.png[Assembly comparison, width=100%, align=center]
 
 It seems that as of Rust 1.53, for values of `opt-level` greater or equal than
 2, the code for the deactivated features doesn't even appear in the assembly
@@ -163,7 +164,7 @@ problem for production binaries.
 And we aren't even using `const`! I wonder what will happen in that case. With
 https://godbolt.org/z/f1xTaWzdc[this slightly modified snippet]:
 
-image::/blog/rust-features/compiler-explorer-const.png[Assembly comparison, width=100%, align=center]
+image::compiler-explorer-const.png[Assembly comparison, width=100%, align=center]
 
 Hmm. We actually get the same results. The generated assembly is exactly the
 same, and the optional code is optimized away only starting at `opt-level=2`.

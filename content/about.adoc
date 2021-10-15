@@ -29,15 +29,15 @@ mailto:marioortizmanero@gmail.com[e-mail].
 
 Here are some interesting blogs from friends or that I just enjoy reading:
 
-. https://fasterthanli.me/[*fasterthanlime*]: thorough posts about computers in
+* https://fasterthanli.me/[*fasterthanlime*]: thorough posts about computers in
   a very fun way.
-. https://adventures.michaelfbryan.com/[*Michael-F-Bryan*]: interesting Rust
+* https://adventures.michaelfbryan.com/[*Michael-F-Bryan*]: interesting Rust
   articles with lots of examples and diagrams.
-. https://robertheaton.com/[*Robert Heaton*]: very unique style of narration,
+* https://robertheaton.com/[*Robert Heaton*]: very unique style of narration,
   often about pentesting.
-. https://matklad.github.io/[*matklad*]: technical blog posts from the
+* https://matklad.github.io/[*matklad*]: technical blog posts from the
   development leader of https://github.com/rust-analyzer/rust-analyzer[Rust
   Analyzer].
-. https://0x709394.me/index[*Ramsay's Eden*]: my friend
+* https://0x709394.me/index[*Ramsay's Eden*]: my friend
   https://github.com/ramsayleung[Ramsay's] site about Rust and distributed
   systems.

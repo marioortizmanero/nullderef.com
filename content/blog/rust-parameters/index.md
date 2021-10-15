@@ -1,10 +1,8 @@
 ---
 title: "Optional parameters in Rust"
 description: "Analyzing different approaches for optional parameters in Rust"
-summary: "Optional or default parameters are a very interesting feature of some
-languages that Rust specifically doesn't cover. This post showcases a few
-approaches that can serve as a replacement."
 author: "Mario Ortiz Manero"
+images: ["/blog/rust-parameters/ferris.jpg"]
 tags: ["rust", "guide", "beginners"]
 date: 2020-10-10
 GHissueID: 7
