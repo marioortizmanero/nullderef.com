@@ -4,7 +4,7 @@ description: "TODO"
 author: "Mario Ortiz Manero"
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
-date: 2021-10-09
+date: 2021-10-15
 GHissueID: 30
 ---
 
@@ -185,6 +185,10 @@ repository]. I'll be taking a look at the already implemented
 https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples[examples]
 in order to make the learning experience smoother.
 
+The base structure for a plugin system with `abi_stable` is the same as always:
+a crate for the plugin, another for the runtime, and the last one for `common`,
+with the interface that's shared between the two.
+
 == Versioning
 
 `abi_stable` states this regarding versioning:
@@ -217,21 +221,81 @@ module] that initializes the entire library and provides metadata such as the
 name or the version strings. Then, we can have submodules to organize the
 functions exported by the library nicely.
 
+This example also introduces the concept of
+https://docs.rs/abi_stable/latest/abi_stable/docs/prefix_types/index.html[_prefix
+types_]. When a type implements `StableAbi` and has the
+`#[sabi(kind(Prefix(....)))]` attribute, another type with the `_Prefix` suffix
+is generated that can actually be passed through the FFI barrier. They are
+needed because `abi_stable` doesn't just need {repr-c} structs, but also some
+kind of versioning to avoid breakage in future upgrades.
+
+In summary, when we declare our module as a prefix type, these are the types
+that will be generated:
+
+* `Module`: the type used to declare the module's data, from which
+  `Module_Prefix` and `Module_Ref` are generated.
+* `Module_Prefix`: prefix fields of `Module`
+* `Module_Ref`: pointer to `Module_Prefix`
+
+The first version of our module should have the attribute
+`#[sabi(last_prefix_field)]` on its last field. We will be able to add more
+fields to the module in that same version _after_ `last_prefix_field`. Moving it
+required a backward-incompatible version bump.
+
+the last field in this struct that was defined in the 
+first compatible version of the library,
+requiring new fields to always be added after it.
+Moving this attribute is a breaking change, it can only be done in a 
+major version bump..
+
 For now, I'll just have a single root module and call it `MinMod`, implementing
 the `min` function:
 
 [source, rust]
 ----
-// todo copy stuff from exp
+// Using the stable C ABI
+#[repr(C)]
+// Deriving the `StableAbi` trait, which defines the layout of the struct at
+// compile-time:
+// https://docs.rs/abi_stable/0.10.2/abi_stable/derive.StableAbi.html
+#[derive(StableAbi)]
+// Marking the struct as a prefix-type:
+// https://docs.rs/abi_stable/0.10.2/abi_stable/docs/prefix_types/index.html
+#[sabi(kind(Prefix))]
+pub struct MinMod {
+    /// Initializes the state, which will be passed to the functions in this
+    /// module.
+    pub new: extern "C" fn() -> State,
+
+    /// Calculates the minimum between two integers
+    pub min: extern "C" fn(&mut State, i32, i32) -> i32,
+}
 ----
 
-The root module we're exporting implements the `RootModule` trait, which
-includes functions to load the plugin, such as
+Most of the loading functionality is already handled by `abi_stable`. The root
+module we're exporting implements the `RootModule` trait, which includes
+functions to load the plugin, such as
 https://docs.rs/abi_stable/latest/abi_stable/library/trait.RootModule.html#method.load_from_file[`RootModule::load_from_file`]
 or
-https://docs.rs/abi_stable/latest/abi_stable/library/trait.RootModule.html#method.load_from_directory[`RootModule::load_from_directory`].
-This means that most of the loading functionality is already handled by
-`abi_stable`.
+https://docs.rs/abi_stable/latest/abi_stable/library/trait.RootModule.html#method.load_from_directory[`RootModule::load_from_directory`]:
+
+[source, rust]
+----
+// Marking `MinMod` as the main module in this plugin. Note that `MinMod_Ref` is
+// a pointer to the prefix of `MinMod`.
+impl RootModule for MinMod_Ref {
+    // The name of the dynamic library
+    const BASE_NAME: &'static str = "min";
+    // The name of the library for logging and similars
+    const NAME: &'static str = "min";
+    // The version of this plugin's crate
+    const VERSION_STRINGS: VersionStrings = package_version_strings!();
+
+    // Implements the `RootModule::root_module_statics` function, which is the
+    // only required implementation for the `RootModule` trait.
+    declare_root_module_statics!{MinMod_Ref}
+}
+----
 
 When loading directories, it makes the following decisions, by default (we could
 change them if we wanted to):
@@ -314,21 +378,67 @@ TODO nginx modules: https://www.nginx.com/resources/wiki/extending/
 
 TODO apache https modules: http://httpd.apache.org/docs/2.4/developer/modguide.html http://httpd.apache.org/docs/2.4/dso.html
 
-=== Missing fields
+With the exception of the wrong address example, because we don't even need to
+pass pointers.
+
+=== Missing fields and wrong types
+
+
+[source, text]
+----
+$ make debug-wrongtype
+Error when running the plugin:
+Compared <this>:
+    --- Type Layout ---
+    type:PrefixRef<'a, MinMod>
+    (...)
+To <other>:
+    --- Type Layout ---
+    type:PrefixRef<'a, MinMod>
+    (...)
+
+0 error(s).
+
+1 error(s)inside:
+    <other>
+
+    field_name:0
+    type:MinMod
+    size:0 align:8
+    package:'common-sabi-simple-wrong' version:'0.2.0'
+
+Layout of expected type:
+    --- Type Layout ---
+    type:MinMod
+    (...)
+
+Layout of found type:
+    --- Type Layout ---
+    type:MinMod
+    (...)
+
+Error:mismatched package
+Expected:
+    common-sabi-simple
+Found:
+    common-sabi-simple-wrong
+----
 
 === Version mismatch
 
-=== Wrong type
-
-=== Wrong address
+[source, text]
+----
+$ make debug-versionmismatch
+----
 
 === Panicking
 
 `abi_stable` can't do anything about the unsafety of panicking in plugins. It
-will simply abort the program:
+will simply abort the program, similarly to what happens with raw FFI:
 
-[source]
+[source, text]
 ----
+$ make debug-panic
 Loading plugin min
 initial state: State { counter: 0 }
 thread '<unnamed>' panicked at 'This will crash everything', src/lib.rs:26:5
@@ -339,6 +449,10 @@ line:24
 Attempted to panic across the ffi boundary.
 Aborting to handle the panic...
 ----
+
+Plugins should still use
+https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`] in
+order to avoid this from happening.
 
 == Type conversions to `abi_stable`
 
