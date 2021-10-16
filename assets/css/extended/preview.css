@@ -3,13 +3,20 @@
   flex-flow: row nowrap;
 }
 
+.entry-preview img {
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
 .entry-preview {
   margin-right: 15px;
   flex: 0 0 100px;
 }
 
-.entry-preview img {
-  height: 100%;
-  object-fit: cover;
-  border-radius: var(--radius);
+/* Previews are annoying in small screens */
+ @media only screen and (max-width: 500px) {
+  .entry-preview {
+    display: none;
+  }
 }
