@@ -536,30 +536,39 @@ These are the results of the benchmarks.
 
 [source, text]
 ----
-dynamic setup           time:   [6.7797 us 6.7927 us 6.8054 us]
-Found 11 outliers among 100 measurements (11.00%)
-  5 (5.00%) high mild
-  6 (6.00%) high severe
-
-abi_stable setup        time:   [35.526 ns 35.569 ns 35.617 ns]
-Found 12 outliers among 100 measurements (12.00%)
-  3 (3.00%) low mild
-  2 (2.00%) high mild
-  7 (7.00%) high severe
-
-dynamic runtime         time:   [1.3217 ns 1.3236 ns 1.3258 ns]
-Found 9 outliers among 100 measurements (9.00%)
+dynamic setup           time:   [6.8134 us 6.8284 us 6.8448 us]
+Found 7 outliers among 100 measurements (7.00%)
   1 (1.00%) low mild
-  4 (4.00%) high mild
-  4 (4.00%) high severe
+  3 (3.00%) high mild
+  3 (3.00%) high severe
 
-abi_stable runtime      time:   [1.6322 ns 1.6425 ns 1.6530 ns]
-Found 15 outliers among 100 measurements (15.00%)
-  8 (8.00%) high mild
-  7 (7.00%) high severe
+abi_stable setup        time:   [36.056 ns 36.134 ns 36.210 ns]
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) low mild
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+
+dynamic runtime         time:   [1.8568 ns 1.8601 ns 1.8635 ns]
+Found 6 outliers among 100 measurements (6.00%)
+  4 (4.00%) high mild
+  2 (2.00%) high severe
+
+abi_stable runtime      time:   [2.1087 ns 2.1138 ns 2.1203 ns]
+Found 4 outliers among 100 measurements (4.00%)
+  1 (1.00%) high mild
+  3 (3.00%) high severe
+
+native runtime          time:   [817.08 ps 819.60 ps 822.79 ps]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) high mild
+  3 (3.00%) high severe
 ----
 
-TODO conclusion (setup doesn't matter that much, is stable_abi fast enough?)
+TODO conclusion (setup doesn't matter that much, is stable_abi fast enough?,
+native was optimized away with fixed inputs)
+
+The problem with the native runtime benchmark was that the Rust compiler is too
+smart.
 
 You can find more detailed information in the `criterion-reports` directory of
 the repository.
