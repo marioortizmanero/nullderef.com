@@ -604,10 +604,11 @@ an idea of the performance hit we'll experience in Tremor. This is what we
 should expect once out PDK is polished and ready for deployment:
 
 * nginx reports 20% slower startup times and up to a 5% slowdown in execution
-  time <<nginx-perf>>.
+  time <<nginx-perf>>. 
 * https://www.technovelty.org/linux/plt-and-got-the-key-to-code-sharing-and-dynamic-libraries.html[This
-  article] explains that the only performance difference is saving the address
-  of the symbol in a table the first time, and then it's just a couple more
+  article] explains that the only performance difference is saving the
+  https://en.wikipedia.org/wiki/Position-independent_code[resolved address] of
+  the symbol in a table the first time, and then it's just a couple more
   instructions to access it. Also, obviously the fact that the compiler can't
   optimize parts of the code (e.g. inlining function calls).
 
@@ -645,9 +646,10 @@ Found 5 outliers among 100 measurements (5.00%)
 
 Note that the benchmarks don't represent a real usage of Tremor; it's just using
 the initial plugin with the `min` function. But we _can_ analyze other things,
-such as the performance differences between `abi_stable` and raw dynamic
-loading. And even if the results aren't too meaningful I already have something
-I can use for the more-reliable future benchmarks.
+such as the performance differences between `abi_stable` and raw dynamic loading
+-- I doubt it's worth implementing the final version with both methods in order
+to run some benchmarks. And even if the results aren't too meaningful I already
+have something I can use for the more-reliable future benchmarks.
 
 The loading times don't matter much in our case because they only happen once at
 the beginning of the program. Still, it's clear that ``abi_stable``'s way of
