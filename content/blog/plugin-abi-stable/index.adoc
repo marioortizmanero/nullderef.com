@@ -363,21 +363,51 @@ implements `StableAbi`, we can safely use it through the FFI barrier.
 == Error handling
 
 `abi_stable` is just a wrapper over {{< crate libloading >}} after all. It
-doesn't include a sandbox, so it has the same safety issues as raw dynamic
-loading. Other popular plugin systems such as
+doesn't include a sandbox, so if the plugin developer was a malicious actor,
+they'd have full access to the computer the runtime is being executed on. Other
+popular plugin systems such as
 https://www.nginx.com/resources/wiki/extending/[nginx's] or
 http://httpd.apache.org/docs/2.4/dso.html[apache's] suffer from the same issues,
 for reference.
 
-Our PDK isn't 
+However, I think it's not so bad to assume that no bad actors will be involved
+here. A sandbox would be mandatory if we were working on something like
+https://solana.com/[Solana] (one of the main users of eBPF in Rust), which
+basically executes random code from the internet. But with Tremor we can assume
+that the plugins come from trusted sources because they're installed and
+configured manually by the user. There are still some security measures that
+could be implemented in the future, like checking the integrity of the plugins
+and verifying they come from a trusted source before loading them.
 
-With the exception of the wrong address example, because we don't even need to
-pass pointers.
+Still, we trust that the plugin developer has good intentions, but not
+necessarily that they know what they're doing. We should make fatal errors as
+hard as possible to happen so that Tremor isn't constantly crashing. The fewer
+pitfalls, the better.
+
+=== Version mismatch
+
+The versions of the `common` library are checked before the types. In case
+there's a mismatch in those considered incompatible (x.0.0 and 0.x.0), this is
+what will show up:
+
+[source, text]
+----
+$ make debug-versionmismatch
+Error when running the plugin:
+
+'min' library version mismatch:
+user:0.2.0
+library:0.1.0
+----
+
+We can absolutely catch this error gracefully and continue with the execution of
+the runtime, just like with raw dynamic loading (but it's even easier).
 
 === Missing fields and wrong types
 
-`abi_stable` recursively checks the layouts of the types before trying to load
-them to make sure they're compatible.
+The layout of every type is recursively checked before trying to use them to
+make sure they are compatible. Unlike raw dynamic loading, these errors can be
+caught gracefully, which is a huge plus (it used to segfault):
 
 [source, text]
 ----
@@ -394,13 +424,10 @@ To <other>:
 
 0 error(s).
 
-1 error(s)inside:
+0 error(s)inside:
     <other>
 
-    field_name:0
-    type:MinMod
-    size:0 align:8
-    package:'common-sabi-simple-wrong' version:'0.2.0'
+    (...)
 
 Layout of expected type:
     --- Type Layout ---
@@ -412,24 +439,55 @@ Layout of found type:
     type:MinMod
     (...)
 
-Error:mismatched package
+3 error(s)inside:
+    <other>
+    (...)
+
+Layout of expected type:
+    --- Type Layout ---
+    type:State
+    (...)
+
+Layout of found type:
+    --- Type Layout ---
+    type:State
+    (...)
+
+Error:incompatible type size
 Expected:
-    common-sabi-simple
+    4
 Found:
-    common-sabi-simple-wrong
+    1
+
+Error:incompatible type alignment
+Expected:
+    4
+Found:
+    1
+
+Error:unexpected field
+Expected:
+    field_name:counter
+    type:i32
+    size:4 align:4
+    package:'std' version:'1.0.0'
+Found:
+    field_name:has_ran
+    type:bool
+    size:1 align:1
+    package:'std' version:'1.0.0'
 ----
 
-=== Version mismatch
-
-[source, text]
-----
-$ make debug-versionmismatch
-----
+The error message is too long to show here, but it basically shows the entire
+layout tree of the types that don't match for each of its versions (runtime and
+plugin). For this example, I changed a field in the `State` struct from an
+integer to a boolean, which the message describes perfectly: their sizes,
+alignments and types differ.
 
 === Panicking
 
 `abi_stable` can't do anything about the unsafety of panicking in plugins. It
-will simply abort the program, similarly to what happens with raw FFI:
+will simply abort the program:
 
 [source, text]
 ----
@@ -446,8 +504,10 @@ Aborting to handle the panic...
 ----
 
 Plugins should still use
-https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`] in
-order to avoid this from happening.
+https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`] and
+return an error in order to avoid this from happening. This makes me wonder if
+we should figure out a way to do it automatically; otherwise the plugin
+developers will ignore/forget this recommendation for sure.
 
 == Type conversions to `abi_stable`
 
