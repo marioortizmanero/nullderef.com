@@ -605,7 +605,11 @@ should expect once out PDK is polished and ready for deployment:
 
 * nginx reports 20% slower startup times and up to a 5% slowdown in execution
   time <<nginx-perf>>.
-* 
+* https://www.technovelty.org/linux/plt-and-got-the-key-to-code-sharing-and-dynamic-libraries.html[This
+  article] explains that the only performance difference is saving the address
+  of the symbol in a table the first time, and then it's just a couple more
+  instructions to access it. Also, obviously the fact that the compiler can't
+  optimize parts of the code (e.g. inlining function calls).
 
 These are the results of the benchmarks I wrote:
 
