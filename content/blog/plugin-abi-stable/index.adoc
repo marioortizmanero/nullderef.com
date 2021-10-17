@@ -177,25 +177,15 @@ on.
 == Working with `abi_stable`
 
 Let's start comparing `abi_stable` with the raw dynamic linking information I
-wrote in the previous post.
-
-I've created the `abi-stable-simple` experiment
+wrote in the previous post. I've created the `abi-stable-simple` experiment
 https://github.com/marioortizmanero/pdk-experiments[in the pdk-experiments
 repository]. I'll be taking a look at the already implemented
 https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples[examples]
 in order to make the learning experience smoother.
 
 The base structure for a plugin system with `abi_stable` is the same as always:
-a crate for the plugin, another for the runtime, and the last one for `common`,
-with the interface that's shared between the two.
-
-The
-https://docs.rs/abi_stable/latest/abi_stable/abi_stability/stable_abi_trait/trait.StableAbi.html[`StableAbi`]
-trait indicates that a type is FFI-safe. It contains information about the
-layout of the type, and it can be
-https://docs.rs/abi_stable/latest/abi_stable/derive.StableAbi.html[derived
-automatically]. `abi_stable` exports many alternatives to the standard library
-that implement `StableAbi`: `RStr`, `RSlice<T>`, `RArc<T>`, etc.
+a crate for the plugin, another for the runtime, and `common`, with the
+shared interface.
 
 == Versioning
 
@@ -230,10 +220,18 @@ module] that initializes the entire library and provides metadata such as the
 name or the version strings. Then, we can have submodules to organize the
 functions exported by the library nicely.
 
+The
+https://docs.rs/abi_stable/latest/abi_stable/abi_stability/stable_abi_trait/trait.StableAbi.html[`StableAbi`]
+trait in `abi_stable` indicates that a type is FFI-safe. It contains information
+about the layout of the type, and it can be
+https://docs.rs/abi_stable/latest/abi_stable/derive.StableAbi.html[derived
+automatically]. `abi_stable` exports many alternatives to the standard library
+that implement this trait: `RStr`, `RSlice<T>`, `RArc<T>`, etc.
+
 This example also introduces the concept of
 https://docs.rs/abi_stable/latest/abi_stable/docs/prefix_types/index.html[_prefix
 types_]. When a type derives `StableAbi` and has the
-`#[sabi(kind(Prefix(....)))]` attribute, two more types are generated:
+`#[sabi(kind(Prefix(...)))]` attribute, two more types are generated:
 
 * `<name>_Prefix`, which contains all the fields up to the
   `#[sabi(last_prefix_field)]` attribute in the original type.
@@ -242,10 +240,10 @@ types_]. When a type derives `StableAbi` and has the
 
 Prefix types are needed because `abi_stable` doesn't just need {repr-c} structs,
 but also some kind of versioning to avoid breakage in future patches. It will
-let us add more fields to the module _after_ `last_prefix_field` in patch
-(0.0.x) updates to the interface. Moving this attribute requires a
-backward-incompatible version bump. Prefix types are used for modules and
-vtables, the only parts exported by the plugin.
+let us add more fields to the module after the `last_prefix_field` attribute in
+patch (0.0.x) updates. Moving this attribute requires a backward-incompatible
+version bump. Prefix types are used for modules and vtables, the only parts
+exported by the plugin.
 
 For now, I'll just have a single root module and call it `MinMod`, implementing
 the `min` function:
@@ -263,7 +261,7 @@ the `min` function:
 #[sabi(kind(Prefix))]
 pub struct MinMod {
     /// Initializes the state, which will be passed to the functions in this
-    /// module.
+    /// module. I'll explain more about the state later on.
     pub new: extern "C" fn() -> State,
 
     /// Calculates the minimum between two integers
@@ -296,8 +294,8 @@ impl RootModule for MinMod_Ref {
 }
 ----
 
-When loading directories, it makes the following decisions, by default (we could
-change them if we wanted to):
+When loading directories, it makes the following decisions by default (though we
+could change them if we wanted to):
 
 * It does so non-recursively, i.e. only checking the immediate files in the
   given directory.
@@ -357,18 +355,21 @@ fn usage(state: &mut StateBox) {}
 Here we first declare a `State`
 https://docs.rs/abi_stable/latest/abi_stable/trait.InterfaceType.html[_interface
 type_]. Note that even though it's defined as a `struct`, this is a translation
-of the previous snippet of code, which would be located in the `common` crate.
-It sets `Serialize`, `Deserialize`, `Debug` and `PartialEq` as its supertraits.
-
-Since
+of the previous snippet of code, so it acts as the trait. Additionally, it sets
+`Serialize`, `Deserialize`, `Debug` and `PartialEq` as its supertraits. Since
 https://docs.rs/abi_stable/latest/abi_stable/struct.DynTrait.html[`DynTrait<T>`],
 implements `StableAbi`, we can safely use it through the FFI barrier.
 
 == Error handling
 
-TODO nginx modules: https://www.nginx.com/resources/wiki/extending/
+`abi_stable` is just a wrapper over {{< crate libloading >}} after all. It
+doesn't include a sandbox, so it has the same safety issues as raw dynamic
+loading. Other popular plugin systems such as
+https://www.nginx.com/resources/wiki/extending/[nginx's] or
+http://httpd.apache.org/docs/2.4/dso.html[apache's] suffer from the same issues,
+for reference.
 
-TODO apache https modules: http://httpd.apache.org/docs/2.4/developer/modguide.html http://httpd.apache.org/docs/2.4/dso.html
+Our PDK isn't 
 
 With the exception of the wrong address example, because we don't even need to
 pass pointers.
@@ -530,9 +531,23 @@ which contains a reference to a slice, `RStr`, which is just a `RSlice<u8>`, and
 
 == Performance
 
-I moved to criterion after using it for X post.
+As I talked about in previous posts, I've been wanting to create some benchmarks
+to measure the performance impact the PDK will have. I first tried to write
+these benchmarks with
+https://doc.rust-lang.org/nightly/cargo/commands/cargo-bench.html?highlight=feature[cargo
+nightly's implementation]. However, since it's so basic, not updated regularly,
+and requires nightly, I moved to {{< crate criterion >}}, which I quite liked
+after using it for https://nullderef.com/blog/web-api-client/[another post].
 
-These are the results of the benchmarks.
+First, we can take a look at already implemented plugin systems in order to have
+an idea of the performance hit we'll experience in Tremor. This is what we
+should expect once out PDK is polished and ready for deployment:
+
+* nginx reports 20% slower startup times and up to a 5% slowdown in execution
+  time <<nginx-perf>>.
+* 
+
+These are the results of the benchmarks I wrote:
 
 [source, text]
 ----
@@ -564,21 +579,45 @@ Found 5 outliers among 100 measurements (5.00%)
   3 (3.00%) high severe
 ----
 
-TODO conclusion (setup doesn't matter that much, is stable_abi fast enough?,
-native was optimized away with fixed inputs)
+Note that the benchmarks don't represent a real usage of Tremor; it's just using
+the initial plugin with the `min` function. But we _can_ analyze other things,
+such as the performance differences between `abi_stable` and raw dynamic
+loading. And even if the results aren't too meaningful I already have something
+I can use for the more-reliable future benchmarks.
 
-The problem with the native runtime benchmark was that the Rust compiler is too
-smart.
+The loading times don't matter much in our case because they only happen once at
+the beginning of the program. Still, it's clear that ``abi_stable``'s way of
+recursively checking the types in the plugins is not free; the difference with
+raw dynamic loading is huge. -> FALSE!! turns out `abi_stable` caches the
+library (somehow??) with `LateStaticRef`, so it's actually faster. I was able to
+prove that the `Library::new` function is only called once in the entire
+benchmark.
 
-You can find more detailed information in the `criterion-reports` directory of
-the repository.
+Once the dynamic library is loaded, the difference shouldn't be that noticeable.
+Using types like `Dyn` instead of a `void*` introduce an overhead of about 13%
+in execution time. But it's much worse if we compare it to not using dynamic
+loading at all: a performance degradation of 127%, or 157% with `abi_stable`.
 
-== Thread safety (?)
+The problem with the native benchmark was, and most likely still is, that the
+Rust compiler is too smart. If I called `min` with fixed parameters (say,
+`10.min(3)`, it was optimized away, so I had to write a more complicated example
+that was different for each loop.
 
-////
-TODO: note that abi_stable uses libloading, which is not fully thread-safe in
-some situations, mostly in error handling (dlerror).
-////
+You can find the full statistical reports in the `criterion-reports` directory
+of the https://github.com/marioortizmanero/pdk-experiments/[repository].
+
+== Thread safety
+
+`abi_stable` uses `libloading`, whose error-handling is not fully thread-safe on
+some platforms, such as `dlerror` on FreeBSD <<libloading-th>> <<dlerror-th>>.
+It's fully thread-safe on Linux <<linux-th>>, macOS <<macos-th>>, and Windows
+<<windows-th>>, so for Tremor specifically we don't have to worry about this.
+But if your programs supports other Operating Systems, you might want to check
+their manuals one by one in order to make sure.
+
+However, for the first version of our PDK this won't be a problem at all. For
+simplicity's sake, loading plugins after the startup will not be implemented
+yet, and we'll do it sequentially. But it's good to know it for the future.
 
 == Full implementation
 
@@ -611,4 +650,9 @@ benchmarking system] (which requires nightly for now)
 [bibliography]
 == References
 
-- [[[extern,          1]]] https://doc.rust-lang.org/std/keyword.extern.html
+- [[[nginx-perf,      1]]] http://httpd.apache.org/docs/2.4/dso.html#advantages
+- [[[libloading-th,   2]]] https://docs.rs/libloading/0.7.1/libloading/struct.Library.html#thread-safety
+- [[[dlerror-th,      3]]] https://pubs.opengroup.org/onlinepubs/009604499/functions/dlerror.html
+- [[[linux-th,        4]]] https://man7.org/linux/man-pages/man3/dlerror.3.html#ATTRIBUTES
+- [[[macos-th,        5]]] https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dlerror.3.html
+- [[[windows-th,      6]]] https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setthreaderrormode
