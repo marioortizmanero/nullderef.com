@@ -687,6 +687,53 @@ However, for the first version of our PDK this won't be a problem at all. For
 simplicity's sake, loading plugins after the startup will not be implemented
 yet, and we'll do it sequentially. But it's good to know it for the future.
 
+== Current Limitations
+
+If your codebase is large enough, you'll eventually find out that there are
+types in the standard library that don't have an alternative in `abi_stable`:
+
+* `Pin` in `EventPayload`
+* `value_trait::StaticNode` in `tremor_value::Value`
+
+Same thing applies to external types. Some of Tremor's dependencies that aren't
+available in `abi_stable` either:
+
+* `async_broadcast::Sender` in `SourceReporter`
+* `value_trait::StaticNode` in `tremor_value::Value`
+
+Adding wrappers to each of these individual types has a complexity so large that
+makes this task practically impossible for Tremor. For reference, the
+https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/serde_json.rs[current
+wrapper for `serde_json`] (the simplest one) is 597 lines of untested code.
+Others such as `crossbeam` are over 1500 lines.
+
+:rmutex: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L77
+:opaque-mutex: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L29
+:vtable: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L338
+:wrapping: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L267
+
+The good news are that creating a wrapper can be considered "`trivial`". All you
+need to do is wrap the FFI-unsafe type under an opaque type, and create a
+https://en.wikipedia.org/wiki/Virtual_method_table[vtable] that has access to
+all of its methods. You can see this for example in the wrapper for
+`crossbeam::Mutex<T>`: the {rmutex}[FFI-safe `RMutex` type] holds an
+{opaque-mutex}[opaque mutex] and also a {vtable}[vtable] with all of its
+available methods, which then are {wrapping}[wrapped for ease of use under the
+`RMutex` type].
+
+I'll try to use `cglue` for that exact problem and see how it works out.
+
+TIP #1: try to minimize the usage of complex types. Try to make the plugin
+interface as simple as possible, ans move as much as you can to the runtime.
+
+abi_stable ends up being propagated throughout the entire codebase. This means
+that the functionality is also affected, and it's very painful. Should I
+continue, or is it better to perhaps write wrappers for the higher level types
+instead?
+
+NOTE: create wrapper over raw abi_stable stuff and convert back to std, or use
+as it is?
+
 == Full implementation
 
 Since it may be simpler to get `native-connector` running, let's start with
@@ -694,22 +741,6 @@ that. We'll just copy all the necessary code for the
 https://github.com/tremor-rs/tremor-runtime/tree/883f13e29b4c6ec7b6703f2487aac321c738e7c8[current
 implementation] of connectors as a standalone program:
 
-////
-Issues:
-
-* No `AtomicBool` for `QuiescenceBeacon`
-* No `Sender` for `SourceReporter`
-* No `Pin` for `EventPayload`
-* `StableAbi` propagates to even `tremor-script`
-
-abi_stable ends up being propagated throughout the entire codebase. This means
-that the functionality is also affected, and it's very painful. Should I
-continue, or is it better to perhaps write wrappers?
-
-"Impossible":
-
-* `Value::StaticNode`, since it's an external crate (`value-trait`)
-////
 
 == Conclusion
 
