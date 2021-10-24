@@ -505,11 +505,142 @@ Attempted to panic across the ffi boundary.
 Aborting to handle the panic...
 ----
 
-Plugins should still use
-https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`] and
-return an error in order to avoid this from happening. This makes me wonder if
-we should figure out a way to do it automatically; otherwise the plugin
-developers will ignore/forget this recommendation for sure.
+Still, this is _undefined behaviour_; we aren't guaranteed that the plugin will
+abort. It may just continue its execution in a completely invalid state, which
+is scary. I will cover this topic in detail in the next section, since it
+requires some in-depth investigation.
+
+== Unwinding and FFI
+
+As we've already seen, plugins cannot panic at the FFI boundary under any
+circumstance. This means that every single function we export in the plugin
+should wrap its contents in
+https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`].
+
+_Unwinding_ simply means destroying all local objects and properly calling all
+the destructors in the thread in order to continue execution safely
+<<unwinding>>. This is something taken for granted when taking a look at
+documentation about exceptions in Rust, but it wasn't so clear to me at the
+beginning.
+
+For example, the following snippet will panic after creating the vector. If
+panics were configured to abort, the contents of the vector wouldn't be cleaned
+up at all; the program would just end abruptly. But if it _unwinds_, Rust will
+call its destructor, cleaning up its allocated memory properly, and being able
+to continue the execution of the program.
+
+[source, rust]
+----
+{
+    let data = vec![1, 2, 3];
+    panic!("oh no!");
+    println!("My data: {:?}", data); // Unreachable
+}
+----
+
+In a typical usage of Rust, the panic usually means that your program writes
+some message to stdout and then ends. This is because unwinding is propagated
+and it may end up aborting the program if it's not stopped. But that's exacty
+what `catch_unwind` is for:
+
+[source, rust]
+----
+let result = panic::catch_unwind(|| {
+    let data = vec![1, 2, 3];
+    panic!("oh no!");
+    println!("My data: {:?}", data); // Unreachable
+});
+
+println!("Did it panic? {}", result.is_err()); // This will run just fine
+----
+
+Rust makes it very clear that `catch_unwind` is not intended for regular error
+handling (you have `Result` for that). But in our case we are _forced_ to use it
+in order to not invoke undefined behaviour when panicking through the FFI
+boundary. Every single function in the FFI interface that has a possibility of
+panicking should use `panic::catch_unwind`. And this is quite tricky because
+even things like addition may cause a panic (overflow in debug mode).
+
+=== `MayPanic<T>`
+
+In order to make this somewhat more painless and safe, I created the
+`MayPanic<T>` enum for my own plugin system, basically equivalent to
+`Option<T>`:
+
+[source, rust]
+----
+#[repr(C)]
+#[derive(Debug, StableAbi)]
+pub enum MayPanic<T> {
+    Panic,
+    NoPanic(T)
+}
+----
+
+Panic errors should be treated differently from a regular error. Apart from the
+fact that `panic::catch_unwind` returns a `Box<dyn Any>`, which is not
+compatible with a `Box<dyn Error>` (so you can't just return `Result<T, Box<dyn
+Error>` as usual), panics happen when the plugin reaches an unrecoverable state
+and cannot continue.
+
+Instead of using `RResult`, this is a different type that only returns the
+original type if the function finished without panicking. Since the contents
+returned by `catch_unwind` are just `dyn Any` and don't provide much value for
+us, they're discarded. The panicking information will be printed automatically
+as output anyway (or whatever is configured with
+https://doc.rust-lang.org/std/panic/fn.set_hook.html[the panic hook]).
+
+We will use it in FFI contexts, so it also implements `StableAbi` and it's
+{repr-c}.
+
+Ideally, this would be accompanied with a `\#[may_panic]` procedural macro that
+adds the `MayPanic<T>` return type automatically and the `catch_unwind` to the
+function it's attached to. Additionally, it could come with a `#[may_not_panic]`
+proc macro as well that attaches the `\#[no_panic]` macro from the {{< crate
+no-panic >}} crate to make sure the statement is true at compile time. However,
+`no-panic` isn't too reliable, so perhaps it could be opt-in with something like
+`#[may_not_panic(enforce)]`.
+
+With macros like these we could make this task a bit easier for the plugin
+developers so that they don't mess it up or straight up ignore it. If I end up
+writing a crate for it, I will make sure ???
+
+=== Exception safety
+
+Something that complicates the macro I proposed considerably is the concept of
+_exception safety_. `catch_unwind` isn't as easy to use as slapping your code
+into its closure/function, as there are some types that aren't considered unwind
+safe.
+
+[source, rust]
+----
+let mut x = 7;
+
+let result = panic::catch_unwind(|| {
+    *x += 3;
+});
+----
+
+[source, rust]
+----
+let mut x = 7;
+
+let result = panic::catch_unwind(AssertUnwindSafe(|| {
+    x += 3;
+}));
+----
+
+[source, rust]
+----
+let mut x = 7;
+
+let result = {
+    let x = AssertUnwindSafe(&mut x);
+    panic::catch_unwind(move || {
+        *x += 3;
+    })
+}
+----
 
 == Type conversions to `abi_stable`
 
@@ -772,3 +903,4 @@ benchmarking system] (which requires nightly for now)
 - [[[linux-th,        4]]] https://man7.org/linux/man-pages/man3/dlerror.3.html#ATTRIBUTES
 - [[[macos-th,        5]]] https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dlerror.3.html
 - [[[windows-th,      6]]] https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setthreaderrormode
+- [[[unwinding,       7]]] https://doc.rust-lang.org/nomicon/unwinding.html
