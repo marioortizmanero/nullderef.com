@@ -15,18 +15,18 @@ GHissueID: 30
 
 https://nullderef.com/blog/plugin-dynload/[The last article] of this
 https://nullderef.com/series/rust-plugins/[series] covered how the plugin system
-could be implemented from scratch. We all know that this isn't a good idea, so
-let's try doing the same things with the {{< crate abi_stable >}} crate, which
-was specifically created for this kind of task.
-
-I've already talked a lot about `abi_stable` in this series, but I haven't
-really tried it out myself. Will it actually make plugin-writing an easier and
-safer task, or is the additional complexity too much? Are there any alternatives
-that we perhaps should consider? This is what I'll try to cover in this post.
+could be implemented from scratch. This is really complicated if you're dealing
+with a relatively large codebase and therefore a complex interface in your
+plugin system, so let's see how we can make our lives easier. I've been wanting
+to try {{< crate abi_stable >}} for this since the beginning, which was
+specifically created for plugins. But we aren't really locked to that crate, so
+I'll show other alternatives as well.
 
 == About Tremor
 
-== Async with the C ABI
+== Handy tools for our Plugin System
+
+=== Async with the C ABI
 
 In a previous post I mentioned that async was not supported in `abi_stable`.
 While this is true, because there is no FFI-safe `Future` in the crate, it's
@@ -68,13 +68,11 @@ https://github.com/rodrimati1992/abi_stable_crates/issues/25[Someone asked for
 this feature in `abi_stable` back in 2019], but noone seemed interested enough
 to implement it at that time, so maybe in the future.
 
-////
-TODO: research
-https://github.com/LightningCreations/lccc/tree/riir/xlang/xlang_abi/src/
-////
+=== LCCC
 
-[[cglue]]
-== An alternative to `abi_stable`: `cglue`
+// TODO: research https://github.com/LightningCreations/lccc/tree/riir/xlang/xlang_abi/src/
+
+=== CGlue
 
 // TODO: ask if it's the same as `sabi_trait` but with trait groups
 
@@ -141,11 +139,11 @@ I will personally keep using `abi_stable` simply because it seems like the
 safest bet, but I'll definitely keep an eye on `cglue`, as it might turn into a
 neater way to implement plugin systems.
 
-== Setting up Miri (?)
+=== Miri
 
 TODO not sure if this is necessary
 
-== Setting up cbindgen
+=== cbindgen
 
 For the first steps with dynamic loading I think {{< crate cbindgen >}} will
 help us understand what's going on. We can take a look at the generated headers
