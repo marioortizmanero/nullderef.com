@@ -68,6 +68,11 @@ https://github.com/rodrimati1992/abi_stable_crates/issues/25[Someone asked for
 this feature in `abi_stable` back in 2019], but noone seemed interested enough
 to implement it at that time, so maybe in the future.
 
+////
+TODO: research
+https://github.com/LightningCreations/lccc/tree/riir/xlang/xlang_abi/src/
+////
+
 [[cglue]]
 == An alternative to `abi_stable`: `cglue`
 
@@ -514,6 +519,12 @@ requires some in-depth investigation.
 
 == Unwinding and FFI
 
+////
+TODO:
+research https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html
+https://github.com/rust-lang/rust/pull/76570
+////
+
 As we've already seen, plugins cannot panic at the FFI boundary under any
 circumstance. This means that every single function we export in the plugin
 should wrap its contents in
@@ -844,8 +855,7 @@ yet, and we'll do it sequentially. But it's good to know it for the future.
 If your codebase is large enough, you'll eventually find out that there are
 types in the standard library that don't have an alternative in `abi_stable`:
 
----
-
+____
 Non-trivial `StableAbi` implementations in Tremor:
 
 * Connectors:
@@ -890,7 +900,12 @@ maintain it or provide resources so that it doesn't get obsolete. It's a huge
 crate that's currently maintained by a single person,
 https://github.com/rodrimati1992[@rodrimati1992], so it's quite the risk.
 
----
+Required contributions to upstream packages:
+
+* https://github.com/rodrimati1992/abi_stable_crates/pull/58
+* https://github.com/rodrimati1992/abi_stable_crates/pull/61
+* https://github.com/simd-lite/value-trait/pull/14
+____
 
 Adding wrappers to each of these individual types has a complexity so large that
 makes this task practically impossible for Tremor. For reference, the

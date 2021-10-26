@@ -868,6 +868,11 @@ to garbage anyway.
 
 === Panicking
 
+NOTE: This seems to be Work in Progress, and panicking through the FFI boundary
+will be allowed after
+https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html[`#![feature(c_unwind)]`]
+is implemented.
+
 Panicking is not supported in the C ABI; it's considered undefined behaviour
 <<panic-ffi>>. If a plugin panics, the entire program will most likely abort.
 Plugin developers should wrap every single exported function in
