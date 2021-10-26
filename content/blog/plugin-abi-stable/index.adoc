@@ -71,6 +71,8 @@ to implement it at that time, so maybe in the future.
 [[cglue]]
 == An alternative to `abi_stable`: `cglue`
 
+// TODO: ask if it's the same as `sabi_trait` but with trait groups
+
 I very recently discovered the {{< crate cglue >}} crate. It takes a different
 approach to ABI stability, which I think is pretty interesting. Instead of
 rewriting parts of the standard library using {repr-c}, `cglue` achieves
@@ -642,6 +644,23 @@ let result = {
 }
 ----
 
+=== Recovering from panics on the plugins
+
+* Just unwrapping on the runtime
+* Recovering
+
+=== Functions that don't panic
+
+* They either panic, or are constant. Don't try to export functions that are
+  forbidden to panic because they will, in fact, panic.
+
+=== What if we need performance?
+
+* Setting panics to just abort in `Cargo.toml` -> no debug information though.
+* Setting a panic hook that logs and then aborts on the plugin-side -> is it
+  safe though?
+* Run some benchmarks, perhaps add reference to the end
+
 == Type conversions to `abi_stable`
 
 It's important to know the complexity of conversions from/to `abi_stable` types.
@@ -820,17 +839,58 @@ yet, and we'll do it sequentially. But it's good to know it for the future.
 
 == Current Limitations
 
+=== External/Complex types
+
 If your codebase is large enough, you'll eventually find out that there are
 types in the standard library that don't have an alternative in `abi_stable`:
 
-* `Pin` in `EventPayload`
-* `value_trait::StaticNode` in `tremor_value::Value`
+---
 
-Same thing applies to external types. Some of Tremor's dependencies that aren't
-available in `abi_stable` either:
+Non-trivial `StableAbi` implementations in Tremor:
 
-* `async_broadcast::Sender` in `SourceReporter`
-* `value_trait::StaticNode` in `tremor_value::Value`
+* Connectors:
+** Sources:
+*** `serde_yaml::Value` in `SourceReply`
+*** `Pin` in `EventPayload` (in `SourceReply` and by itself)
+*** `tremor_value::Value` in `ValueAndMeta` in `EventPayload`
+** Sinks:
+*** `Pin` in `EventPayload` (in `Event` and by itself)
+*** `tremor_value::Value` in `ValueAndMeta` in `EventPayload` (in `Event` and by
+    itself)
+*** `simd_json::Value` in `OpMeta` in `Event`
+*** `serde_yaml::Value` in `ConfigMap` in `config::Codec` in `EventSerializer`
+* Codecs:
+** `tremor_value::Value` for encoding and decoding
+* Preprocessors: none! The interface only needs basic types.
+* Postprocessors: same as preprocessors. These two seem trivial to implement
+  (_famous last words before death_)
+
+Final unique list:
+
+* `Pin` -> it's only a hint so we can avoid it
+* `value_trait::StaticNode` -> hard but fixable {{< gh pr TODO "simd-lite/value-trait" "TODO" >}}
+* `serde_yaml::Value` -> it's avoidable
+
+Thoughts:
+
+* There is only an `RHashMap` in `abi_stable`, no `RBTreeMap`, so we'll have to
+  use it instead if it's OK. Not sure if trees are used for performance or
+  they're just an inconsistency and don't matter much for maps.
+* Can we avoid `EventSerializer` in the sinks or make it an opaque type instead?
+* How can we modify an external crate such as `value_trait::StaticNode` so that
+  it implements `StableAbi`?
+
+////
+TODO: The JSON codec actually exports both `json` and `json-sorted`: how could
+we do that with plugins? Definitely doable but needs some thinking.
+////
+
+We would be _**very**_ dependant on `abi_stable`; Tremor should definitely help
+maintain it or provide resources so that it doesn't get obsolete. It's a huge
+crate that's currently maintained by a single person,
+https://github.com/rodrimati1992[@rodrimati1992], so it's quite the risk.
+
+---
 
 Adding wrappers to each of these individual types has a complexity so large that
 makes this task practically impossible for Tremor. For reference, the
@@ -864,6 +924,23 @@ instead?
 
 NOTE: create wrapper over raw abi_stable stuff and convert back to std, or use
 as it is?
+
+=== Not having a `common` crate
+
+So far I've been assuming the following structure for the plugin system:
+
+* The plugin crates
+* The runtime crate that excutes the plugins
+* The `common` crate, with the interface shared between the plugin and the
+  runtime
+
+However, if you aren't starting from scratch, it's very likely that you don't
+have a `common` crate. Instead, it might be just have a single binary crate with
+both the runtime and the functionality in `common`.
+
+Now, this isn't really a problem, since you can just have the plugins depend on
+the runtime crate rather than `common`, and skip it altogether. But one of the
+points of making this PDK is decreasing your compile times
 
 == Full implementation
 
