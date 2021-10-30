@@ -14,9 +14,9 @@ GHissueID: 6
 This Google Summer of Code project consists on developing a universal interface
 for Tremor pluginsfootnote:[As described in detail in its
 https://github.com/tremor-rs/tremor-runtime/issues/791[issue on Tremor's
-repository] or its https://rfcs.tremor.rs/0006-plugin-development-kit/[RFC].],
-allowing said library to become more modular and reduce the core set of
-dependencies.
+repository] or its
+https://www.tremor.rs/rfc/accepted/plugin-development-kit/[RFC].], allowing said
+library to become more modular and reduce the core set of dependencies.
 
 This will achieve a considerably reduced core size for Tremor, meaning that the
 library will be faster to compile and have a smaller binary size. Most
