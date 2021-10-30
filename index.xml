@@ -5107,9 +5107,8 @@ if you have any additional suggestions or comments, or leave a comment below.</p
 <div class="sectionbody">
 <div class="paragraph">
 <p>This Google Summer of Code project consists on developing a universal interface
-for Tremor plugins<sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup>,
-allowing said library to become more modular and reduce the core set of
-dependencies.</p>
+for Tremor plugins<sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnotedef_1" title="View footnote.">1</a>]</sup>, allowing said
+library to become more modular and reduce the core set of dependencies.</p>
 </div>
 <div class="paragraph">
 <p>This will achieve a considerably reduced core size for Tremor, meaning that the
@@ -5555,7 +5554,7 @@ Glow#5433.</p>
 <div id="footnotes">
 <hr/>
 <div class="footnote" id="_footnotedef_1">
-<a href="#_footnoteref_1">1</a>. As described in detail in its <a href="https://github.com/tremor-rs/tremor-runtime/issues/791">issue on Tremor’s repository</a> or its <a href="https://rfcs.tremor.rs/0006-plugin-development-kit/">RFC</a>.
+<a href="#_footnoteref_1">1</a>. As described in detail in its <a href="https://github.com/tremor-rs/tremor-runtime/issues/791">issue on Tremor’s repository</a> or its <a href="https://www.tremor.rs/rfc/accepted/plugin-development-kit/">RFC</a>.
 </div>
 <div class="footnote" id="_footnotedef_2">
 <a href="#_footnoteref_2">2</a>. See <a href="https://github.com/rust-lang/rfcs/issues/600">rust-lang/rfcs/#600</a>
