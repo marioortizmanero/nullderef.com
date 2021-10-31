@@ -938,6 +938,58 @@ instead?
 NOTE: create wrapper over raw abi_stable stuff and convert back to std, or use
 as it is?
 
+////
+//! This showcases how even with external and complex types not supported by
+//! `abi_stable` by defalut, it's still possible to create a stable ABI.
+//!
+//! This is thanks to opaque types: instead of using the original type as we
+//! normally would, we write its functionality as a trait and then use it with
+//! `dyn`.
+
+use abi_stable::{
+    std_types::{RBox, ROption, RString},
+    StableAbi,
+};
+
+/// Internal type with types that aren't wrapped by `abi_stable`
+#[repr(C)]
+#[derive(StableAbi)]
+pub struct ConnectorContext {
+    /// unique identifier
+    pub uid: u64,
+    /// url of the connector
+    pub url: RString,
+    /// type name of the connector
+    pub type_name: RString,
+    /// oh no! there's no `serde_yaml::Value` in `abi_stable`, so we can't just
+    /// add `#[derive(StableAbi)]` to `ConnectorContext`!
+    ///
+    /// Solution: using its opaque alternative
+    pub enabled: Value_TO<'static, RBox<()>>,
+}
+
+#[abi_stable::sabi_trait]
+pub trait Value {
+    fn as_bool(&self) -> ROption<bool>;
+    fn as_i64(&self) -> ROption<i64>;
+    fn as_null(&self) -> ROption<()>;
+}
+
+impl Value for serde_yaml::Value {
+    fn as_bool(&self) -> ROption<bool> {
+        self.as_bool().into()
+    }
+
+    fn as_i64(&self) -> ROption<i64> {
+        self.as_i64().into()
+    }
+
+    fn as_null(&self) -> ROption<()> {
+        self.as_null().into()
+    }
+}
+////
+
 === Not having a `common` crate
 
 So far I've been assuming the following structure for the plugin system:
@@ -955,13 +1007,50 @@ Now, this isn't really a problem, since you can just have the plugins depend on
 the runtime crate rather than `common`, and skip it altogether. But one of the
 points of making this PDK is decreasing your compile times
 
+=== Generics
+
+////
+In the connectors plugin interface there is a single `new` function that exports
+a `Connector` dynamic trait from the plugin. The runtime can then use that as a
+generic connector just like how Tremor does now. On the plugin-side, the
+`create_{source,sink}` methods call `builder.spawn`, which relies on the fact
+that the type implements `Source` or `Sink`. This spawns the new task and
+communicates with the connector. As I said, this happens on the implementor
+side, so the runtime doesn't know if the concrete type implements `Sink` or
+`Source`, only that it's a `Connector`, and the plugin handles the rest itself.
+
+However, since we wanted to simplify the plugin interface as much as possible,
+the communication details should happen on the runtime rather than on the
+plugin. What I mean is that, instead of calling `builder.spawn` on the plugin
+and creating the channel on the plugin, it should happen on the runtime. Thus,
+the whole idea of `create_{source,sink}` is now somewhat pointless, because it's
+handled by the runtime. We have a `dyn Connector`, with which we can't know if
+`Source` or `Sink` are implemented as well. We'd need `dyn (Connector + Source +
+Sink)` for that, but `Source` and `Sink` are actually optional, so it depends on
+the plugin anyway.
+
+There are two ways to fix this:
+
+* The `new` function returns a `dyn (Connector + Source + Sink)` instead and has
+  fields to make sure `Source` or `Sink` are properly implemented. All of the
+  connectors implement `Source` and `Sink` always, but we can make it optional
+  by adding a marker or something like that.
+
+  Spoiler: that won't work with just `abi_stable` anyway. Only with `cglue`,
+  which makes it possible to have groups of traits. So it *would* be possible,
+  but unnecessarily complicated and not an ideal solution anyway.
+
+* The `create_{source,sink}` functions in the connector trait return a `dyn
+  Source`. This way the interface for the connectors has to be very slightly
+  changed, but it's actually possible to do this.
+////
+
 == Full implementation
 
 Since it may be simpler to get `native-connector` running, let's start with
 that. We'll just copy all the necessary code for the
 https://github.com/tremor-rs/tremor-runtime/tree/883f13e29b4c6ec7b6703f2487aac321c738e7c8[current
 implementation] of connectors as a standalone program:
-
 
 == Conclusion
 
