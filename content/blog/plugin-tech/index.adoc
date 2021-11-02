@@ -24,19 +24,17 @@ make their own decisions.
 This is actually part of my Google Summer of Code project for
 https://www.tremor.rs/[Tremor]. My first article about a Plugin System in Rust
 was in the https://nullderef.com/blog/gsoc-proposal/[proposal], which serves as
-a full introduction and may be interesting as well. While this will specifically
-cover Tremor's use case, I'm sure many other applications in the future will
-have similar requirements for their own program. And considering the few
-articles I found about plugins in Rust, this
+a brief introduction and might be interesting as well. While this will
+specifically cover Tremor's use case, I'm sure many other applications in the
+future will have similar requirements for their own program. And considering the
+few articles I found about plugins in Rust, this
 https://nullderef.com/series/rust-plugins/[series] may be helpful to the
 community.
 
-NOTE: [.line-through]#It seems Google hasn't allocated any slots for Tremor in
-the end. That saddens me a lot as I was very excited to work with them. I wanted
-to thank the devs for being welcoming and having such a nice community. And I
-still wanted to release this post in case it's useful to them or anyone else.#
-Forget about that! In the end the Tremor team contacted with me and arranged the
-mentorship in a different way outside the Google Summer of Code.
+NOTE: Google didn't end up allocating a slot for me in the GSoC, but I'll still
+be able to continue through
+https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff[a
+LFX Mentorship].
 
 After showing the proposal to the Tremor team, I was given an important
 suggestion: in this case there isn't really a need to be able to write plugins
