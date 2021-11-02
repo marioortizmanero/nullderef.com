@@ -434,7 +434,11 @@ This way, as long as the user has these traits in scope, they can access the
 endpoints with just `spotify.endpoint1()`. We can make that easier by including
 a https://stackoverflow.com/questions/36384840/what-is-the-prelude[prelude] in
 the library with these traits, so that all the user has to do is `use
-rspotify::prelude::*`.
+rspotify::prelude::*`. Another big advantage this provides is that it's
+extremely flexible. The user can declare their own client and implement its
+internal functionality themselves, while still having access to the endpoints,
+which is the boring task that probably doesn't need customization. And even if
+they wanted to, they could just override the trait implementation.
 
 The main issue with the trait-based solution is that you can't use `\-> impl
 Trait` in trait methods as of Rust 1.55 <<trait-ret-impl>>. We unfortunately
