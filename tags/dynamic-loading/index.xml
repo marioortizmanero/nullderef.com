@@ -2140,10 +2140,10 @@ make their own decisions.</p>
 <p>This is actually part of my Google Summer of Code project for
 <a href="https://www.tremor.rs/">Tremor</a>. My first article about a Plugin System in Rust
 was in the <a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>, which serves as
-a full introduction and may be interesting as well. While this will specifically
-cover Tremor’s use case, I’m sure many other applications in the future will
-have similar requirements for their own program. And considering the few
-articles I found about plugins in Rust, this
+a brief introduction and might be interesting as well. While this will
+specifically cover Tremor’s use case, I’m sure many other applications in the
+future will have similar requirements for their own program. And considering the
+few articles I found about plugins in Rust, this
 <a href="https://nullderef.com/series/rust-plugins/">series</a> may be helpful to the
 community.</p>
 </div>
@@ -2154,12 +2154,10 @@ community.</p>
 <div class="title">Note</div>
 </td>
 <td class="content">
-<span class="line-through">It seems Google hasn’t allocated any slots for Tremor in
-the end. That saddens me a lot as I was very excited to work with them. I wanted
-to thank the devs for being welcoming and having such a nice community. And I
-still wanted to release this post in case it’s useful to them or anyone else.</span>
-Forget about that! In the end the Tremor team contacted with me and arranged the
-mentorship in a different way outside the Google Summer of Code.
+Google didn’t end up allocating a slot for me in the GSoC, but I’ll still
+be able to continue through
+<a href="https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff">a
+LFX Mentorship</a>.
 </td>
 </tr>
 </tbody></table>
