@@ -1159,6 +1159,52 @@ There are two ways to fix this:
   changed, but it's actually possible to do this.
 ////
 
+=== Asynchronous communication
+
+As much as I wanted to avoid communication primitives with the plugins other
+than plain synchronous calls, some parts _need_ asynchronous communication. For
+example, the connector context passed to the plugin holds the `Sender<T>` part
+of a channel that can be used to indicate the runtime that the connection has
+been lost. This is because it's very likely that this connection drop happens at
+any point of the plugin execution. Many plugins will spawn a new task to run in
+the background (think of a TCP server), which is what's going to notify the
+runtime. We can't delay that until the next synchronous call happens because we
+don't know when that might happen, and we want to keep Tremor low-latency.
+
+We have two options here:
+
+* Keep using a channel: turns out `abi_stable` includes an FFI-safe wrapper for
+  {{< crate crossbeam >}}. We could just switch the usage of `Sender<T>` to
+  https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html[`RSender<T>`]
+  and that's it.
+* Try to use something simpler: I was wondering if we could manage to avoid
+  pulling in `crossbeam` and using channels.
+
+// TODO: talk about callbacks
+
+[source, text]
+----
+error[E0308]: mismatched types
+  --> src/lib.rs:22:17
+   |
+22 |           sender: |x| {
+   |  _________________^
+23 | |             i += x;
+24 | |             println!("callback invoked v3! {}", x)
+25 | |         }
+   | |_________^ expected fn pointer, found closure
+   |
+   = note: expected fn pointer `fn(i32)`
+                 found closure `[closure@src/lib.rs:22:17: 25:10]`
+note: closures can only be coerced to `fn` types if they do not capture any variables
+  --> src/lib.rs:23:13
+   |
+23 |             i += x;
+   |             ^ `i` captured here
+
+For more information about this error, try `rustc --explain E0308`.
+----
+
 == Full implementation
 
 Since it may be simpler to get `native-connector` running, let's start with
