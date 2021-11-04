@@ -1,5 +1,5 @@
 ---
-title: "Plugins in Rust: Reducing the Pain with abi_stable"
+title: "Plugins in Rust: Using Dependencies to Reduce the Pain"
 description: "TODO"
 author: "Mario Ortiz Manero"
 tags: ["rust", "dynamic-loading"]
@@ -15,12 +15,12 @@ GHissueID: 30
 
 https://nullderef.com/blog/plugin-dynload/[The last article] of this
 https://nullderef.com/series/rust-plugins/[series] covered how the plugin system
-could be implemented from scratch. This is really complicated if you're dealing
+could be implemented from scratch. This is a lot of work if you're dealing
 with a relatively large codebase and therefore a complex interface in your
 plugin system, so let's see how we can make our lives easier. I've been wanting
 to try {{< crate abi_stable >}} for this since the beginning, which was
 specifically created for plugins. But we aren't really locked to that crate, so
-I'll show other alternatives as well.
+I'll show other alternatives as well, which can even be combined to your liking.
 
 == About Tremor
 
@@ -32,9 +32,9 @@ In a previous post I mentioned that async was not supported in `abi_stable`.
 While this is true, because there is no FFI-safe `Future` in the crate, it's
 certainly possible, and it might be of interest later on.
 
-Matthew recently let me know about the {{< crate async_ffi >}} crate, which lets
-us do exactly that. It exports the type `FfiFuture<T>`, which provides the same
-functionality as `Box<dyn Future<Output = T> + Send>`:
+Matthias recently let me know about the {{< crate async_ffi >}} crate, which
+lets us do exactly that. It exports the type `FfiFuture<T>`, which provides the
+same functionality as `Box<dyn Future<Output = T> + Send>`:
 
 [source, rust]
 ----
@@ -50,8 +50,8 @@ fn example() -> impl Future<Output = String> {
 }
 
 // For FFI-safe interfaces there can't be generics involved, so the future is a
-// struct instead of a trait. This conversion from `Future` to `FfiFuture` can
-//be done with `into_ffi`.
+// concrete type instead of a trait. This conversion from `Future` to
+// `FfiFuture` can be done with `into_ffi`.
 fn example() -> FfiFuture<String> {
     async move {
         read_file().await
@@ -70,16 +70,46 @@ to implement it at that time, so maybe in the future.
 
 === LCCC
 
-// TODO: research https://github.com/LightningCreations/lccc/tree/riir/xlang/xlang_abi/src/
+The https://github.com/LightningCreations/lccc[_Lightning Creations Compiler
+Collection_] provides a set of frontends and backends with an uniform
+intermediate representation for multiple programming languages,
+https://github.com/LightningCreations/lccc/tree/riir/xlang/xlang_abi/src/[including
+Rust].
+
+This means that they've written their own standard library with the C ABI, which
+is exactly what we need. It's much simpler than Rust's standard library, but it
+includes the most popular types your library may use: `HashMap`, `Vec`,
+`String`, `Box`, etc. The source code is quite nice to read in comparison to
+`std`, which often includes lots of procedural macros and various forms of
+astral magic.
+
+It's not too popular right now and it's still Work In Progress, but it serves as
+an example of what we're looking for in this article. We just want to simplify
+our lives by having a {repr-c}-compatible standard library so that we don't have
+to write it ourselves. If all you need is something simple like this, consider
+this library or a similar one.
+
+=== safer_ffi
+
+If you don't like any of the solutions listed in this article and you're going
+to end up writing the plugin interfaces by hand, you might be interested in
+{{< crate safer_ffi >}}.
+
+All this crate provides is a set of procedural macros to make FFI interfacing an
+easier and safer task. With it, you'll be able to get rid of lots of `extern
+"C"` and `unsafe` instances in your code, which can get out of hands in larger
+codebases. Its documentation is excellent, you can check out
+https://getditto.github.io/safer_ffi/[its book] for more information.
 
 === CGlue
 
-// TODO: ask if it's the same as `sabi_trait` but with trait groups
+// TODO: response to https://github.com/h33p/cglue/issues/3
 
-I very recently discovered the {{< crate cglue >}} crate. It takes a different
-approach to ABI stability, which I think is pretty interesting. Instead of
-rewriting parts of the standard library using {repr-c}, `cglue` achieves
-FFI-safety by using _opaque types_.
+In my last post, I was brought up the {{< crate cglue >}} crate
+https://www.reddit.com/r/rust/comments/q2n6b8/plugins_in_rust_diving_into_dynamic_loading/hfmyn6o/[by
+its own creator]. It takes a different approach to ABI stability, which I think
+is pretty interesting. Instead of rewriting parts of the standard library using
+{repr-c}, `cglue` achieves FFI-safety by using _opaque types_.
 
 An opaque type is simply one for which you don't know its concrete layout.
 There's no {repr-c} needed at all, because one can only interact with it via
@@ -130,25 +160,40 @@ fn main() -> () {
 }
 ----
 
+////
+TODO: rewrite
+
+Benefits in comparison to abi_stable
+
+* Useful for Rust-to-C and Rust-to-C++ (don't mention bindings, that comes in
+  later)
+* Trait groups
+////
+
 The main benefit it seems to provide is that with `cglue` you can generate
 bindings for C/C++, which means that plugins can be written in languages other
 than Rust, unlike `abi_stable`. It's not useful for my case, but if you're
 interested in that, perhaps you should take a deeper look.
 
-I will personally keep using `abi_stable` simply because it seems like the
-safest bet, but I'll definitely keep an eye on `cglue`, as it might turn into a
-neater way to implement plugin systems.
-
 === Miri
 
-TODO not sure if this is necessary
+https://github.com/rust-lang/miri[Miri] is an interpreter for Rust's mid-level
+intermediate representation. This doesn't help us with the plugin system per se,
+but since it's very likely we're going to end up writing unsafe code, it's good
+to know about it. That's exactly what Miri is used for: detecting undefined
+behavior such as using uninitialized data or use-after-frees.
+
+I was going to use Miri from the beginning, but since I'll be using {{< crate
+abi_stable >}} for now, there will be no unsafe code involved. If I end up
+having to resort to it, I'll try to add Miri to Tremor's workflow (Continuous
+Integration, mainly).
 
 === cbindgen
 
-For the first steps with dynamic loading I think {{< crate cbindgen >}} will
-help us understand what's going on. We can take a look at the generated headers
-and see how it works internally. Unfortunately, it fails to run for the
-`abi_stable` crate:
+For the first steps with dynamic loading I think the C/C++ binding generator {{<
+crate cbindgen >}} will help us understand what's going on under the hood. We
+can take a look at the generated headers and see how it works internally.
+Unfortunately, it fails to run for the `abi_stable` crate:
 
 [source, text]
 ----
@@ -173,7 +218,8 @@ https://github.com/eqrion/cbindgen/blob/master/docs.md#defines-and-cfgs[differen
 cfgs].
 ____
 
-After letting the maintainers of `abi_stable` know about this in
+If you're using something else like `cglue`, this will work without issues. But
+after letting the maintainers of `abi_stable` know about this in
 https://github.com/rodrimati1992/abi_stable_crates/issues/52[an issue], they
 pointed out that this was expected and that they don't plan on supporting
 `cbindgen` because it would take too much effort. Understandable, so let's move
@@ -181,22 +227,36 @@ on.
 
 == Working with `abi_stable`
 
-Let's start comparing `abi_stable` with the raw dynamic linking information I
-wrote in the previous post. I've created the `abi-stable-simple` experiment
+I will personally use {{< crate abi_stable >}} because it seems like the easiest
+choice for now. Not only does it provide a standard library defined with the C
+ABI, but also lots of other macros and utilities specifically written for plugin
+systems. With it, I won't need a line of unsafe, and I'll avoid reinventing the
+wheel in many instances.
+
+_Once the plugin system is fully functional with ``abi_stable``_, I might
+consider using something more hand-crafted. This switch won't be too
+complicated, since our interface would already be {repr-C}, which is the most
+troublesome part. All we'd have to do is remove a few procedural macros, switch
+the `abi_stable` types, and load the plugins manually with something like {{<
+crate libloading >}}. The only thing I want right now is a plugin system that
+works, and then we can maybe focus on trying to make it available in other
+languages, making it more performant, or whatever.
+
+So let's start comparing `abi_stable` with the example I wrote in the previous
+post using raw dynamic linking. I've created the `abi-stable-simple` experiment
 https://github.com/marioortizmanero/pdk-experiments[in the pdk-experiments
 repository]. I'll be taking a look at the already implemented
 https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples[examples]
-in order to make the learning experience smoother.
-
-The base structure for a plugin system with `abi_stable` is the same as always:
-a crate for the plugin, another for the runtime, and `common`, with the
-shared interface.
+for `abi_stable` in order to make the learning experience smoother. The base
+structure for a plugin system with `abi_stable` is the same as always: a crate
+for the plugin, another for the runtime, and `common`, with the shared
+interface.
 
 == Versioning
 
 `abi_stable` states this regarding versioning:
 
-[quote, 'https://github.com/rodrimati1992/abi_stable_crates#safety[`abi_stable` README]']
+[quote, 'https://github.com/rodrimati1992/abi_stable_crates#safety[``abi_stable``\'s README]']
 ____
 This library ensures that the loaded libraries are safe to use through these
 mechanisms:
@@ -208,13 +268,15 @@ mechanisms:
   function can be called.
 ____
 
-In summary, `abi_stable` isn't always backward compatible, but it automatically
-makes sure that its versions are compatible when running the plugin. While it
-doesn't exactly stick to semantic versioning, it's good enough for us.
+In summary, `abi_stable` itself is far from being permanently backward
+compatible, but it automatically makes sure that its versions are compatible
+when running the plugin. While it doesn't exactly stick to semantic versioning,
+it's good enough for us.
 
-The base version checking for the entire `common` crate I talked about in raw
-dynamic loading is already implemented, but we could also add a version string
-for each kind of plugin if more fine-grained control is needed.
+The version checking for the entire `common` crate is already implemented, i.e.
+we can't try to mix different versions that aren't compatible. We could still
+add a version string for each kind of plugin if more fine-grained control is
+needed, as described in the previous post.
 
 == Loading plugins
 
@@ -225,15 +287,16 @@ module] that initializes the entire library and provides metadata such as the
 name or the version strings. Then, we can have submodules to organize the
 functions exported by the library nicely.
 
-The
+Furthermore, the
 https://docs.rs/abi_stable/latest/abi_stable/abi_stability/stable_abi_trait/trait.StableAbi.html[`StableAbi`]
 trait in `abi_stable` indicates that a type is FFI-safe. It contains information
 about the layout of the type, and it can be
 https://docs.rs/abi_stable/latest/abi_stable/derive.StableAbi.html[derived
-automatically]. `abi_stable` exports many alternatives to the standard library
-that implement this trait: `RStr`, `RSlice<T>`, `RArc<T>`, etc.
+automatically]. Each item in ``abi_stable``'s standard library (`RStr`,
+`RSlice<T>`, `RArc<T>`, etc) implements this type, and it's used to make sure
+the types are compatible when loading the plugin.
 
-This example also introduces the concept of
+This also introduces the concept of
 https://docs.rs/abi_stable/latest/abi_stable/docs/prefix_types/index.html[_prefix
 types_]. When a type derives `StableAbi` and has the
 `#[sabi(kind(Prefix(...)))]` attribute, two more types are generated:
@@ -243,15 +306,14 @@ types_]. When a type derives `StableAbi` and has the
 * `<name>_Ref`, which is a pointer to `<name>_Prefix` that can actually be
   passed through the FFI barrier safely.
 
-Prefix types are needed because `abi_stable` doesn't just need {repr-c} structs,
-but also some kind of versioning to avoid breakage in future patches. It will
-let us add more fields to the module after the `last_prefix_field` attribute in
-patch (0.0.x) updates. Moving this attribute requires a backward-incompatible
-version bump. Prefix types are used for modules and vtables, the only parts
-exported by the plugin.
+Prefix types are needed to guarantee some kind of individual versioning to avoid
+breakage in future patches. It will let us add more fields to the module after
+the `last_prefix_field` attribute in patch (`0.0.x`) updates. Moving this
+attribute requires a backward-incompatible version bump. Prefix types are often
+used for modules and vtables.
 
-For now, I'll just have a single root module and call it `MinMod`, implementing
-the `min` function:
+For now, I'll just have a single root module and call it `MinMod`, exporting the
+`min` function:
 
 [source, rust]
 ----
@@ -322,25 +384,42 @@ name = "min"
 
 == Handling state
 
+=== Regular Rust
+
 If we wanted to define a state trait that plugins implement so that it can be
 "`generically`" passed to functions in the plugin interface, it might look like
-this:
+this with regular Rust:
 
-.In the `common` crate
+.How we'd do it with regular Rust
 [source, rust]
 ----
-trait State: Serialize, Deserialize, Debug, PartialEq {}
+trait State: Debug, PartialEq {}
 
 type StateBox = Box<dyn State>;
 
 // Remember that we can't use generics, so we need `dyn`, either by itself as a
 // reference, or in a box.
-fn usage(state: &mut StateBox) {}
+fn usage(state: &mut StateBox) {
+    state.
+}
 ----
 
-Unfortunately, regular `dyn` is not FFI-safe. We can resort to ``abi_stable``'s
-alternative, which is used as follows:
+=== Interface types
 
+////
+TODO: add links to examples from the repo, copy properly, and add docs
+TODO: fact check: I think you can't have other supertraits with sabi_trait
+either, as it uses an interface type for that
+TODO: clarify that both are used for different purposes, it's not just
+'better'
+////
+
+Unfortunately, we already know that regular `dyn` is not FFI-safe. I covered how
+it's possible to work around it with pointers, but here we can resort to
+``abi_stable``'s safer and more convenient alternatives. The most basic one
+works as follows:
+
+.How it works with Interface Types
 [source, rust]
 ----
 #[repr(C)]
@@ -360,12 +439,47 @@ fn usage(state: &mut StateBox) {}
 Here we first declare a `State`
 https://docs.rs/abi_stable/latest/abi_stable/trait.InterfaceType.html[_interface
 type_]. Note that even though it's defined as a `struct`, this is a translation
-of the previous snippet of code, so it acts as the trait. Additionally, it sets
-`Serialize`, `Deserialize`, `Debug` and `PartialEq` as its supertraits. Since
-https://docs.rs/abi_stable/latest/abi_stable/struct.DynTrait.html[`DynTrait<T>`],
-implements `StableAbi`, we can safely use it through the FFI barrier.
+of the previous snippet of code, so it acts as the "`trait`". But all it does is
+establish `Serialize`, `Deserialize`, `Debug` and `PartialEq` as its
+supertraits.
 
-TODO: research https://docs.rs/abi_stable/0.10.2/abi_stable/attr.sabi_trait.html
+=== sabi_trait
+
+If we wanted to specify functions in the trait or supertraits other than the
+predefined set that's supported, we can use
+https://docs.rs/abi_stable/latest/abi_stable/attr.sabi_trait.html[`#[sabi_trait\]`]:
+
+.How we'd do it with regular Rust
+[source, rust]
+----
+trait State: Serialize, Deserialize, Debug, PartialEq {}
+
+type StateBox = Box<dyn State>;
+
+// Remember that we can't use generics, so we need `dyn`, either by itself as a
+// reference, or in a box.
+fn usage(state: &mut StateBox) {}
+----
+
+Note that the trait has to be object-safe, so we can't have `PartialEq` as a
+supertrait anymore.
+
+.How it works with `sabi_trait`
+[source, rust]
+----
+#[repr(C)]
+#[derive(StableAbi)]
+// An `InterfaceType` describes which traits are required when constructing
+// `StateBox` and are then usable afterwards.
+#[sabi(impl_InterfaceType(Serialize, Deserialize, Debug, PartialEq))]
+struct State;
+
+// A trait object for `State`
+type StateBox = DynTrait<'static, RBox<()>, State>;
+
+// It can then be used easily like this
+fn usage(state: &mut StateBox) {}
+----
 
 == Error handling
 
