@@ -512,7 +512,7 @@ pub fn usage(state: &mut StateBox) {
 }
 ----
 
-It still has a limited number of possible supertraits, but at least it lets us
+This still has a limited number of possible supertraits, but at least it lets us
 require members as usual, and it even works with default implementations.
 
 == Error handling
@@ -530,9 +530,13 @@ here. A sandbox would be mandatory if we were working on something like
 https://solana.com/[Solana] (one of the main users of eBPF in Rust), which
 basically executes random code from the internet. But with Tremor we can assume
 that the plugins come from trusted sources because they're installed and
-configured manually by the user. There are still some security measures that
-could be implemented in the future, like checking the integrity of the plugins
-and verifying they come from a trusted source before loading them.
+configured manually by the user.
+
+There are some additional security measures that could be implemented in the
+future, like checking the integrity of the plugins and verifying they come from
+a trusted source before loading them. Of course, if we could afford to have a
+sandbox it'd definitely be the best way to do it, but we've already seen in this
+series that it's currently not really viable for us.
 
 Still, we trust that the plugin developer has good intentions, but not
 necessarily that they know what they're doing. We should make fatal errors as
@@ -542,8 +546,8 @@ pitfalls, the better.
 === Version mismatch
 
 The versions of the `common` library are checked before the types. In case
-there's a mismatch in those considered incompatible (x.0.0 and 0.x.0), this is
-what will show up:
+there's a mismatch in those considered incompatible (changes in `x.0.0` or
+`0.x.0`), this is what will show up:
 
 [source, text]
 ----
@@ -556,7 +560,8 @@ library:0.1.0
 ----
 
 We can absolutely catch this error gracefully and continue with the execution of
-the runtime, just like with raw dynamic loading (but it's even easier).
+the runtime, just like with raw dynamic loading. It's even easier because it
+works out of the box.
 
 === Missing fields and wrong types
 
@@ -634,7 +639,7 @@ Found:
 ----
 
 The error message is too long to show here, but it basically shows the entire
-layout tree of the types that don't match for each of its versions (runtime and
+layout tree of the types that don't match for each of its versions (runtime vs
 plugin). For this example, I changed a field in the `State` struct from an
 integer to a boolean, which the message describes perfectly: their sizes,
 alignments and types differ.
@@ -660,8 +665,8 @@ Aborting to handle the panic...
 
 Still, this is _undefined behaviour_; we aren't guaranteed that the plugin will
 abort. It may just continue its execution in a completely invalid state, which
-is scary. I will cover this topic in detail in the next section, since it
-requires some in-depth investigation.
+is scary. There are a couple of ways to avoid this, which I'll cover in the next
+section, since it requires some in-depth investigation.
 
 == Unwinding and FFI
 
