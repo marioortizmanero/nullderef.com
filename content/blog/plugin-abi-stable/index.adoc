@@ -668,22 +668,18 @@ abort. It may just continue its execution in a completely invalid state, which
 is scary. There are a couple of ways to avoid this, which I'll cover in the next
 section, since it requires some in-depth investigation.
 
-== Unwinding and FFI
-
-////
-TODO:
-research https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html
-https://github.com/rust-lang/rust/pull/76570
-////
+== Panicking and FFI
 
 As we've already seen, plugins cannot panic at the FFI boundary under any
-circumstance. This means that every single function we export in the plugin
-should wrap its contents in
-https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`].
+circumstance. It doesn't matter if panics are configured to abort or if they
+unwind <<panic-kinds>>. This means that every single function we export in the
+plugin should wrap its contents in
+https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`] and we
+should make sure `panic = abort` is not set in the plugin.
 
-_Unwinding_ simply means destroying all local objects and properly calling all
-the destructors in the thread in order to continue execution safely
-<<unwinding>>. This is something taken for granted when taking a look at
+_Unwinding_ is a process in which all local objects are destroyed, properly
+calling the destructors in the thread in order to continue execution safely
+<<unwinding>>. Knowing this is something taken for granted when taking a look at
 documentation about exceptions in Rust, but it wasn't so clear to me at the
 beginning.
 
@@ -715,7 +711,8 @@ let result = panic::catch_unwind(|| {
     println!("My data: {:?}", data); // Unreachable
 });
 
-println!("Did it panic? {}", result.is_err()); // This will run just fine
+// This will run just fine and print out `true`
+println!("Did it panic? {}", result.is_err());
 ----
 
 Rust makes it very clear that `catch_unwind` is not intended for regular error
@@ -724,6 +721,28 @@ in order to not invoke undefined behaviour when panicking through the FFI
 boundary. Every single function in the FFI interface that has a possibility of
 panicking should use `panic::catch_unwind`. And this is quite tricky because
 even things like addition may cause a panic (overflow in debug mode).
+
+=== `C-unwind`
+
+This problem is something the Rust devs are aware of, and that they're trying to
+fix. It has been proposed under the `"C-unwind"` ABI string. Just like how you
+currently use `extern "C"`, if we used `extern "C-unwind"`, we'd get more
+guarantees about what happens when a thread panics.
+
+.More information here
+* https://doc.rust-lang.org/nomicon/ffi.html?highlight=panic#ffi-and-panics[Current
+  reference to FFI and panics]
+* https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html[RFC]
+* https://github.com/rust-lang/rust/pull/76570[Pull Request]
+* https://github.com/rust-lang/project-ffi-unwind[Project Group]
+
+The most relevant things this feature offers us is:
+
+* Support for unwinding through the FFI boundary.
+* A guarantee that even with `extern "C"`, panicking is not undefined behavior,
+  it'll just abort. Setting `panic=abort` is sound as well.
+
+Unfortunately, 
 
 === `MayPanic<T>`
 
@@ -1009,3 +1028,4 @@ yet, and we'll do it sequentially. But it's good to know it for the future.
 - [[[macos-th,        5]]] https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dlerror.3.html
 - [[[windows-th,      6]]] https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setthreaderrormode
 - [[[unwinding,       7]]] https://doc.rust-lang.org/nomicon/unwinding.html
+- [[[panic-kinds,     8]]] https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html#abi-boundaries-and-unforced-unwinding
