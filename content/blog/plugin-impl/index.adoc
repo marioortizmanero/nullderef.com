@@ -1,0 +1,298 @@
+---
+title: "Plugins in Rust: Getting our Hands Dirty"
+description: "TODO"
+author: "Mario Ortiz Manero"
+tags: ["rust", "dynamic-loading"]
+series: ["rust-plugins"]
+date: 2021-10-15
+GHissueID: 30
+---
+
+:sectnums:
+:stem: latexmath
+
+:repr-c: pass:quotes[`#[repr\(C)]`]
+
+== Current Limitations
+
+== External/Complex types
+
+If your codebase is large enough, you'll eventually find out that there are
+types in the standard library that don't have an alternative in `abi_stable`:
+
+____
+Non-trivial `StableAbi` implementations in Tremor:
+
+* Connectors:
+** Sources:
+*** `serde_yaml::Value` in `SourceReply`
+*** `Pin` in `EventPayload` (in `SourceReply` and by itself)
+*** `tremor_value::Value` in `ValueAndMeta` in `EventPayload`
+** Sinks:
+*** `Pin` in `EventPayload` (in `Event` and by itself)
+*** `tremor_value::Value` in `ValueAndMeta` in `EventPayload` (in `Event` and by
+    itself)
+*** `simd_json::Value` in `OpMeta` in `Event`
+*** `serde_yaml::Value` in `ConfigMap` in `config::Codec` in `EventSerializer`
+* Codecs:
+** `tremor_value::Value` for encoding and decoding
+* Preprocessors: none! The interface only needs basic types.
+* Postprocessors: same as preprocessors. These two seem trivial to implement
+  (_famous last words before death_)
+
+Final unique list:
+
+* `Pin` -> it's only a hint so we can avoid it
+* `value_trait::StaticNode` -> hard but fixable {{< gh pr TODO "simd-lite/value-trait" "TODO" >}}
+* `serde_yaml::Value` -> it's avoidable
+
+Thoughts:
+
+* There is only an `RHashMap` in `abi_stable`, no `RBTreeMap`, so we'll have to
+  use it instead if it's OK. Not sure if trees are used for performance or
+  they're just an inconsistency and don't matter much for maps.
+* Can we avoid `EventSerializer` in the sinks or make it an opaque type instead?
+* How can we modify an external crate such as `value_trait::StaticNode` so that
+  it implements `StableAbi`?
+
+////
+TODO: The JSON codec actually exports both `json` and `json-sorted`: how could
+we do that with plugins? Definitely doable but needs some thinking.
+////
+
+We would be _**very**_ dependant on `abi_stable`; Tremor should definitely help
+maintain it or provide resources so that it doesn't get obsolete. It's a huge
+crate that's currently maintained by a single person,
+https://github.com/rodrimati1992[@rodrimati1992], so it's quite the risk.
+
+Required contributions to upstream packages:
+
+* https://github.com/rodrimati1992/abi_stable_crates/pull/58
+* https://github.com/rodrimati1992/abi_stable_crates/pull/61
+* https://github.com/simd-lite/value-trait/pull/14
+____
+
+Adding wrappers to each of these individual types has a complexity so large that
+makes this task practically impossible for Tremor. For reference, the
+https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/serde_json.rs[current
+wrapper for `serde_json`] (the simplest one) is 597 lines of untested code.
+Others such as `crossbeam` are over 1500 lines.
+
+:rmutex: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L77
+:opaque-mutex: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L29
+:vtable: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L338
+:wrapping: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L267
+
+The good news are that creating a wrapper can be considered "`trivial`". All you
+need to do is wrap the FFI-unsafe type under an opaque type, and create a
+https://en.wikipedia.org/wiki/Virtual_method_table[vtable] that has access to
+all of its methods. You can see this for example in the wrapper for
+`crossbeam::Mutex<T>`: the {rmutex}[FFI-safe `RMutex` type] holds an
+{opaque-mutex}[opaque mutex] and also a {vtable}[vtable] with all of its
+available methods, which then are {wrapping}[wrapped for ease of use under the
+`RMutex` type].
+
+I'll try to use `cglue` for that exact problem and see how it works out.
+
+TIP #1: try to minimize the usage of complex types. Try to make the plugin
+interface as simple as possible, ans move as much as you can to the runtime.
+
+abi_stable ends up being propagated throughout the entire codebase. This means
+that the functionality is also affected, and it's very painful. Should I
+continue, or is it better to perhaps write wrappers for the higher level types
+instead?
+
+NOTE: create wrapper over raw abi_stable stuff and convert back to std, or use
+as it is?
+
+////
+//! This showcases how even with external and complex types not supported by
+//! `abi_stable` by defalut, it's still possible to create a stable ABI.
+//!
+//! This is thanks to opaque types: instead of using the original type as we
+//! normally would, we write its functionality as a trait and then use it with
+//! `dyn`.
+
+use abi_stable::{
+    std_types::{RBox, ROption, RString},
+    StableAbi,
+};
+
+/// Internal type with types that aren't wrapped by `abi_stable`
+#[repr(C)]
+#[derive(StableAbi)]
+pub struct ConnectorContext {
+    /// unique identifier
+    pub uid: u64,
+    /// url of the connector
+    pub url: RString,
+    /// type name of the connector
+    pub type_name: RString,
+    /// oh no! there's no `serde_yaml::Value` in `abi_stable`, so we can't just
+    /// add `#[derive(StableAbi)]` to `ConnectorContext`!
+    ///
+    /// Solution: using its opaque alternative
+    pub enabled: Value_TO<'static, RBox<()>>,
+}
+
+#[abi_stable::sabi_trait]
+pub trait Value {
+    fn as_bool(&self) -> ROption<bool>;
+    fn as_i64(&self) -> ROption<i64>;
+    fn as_null(&self) -> ROption<()>;
+}
+
+impl Value for serde_yaml::Value {
+    fn as_bool(&self) -> ROption<bool> {
+        self.as_bool().into()
+    }
+
+    fn as_i64(&self) -> ROption<i64> {
+        self.as_i64().into()
+    }
+
+    fn as_null(&self) -> ROption<()> {
+        self.as_null().into()
+    }
+}
+////
+
+== Not having a `common` crate
+
+So far I've been assuming the following structure for the plugin system:
+
+* The plugin crates
+* The runtime crate that excutes the plugins
+* The `common` crate, with the interface shared between the plugin and the
+  runtime
+
+However, if you aren't starting from scratch, it's very likely that you don't
+have a `common` crate. Instead, it might be just have a single binary crate with
+both the runtime and the functionality in `common`.
+
+Now, this isn't really a problem, since you can just have the plugins depend on
+the runtime crate rather than `common`, and skip it altogether. But one of the
+points of making this PDK is decreasing your compile times
+
+== Generics
+
+////
+In the connectors plugin interface there is a single `new` function that exports
+a `Connector` dynamic trait from the plugin. The runtime can then use that as a
+generic connector just like how Tremor does now. On the plugin-side, the
+`create_{source,sink}` methods call `builder.spawn`, which relies on the fact
+that the type implements `Source` or `Sink`. This spawns the new task and
+communicates with the connector. As I said, this happens on the implementor
+side, so the runtime doesn't know if the concrete type implements `Sink` or
+`Source`, only that it's a `Connector`, and the plugin handles the rest itself.
+
+However, since we wanted to simplify the plugin interface as much as possible,
+the communication details should happen on the runtime rather than on the
+plugin. What I mean is that, instead of calling `builder.spawn` on the plugin
+and creating the channel on the plugin, it should happen on the runtime. Thus,
+the whole idea of `create_{source,sink}` is now somewhat pointless, because it's
+handled by the runtime. We have a `dyn Connector`, with which we can't know if
+`Source` or `Sink` are implemented as well. We'd need `dyn (Connector + Source +
+Sink)` for that, but `Source` and `Sink` are actually optional, so it depends on
+the plugin anyway.
+
+There are two ways to fix this:
+
+* The `new` function returns a `dyn (Connector + Source + Sink)` instead and has
+  fields to make sure `Source` or `Sink` are properly implemented. All of the
+  connectors implement `Source` and `Sink` always, but we can make it optional
+  by adding a marker or something like that.
+
+  Spoiler: that won't work with just `abi_stable` anyway. Only with `cglue`,
+  which makes it possible to have groups of traits. So it *would* be possible,
+  but unnecessarily complicated and not an ideal solution anyway.
+
+* The `create_{source,sink}` functions in the connector trait return a `dyn
+  Source`. This way the interface for the connectors has to be very slightly
+  changed, but it's actually possible to do this.
+////
+
+== Asynchronous communication
+
+As much as I wanted to avoid communication primitives with the plugins other
+than plain synchronous calls, some parts _need_ asynchronous communication. For
+example, the connector context passed to the plugin holds the `Sender<T>` part
+of a channel that can be used to indicate the runtime that the connection has
+been lost. This is because it's very likely that this connection drop happens at
+any point of the plugin execution. Many plugins will spawn a new task to run in
+the background (think of a TCP server), which is what's going to notify the
+runtime. We can't delay that until the next synchronous call happens because we
+don't know when that might happen, and we want to keep Tremor low-latency.
+
+We have two options here:
+
+* Keep using a channel: turns out `abi_stable` includes an FFI-safe wrapper for
+  {{< crate crossbeam >}}. We could just switch the usage of `Sender<T>` to
+  https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html[`RSender<T>`]
+  and that's it.
+* Try to use something simpler: I was wondering if we could manage to avoid
+  pulling in `crossbeam` and using channels.
+
+// TODO: talk about callbacks
+
+[source, text]
+----
+error[E0308]: mismatched types
+  --> src/lib.rs:22:17
+   |
+22 |           sender: |x| {
+   |  _________________^
+23 | |             i += x;
+24 | |             println!("callback invoked v3! {}", x)
+25 | |         }
+   | |_________^ expected fn pointer, found closure
+   |
+   = note: expected fn pointer `fn(i32)`
+                 found closure `[closure@src/lib.rs:22:17: 25:10]`
+note: closures can only be coerced to `fn` types if they do not capture any variables
+  --> src/lib.rs:23:13
+   |
+23 |             i += x;
+   |             ^ `i` captured here
+
+For more information about this error, try `rustc --explain E0308`.
+----
+
+== Full implementation
+
+Since it may be simpler to get `native-connector` running, let's start with
+that. We'll just copy all the necessary code for the
+https://github.com/tremor-rs/tremor-runtime/tree/883f13e29b4c6ec7b6703f2487aac321c738e7c8[current
+implementation] of connectors as a standalone program:
+
+== Conclusion
+
+////
+== Benchmarking
+
+I've always wanted to run some benchmarks in order to find out the actual
+difference in performance between dynamic loading (with native code) and Wasm
+(with interpreted code). Of course, the former will be faster. But, is it
+noticeable?
+
+TODO compare with already existing benchmarks, what to expect, etc
+
+Now that I have some examples of both dynamic loading and Wasm plugins, I can
+make a few benchmarks in order to see the difference by myself. The `wasm-bench`
+and `dynamic-bench` directories in
+https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] can be
+compiled and then ran with
+https://doc.rust-lang.org/1.7.0/book/benchmark-tests.html[Rust's integrated
+benchmarking system] (which requires nightly for now)
+////
+
+[bibliography]
+== References
+
+- [[[nginx-perf,      1]]] http://httpd.apache.org/docs/2.4/dso.html#advantages
+- [[[libloading-th,   2]]] https://docs.rs/libloading/0.7.1/libloading/struct.Library.html#thread-safety
+- [[[dlerror-th,      3]]] https://pubs.opengroup.org/onlinepubs/009604499/functions/dlerror.html
+- [[[linux-th,        4]]] https://man7.org/linux/man-pages/man3/dlerror.3.html#ATTRIBUTES
+- [[[macos-th,        5]]] https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dlerror.3.html
+- [[[windows-th,      6]]] https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setthreaderrormode
+- [[[unwinding,       7]]] https://doc.rust-lang.org/nomicon/unwinding.html

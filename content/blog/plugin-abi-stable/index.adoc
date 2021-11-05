@@ -1,5 +1,5 @@
 ---
-title: "Plugins in Rust: Using Dependencies to Reduce the Pain"
+title: "Plugins in Rust: Reducing the Pain with Dependencies"
 description: "TODO"
 author: "Mario Ortiz Manero"
 tags: ["rust", "dynamic-loading"]
@@ -21,8 +21,6 @@ plugin system, so let's see how we can make our lives easier. I've been wanting
 to try {{< crate abi_stable >}} for this since the beginning, which was
 specifically created for plugins. But we aren't really locked to that crate, so
 I'll show other alternatives as well, which can even be combined to your liking.
-
-== About Tremor
 
 == Handy tools for our Plugin System
 
@@ -86,7 +84,7 @@ astral magic.
 It's not too popular right now and it's still Work In Progress, but it serves as
 an example of what we're looking for in this article. We just want to simplify
 our lives by having a {repr-c}-compatible standard library so that we don't have
-to write it ourselves. If all you need is something simple like this, consider
+to write it ourselves. If all you need is something simple like LCCC, consider
 this library or a similar one.
 
 === safer_ffi
@@ -109,11 +107,12 @@ In my last post, I was brought up the {{< crate cglue >}} crate
 https://www.reddit.com/r/rust/comments/q2n6b8/plugins_in_rust_diving_into_dynamic_loading/hfmyn6o/[by
 its own creator]. It takes a different approach to ABI stability, which I think
 is pretty interesting. Instead of rewriting parts of the standard library using
-{repr-c}, `cglue` achieves FFI-safety by using _opaque types_.
+{repr-c}, `cglue` achieves FFI-safety by using
+https://en.wikipedia.org/wiki/Opaque_data_type[_opaque types_].
 
 An opaque type is simply one for which you don't know its concrete layout.
 There's no {repr-c} needed at all, because one can only interact with it via
-void pointers and its associated wrapper vtables.
+void pointers and its associated vtables.
 
 `cglue` is not a simple library either. It seems easier to use than
 `abi_stable`, but that might be because it's more barebones and work-in-progress
@@ -122,7 +121,7 @@ plugins safely. Its README showcases the following snippet of code, and the repo
 even includes an https://github.com/h33p/cglue/tree/main/examples[example of a
 plugin system].
 
-.Sample usage for `cglue`
+.Sample usage for `cglue` taken from their repository
 [source, rust]
 ----
 use cglue::*;
@@ -179,14 +178,14 @@ interested in that, perhaps you should take a deeper look.
 
 https://github.com/rust-lang/miri[Miri] is an interpreter for Rust's mid-level
 intermediate representation. This doesn't help us with the plugin system per se,
-but since it's very likely we're going to end up writing unsafe code, it's good
-to know about it. That's exactly what Miri is used for: detecting undefined
-behavior such as using uninitialized data or use-after-frees.
+but since it's very likely that we're going to end up writing unsafe code, it's
+good to know about it. That's exactly what Miri is used for: detecting undefined
+behavior, such as using uninitialized data or use-after-frees.
 
 I was going to use Miri from the beginning, but since I'll be using {{< crate
 abi_stable >}} for now, there will be no unsafe code involved. If I end up
-having to resort to it, I'll try to add Miri to Tremor's workflow (Continuous
-Integration, mainly).
+having to resort to it, I'll try to add Miri to Tremor's workflow (mainly their
+Continuous Integration).
 
 === cbindgen
 
@@ -235,15 +234,15 @@ wheel in many instances.
 
 _Once the plugin system is fully functional with ``abi_stable``_, I might
 consider using something more hand-crafted. This switch won't be too
-complicated, since our interface would already be {repr-C}, which is the most
+complicated, since our interface will already be {repr-C}, which is the most
 troublesome part. All we'd have to do is remove a few procedural macros, switch
 the `abi_stable` types, and load the plugins manually with something like {{<
 crate libloading >}}. The only thing I want right now is a plugin system that
 works, and then we can maybe focus on trying to make it available in other
 languages, making it more performant, or whatever.
 
-So let's start comparing `abi_stable` with the example I wrote in the previous
-post using raw dynamic linking. I've created the `abi-stable-simple` experiment
+So let's start comparing `abi_stable` with the my experiments in the previous
+post using raw dynamic linking. I've created the `abi-stable-simple` directory
 https://github.com/marioortizmanero/pdk-experiments[in the pdk-experiments
 repository]. I'll be taking a look at the already implemented
 https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples[examples]
@@ -293,7 +292,7 @@ trait in `abi_stable` indicates that a type is FFI-safe. It contains information
 about the layout of the type, and it can be
 https://docs.rs/abi_stable/latest/abi_stable/derive.StableAbi.html[derived
 automatically]. Each item in ``abi_stable``'s standard library (`RStr`,
-`RSlice<T>`, `RArc<T>`, etc) implements this type, and it's used to make sure
+`RSlice<T>`, `RArc<T>`, etc) implements this trait, and it's used to make sure
 the types are compatible when loading the plugin.
 
 This also introduces the concept of
@@ -331,7 +330,10 @@ pub struct MinMod {
     /// module. I'll explain more about the state later on.
     pub new: extern "C" fn() -> State,
 
-    /// Calculates the minimum between two integers
+    /// Calculates the minimum between two integers. This is the last defined
+    /// field for the current version. If we try to load fields after this, all
+    /// of them will be an `Option`.
+    #[sabi(last_prefix_field)]
     pub min: extern "C" fn(&mut State, i32, i32) -> i32,
 }
 ----
@@ -380,6 +382,47 @@ This means that we should add the following parameter to the plugin's
 # This way, the shared object will be saved as `abi_stable` prefers, for example
 # `libmin.so`.
 name = "min"
+----
+
+Finally, this is what the runtime may look like:
+
+[source, rust]
+----
+pub fn run_plugin(path: &str) -> Result<()> {
+    let plugin = MinMod_Ref::load_from_directory(path.as_ref())?;
+    println!("Loading plugin {}", MinMod_Ref::NAME);
+
+    // First we obtain the function pointer. This is not an `Option` because
+    // `new` is defined before `min`, the last prefix field.
+    let new_fn = plugin.new();
+
+    // We initialize the plugin, obtaining a state.
+    let mut state = new_fn();
+
+    // Same for the `min` function
+    let min_fn = plugin.min();
+
+    println!("initial state: {:?}", state);
+    println!("  min(1, 2): {}", min_fn(&mut state, 1, 2));
+    println!("  min(-10, 10): {}", min_fn(&mut state, -10, 10));
+    println!("  min(2000, 2000): {}", min_fn(&mut state, 2000, 2000));
+    println!("final state: {:?}", state);
+
+    Ok(())
+}
+----
+
+Executing the `plugin-sample` implementation:
+
+[source, text]
+----
+$ make debug-sample
+Loading plugin min
+initial state: State { counter: 0 }
+  min(1, 2): 1
+  min(-10, 10): -10
+  min(2000, 2000): 2000
+final state: State { counter: 3 }
 ----
 
 == Handling state
@@ -959,279 +1002,6 @@ their manuals one by one in order to make sure.
 However, for the first version of our PDK this won't be a problem at all. For
 simplicity's sake, loading plugins after the startup will not be implemented
 yet, and we'll do it sequentially. But it's good to know it for the future.
-
-== Current Limitations
-
-=== External/Complex types
-
-If your codebase is large enough, you'll eventually find out that there are
-types in the standard library that don't have an alternative in `abi_stable`:
-
-____
-Non-trivial `StableAbi` implementations in Tremor:
-
-* Connectors:
-** Sources:
-*** `serde_yaml::Value` in `SourceReply`
-*** `Pin` in `EventPayload` (in `SourceReply` and by itself)
-*** `tremor_value::Value` in `ValueAndMeta` in `EventPayload`
-** Sinks:
-*** `Pin` in `EventPayload` (in `Event` and by itself)
-*** `tremor_value::Value` in `ValueAndMeta` in `EventPayload` (in `Event` and by
-    itself)
-*** `simd_json::Value` in `OpMeta` in `Event`
-*** `serde_yaml::Value` in `ConfigMap` in `config::Codec` in `EventSerializer`
-* Codecs:
-** `tremor_value::Value` for encoding and decoding
-* Preprocessors: none! The interface only needs basic types.
-* Postprocessors: same as preprocessors. These two seem trivial to implement
-  (_famous last words before death_)
-
-Final unique list:
-
-* `Pin` -> it's only a hint so we can avoid it
-* `value_trait::StaticNode` -> hard but fixable {{< gh pr TODO "simd-lite/value-trait" "TODO" >}}
-* `serde_yaml::Value` -> it's avoidable
-
-Thoughts:
-
-* There is only an `RHashMap` in `abi_stable`, no `RBTreeMap`, so we'll have to
-  use it instead if it's OK. Not sure if trees are used for performance or
-  they're just an inconsistency and don't matter much for maps.
-* Can we avoid `EventSerializer` in the sinks or make it an opaque type instead?
-* How can we modify an external crate such as `value_trait::StaticNode` so that
-  it implements `StableAbi`?
-
-////
-TODO: The JSON codec actually exports both `json` and `json-sorted`: how could
-we do that with plugins? Definitely doable but needs some thinking.
-////
-
-We would be _**very**_ dependant on `abi_stable`; Tremor should definitely help
-maintain it or provide resources so that it doesn't get obsolete. It's a huge
-crate that's currently maintained by a single person,
-https://github.com/rodrimati1992[@rodrimati1992], so it's quite the risk.
-
-Required contributions to upstream packages:
-
-* https://github.com/rodrimati1992/abi_stable_crates/pull/58
-* https://github.com/rodrimati1992/abi_stable_crates/pull/61
-* https://github.com/simd-lite/value-trait/pull/14
-____
-
-Adding wrappers to each of these individual types has a complexity so large that
-makes this task practically impossible for Tremor. For reference, the
-https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/serde_json.rs[current
-wrapper for `serde_json`] (the simplest one) is 597 lines of untested code.
-Others such as `crossbeam` are over 1500 lines.
-
-:rmutex: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L77
-:opaque-mutex: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L29
-:vtable: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L338
-:wrapping: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L267
-
-The good news are that creating a wrapper can be considered "`trivial`". All you
-need to do is wrap the FFI-unsafe type under an opaque type, and create a
-https://en.wikipedia.org/wiki/Virtual_method_table[vtable] that has access to
-all of its methods. You can see this for example in the wrapper for
-`crossbeam::Mutex<T>`: the {rmutex}[FFI-safe `RMutex` type] holds an
-{opaque-mutex}[opaque mutex] and also a {vtable}[vtable] with all of its
-available methods, which then are {wrapping}[wrapped for ease of use under the
-`RMutex` type].
-
-I'll try to use `cglue` for that exact problem and see how it works out.
-
-TIP #1: try to minimize the usage of complex types. Try to make the plugin
-interface as simple as possible, ans move as much as you can to the runtime.
-
-abi_stable ends up being propagated throughout the entire codebase. This means
-that the functionality is also affected, and it's very painful. Should I
-continue, or is it better to perhaps write wrappers for the higher level types
-instead?
-
-NOTE: create wrapper over raw abi_stable stuff and convert back to std, or use
-as it is?
-
-////
-//! This showcases how even with external and complex types not supported by
-//! `abi_stable` by defalut, it's still possible to create a stable ABI.
-//!
-//! This is thanks to opaque types: instead of using the original type as we
-//! normally would, we write its functionality as a trait and then use it with
-//! `dyn`.
-
-use abi_stable::{
-    std_types::{RBox, ROption, RString},
-    StableAbi,
-};
-
-/// Internal type with types that aren't wrapped by `abi_stable`
-#[repr(C)]
-#[derive(StableAbi)]
-pub struct ConnectorContext {
-    /// unique identifier
-    pub uid: u64,
-    /// url of the connector
-    pub url: RString,
-    /// type name of the connector
-    pub type_name: RString,
-    /// oh no! there's no `serde_yaml::Value` in `abi_stable`, so we can't just
-    /// add `#[derive(StableAbi)]` to `ConnectorContext`!
-    ///
-    /// Solution: using its opaque alternative
-    pub enabled: Value_TO<'static, RBox<()>>,
-}
-
-#[abi_stable::sabi_trait]
-pub trait Value {
-    fn as_bool(&self) -> ROption<bool>;
-    fn as_i64(&self) -> ROption<i64>;
-    fn as_null(&self) -> ROption<()>;
-}
-
-impl Value for serde_yaml::Value {
-    fn as_bool(&self) -> ROption<bool> {
-        self.as_bool().into()
-    }
-
-    fn as_i64(&self) -> ROption<i64> {
-        self.as_i64().into()
-    }
-
-    fn as_null(&self) -> ROption<()> {
-        self.as_null().into()
-    }
-}
-////
-
-=== Not having a `common` crate
-
-So far I've been assuming the following structure for the plugin system:
-
-* The plugin crates
-* The runtime crate that excutes the plugins
-* The `common` crate, with the interface shared between the plugin and the
-  runtime
-
-However, if you aren't starting from scratch, it's very likely that you don't
-have a `common` crate. Instead, it might be just have a single binary crate with
-both the runtime and the functionality in `common`.
-
-Now, this isn't really a problem, since you can just have the plugins depend on
-the runtime crate rather than `common`, and skip it altogether. But one of the
-points of making this PDK is decreasing your compile times
-
-=== Generics
-
-////
-In the connectors plugin interface there is a single `new` function that exports
-a `Connector` dynamic trait from the plugin. The runtime can then use that as a
-generic connector just like how Tremor does now. On the plugin-side, the
-`create_{source,sink}` methods call `builder.spawn`, which relies on the fact
-that the type implements `Source` or `Sink`. This spawns the new task and
-communicates with the connector. As I said, this happens on the implementor
-side, so the runtime doesn't know if the concrete type implements `Sink` or
-`Source`, only that it's a `Connector`, and the plugin handles the rest itself.
-
-However, since we wanted to simplify the plugin interface as much as possible,
-the communication details should happen on the runtime rather than on the
-plugin. What I mean is that, instead of calling `builder.spawn` on the plugin
-and creating the channel on the plugin, it should happen on the runtime. Thus,
-the whole idea of `create_{source,sink}` is now somewhat pointless, because it's
-handled by the runtime. We have a `dyn Connector`, with which we can't know if
-`Source` or `Sink` are implemented as well. We'd need `dyn (Connector + Source +
-Sink)` for that, but `Source` and `Sink` are actually optional, so it depends on
-the plugin anyway.
-
-There are two ways to fix this:
-
-* The `new` function returns a `dyn (Connector + Source + Sink)` instead and has
-  fields to make sure `Source` or `Sink` are properly implemented. All of the
-  connectors implement `Source` and `Sink` always, but we can make it optional
-  by adding a marker or something like that.
-
-  Spoiler: that won't work with just `abi_stable` anyway. Only with `cglue`,
-  which makes it possible to have groups of traits. So it *would* be possible,
-  but unnecessarily complicated and not an ideal solution anyway.
-
-* The `create_{source,sink}` functions in the connector trait return a `dyn
-  Source`. This way the interface for the connectors has to be very slightly
-  changed, but it's actually possible to do this.
-////
-
-=== Asynchronous communication
-
-As much as I wanted to avoid communication primitives with the plugins other
-than plain synchronous calls, some parts _need_ asynchronous communication. For
-example, the connector context passed to the plugin holds the `Sender<T>` part
-of a channel that can be used to indicate the runtime that the connection has
-been lost. This is because it's very likely that this connection drop happens at
-any point of the plugin execution. Many plugins will spawn a new task to run in
-the background (think of a TCP server), which is what's going to notify the
-runtime. We can't delay that until the next synchronous call happens because we
-don't know when that might happen, and we want to keep Tremor low-latency.
-
-We have two options here:
-
-* Keep using a channel: turns out `abi_stable` includes an FFI-safe wrapper for
-  {{< crate crossbeam >}}. We could just switch the usage of `Sender<T>` to
-  https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html[`RSender<T>`]
-  and that's it.
-* Try to use something simpler: I was wondering if we could manage to avoid
-  pulling in `crossbeam` and using channels.
-
-// TODO: talk about callbacks
-
-[source, text]
-----
-error[E0308]: mismatched types
-  --> src/lib.rs:22:17
-   |
-22 |           sender: |x| {
-   |  _________________^
-23 | |             i += x;
-24 | |             println!("callback invoked v3! {}", x)
-25 | |         }
-   | |_________^ expected fn pointer, found closure
-   |
-   = note: expected fn pointer `fn(i32)`
-                 found closure `[closure@src/lib.rs:22:17: 25:10]`
-note: closures can only be coerced to `fn` types if they do not capture any variables
-  --> src/lib.rs:23:13
-   |
-23 |             i += x;
-   |             ^ `i` captured here
-
-For more information about this error, try `rustc --explain E0308`.
-----
-
-== Full implementation
-
-Since it may be simpler to get `native-connector` running, let's start with
-that. We'll just copy all the necessary code for the
-https://github.com/tremor-rs/tremor-runtime/tree/883f13e29b4c6ec7b6703f2487aac321c738e7c8[current
-implementation] of connectors as a standalone program:
-
-== Conclusion
-
-////
-== Benchmarking
-
-I've always wanted to run some benchmarks in order to find out the actual
-difference in performance between dynamic loading (with native code) and Wasm
-(with interpreted code). Of course, the former will be faster. But, is it
-noticeable?
-
-TODO compare with already existing benchmarks, what to expect, etc
-
-Now that I have some examples of both dynamic loading and Wasm plugins, I can
-make a few benchmarks in order to see the difference by myself. The `wasm-bench`
-and `dynamic-bench` directories in
-https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] can be
-compiled and then ran with
-https://doc.rust-lang.org/1.7.0/book/benchmark-tests.html[Rust's integrated
-benchmarking system] (which requires nightly for now)
-////
 
 [bibliography]
 == References
