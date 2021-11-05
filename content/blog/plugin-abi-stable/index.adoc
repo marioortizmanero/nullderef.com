@@ -429,21 +429,20 @@ final state: State { counter: 3 }
 
 === Regular Rust
 
-If we wanted to define a state trait that plugins implement so that it can be
-"`generically`" passed to functions in the plugin interface, it might look like
-this with regular Rust:
+As we saw in the previous example, we need some kind of generic `State` type
+that each plugin can implement with their own data. In regular Rust, we'd do as
+follows:
 
-.How we'd do it with regular Rust
 [source, rust]
 ----
-trait State: Debug, PartialEq {}
-
-type StateBox = Box<dyn State>;
+trait State: Debug {}
 
 // Remember that we can't use generics, so we need `dyn`, either by itself as a
 // reference, or in a box.
+type StateBox = Box<dyn State>;
+
 fn usage(state: &mut StateBox) {
-    state.
+    println!("state debug: {:?}", state);
 }
 ----
 
@@ -459,70 +458,62 @@ TODO: clarify that both are used for different purposes, it's not just
 
 Unfortunately, we already know that regular `dyn` is not FFI-safe. I covered how
 it's possible to work around it with pointers, but here we can resort to
-``abi_stable``'s safer and more convenient alternatives. The most basic one
-works as follows:
+``abi_stable``'s safer and more convenient alternatives. Here's one of them:
 
-.How it works with Interface Types
 [source, rust]
 ----
 #[repr(C)]
 #[derive(StableAbi)]
 // An `InterfaceType` describes which traits are required when constructing
 // `StateBox` and are then usable afterwards.
-#[sabi(impl_InterfaceType(Serialize, Deserialize, Debug, PartialEq))]
+#[sabi(impl_InterfaceType(Debug, PartialEq))]
 struct State;
 
 // A trait object for `State`
 type StateBox = DynTrait<'static, RBox<()>, State>;
 
 // It can then be used easily like this
-fn usage(state: &mut StateBox) {}
+fn usage(state: &mut StateBox) {
+    println!("state debug: {:?}", state);
+}
 ----
 
 Here we first declare a `State`
 https://docs.rs/abi_stable/latest/abi_stable/trait.InterfaceType.html[_interface
 type_]. Note that even though it's defined as a `struct`, this is a translation
-of the previous snippet of code, so it acts as the "`trait`". But all it does is
-establish `Serialize`, `Deserialize`, `Debug` and `PartialEq` as its
-supertraits.
+of the previous snippet of code, so it acts as the empty "`trait`". But all it
+does is establish `Debug` and `PartialEq` as its supertraits and give access to
+them; you can't really add custom methods to the trait.
+
+Unlike `dyn`, this even works with supertraits that aren't object-safe. Thus, we
+can use something like `PartialEq`. Its main disadvantage is that it's limited
+to a set of 21 hardcoded traits, so it might not be enough for us.
 
 === sabi_trait
 
-If we wanted to specify functions in the trait or supertraits other than the
-predefined set that's supported, we can use
-https://docs.rs/abi_stable/latest/abi_stable/attr.sabi_trait.html[`#[sabi_trait\]`]:
+If we want something more akin to traits on Rust, we can use
+https://docs.rs/abi_stable/latest/abi_stable/attr.sabi_trait.html[`#[sabi_trait\]`].
+The trait has to be object-safe now.
 
-.How we'd do it with regular Rust
 [source, rust]
 ----
-trait State: Serialize, Deserialize, Debug, PartialEq {}
+#[sabi_trait]
+pub trait State: Debug {
+    fn counter(&self) -> i32;
+}
 
-type StateBox = Box<dyn State>;
-
-// Remember that we can't use generics, so we need `dyn`, either by itself as a
-// reference, or in a box.
-fn usage(state: &mut StateBox) {}
-----
-
-Note that the trait has to be object-safe, so we can't have `PartialEq` as a
-supertrait anymore.
-
-.How it works with `sabi_trait`
-[source, rust]
-----
-#[repr(C)]
-#[derive(StableAbi)]
-// An `InterfaceType` describes which traits are required when constructing
-// `StateBox` and are then usable afterwards.
-#[sabi(impl_InterfaceType(Serialize, Deserialize, Debug, PartialEq))]
-struct State;
-
-// A trait object for `State`
-type StateBox = DynTrait<'static, RBox<()>, State>;
+// A trait object for the `State` Trait Object
+pub type StateBox = State_TO<'static, RBox<()>>;
 
 // It can then be used easily like this
-fn usage(state: &mut StateBox) {}
+pub fn usage(state: &mut StateBox) {
+    println!("state debug: {:?}", state);
+    println!("state counter: {:?}", state.counter());
+}
 ----
+
+It still has a limited number of possible supertraits, but at least it lets us
+require members as usual, and it even works with default implementations.
 
 == Error handling
 
