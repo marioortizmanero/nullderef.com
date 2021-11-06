@@ -835,48 +835,19 @@ sure the statement is true at compile time. However, `no-panic` isn't too
 reliable, so perhaps it could be opt-in with something like
 `#[may_not_panic(enforce)]`.
 
-==== Exception safety
-
-Something that complicates the macro I proposed considerably is the concept of
-_exception safety_. `catch_unwind` isn't as easy to use as slapping your code
-into its closure/function, as there are some types that aren't considered unwind
-safe.
-
-[source, rust]
-----
-let mut x = 7;
-
-let result = panic::catch_unwind(|| {
-    *x += 3;
-});
-----
-
-[source, rust]
-----
-let mut x = 7;
-
-let result = panic::catch_unwind(AssertUnwindSafe(|| {
-    x += 3;
-}));
-----
-
-[source, rust]
-----
-let mut x = 7;
-
-let result = {
-    let x = AssertUnwindSafe(&mut x);
-    panic::catch_unwind(move || {
-        *x += 3;
-    })
-}
-----
+Something that complicates this whole thing considerably is the concept of
+_exception safety_. Unfortunately, `catch_unwind` isn't as easy to use as
+slapping your code into its closure/function, as there are some types that
+aren't considered unwind safe. You can read more about that
+https://doc.rust-lang.org/stable/std/panic/trait.UnwindSafe.html[here], but I
+won't get into more details because we aren't going to use `MayPanic` in our own
+plugin system anyway.
 
 == Type conversions to `abi_stable`
 
-It's important to know the complexity of conversions from/to `abi_stable` types.
-If `std::Vec` -> `abi_stable::RVec` wasn't stem:[O(n)] it might be worth using
-only the latter throughout the entirety of Tremor.
+It's important to know the complexity of conversions from and to `abi_stable`
+types. If `std::Vec` -> `abi_stable::RVec` wasn stem:[O(n)] it might be worth
+using only the latter throughout the entirety of Tremor.
 
 This means that I should spend at least a bit of my time on understanding how
 the `abi_stable` types are implemented and making sure this isn't the case. In
@@ -945,7 +916,7 @@ is a wrapper that indicates Rust to not call the destructor of its contents
 automatically. In this case it's basically a less error prone
 `std::mem::forget`, as
 https://doc.rust-lang.org/stable/std/mem/fn.forget.html#relationship-with-manuallydrop[its
-docs explain]. Thanks to it, the memory from the vector won't be dropped when
+docs explain]. Thanks to it, the memory from the `Vec` won't be dropped when
 this function ends, and it can be safely moved into the `RVec`, with no copying.
 
 This happens for every type I checked in `abi_stable`, including `RSlice<T>`,
