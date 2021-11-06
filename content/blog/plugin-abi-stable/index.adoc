@@ -702,8 +702,8 @@ to continue the execution of the program.
 }
 ----
 
-In a typical usage of Rust, the panic usually means that your program writes
-some message to stdout and then ends. This is because unwinding is propagated
+In a typical usage of Rust, a panic usually means that your program writes some
+scary message to stdout and then ends. This is because unwinding is propagated
 and it may end up aborting the program if it's not stopped. But that's exacty
 what `catch_unwind` is for:
 
@@ -723,8 +723,9 @@ Rust makes it very clear that `catch_unwind` is not intended for regular error
 handling (you have `Result` for that). But in our case we are _forced_ to use it
 in order to not invoke undefined behaviour when panicking through the FFI
 boundary. Every single function in the FFI interface that has a possibility of
-panicking should use `panic::catch_unwind`. And this is quite tricky because
-even things like addition may cause a panic (overflow in debug mode).
+panicking should use `panic::catch_unwind` so that it doesn't try to propagate.
+And this is quite tricky because even things like addition may cause a panic
+(overflow in debug mode).
 
 === `C-unwind`
 
@@ -744,17 +745,49 @@ The most relevant things this feature offers us is:
 
 * Support for unwinding through the FFI boundary.
 * A guarantee that even with `extern "C"`, panicking is not undefined behavior,
-  it'll just abort. Setting `panic=abort` is sound as well.
+  it'll just abort (except for some specific cases called _forced unwinding_).
+  Setting `panic=abort` is sound as well.
 
 Unfortunately, it's moving somewhat slowly, and I'm not quite sure when this
 will be ready. In the meanwhile, we'll need to use `catch_unwind` to ensure no
 undefined behaviour occurs in our plugin system.
 
-=== `MayPanic<T>`
+=== `AbortBomb`
 
-In order to make this somewhat more painless and safe, I created the
-`MayPanic<T>` enum for my own plugin system, basically equivalent to
-`Option<T>`:
+Since we don't have access to `C-unwind` yet, we'll have to figure out how to
+avoid panics. `abi_stable` does this in a pretty clever way: it creates an
+`AbortBomb` struct at the beginning of the function, which contains its filename
+and line of code.
+
+If something panics and unwraps, ``AbortBomb``'s destructor will be called,
+which aborts the program. Othewise, `mem::forget` is called for the `AbortBomb`,
+which will avoid calling its destructor and the function will be able to end
+end successfully.
+
+Note that even though `mem::forget` is called, no memory is actually being
+leaked, because the filename is a `'static str` -- which lives for the entirety
+of the program -- and the line number is an integer, which will be in the stack
+and doesn't need fancy destructors.
+
+This approach is completely fine and works great, but it aborts the program, so
+you can't recover from it at all. In the case of Tremor, if a plugin panics,
+from a logical standpoint it doesn't make much sense to continue the execution
+because there's a piece missing in the pipeline. It couldn't continue anyway...
+Right? Well, we could actually load the plugin that panicked again and use that
+instead for the remainder of the program. But since our plugin system doesn't
+support unloading, we'd be leaking memory, and if the plugin keeps panicking
+it'd eventually crash.
+
+Recovering from a plugin panicking is definitely viable and it might be an
+interesting feature for the future. Unfortunately, it's a lot of work to make
+sure it works properly, and it's not really an objective for the first
+implementation, so for now I'll just use ``abi_stable``'s solution.
+
+=== Recovering with `catch_unwind`
+
+As I explained in the beginning, `catch_unwind` can be used to detect and stop
+unwinding panics. One way to notify the runtime that a plugin has panicked so
+that it can act accordingly would be to use an enum equivalent to `Option<T>`:
 
 [source, rust]
 ----
@@ -766,35 +799,43 @@ pub enum MayPanic<T> {
 }
 ----
 
-Panic errors should be treated differently from a regular error. Apart from the
-fact that `panic::catch_unwind` returns a `Box<dyn Any>`, which is not
-compatible with a `Box<dyn Error>` (so you can't just return `Result<T, Box<dyn
-Error>` as usual), panics happen when the plugin reaches an unrecoverable state
-and cannot continue.
+`MayPanic` is a type that only returns the original value if the function
+finished without panicking. Since the contents returned by `catch_unwind` are
+just `dyn Any` and don't provide much value for us, they're discarded and the
+`Panic` variant is empty. The panicking information will be printed
+automatically as output anyway (or whatever is configured with
+https://doc.rust-lang.org/std/panic/fn.set_hook.html[the panic hook]). We will
+use it in FFI contexts, so it also implements `StableAbi` and it's {repr-c}.
 
-Instead of using `RResult`, this is a different type that only returns the
-original type if the function finished without panicking. Since the contents
-returned by `catch_unwind` are just `dyn Any` and don't provide much value for
-us, they're discarded. The panicking information will be printed automatically
-as output anyway (or whatever is configured with
-https://doc.rust-lang.org/std/panic/fn.set_hook.html[the panic hook]).
+I didn't want to use `Result` because panic errors should be treated differently
+from a regular error. Apart from the fact that `panic::catch_unwind` returns a
+`Box<dyn Any>`, which doesn't implement `Error`, panics happen when the plugin
+reaches an unrecoverable state and cannot continue. We really have to make sure
+this is handled differently from a regular error, so having the type safety of a
+different type can help.
 
-We will use it in FFI contexts, so it also implements `StableAbi` and it's
-{repr-c}.
+It implements `From<std::thread::Result<T>>`, so it can simply be used like
+this:
 
-Ideally, this would be accompanied with a `\#[may_panic]` procedural macro that
-adds the `MayPanic<T>` return type automatically and the `catch_unwind` to the
-function it's attached to. Additionally, it could come with a `#[may_not_panic]`
-proc macro as well that attaches the `\#[no_panic]` macro from the {{< crate
-no-panic >}} crate to make sure the statement is true at compile time. However,
-`no-panic` isn't too reliable, so perhaps it could be opt-in with something like
+[source, rust]
+----
+fn plugin_stuff() -> MayPanic<Whatever> {
+    panic::catch_unwind(|| {
+        // Code goes here
+    })
+    .into()
+}
+----
+
+Ideally, `MayPanic` could be accompanied with a `\#[may_panic]` procedural macro
+that adds this boilerplate automatically to the function it's attached to.
+Additionally, it could come with a `#[may_not_panic]` proc macro as well that
+attaches the `\#[no_panic]` macro from the {{< crate no-panic >}} crate to make
+sure the statement is true at compile time. However, `no-panic` isn't too
+reliable, so perhaps it could be opt-in with something like
 `#[may_not_panic(enforce)]`.
 
-With macros like these we could make this task a bit easier for the plugin
-developers so that they don't mess it up or straight up ignore it. If I end up
-writing a crate for it, I will make sure ???
-
-=== Exception safety
+==== Exception safety
 
 Something that complicates the macro I proposed considerably is the concept of
 _exception safety_. `catch_unwind` isn't as easy to use as slapping your code
@@ -830,11 +871,6 @@ let result = {
     })
 }
 ----
-
-===
-
-TODO: mention that this whole thing is already handled by `abi_stable`; it'll
-just panic on the runtime.
 
 == Type conversions to `abi_stable`
 
