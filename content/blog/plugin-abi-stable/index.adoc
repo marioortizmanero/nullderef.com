@@ -481,7 +481,7 @@ can use something like `PartialEq`. Its main disadvantage is that it's limited
 to a set of 21 hardcoded traits, so it might not be enough for us.
 
 [[sabi_trait]]
-=== sabi_trait
+=== Trait objects
 
 If we want something more akin to traits on Rust, we can use
 https://docs.rs/abi_stable/latest/abi_stable/attr.sabi_trait.html[`#[sabi_trait\]`].
@@ -835,7 +835,7 @@ https://doc.rust-lang.org/stable/std/panic/trait.UnwindSafe.html[here], but I
 won't get into more details because we aren't going to use `MayPanic` in our own
 plugin system anyway.
 
-== Type conversions to `abi_stable`
+== Type conversions
 
 It's important to know the complexity of conversions from and to `abi_stable`
 types. If `std::Vec` -> `abi_stable::RVec` wasn stem:[O(n)] it might be worth
@@ -940,8 +940,8 @@ First, we can take a look at already implemented plugin systems in order to have
 an idea of the performance hit we'll experience in Tremor. This is what we
 should expect once our PDK is polished and ready for deployment:
 
-* nginx reports 20% slower startup times and up to a 5% slowdown in execution
-  time <<nginx-perf>>. 
+* nginx reports 20% slower startup times and up to a 5% slowdown in their
+  execution times <<nginx-perf>>. 
 * https://www.technovelty.org/linux/plt-and-got-the-key-to-code-sharing-and-dynamic-libraries.html[This
   article] explains that the only performance difference is saving the
   https://en.wikipedia.org/wiki/Position-independent_code[resolved address] of
@@ -1009,23 +1009,53 @@ compiler is too smart. If I called `min` with fixed parameters -- say
 that was different for each loop. Furthermore, using tools like `sabi_trait`
 instead of a `void*` almost doubles the execution time again.
 
-Hopefully these performance degradations won't be as noticeable in the final
-version of the PDK. We'll use `sabi_trait` only when loading the library instead
-of for each call. And having a more complex use-case will probably avoid such
-incredible optimizations in the native code. You can find the full statistical
-reports in the `criterion-reports` directory of the
+== Conclusion
+
+We've learned a lot about `abi_stable` and the overall state of dynamic loading
+in Rust. We'll definitely avoid a lot of work thanks to these dependencies. It's
+not as bad as I thought; there's plenty of tools for each use-case, though most
+are admittedly only in early stages.
+
+Hopefully the performance degradations we've found won't be as noticeable in the
+final version of the PDK. We'll use `sabi_trait` only when loading the library
+instead of for each call. And having a more complex use-case will probably avoid
+such incredible optimizations in the native code. You can find the full
+statistical reports in the
+https://github.com/marioortizmanero/pdk-experiments/tree/master/criterion-reports[`criterion-reports`]
+directory of the
 https://github.com/marioortizmanero/pdk-experiments/[repository].
+
+In the next article, I'll cover the different caveats I'm finding as I try to
+actually implement the plugin system on Tremor, and the different ways in which
+they can be approached.
 
 [bibliography]
 == References
 
 - [[[cglue-vs-sabi,   1]]] {{< gh issue "h33p/cglue" 3 "A few questions about the library" >}}
-- [[[nginx-perf,      1]]] http://httpd.apache.org/docs/2.4/dso.html#advantages
-- [[[libloading-th,   2]]] https://docs.rs/libloading/0.7.1/libloading/struct.Library.html#thread-safety
-- [[[dlerror-th,      3]]] https://pubs.opengroup.org/onlinepubs/009604499/functions/dlerror.html
-- [[[linux-th,        4]]] https://man7.org/linux/man-pages/man3/dlerror.3.html#ATTRIBUTES
-- [[[macos-th,        5]]] https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dlerror.3.html
-- [[[windows-th,      6]]] https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setthreaderrormode
-- [[[unwinding,       7]]] https://doc.rust-lang.org/nomicon/unwinding.html
-- [[[panic-book,      8]]] https://doc.rust-lang.org/book/ch09-01-unrecoverable-errors-with-panic.html
-- [[[panic-ffi,       8]]] https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics
+- [[[panic-ffi,       2]]]
+  https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics[FFI and panics --
+  Rustonomicon]
+- [[[panic-book,      3]]]
+  https://doc.rust-lang.org/book/ch09-01-unrecoverable-errors-with-panic.html[Unrecoverable
+  Errors with `panic!` -- The Rust Programming Language]
+- [[[unwinding,       4]]]
+  https://doc.rust-lang.org/nomicon/unwinding.html[Unwinding -- Rustonomicon]
+- [[[libloading-th,   5]]]
+  https://docs.rs/libloading/0.7.1/libloading/struct.Library.html#thread-safety[Thread-safety
+  -- Libloading v0.7.1]
+- [[[dlerror-th,      6]]]
+  https://pubs.opengroup.org/onlinepubs/009604499/functions/dlerror.html[`dlerror`
+  -- The Open Group Base Specifications]
+- [[[linux-th,        7]]]
+  https://man7.org/linux/man-pages/man3/dlerror.3.html#ATTRIBUTES[`dlerror`
+  attributes -- Linux Manual Page]
+- [[[macos-th,        8]]]
+  https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dlerror.3.html[`dlerror`
+  -- Mac OS X Man Pages]
+- [[[windows-th,      9]]]
+  https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setthreaderrormode[`SetThreadErrorMode`
+  -- Microsoft Documentation]
+- [[[nginx-perf,     10]]]
+  http://httpd.apache.org/docs/2.4/dso.html#advantages[Advantages and
+  Disadvantages -- Dynamic Shared Object (DSO) Support]
