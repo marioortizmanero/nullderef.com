@@ -1,11 +1,13 @@
 ---
 title: "Plugins in Rust: Reducing the Pain with Dependencies"
-description: "TODO"
+description: "Taking a look at the state of dynamic loading in the Rust
+ecosystem"
 author: "Mario Ortiz Manero"
+images: ["/blog/plugin-abi-stable/cratesio.jpg"]
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
 date: 2021-10-15
-GHissueID: 30
+GHissueID: 45
 ---
 
 :sectnums:
@@ -87,7 +89,7 @@ our lives by having a {repr-c}-compatible standard library so that we don't have
 to write it ourselves. If all you need is something simple like LCCC, consider
 this library or a similar one.
 
-=== safer_ffi
+=== Safer FFI
 
 If you don't like any of the solutions listed in this article and you're going
 to end up writing the plugin interfaces by hand, you might be interested in
@@ -105,23 +107,17 @@ https://getditto.github.io/safer_ffi/[its book] for more information.
 
 In my last post, I was brought up the {{< crate cglue >}} crate
 https://www.reddit.com/r/rust/comments/q2n6b8/plugins_in_rust_diving_into_dynamic_loading/hfmyn6o/[by
-its own creator]. It takes a different approach to ABI stability, which I think
-is pretty interesting. Instead of rewriting parts of the standard library using
-{repr-c}, `cglue` achieves FFI-safety by using
-https://en.wikipedia.org/wiki/Opaque_data_type[_opaque types_].
+its own creator]. It takes a very interesting approach, achieving ABI stability
+through https://en.wikipedia.org/wiki/Opaque_data_type[_opaque types_].
 
 An opaque type is simply one for which you don't know its concrete layout.
 There's no {repr-c} needed at all, because one can only interact with it via
 void pointers and its associated vtables.
 
-`cglue` is not a simple library either. It seems easier to use than
-`abi_stable`, but that might be because it's more barebones and work-in-progress
-as of this writing; `abi_stable` provides functionality to even _load_ the
-plugins safely. Its README showcases the following snippet of code, and the repo
-even includes an https://github.com/h33p/cglue/tree/main/examples[example of a
-plugin system].
+``cglue``'s README showcases the following snippet of code, and the repo even
+includes an https://github.com/h33p/cglue/tree/main/examples[example of a plugin
+system].
 
-.Sample usage for `cglue` taken from their repository
 [source, rust]
 ----
 use cglue::*;
@@ -159,20 +155,21 @@ fn main() -> () {
 }
 ----
 
-////
-TODO: rewrite
+`cglue` is limited to just generating FFI-safe trait objects, trying to make the
+whole process as straightforward as possible. This is also available in
+`abi_stable` through the `sabi_trait` procedural macro, which I'll
+<<sabi_trait,explain later>>. But since `cglue` only focuses on that task, it
+can also <<cglue-vs-sabi>>:
 
-Benefits in comparison to abi_stable
+* Generate bindings for C/C++, which means that plugins can be written in
+  languages other than Rust.
+* Define _trait groups_, even with traits that can be optional.
 
-* Useful for Rust-to-C and Rust-to-C++ (don't mention bindings, that comes in
-  later)
-* Trait groups
-////
+// TODO: add link to https://blaz.is
 
-The main benefit it seems to provide is that with `cglue` you can generate
-bindings for C/C++, which means that plugins can be written in languages other
-than Rust, unlike `abi_stable`. It's not useful for my case, but if you're
-interested in that, perhaps you should take a deeper look.
+Neither of these are particularly useful for my use-case, but if any of these
+features interests you, definitely take a deeper look. It's actively maintained
+and constantly being improved.
 
 === Miri
 
@@ -227,10 +224,10 @@ on.
 == Working with `abi_stable`
 
 I will personally use {{< crate abi_stable >}} because it seems like the easiest
-choice for now. Not only does it provide a standard library defined with the C
-ABI, but also lots of other macros and utilities specifically written for plugin
-systems. With it, I won't need a line of unsafe, and I'll avoid reinventing the
-wheel in many instances.
+choice for now, and the one that meets my needs best. Not only does it provide a
+standard library defined with the C ABI, but also lots of other macros and
+utilities specially useful for plugin systems. With it, I won't need a line of
+unsafe, and I'll avoid reinventing the wheel in many instances.
 
 _Once the plugin system is fully functional with ``abi_stable``_, I might
 consider using something more hand-crafted. This switch won't be too
@@ -449,10 +446,6 @@ fn usage(state: &mut StateBox) {
 
 === Interface types
 
-////
-TODO: add links to examples from the repo, copy properly, and add docs
-////
-
 Unfortunately, we already know that regular `dyn` is not FFI-safe. I covered how
 it's possible to work around it with pointers, but here we can resort to
 ``abi_stable``'s safer and more convenient alternatives. Here's one of them:
@@ -487,6 +480,7 @@ Unlike `dyn`, this even works with supertraits that aren't object-safe. Thus, we
 can use something like `PartialEq`. Its main disadvantage is that it's limited
 to a set of 21 hardcoded traits, so it might not be enough for us.
 
+[[sabi_trait]]
 === sabi_trait
 
 If we want something more akin to traits on Rust, we can use
@@ -673,25 +667,24 @@ If we panic in the plugin it won't be undefined behaviour anymore because
 
 == Panicking and FFI
 
-As we've already seen, plugins cannot panic at the FFI boundary under any
-circumstance. It doesn't matter if panics are configured to abort or if they
-unwind <<panic-kinds>>. This means that if we aren't using something like
-`abi_stable`, every single function we export in the plugin should wrap its
-contents in
-https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`] and we
-should make sure `panic = abort` is not set in the plugin.
+As we've already seen, plugins cannot panic across the FFI boundary under any
+circumstance <<panic-ffi>>. If we aren't using something like `abi_stable`,
+every single function we export in the plugin should wrap its contents in
+https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`] in
+order to be able to panic.
 
 _Unwinding_ is a process in which all local objects are destroyed, properly
 calling the destructors in the thread in order to continue execution safely
-<<unwinding>>. Knowing this is something taken for granted when taking a look at
-documentation about exceptions in Rust, but it wasn't so clear to me at the
-beginning.
+<<panic-book>> <<unwinding>>. Knowing this is something taken for granted when
+taking a look at documentation about exceptions in Rust, but it wasn't so clear
+to me at the beginning.
 
 For example, the following snippet will panic after creating the vector. If
-panics were configured to abort, the contents of the vector wouldn't be cleaned
-up at all; the program would just end abruptly. But if it _unwinds_, Rust will
-call its destructor, cleaning up its allocated memory properly, and being able
-to continue the execution of the program.
+panics were configured to abort, the contents of the vector wouldn't be freed at
+all; the program would just end abruptly and the cleaning up would be left to
+the Operating System. But if it _unwinds_, Rust will call ``Vec``'s destructor,
+freeing its allocated memory properly, making it possible to continue the
+execution of the program.
 
 [source, rust]
 ----
@@ -704,8 +697,8 @@ to continue the execution of the program.
 
 In a typical usage of Rust, a panic usually means that your program writes some
 scary message to stdout and then ends. This is because unwinding is propagated
-and it may end up aborting the program if it's not stopped. But that's exacty
-what `catch_unwind` is for:
+and it may end up finishing the execution of the program if it's not stopped.
+But that's exacty what `catch_unwind` is for:
 
 [source, rust]
 ----
@@ -720,12 +713,39 @@ println!("Did it panic? {}", result.is_err());
 ----
 
 Rust makes it very clear that `catch_unwind` is not intended for regular error
-handling (you have `Result` for that). But in our case we are _forced_ to use it
-in order to not invoke undefined behaviour when panicking through the FFI
+handling (you have `Result` for that). But in our case we are almost forced to
+use it in order to not invoke undefined behaviour when panicking through the FFI
 boundary. Every single function in the FFI interface that has a possibility of
-panicking should use `panic::catch_unwind` so that it doesn't try to propagate.
-And this is quite tricky because even things like addition may cause a panic
-(overflow in debug mode).
+panicking should use it so that the panic doesn't try to propagate. And this is
+quite tricky because even things like addition may cause a panic (overflow in
+debug mode).
+
+Let's see what else can we do about panicking:
+
+=== Aborting
+
+The simplest way to do it would be to just configure plugins to abort on panic
+instead of unwinding. This is possible with the `panic = "abort"` option in the
+plugin's `Cargo.toml`. It will still show the panic message, but the execution
+will be completely stopped by an abort:
+
+[source, text]
+----
+$ cargo r -q
+thread 'main' panicked at 'Oh no!', src/main.rs:2:5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+zsh: abort (core dumped)  cargo r -q
+----
+
+This is sound because the entire program's execution ends before reaching the
+FFI boundary. The problem is that cleaning up will never happen, and that
+although there's
+https://stackoverflow.com/questions/51860663/is-it-possible-to-check-if-panic-is-set-to-abort-while-a-library-is-compilin[a
+hack you can use in your `common` library] to make sure the plugin is compiled
+with `panic = "abort"`, it's only available on nightly until this is merged:
+
+[.align-center]
+{{< gh issue "rust-lang/rust" 32837 "Pluggable panic implementations (tracking issue for RFC 1513)" paragraph >}}
 
 === `C-unwind`
 
@@ -745,38 +765,36 @@ The most relevant things this feature offers us is:
 
 * Support for unwinding through the FFI boundary.
 * A guarantee that even with `extern "C"`, panicking is not undefined behavior,
-  it'll just abort (except for some specific cases called _forced unwinding_).
-  Setting `panic=abort` is sound as well.
+  it'll just abort (except for some very specific cases). Switching between
+  `"abort"` and `"unwind"` for the `panic` option in `Cargo.toml` is always
+  sound.
 
 Unfortunately, it's moving somewhat slowly, and I'm not quite sure when this
-will be ready. In the meanwhile, we'll need to use `catch_unwind` to ensure no
+will be ready. In the meanwhile, we'll need to use something else to ensure no
 undefined behaviour occurs in our plugin system.
 
 === `AbortBomb`
 
-Since we don't have access to `C-unwind` yet, we'll have to figure out how to
-avoid panics. `abi_stable` does this in a pretty clever way: it creates an
-`AbortBomb` struct at the beginning of the function, which contains its filename
-and line of code.
-
+`abi_stable` does this in a pretty clever way: it creates an `AbortBomb` struct
+at the beginning of the function, which contains its filename and line of code.
 If something panics and unwraps, ``AbortBomb``'s destructor will be called,
-which aborts the program. Othewise, `mem::forget` is called for the `AbortBomb`,
-which will avoid calling its destructor and the function will be able to end
-end successfully.
+which aborts the program. Otherwise, `mem::forget` is called for the `AbortBomb`
+at the end of the function, which will avoid calling its destructor and the
+function will be able to end end successfully.
 
 Note that even though `mem::forget` is called, no memory is actually being
 leaked, because the filename is a `'static str` -- which lives for the entirety
 of the program -- and the line number is an integer, which will be in the stack
 and doesn't need fancy destructors.
 
-This approach is completely fine and works great, but it aborts the program, so
-you can't recover from it at all. In the case of Tremor, if a plugin panics,
-from a logical standpoint it doesn't make much sense to continue the execution
-because there's a piece missing in the pipeline. It couldn't continue anyway...
-Right? Well, we could actually load the plugin that panicked again and use that
-instead for the remainder of the program. But since our plugin system doesn't
-support unloading, we'd be leaking memory, and if the plugin keeps panicking
-it'd eventually crash.
+This approach is completely fine and works great, but it aborts the whole plugin
+system, so you can't recover from it at all. In the case of Tremor, if a plugin
+panics, from a logical standpoint it doesn't make much sense to continue the
+execution because there's a piece missing in the pipeline. It couldn't continue
+anyway... Right? Well, we could actually load the plugin that panicked again and
+use that instead for the remainder of the program. But since our plugin system
+doesn't support unloading, we'd be leaking memory, and if the plugin keeps
+panicking it'd eventually crash.
 
 Recovering from a plugin panicking is definitely viable and it might be an
 interesting feature for the future. Unfortunately, it's a lot of work to make
@@ -807,14 +825,14 @@ automatically as output anyway (or whatever is configured with
 https://doc.rust-lang.org/std/panic/fn.set_hook.html[the panic hook]). We will
 use it in FFI contexts, so it also implements `StableAbi` and it's {repr-c}.
 
-I didn't want to use `Result` because panic errors should be treated differently
-from a regular error. Apart from the fact that `panic::catch_unwind` returns a
-`Box<dyn Any>`, which doesn't implement `Error`, panics happen when the plugin
-reaches an unrecoverable state and cannot continue. We really have to make sure
-this is handled differently from a regular error, so having the type safety of a
-different type can help.
+I didn't want to use `Result` for this because panic errors should be treated
+differently from a regular error. Apart from the fact that `panic::catch_unwind`
+returns a `Box<dyn Any>`, which doesn't implement `Error`, panics happen when
+the plugin reaches an unrecoverable state and cannot continue. We really have to
+make sure this is handled differently from a regular error, so having the type
+safety of a different type can help.
 
-It implements `From<std::thread::Result<T>>`, so it can simply be used like
+It implements `From<thread::Result<T>>`, so it can simply be used like
 this:
 
 [source, rust]
@@ -829,14 +847,13 @@ fn plugin_stuff() -> MayPanic<Whatever> {
 
 Ideally, `MayPanic` could be accompanied with a `\#[may_panic]` procedural macro
 that adds this boilerplate automatically to the function it's attached to.
-Additionally, it could come with a `#[may_not_panic]` proc macro as well that
-attaches the `\#[no_panic]` macro from the {{< crate no-panic >}} crate to make
-sure the statement is true at compile time. However, `no-panic` isn't too
-reliable, so perhaps it could be opt-in with something like
-`#[may_not_panic(enforce)]`.
+Additionally, it could come with a `#[may_not_panic]` variant that attaches the
+`\#[no_panic]` macro from the {{< crate no-panic >}} crate to make sure the
+statement is true at compile time. However, `no-panic` isn't too reliable, so
+perhaps it could be opt-in with something like `#[may_not_panic(enforce)]`.
 
 Something that complicates this whole thing considerably is the concept of
-_exception safety_. Unfortunately, `catch_unwind` isn't as easy to use as
+_exception safety_. Unfortunately, `catch_unwind` isn't as easy to use as just
 slapping your code into its closure/function, as there are some types that
 aren't considered unwind safe. You can read more about that
 https://doc.rust-lang.org/stable/std/panic/trait.UnwindSafe.html[here], but I
@@ -847,7 +864,7 @@ plugin system anyway.
 
 It's important to know the complexity of conversions from and to `abi_stable`
 types. If `std::Vec` -> `abi_stable::RVec` wasn stem:[O(n)] it might be worth
-using only the latter throughout the entirety of Tremor.
+avoiding it altogether.
 
 This means that I should spend at least a bit of my time on understanding how
 the `abi_stable` types are implemented and making sure this isn't the case. In
@@ -890,10 +907,9 @@ pub struct RVec<T> {
 }
 ----
 
-Yup, basically the same, but packed inside a single struct. The only real
-difference is that we have a field with the vtable, which I'll cover later on.
-The conversion between these types is written with a macro, but if expanded, it
-looks like this:
+Yup, basically the same, but packed inside a single struct. The single
+difference is that we have a field with the vtable. The conversion between these
+types is written with a macro, but if expanded, it looks like this:
 
 [source, rust]
 ----
@@ -911,23 +927,35 @@ impl<T> From<Vec<T>> for RVec<T> {
 }
 ----
 
-The only "`weird`" part is the usage of `std::mem::ManuallyDrop`, which simply
-is a wrapper that indicates Rust to not call the destructor of its contents
+The only "`weird`" part is the usage of `std::mem::ManuallyDrop`, which is
+simply a wrapper that indicates Rust to not call the destructor of its contents
 automatically. In this case it's basically a less error prone
 `std::mem::forget`, as
 https://doc.rust-lang.org/stable/std/mem/fn.forget.html#relationship-with-manuallydrop[its
 docs explain]. Thanks to it, the memory from the `Vec` won't be dropped when
-this function ends, and it can be safely moved into the `RVec`, with no copying.
+this function ends, and its pointer ownership can be safely moved into `RVec`,
+with no copying.
 
 This happens for every type I checked in `abi_stable`, including `RSlice<T>`,
 which contains a reference to a slice, `RStr`, which is just a `RSlice<u8>`, and
 `RString`, which is just a `RVec`.
 
+== Thread safety
+
+`abi_stable` uses `libloading`, whose error-handling is not fully thread-safe on
+some platforms, such as `dlerror` on FreeBSD <<libloading-th>> <<dlerror-th>>.
+It's fully thread-safe on Linux <<linux-th>>, macOS <<macos-th>>, and Windows
+<<windows-th>>, so for Tremor specifically we don't have to worry about this.
+But if your programs supports other Operating Systems, you might want to check
+their manuals one by one in order to make sure.
+
+However, for the first version of our PDK this won't be a problem at all. For
+simplicity's sake, loading plugins after the startup will not be implemented
+yet, and we'll do it sequentially. But it's good to know it for the future.
+
 == Performance
 
-As I talked about in previous posts, I've been wanting to create some benchmarks
-to measure the performance impact the PDK will have. I first tried to write
-these benchmarks with
+I first tried to write these benchmarks with
 https://doc.rust-lang.org/nightly/cargo/commands/cargo-bench.html?highlight=feature[cargo
 nightly's implementation]. However, since it's so basic, not updated regularly,
 and requires nightly, I moved to {{< crate criterion >}}, which I quite liked
@@ -935,7 +963,7 @@ after using it for https://nullderef.com/blog/web-api-client/[another post].
 
 First, we can take a look at already implemented plugin systems in order to have
 an idea of the performance hit we'll experience in Tremor. This is what we
-should expect once out PDK is polished and ready for deployment:
+should expect once our PDK is polished and ready for deployment:
 
 * nginx reports 20% slower startup times and up to a 5% slowdown in execution
   time <<nginx-perf>>. 
@@ -943,8 +971,8 @@ should expect once out PDK is polished and ready for deployment:
   article] explains that the only performance difference is saving the
   https://en.wikipedia.org/wiki/Position-independent_code[resolved address] of
   the symbol in a table the first time, and then it's just a couple more
-  instructions to access it. Also, obviously the fact that the compiler can't
-  optimize parts of the code (e.g. inlining function calls).
+  instructions to access it. Also, obviously, the fact that the compiler can't
+  optimize parts of the code (e.g. inline function calls).
 
 These are the results of the benchmarks I wrote:
 
@@ -978,12 +1006,15 @@ Found 5 outliers among 100 measurements (5.00%)
   3 (3.00%) high severe
 ----
 
-Note that the benchmarks don't represent a real usage of Tremor; it's just using
-the initial plugin with the `min` function. But we _can_ analyze other things,
-such as the performance differences between `abi_stable` and raw dynamic loading
--- I doubt it's worth implementing the final version with both methods in order
-to run some benchmarks. And even if the results aren't too meaningful I already
-have something I can use for the more-reliable future benchmarks.
+// TODO: this is all wrong lol
+
+Note that the benchmarks still don't represent a real usage of Tremor; it's just
+using the plugin I described in this post with the `min` function. But we _can_
+analyze other things, such as the performance differences between `abi_stable`
+and raw dynamic loading -- I doubt it's worth implementing the final version
+with both methods in order to run some benchmarks. Even if the results aren't
+too meaningful I already have some code I can use for more-reliable benchmarks
+in the future.
 
 The loading times don't matter much in our case because they only happen once at
 the beginning of the program. Still, it's clear that ``abi_stable``'s way of
@@ -1006,22 +1037,10 @@ that was different for each loop.
 You can find the full statistical reports in the `criterion-reports` directory
 of the https://github.com/marioortizmanero/pdk-experiments/[repository].
 
-== Thread safety
-
-`abi_stable` uses `libloading`, whose error-handling is not fully thread-safe on
-some platforms, such as `dlerror` on FreeBSD <<libloading-th>> <<dlerror-th>>.
-It's fully thread-safe on Linux <<linux-th>>, macOS <<macos-th>>, and Windows
-<<windows-th>>, so for Tremor specifically we don't have to worry about this.
-But if your programs supports other Operating Systems, you might want to check
-their manuals one by one in order to make sure.
-
-However, for the first version of our PDK this won't be a problem at all. For
-simplicity's sake, loading plugins after the startup will not be implemented
-yet, and we'll do it sequentially. But it's good to know it for the future.
-
 [bibliography]
 == References
 
+- [[[cglue-vs-sabi,   1]]] {{< gh issue "h33p/cglue" 3 "A few questions about the library" >}}
 - [[[nginx-perf,      1]]] http://httpd.apache.org/docs/2.4/dso.html#advantages
 - [[[libloading-th,   2]]] https://docs.rs/libloading/0.7.1/libloading/struct.Library.html#thread-safety
 - [[[dlerror-th,      3]]] https://pubs.opengroup.org/onlinepubs/009604499/functions/dlerror.html
@@ -1029,4 +1048,5 @@ yet, and we'll do it sequentially. But it's good to know it for the future.
 - [[[macos-th,        5]]] https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dlerror.3.html
 - [[[windows-th,      6]]] https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setthreaderrormode
 - [[[unwinding,       7]]] https://doc.rust-lang.org/nomicon/unwinding.html
-- [[[panic-kinds,     8]]] https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html#abi-boundaries-and-unforced-unwinding
+- [[[panic-book,      8]]] https://doc.rust-lang.org/book/ch09-01-unrecoverable-errors-with-panic.html
+- [[[panic-ffi,       8]]] https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics

@@ -2,6 +2,7 @@
 {{ $repo := .Get 1 }}
 {{ $number := .Get 2 }}
 {{ $title := .Get 3 }}
+{{ $html := .Get 4 }}
 
 {{ $url_type := "" }}
 {{ if eq $type "issue" }}
@@ -12,8 +13,11 @@
   {{ errorf "Invalid type (issue/pr): %q" $type }}
 {{ end }}
 
+{{ if eq $html "paragraph" }}
+<p class="gh-reference">
+{{ else }}
 <span class="gh-reference">
-
+{{ end }}
   {{/* Icons taken from https://github.com/primer/octicons */}}
   {{ $icon := "" }}
   {{ if eq $type "issue" }}
@@ -24,4 +28,8 @@
 
   <a class="gh-title" href="https://github.com/{{ $repo }}/{{ $url_type }}/{{ $number }}" style="text-decoration: none;">{{ $title | markdownify }}
     <span class="gh-number">{{ $repo }}#{{ $number }}</span></a>
+{{ if eq $html "paragraph" }}
+</p>
+{{ else }}
 </span>
+{{ end }}
