@@ -967,7 +967,8 @@ it. In the next article I'll see the differences between both approaches.
   https://petsymposium.org/2019/files/hotpets/slides/rochet-fan-slides.pdf[Flexible
   Anonymous Network (slides)]
 - [[[fat-binaries,    5]]] https://stackoverflow.com/a/63346857/11488352[(C/C++)
-  How to generate executable file that can run on both Windows and Linux?]
+  How to generate executable file that can run on both Windows and Linux? --
+  StackOverflow]
 - [[[generics,        6]]]
   https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics[Performance
   of Code Using Generics -- The Rust Programming Language]

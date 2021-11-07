@@ -659,19 +659,45 @@ if you have any additional suggestions or comments, or leave a comment below.
 [bibliography]
 == References
 
-- [[[npm-trust-1,         1]]] https://jamie.build/how-to-build-an-npm-worm
-- [[[npm-trust-2,         2]]] https://snyk.io/blog/yet-another-malicious-package-found-in-npm-targeting-cryptocurrency-wallets/
-- [[[swift-abi,           3]]] https://gankra.github.io/blah/swift-abi/
-- [[[lua-wiki,            4]]] https://en.wikipedia.org/wiki/Lua_(programming_language)
-- [[[lua-sandbox,         5]]] http://lua-users.org/wiki/SandBoxes
-- [[[ipc-wisc,            6]]] http://pages.cs.wisc.edu/~adityav/Evaluation_of_Inter_Process_Communication_Mechanisms.pdf
-- [[[protobuf-perf,       7]]] https://google.github.io/flatbuffers/flatbuffers_benchmarks.html
-- [[[memory-share-so,     8]]] https://stackoverflow.com/a/14512554/11488352
-- [[[ffi-comparison,      9]]] https://docs.rs/dlopen/0.1.8/dlopen/#compare-with-other-libraries
-- [[[ffi-caveat-1,       10]]] https://stackoverflow.com/a/46249019/11488352
-- [[[ffi-caveat-2,       11]]] https://github.com/kurtlawrence/papyrus/blob/1c7f0a669fed59d220bdefb161c568072126d3d5/src/compile/execute.rs#L36
-- [[[ffi-cross-platform, 12]]] https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#thread-safety, which is repeated all over the library documentation.
-- [[[ffi-dlopen-safety,  13]]] https://docs.rs/dlopen/0.1.8/dlopen/#safety
-- [[[amethyst-fail,      14]]] https://github.com/amethyst/amethyst/issues/1729
-- [[[wasmer-types,       15]]] https://wasmerio.github.io/wasmer/crates/wasmer/types/type.Val.html
-- [[[eclipse,            16]]] http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html
+- [[[npm-trust-1,         1]]] https://jamie.build/how-to-build-an-npm-worm[How
+  to build an npm worm -- Jamie Kyle]
+- [[[npm-trust-2,         2]]]
+  https://snyk.io/blog/yet-another-malicious-package-found-in-npm-targeting-cryptocurrency-wallets/[Yet
+  another malicious package found in npm, targeting cryptocurrency wallets --
+  snyk]
+- [[[swift-abi,           3]]] https://gankra.github.io/blah/swift-abi/[How
+  Swift Achieved Dynamic Linking Where Rust Couldn't -- Alexis Beingessner]
+- [[[lua-wiki,            4]]]
+  https://en.wikipedia.org/wiki/Lua_(programming_language)[Lua (programming
+  language) -- Wikipedia]
+- [[[lua-sandbox,         5]]] http://lua-users.org/wiki/SandBoxes[Sand Boxes --
+  lua-users]
+- [[[ipc-wisc,            6]]]
+  http://pages.cs.wisc.edu/~adityav/Evaluation_of_Inter_Process_Communication_Mechanisms.pdf[Evaluation
+  of Inter-Process Communication Mechanisms (paper)]
+- [[[protobuf-perf,       7]]]
+  https://google.github.io/flatbuffers/flatbuffers_benchmarks.html[C++
+  Benchmarks -- FlatBuffers ]
+- [[[memory-share-so,     8]]]
+  https://stackoverflow.com/a/14512554/11488352[Performance difference between
+  IPC shared memory and threads memory -- StackOverflow]
+- [[[ffi-comparison,      9]]]
+  https://docs.rs/dlopen/0.1.8/dlopen/#compare-with-other-libraries[Compare with
+  other libraries -- dlopen v0.1.8]
+- [[[ffi-caveat-1,       10]]]
+  https://stackoverflow.com/a/46249019/11488352[Idiomatic Rust plugin system --
+  StackOverflow]
+- [[[ffi-caveat-2,       11]]]
+  https://github.com/kurtlawrence/papyrus/blob/1c7f0a669fed59d220bdefb161c568072126d3d5/src/compile/execute.rs#L36[`papyrus/src/compile/execute.rs`
+  -- GitHub kurtlawrence/papyrus]
+- [[[ffi-cross-platform, 12]]]
+  https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#thread-safety[Thread-safety
+  -- libloading v0.7.0]
+- [[[ffi-dlopen-safety,  13]]]
+  https://docs.rs/dlopen/0.1.8/dlopen/#safety[Safety -- dlopen v0.1.8]
+- [[[amethyst-fail,      14]]] {{< gh issue "amethyst/amethyst" 1729 "[NEW FEATURE] WebAssembly scripting system" >}}
+- [[[wasmer-types,       15]]]
+  https://docs.rs/wasmer/2.0.0/wasmer/type.Val.html[`Val` -- Wasmer v2.0.0]
+- [[[eclipse,            16]]]
+  http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html[Notes
+  on the Eclipse Plug-in Architecture - Eclipse]
