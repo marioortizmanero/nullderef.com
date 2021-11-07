@@ -538,20 +538,29 @@ necessarily that they know what they're doing. We should make fatal errors as
 hard as possible to happen so that Tremor isn't constantly crashing. The fewer
 pitfalls, the better.
 
+The full source for the example that's supported to work is
+https://github.com/marioortizmanero/pdk-experiments/tree/master/abi-stable-simple/plugin-sample[here].
+Let's see a few ways in which the plugin could go wrong:
+
 === Version mismatch
 
-The versions of the `common` library are checked before the types. In case
-there's a mismatch in those considered incompatible (changes in `x.0.0` or
-`0.x.0`), this is what will show up:
+The versions of the `common` library are checked automatically. In case there's
+a mismatch in those considered incompatible (changes in `x.0.0` or `0.x.0`),
+this is what will show up:
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/abi-stable-simple/plugin-versionmismatch[See the full code here]
 [source, text]
 ----
 $ make debug-versionmismatch
 Error when running the plugin:
 
-'min' library version mismatch:
-user:0.2.0
-library:0.1.0
+(...)
+
+Error:incompatible package versions
+Expected:
+    0.2.0
+Found:
+    0.1.0
 ----
 
 We can absolutely catch this error gracefully and continue with the execution of
@@ -564,6 +573,7 @@ The layout of every type is recursively checked before trying to use them to
 make sure they are compatible. Unlike raw dynamic loading, these errors can be
 caught gracefully, which is a huge plus (it used to segfault):
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/abi-stable-simple/plugin-wrongtype[See the full code here]
 [source, text]
 ----
 $ make debug-wrongtype
@@ -594,50 +604,14 @@ Layout of found type:
     type:MinMod
     (...)
 
-3 error(s)inside:
-    <other>
-    (...)
-
-Layout of expected type:
-    --- Type Layout ---
-    type:State
-    (...)
-
-Layout of found type:
-    --- Type Layout ---
-    type:State
-    (...)
-
-Error:incompatible type size
-Expected:
-    4
-Found:
-    1
-
-Error:incompatible type alignment
-Expected:
-    4
-Found:
-    1
-
-Error:unexpected field
-Expected:
-    field_name:counter
-    type:i32
-    size:4 align:4
-    package:'std' version:'1.0.0'
-Found:
-    field_name:has_ran
-    type:bool
-    size:1 align:1
-    package:'std' version:'1.0.0'
+(...)
 ----
 
-The error message is too long to show here, but it basically shows the entire
-layout tree of the types that don't match for each of its versions (runtime vs
-plugin). For this example, I changed a field in the `State` struct from an
-integer to a boolean, which the message describes perfectly: their sizes,
-alignments and types differ.
+The error message is way too long to show here, but it basically shows the
+entire layout tree of the types that don't match for each of its versions
+(runtime vs plugin). For this example, I changed the `State` trait to use a
+boolean instead of an integer counter, and the message describes it perfectly:
+their sizes, alignments and types differ in the trait's methods.
 
 === Panicking
 
@@ -648,6 +622,7 @@ for us! It will use what it calls an `AbortBomb` to even print out the line and
 file where it happened. This is publicly available through the macro
 https://docs.rs/abi_stable/latest/abi_stable/macro.extern_fn_panic_handling.html[`extern_fn_panic_handling`].
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/abi-stable-simple/plugin-panic[See the full code here]
 [source, text]
 ----
 $ make debug-panic
@@ -974,68 +949,72 @@ should expect once our PDK is polished and ready for deployment:
   instructions to access it. Also, obviously, the fact that the compiler can't
   optimize parts of the code (e.g. inline function calls).
 
-These are the results of the benchmarks I wrote:
+These are the results of the benchmarks I wrote, on my not-so-fast laptop:
 
 [source, text]
 ----
-dynamic setup           time:   [6.8134 us 6.8284 us 6.8448 us]
+dynamic setup           time:   [652.53 ns 654.72 ns 657.34 ns]
 Found 7 outliers among 100 measurements (7.00%)
-  1 (1.00%) low mild
   3 (3.00%) high mild
-  3 (3.00%) high severe
+  4 (4.00%) high severe
 
-abi_stable setup        time:   [36.056 ns 36.134 ns 36.210 ns]
-Found 3 outliers among 100 measurements (3.00%)
-  1 (1.00%) low mild
-  1 (1.00%) high mild
-  1 (1.00%) high severe
-
-dynamic runtime         time:   [1.8568 ns 1.8601 ns 1.8635 ns]
-Found 6 outliers among 100 measurements (6.00%)
-  4 (4.00%) high mild
+abi_stable setup        time:   [30.386 ns 30.477 ns 30.575 ns]
+Found 9 outliers among 100 measurements (9.00%)
+  7 (7.00%) high mild
   2 (2.00%) high severe
 
-abi_stable runtime      time:   [2.1087 ns 2.1138 ns 2.1203 ns]
-Found 4 outliers among 100 measurements (4.00%)
-  1 (1.00%) high mild
-  3 (3.00%) high severe
-
-native runtime          time:   [817.08 ps 819.60 ps 822.79 ps]
+dynamic runtime         time:   [1.8814 ns 1.8878 ns 1.8947 ns]
 Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) low mild
   2 (2.00%) high mild
+  2 (2.00%) high severe
+
+abi_stable runtime      time:   [3.2155 ns 3.2325 ns 3.2494 ns]
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+
+native runtime          time:   [817.39 ps 819.33 ps 821.38 ps]
+Found 6 outliers among 100 measurements (6.00%)
+  3 (3.00%) high mild
   3 (3.00%) high severe
 ----
 
-// TODO: this is all wrong lol
-
 Note that the benchmarks still don't represent a real usage of Tremor; it's just
-using the plugin I described in this post with the `min` function. But we _can_
-analyze other things, such as the performance differences between `abi_stable`
-and raw dynamic loading -- I doubt it's worth implementing the final version
-with both methods in order to run some benchmarks. Even if the results aren't
-too meaningful I already have some code I can use for more-reliable benchmarks
-in the future.
+using the plugin I described in this post with the `min` function. But we can
+more or less analyze the performance differences between `abi_stable` and raw
+dynamic loading -- I doubt it's worth implementing the final version with both
+methods just to run some benchmarks.
 
-The loading times don't matter much in our case because they only happen once at
-the beginning of the program. Still, it's clear that ``abi_stable``'s way of
-recursively checking the types in the plugins is not free; the difference with
-raw dynamic loading is huge. -> FALSE!! turns out `abi_stable` caches the
-library (somehow??) with `LateStaticRef`, so it's actually faster. I was able to
-prove that the `Library::new` function is only called once in the entire
-benchmark.
+The loading times aren't so important for performance because they only happen
+once at the beginning of the program. But ``abi_stable``'s way of recursively
+checking the types in the plugins is not free; the difference with raw dynamic
+loading should be quite noticeable. But somehow, in my benchmarks `abi_stable`
+was _way_ faster. What??
 
-Once the dynamic library is loaded, the difference shouldn't be that noticeable.
-Using types like `Dyn` instead of a `void*` introduce an overhead of about 13%
-in execution time. But it's much worse if we compare it to not using dynamic
-loading at all: a performance degradation of 127%, or 157% with `abi_stable`.
+It turns out that `abi_stable` just leaks the library when it's loaded to
+prevent a user-after-free. And since it won't be unloaded anyway, it's not much
+of a problem in terms of leaking memory. The library will be saved into a static
+variable (of type
+https://docs.rs/abi_stable/latest/abi_stable/sabi_types/struct.LateStaticRef.html[`LateStaticRef`]),
+and the next times it's loaded the initial value will be reused. So in my
+bencharks for `abi_stable`, loading only actually happens once, and for dynamic
+loading it happens for every iteration.
 
-The problem with the native benchmark was, and most likely still is, that the
-Rust compiler is too smart. If I called `min` with fixed parameters (say,
-`10.min(3)`, it was optimized away, so I had to write a more complicated example
-that was different for each loop.
+Once the library is loaded, it seems that using dynamic loading versus static
+linking is quite bad, being more than twice as slow. This is understandable; the
+problem with the native benchmark was, and most likely still is, that the Rust
+compiler is too smart. If I called `min` with fixed parameters -- say
+`10.min(3)` -- it was optimized away, so I had to write a more intricate example
+that was different for each loop. Furthermore, using tools like `sabi_trait`
+instead of a `void*` almost doubles the execution time again.
 
-You can find the full statistical reports in the `criterion-reports` directory
-of the https://github.com/marioortizmanero/pdk-experiments/[repository].
+Hopefully these performance degradations won't be as noticeable in the final
+version of the PDK. We'll use `sabi_trait` only when loading the library instead
+of for each call. And having a more complex use-case will probably avoid such
+incredible optimizations in the native code. You can find the full statistical
+reports in the `criterion-reports` directory of the
+https://github.com/marioortizmanero/pdk-experiments/[repository].
 
 [bibliography]
 == References

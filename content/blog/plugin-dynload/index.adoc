@@ -803,6 +803,10 @@ I've created a few more plugins to see how this approach reacts to some common
 errors. Since in the end we aren't using a sandbox, I wonder what kind of errors
 we _can't_ recover from.
 
+The full source for the example that's supported to work is
+https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-metronome[here].
+Let's see a few ways in which the plugin could go wrong:
+
 === Missing fields
 
 The `plugin-missing` directory contains an empty plugin. It doesn't export any
@@ -810,6 +814,7 @@ fields at all, like the name or the version. This one is already handled by
 `libloading`, actually. When using `library.get("name")`, if `"name"` is not
 exported by the shared object, the following error will show up:
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-missing[See the full code here]
 [source, text]
 ----
 $ make debug-missing
@@ -821,6 +826,7 @@ Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.
 After implementing the versioning system, we can see how these kinds of errors
 can be caught safely:
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-versionmismatch[See the full code here]
 [source, text]
 ----
 $ make debug-versionmismatch
@@ -843,6 +849,7 @@ ____
 
 Ignoring this will cause an unavoidable segfault:
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongtype[See the full code here]
 [source, text]
 ----
 $ make debug-wrongtype
@@ -855,6 +862,7 @@ Unfortunately, there's not much we can do about out of bounds pointers. If the
 plugin exports e.g. the name with a null pointer, we'll just get a segmentation
 fault:
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongaddress[See the full code here]
 [source, text]
 ----
 $ make debug-wrongaddress
@@ -879,6 +887,7 @@ Plugin developers should wrap every single exported function in
 https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`] in
 order to not crash the entire runtime when something goes wrong:
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-panic[See the full code here]
 [source, text]
 ----
 $ make debug-panic
