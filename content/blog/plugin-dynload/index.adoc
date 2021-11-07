@@ -957,12 +957,26 @@ it. In the next article I'll see the differences between both approaches.
 [bibliography]
 == References
 
-- [[[florentin-1,     1]]] https://pluginized-protocols.org/
-- [[[florentin-2,     2]]] https://pquic.org/
-- [[[florentin-3,     3]]] https://petsymposium.org/2019/files/hotpets/proposals/rochet-fan.pdf
-- [[[florentin-4,     4]]] https://petsymposium.org/2019/files/hotpets/slides/rochet-fan-slides.pdf
-- [[[fat-binaries,    5]]] https://stackoverflow.com/a/63346857/11488352
-- [[[generics,        6]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
-- [[[void-ptr,        7]]] https://www.learncpp.com/cpp-tutorial/void-pointers/
-- [[[pulseaudio-ptr,  8]]] https://freedesktop.org/software/pulseaudio/doxygen/stream_8h.html#a2dcc985c65964da290a0c2e1bf103175
-- [[[panic-ffi,       9]]] https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics
+- [[[florentin-1,     1]]] https://pluginized-protocols.org/[Pluginized
+  Protocols]
+- [[[florentin-2,     2]]] https://pquic.org/[Pluginized QUIC]
+- [[[florentin-3,     3]]]
+  https://petsymposium.org/2019/files/hotpets/proposals/rochet-fan.pdf[Flexible
+  Anonymous Network (paper)]
+- [[[florentin-4,     4]]]
+  https://petsymposium.org/2019/files/hotpets/slides/rochet-fan-slides.pdf[Flexible
+  Anonymous Network (slides)]
+- [[[fat-binaries,    5]]] https://stackoverflow.com/a/63346857/11488352[(C/C++)
+  How to generate executable file that can run on both Windows and Linux?]
+- [[[generics,        6]]]
+  https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics[Performance
+  of Code Using Generics -- The Rust Programming Language]
+- [[[void-ptr,        7]]]
+  https://www.learncpp.com/cpp-tutorial/void-pointers/[Void pointers -- Learn
+  C++]
+- [[[pulseaudio-ptr,  8]]]
+  https://freedesktop.org/software/pulseaudio/doxygen/stream_8h.html#a2dcc985c65964da290a0c2e1bf103175[`pa_stream_set_write_callback`
+  -- PulseAudio docs]
+- [[[panic-ffi,       9]]]
+  https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics[FFI and panics --
+  Rustonomicon]
