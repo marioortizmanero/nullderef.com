@@ -4,7 +4,7 @@ description: "TODO"
 author: "Mario Ortiz Manero"
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
-date: 2021-10-15
+date: 2021-11-07
 GHissueID: 30
 ---
 
