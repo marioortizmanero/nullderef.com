@@ -6,7 +6,7 @@ author: "Mario Ortiz Manero"
 images: ["/blog/plugin-abi-stable/cratesio.jpg"]
 tags: ["rust", "dynamic-loading"]
 series: ["rust-plugins"]
-date: 2021-11-07
+date: 2021-11-08
 GHissueID: 45
 ---
 
