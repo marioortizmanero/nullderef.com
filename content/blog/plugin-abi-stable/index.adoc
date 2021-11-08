@@ -156,20 +156,21 @@ fn main() -> () {
 ----
 
 `cglue` is limited to just generating FFI-safe trait objects, trying to make the
-whole process as straightforward as possible. This is also available in
-`abi_stable` through the `sabi_trait` procedural macro, which I'll
-<<sabi_trait,explain later>>. But since `cglue` only focuses on that task, it
-can also <<cglue-vs-sabi>>:
+whole process as straightforward as possible. You could say that `cglue` covers
+just a subset of what `abi_stable` does, because most of this is also available
+in `abi_stable` through the `sabi_trait` procedural macro, which I'll
+<<sabi_trait,explain later>>. It's possible to combine both crates, which is
+something `cglue` plans to do in the future. `cglue` offers the following
+benefits over `sabi_trait` <<cglue-vs-sabi>>:
 
-* Generate bindings for C/C++, which means that plugins can be written in
-  languages other than Rust.
-* Define _trait groups_, even with traits that can be optional.
-
-// TODO: add link to https://blaz.is
+* It's possible to generate bindings for C/C++, which means that plugins can be
+  written in languages other than Rust.
+* You can define _trait groups_, even with optional traits.
 
 Neither of these are particularly useful for my use-case, but if any of these
 features interests you, definitely take a deeper look. It's actively maintained
-and constantly being improved.
+and constantly being improved; the documentation is great and the author
+frequently uploads updates to his https://blaz.is/[personal blog].
 
 === Miri
 
