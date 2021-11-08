@@ -15,7 +15,7 @@
 <link rel=mask-icon href=https://nullderef.com/safari-pinned-tab.svg>
 <meta name=theme-color content="#2e2e33">
 <meta name=msapplication-TileColor content="#2e2e33">
-<meta name=generator content="Hugo 0.88.1">
+<meta name=generator content="Hugo 0.89.1">
 <link rel=alternate type=application/rss+xml href=https://nullderef.com/index.xml>
 <link rel=alternate type=application/json href=https://nullderef.com/index.json>
 <noscript>
@@ -95,6 +95,42 @@ Written by Mario Ortiz Manero</p>
 </footer>
 </article>
 <article class=post-entry>
+<div class=entry-group>
+<header class=entry-header>
+<h2>Plugins in Rust: Getting our Hands Dirty
+</h2>
+</header>
+<section class=entry-content>
+<p>1. Current Limitations 2. External/Complex types If your codebase is large enough, you’ll eventually find out that there are types in the standard library that don’t have an alternative in abi_stable:
+Non-trivial StableAbi implementations in Tremor:
+Connectors:
+Sources:
+serde_yaml::Value in SourceReply
+Pin in EventPayload (in SourceReply and by itself)
+tremor_value::Value in ValueAndMeta in EventPayload
+Sinks:...</p>
+</section>
+<footer class=entry-footer><span title="2021-11-07 00:00:00 +0000 UTC">November 7, 2021</span>&nbsp;·&nbsp;5 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
+<a class=entry-link aria-label="post link to Plugins in Rust: Getting our Hands Dirty" href=https://nullderef.com/blog/plugin-impl/></a>
+</div>
+</article>
+<article class=post-entry>
+<figure class=entry-preview>
+<img loading=lazy src=https://nullderef.com/blog/plugin-abi-stable/cratesio.jpg alt="Plugins in Rust: Reducing the Pain with Dependencies">
+</figure>
+<div class=entry-group>
+<header class=entry-header>
+<h2>Plugins in Rust: Reducing the Pain with Dependencies
+</h2>
+</header>
+<section class=entry-content>
+<p>The last article of this series covered how the plugin system could be implemented from scratch. This is a lot of work if you’re dealing with a relatively large codebase and therefore a complex interface in your plugin system, so let’s see how we can make our lives easier. I’ve been wanting to try abi_stable for this since the beginning, which was specifically created for plugins. But we aren’t really locked to that crate, so I’ll show other alternatives as well, which can even be combined to your liking....</p>
+</section>
+<footer class=entry-footer><span title="2021-11-07 00:00:00 +0000 UTC">November 7, 2021</span>&nbsp;·&nbsp;28 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
+<a class=entry-link aria-label="post link to Plugins in Rust: Reducing the Pain with Dependencies" href=https://nullderef.com/blog/plugin-abi-stable/></a>
+</div>
+</article>
+<article class=post-entry>
 <figure class=entry-preview>
 <img loading=lazy src=https://nullderef.com/blog/web-api-client/crate_hierarchy.png alt="Designing an API Client in Rust: New Rspotify Version a Year Later">
 </figure>
@@ -123,7 +159,7 @@ Written by Mario Ortiz Manero</p>
 <p>In the last part of this series I wrote some simple experiments of plugins both with WebAssembly and dynamic loading. After discarding Wasm for this specific PDK, I wanted to try to get a more realistic example with dynamic loading and work towards the final implementation.
 Since the Tremor team suggested to begin by implementing connectors, we’ll first have to learn more about them. Matthias ran me through their current state in a meeting, which I’ll try to summarize....</p>
 </section>
-<footer class=entry-footer><span title="2021-10-05 00:00:00 +0000 UTC">October 5, 2021</span>&nbsp;·&nbsp;26 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
+<footer class=entry-footer><span title="2021-10-05 00:00:00 +0000 UTC">October 5, 2021</span>&nbsp;·&nbsp;27 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
 <a class=entry-link aria-label="post link to Plugins in Rust: Diving into Dynamic Loading" href=https://nullderef.com/blog/plugin-dynload/></a>
 </div>
 </article>
@@ -142,39 +178,6 @@ Some probably weren’t expecting me to continue the series, as in the last arti
 </section>
 <footer class=entry-footer><span title="2021-09-05 00:00:00 +0000 UTC">September 5, 2021</span>&nbsp;·&nbsp;20 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
 <a class=entry-link aria-label="post link to Plugins in Rust: Getting Started" href=https://nullderef.com/blog/plugin-start/></a>
-</div>
-</article>
-<article class=post-entry>
-<figure class=entry-preview>
-<img loading=lazy src=https://nullderef.com/blog/rust-features/compiler-explorer.png alt='Why you shouldn&#39;t obsess about Rust "features"'>
-</figure>
-<div class=entry-group>
-<header class=entry-header>
-<h2>Why you shouldn't obsess about Rust "features"
-</h2>
-</header>
-<section class=entry-content>
-<p>Rust makes it very easy to express conditional compilation, specially thanks to its “features”. They’re well integrated into the language and are very easy to use. But one thing I’ve learned by maintaining Rspotify (a library for the Spotify API) is that one shouldn’t obsess over them. Conditional compilation should be used when it’s the only way to solve the problem, for a number of reasons I’ll explain in this article....</p>
-</section>
-<footer class=entry-footer><span title="2021-07-06 00:00:00 +0000 UTC">July 6, 2021</span>&nbsp;·&nbsp;7 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
-<a class=entry-link aria-label='post link to Why you shouldn&#39;t obsess about Rust "features"' href=https://nullderef.com/blog/rust-features/></a>
-</div>
-</article>
-<article class=post-entry>
-<figure class=entry-preview>
-<img loading=lazy src=https://nullderef.com/blog/plugin-tech/triangle.png alt="Plugins in Rust: The Technologies">
-</figure>
-<div class=entry-group>
-<header class=entry-header>
-<h2>Plugins in Rust: The Technologies
-</h2>
-</header>
-<section class=entry-content>
-<p>In this first article I will further analyze how a Plugin Development Kit (PDK) could be implemented in Rust. Note that I’m no expert in the topic; my objective is to merely collect all the information I’ve found so far and present it as a summary, with enough resources for the reader to learn more on their own and make their own decisions.
-1. The Problem This is actually part of my Google Summer of Code project for Tremor....</p>
-</section>
-<footer class=entry-footer><span title="2021-05-17 00:00:00 +0000 UTC">May 17, 2021</span>&nbsp;·&nbsp;22 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
-<a class=entry-link aria-label="post link to Plugins in Rust: The Technologies" href=https://nullderef.com/blog/plugin-tech/></a>
 </div>
 </article>
 <footer class=page-footer>

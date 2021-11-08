@@ -3,12 +3,33 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://nullderef.com/blog/</loc>
-    <lastmod>2021-10-13T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-07T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/blog/web-api-client/</loc>
-    <lastmod>2021-10-13T00:00:00+00:00</lastmod>
+    <loc>https://nullderef.com/tags/dynamic-loading/</loc>
+    <lastmod>2021-11-07T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/</loc>
+    <lastmod>2021-11-07T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/series/rust-plugins/</loc>
+    <lastmod>2021-11-07T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/blog/plugin-impl/</loc>
+    <lastmod>2021-11-07T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/blog/plugin-abi-stable/</loc>
+    <lastmod>2021-11-07T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/rust/</loc>
+    <lastmod>2021-11-07T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/series/</loc>
+    <lastmod>2021-11-07T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/</loc>
+    <lastmod>2021-11-07T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/blog/web-api-client/</loc>
     <lastmod>2021-10-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/open-source/</loc>
@@ -17,25 +38,10 @@
     <loc>https://nullderef.com/tags/rspotify/</loc>
     <lastmod>2021-10-13T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/rust/</loc>
-    <lastmod>2021-10-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/</loc>
-    <lastmod>2021-10-13T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/tags/web-api/</loc>
     <lastmod>2021-10-13T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/dynamic-loading/</loc>
-    <lastmod>2021-10-05T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/series/rust-plugins/</loc>
-    <lastmod>2021-10-05T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/blog/plugin-dynload/</loc>
-    <lastmod>2021-10-05T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/series/</loc>
     <lastmod>2021-10-05T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/plugin-start/</loc>

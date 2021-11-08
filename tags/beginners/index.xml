@@ -307,7 +307,7 @@ reminder! If you have any suggestions please leave them in the section below :)<
 that Rust specifically doesn&rsquo;t cover (and looks like it won&rsquo;t <a href="https://github.com/rust-lang/rfcs/pull/2964">anytime soon
 </a>). Say your library has lots of
 endpoints like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">endpoint</span><span style="color:#f92672">&lt;</span>T1, T2, T3, ...<span style="color:#f92672">&gt;</span>(mandatory: <span style="color:#a6e22e">T1</span>, opt1: Option<span style="color:#f92672">&lt;</span>T2<span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span>T3<span style="color:#f92672">&gt;</span>, ...);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">endpoint</span><span style="color:#f92672">&lt;</span>T1, T2, T3, <span style="color:#f92672">..</span>.<span style="color:#f92672">&gt;</span>(mandatory: <span style="color:#a6e22e">T1</span>, opt1: Option<span style="color:#f92672">&lt;</span>T2<span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span>T3<span style="color:#f92672">&gt;</span>, <span style="color:#f92672">..</span>.);
 </code></pre></div><p>In this case, when you call <code>endpoint</code>, you have to use <code>endpoint(mandatory, None, None, ...)</code>, or <code>endpoint(mandatory, Some(val1), Some(val2), ...)</code>,
 instead of the more intuitive <code>endpoint(mandatory)</code> or <code>endpoint(mandatory, val1, val2)</code>. Other languages like Python have named arguments, which make
 optional parameters natural and easier to read: <code>endpoint(mandatory, opt1=val1, opt2=val2)</code>, while also allowing them to be written in any order.</p>
@@ -328,12 +328,12 @@ aliases so that the following snippets are easier to read:</p>
 <span style="color:#e6db74">/// Some value that the endpoint will return
 </span><span style="color:#e6db74"></span><span style="color:#75715e">#[derive(Debug, Default)]</span>
 <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Value</span>;
-<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">ReturnedValue</span> <span style="color:#f92672">=</span> Result<span style="color:#f92672">&lt;</span>Value, Box<span style="color:#f92672">&lt;</span>dyn Error<span style="color:#f92672">&gt;&gt;</span>;
+<span style="color:#66d9ef">type</span> <span style="color:#a6e22e">ReturnedValue</span> <span style="color:#f92672">=</span> Result<span style="color:#f92672">&lt;</span>Value, Box<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">dyn</span> Error<span style="color:#f92672">&gt;&gt;</span>;
 
 <span style="color:#e6db74">/// The actual code for the endpoint inside the client
 </span><span style="color:#e6db74"></span><span style="color:#66d9ef">impl</span> APIClient {
     <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">actual_endpoint</span>(name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>, opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
-        println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;params: {} {:?} {:?}&#34;</span>, name, opt1, opt2);
+        println!(<span style="color:#e6db74">&#34;params: {} {:?} {:?}&#34;</span>, name, opt1, opt2);
 
         Ok(Default::default())
     }
@@ -408,7 +408,7 @@ api.approach_c(<span style="color:#f92672">&amp;</span>call1)<span style="color:
 with their default values:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> call2 <span style="color:#f92672">=</span> params::ApproachC {
     name: <span style="color:#e6db74">&#34;builder&#34;</span>.to_string(),
-    ..Default::default()
+    <span style="color:#f92672">..</span>Default::default()
 };
 api.approach_c(<span style="color:#f92672">&amp;</span>call2)<span style="color:#f92672">?</span>;
 </code></pre></div><p>The implementation looks like this:</p>
@@ -574,9 +574,9 @@ method. This is how it would look like:</p>
 <span style="color:#e6db74">/// Not meant to be used directly, only within `APIClient`.
 </span><span style="color:#e6db74"></span><span style="color:#75715e">#[derive(Default, Builder)]</span>
 <span style="color:#75715e">#[builder(build_fn(private), pattern = </span><span style="color:#e6db74">&#34;owned&#34;</span><span style="color:#75715e">)]</span>
-<span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachF</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
+<span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachF</span><span style="color:#f92672">&lt;&#39;</span><span style="color:#a6e22e">a</span><span style="color:#f92672">&gt;</span> {
     <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-    client: Option<span style="color:#f92672">&lt;&amp;</span><span style="color:#a6e22e">&#39;a</span> APIClient<span style="color:#f92672">&gt;</span>,
+    client: Option<span style="color:#f92672">&lt;&amp;&#39;</span><span style="color:#a6e22e">a</span> APIClient<span style="color:#f92672">&gt;</span>,
     <span style="color:#75715e">#[builder(setter(into))]</span>
     <span style="color:#66d9ef">pub</span> name: String,
     <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
@@ -585,7 +585,7 @@ method. This is how it would look like:</p>
     <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
 }
 
-<span style="color:#66d9ef">impl</span> ApproachFBuilder<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;_</span><span style="color:#f92672">&gt;</span> {
+<span style="color:#66d9ef">impl</span> ApproachFBuilder<span style="color:#f92672">&lt;&#39;</span>_<span style="color:#f92672">&gt;</span> {
     <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">call</span>(self) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
         <span style="color:#66d9ef">let</span> data <span style="color:#f92672">=</span> self.build().unwrap(); <span style="color:#75715e">// This should never fail
 </span><span style="color:#75715e"></span>        data.client
@@ -645,16 +645,16 @@ api.group().opt2(<span style="color:#ae81ff">2222</span>).approach_h(<span style
 
 <span style="color:#75715e">#[derive(Default, Builder)]</span>
 <span style="color:#75715e">#[builder(build_fn(private), pattern = </span><span style="color:#e6db74">&#34;owned&#34;</span><span style="color:#75715e">)]</span>
-<span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Group</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
+<span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Group</span><span style="color:#f92672">&lt;&#39;</span><span style="color:#a6e22e">a</span><span style="color:#f92672">&gt;</span> {
     <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-    client: Option<span style="color:#f92672">&lt;&amp;</span><span style="color:#a6e22e">&#39;a</span> APIClient<span style="color:#f92672">&gt;</span>,
+    client: Option<span style="color:#f92672">&lt;&amp;&#39;</span><span style="color:#a6e22e">a</span> APIClient<span style="color:#f92672">&gt;</span>,
     <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
     <span style="color:#66d9ef">pub</span> opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>,
     <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
     <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
 }
 
-<span style="color:#66d9ef">impl</span> GroupBuilder<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;_</span><span style="color:#f92672">&gt;</span> {
+<span style="color:#66d9ef">impl</span> GroupBuilder<span style="color:#f92672">&lt;&#39;</span>_<span style="color:#f92672">&gt;</span> {
     <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_g</span>(self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
         <span style="color:#66d9ef">let</span> data <span style="color:#f92672">=</span> self.build().unwrap();
         data.client
@@ -668,7 +668,7 @@ api.group().opt2(<span style="color:#ae81ff">2222</span>).approach_h(<span style
         <span style="color:#75715e">// This endpoint doesn&#39;t need `opt1`. It can either be ignored, or
 </span><span style="color:#75715e"></span>        <span style="color:#75715e">// be an error. I hate silent errors, though.
 </span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> data.opt1.is_some() {
-            panic<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;opt1 isn&#39;t needed for enpoint_h&#34;</span>)
+            panic!(<span style="color:#e6db74">&#34;opt1 isn&#39;t needed for enpoint_h&#34;</span>)
         }
 
         data.client.unwrap().actual_endpoint(name, None, data.opt2)
