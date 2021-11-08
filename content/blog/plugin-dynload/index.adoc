@@ -10,7 +10,6 @@ GHissueID: 38
 ---
 
 :sectnums:
-:stem: latexmath
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
@@ -804,6 +803,10 @@ I've created a few more plugins to see how this approach reacts to some common
 errors. Since in the end we aren't using a sandbox, I wonder what kind of errors
 we _can't_ recover from.
 
+The full source for the example that's supported to work is
+https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-metronome[here].
+Let's see a few ways in which the plugin could go wrong:
+
 === Missing fields
 
 The `plugin-missing` directory contains an empty plugin. It doesn't export any
@@ -811,6 +814,7 @@ fields at all, like the name or the version. This one is already handled by
 `libloading`, actually. When using `library.get("name")`, if `"name"` is not
 exported by the shared object, the following error will show up:
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-missing[See the full code here]
 [source, text]
 ----
 $ make debug-missing
@@ -822,6 +826,7 @@ Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.
 After implementing the versioning system, we can see how these kinds of errors
 can be caught safely:
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-versionmismatch[See the full code here]
 [source, text]
 ----
 $ make debug-versionmismatch
@@ -844,6 +849,7 @@ ____
 
 Ignoring this will cause an unavoidable segfault:
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongtype[See the full code here]
 [source, text]
 ----
 $ make debug-wrongtype
@@ -856,6 +862,7 @@ Unfortunately, there's not much we can do about out of bounds pointers. If the
 plugin exports e.g. the name with a null pointer, we'll just get a segmentation
 fault:
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongaddress[See the full code here]
 [source, text]
 ----
 $ make debug-wrongaddress
@@ -869,12 +876,18 @@ to garbage anyway.
 
 === Panicking
 
+NOTE: This seems to be Work in Progress, and panicking through the FFI boundary
+will be allowed after
+https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html[`#![feature(c_unwind)]`]
+is implemented.
+
 Panicking is not supported in the C ABI; it's considered undefined behaviour
 <<panic-ffi>>. If a plugin panics, the entire program will most likely abort.
 Plugin developers should wrap every single exported function in
 https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`] in
 order to not crash the entire runtime when something goes wrong:
 
+.https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-panic[See the full code here]
 [source, text]
 ----
 $ make debug-panic
@@ -944,12 +957,27 @@ it. In the next article I'll see the differences between both approaches.
 [bibliography]
 == References
 
-- [[[florentin-1,     1]]] https://pluginized-protocols.org/
-- [[[florentin-2,     2]]] https://pquic.org/
-- [[[florentin-3,     3]]] https://petsymposium.org/2019/files/hotpets/proposals/rochet-fan.pdf
-- [[[florentin-4,     4]]] https://petsymposium.org/2019/files/hotpets/slides/rochet-fan-slides.pdf
-- [[[fat-binaries,    5]]] https://stackoverflow.com/a/63346857/11488352
-- [[[generics,        6]]] https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics
-- [[[void-ptr,        7]]] https://www.learncpp.com/cpp-tutorial/void-pointers/
-- [[[pulseaudio-ptr,  8]]] https://freedesktop.org/software/pulseaudio/doxygen/stream_8h.html#a2dcc985c65964da290a0c2e1bf103175
-- [[[panic-ffi,       9]]] https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics
+- [[[florentin-1,     1]]] https://pluginized-protocols.org/[Pluginized
+  Protocols]
+- [[[florentin-2,     2]]] https://pquic.org/[Pluginized QUIC]
+- [[[florentin-3,     3]]]
+  https://petsymposium.org/2019/files/hotpets/proposals/rochet-fan.pdf[Flexible
+  Anonymous Network (paper)]
+- [[[florentin-4,     4]]]
+  https://petsymposium.org/2019/files/hotpets/slides/rochet-fan-slides.pdf[Flexible
+  Anonymous Network (slides)]
+- [[[fat-binaries,    5]]] https://stackoverflow.com/a/63346857/11488352[(C/C++)
+  How to generate executable file that can run on both Windows and Linux? --
+  StackOverflow]
+- [[[generics,        6]]]
+  https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics[Performance
+  of Code Using Generics -- The Rust Programming Language]
+- [[[void-ptr,        7]]]
+  https://www.learncpp.com/cpp-tutorial/void-pointers/[Void pointers -- Learn
+  C++]
+- [[[pulseaudio-ptr,  8]]]
+  https://freedesktop.org/software/pulseaudio/doxygen/stream_8h.html#a2dcc985c65964da290a0c2e1bf103175[`pa_stream_set_write_callback`
+  -- PulseAudio docs]
+- [[[panic-ffi,       9]]]
+  https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics[FFI and panics --
+  Rustonomicon]

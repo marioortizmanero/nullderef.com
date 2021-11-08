@@ -672,13 +672,31 @@ can leave any suggestions in the comments below.
 [bibliography]
 == References
 
-- [[[extern,          1]]] https://doc.rust-lang.org/std/keyword.extern.html
-- [[[dynload-comp,    2]]] https://github.com/szymonwieloch/rust-dlopen#compare-with-other-libraries
-- [[[dylib,           3]]] https://users.rust-lang.org/t/what-is-the-difference-between-dylib-and-cdylib/28847
-- [[[miri-compiler,   4]]] https://rustc-dev-guide.rust-lang.org/miri.html
-- [[[miri-unstable,   5]]] https://github.com/rust-lang/miri/blob/master/CONTRIBUTING.md#preparing-the-build-environment
-- [[[wasmer-types,    6]]] https://docs.rs/wasmer-runtime-core/0.17.1/wasmer_runtime_core/types/trait.WasmExternType.html
-- [[[wasmtime-inttyp, 7]]] https://github.com/bytecodealliance/wasmtime/issues/677
-- [[[witx,            8]]] https://github.com/WebAssembly/WASI/blob/main/docs/witx.md
-- [[[witx-example,    9]]] https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md#defining-language-neutral-interfaces-like-wasi-revisited
-- [[[witx-guide,     10]]] https://radu-matei.com/blog/wasm-api-witx/
+- [[[extern,          1]]]
+  https://doc.rust-lang.org/std/keyword.extern.html[Keyword extern --
+  doc.rust-lang.org]
+- [[[dynload-comp,    2]]]
+  https://github.com/szymonwieloch/rust-dlopen#compare-with-other-libraries[Compare
+  with other libraries --  GitHub szymonwieloch/rust-dlopen]
+- [[[dylib,           3]]]
+  https://users.rust-lang.org/t/what-is-the-difference-between-dylib-and-cdylib/28847[What
+  is the Difference Between `dylib` and `cdylib` -- users.rust-lang.org]
+- [[[miri-compiler,   4]]] https://rustc-dev-guide.rust-lang.org/miri.html[Miri
+  -- Guide to Rustc Development]
+- [[[miri-unstable,   5]]]
+  https://github.com/rust-lang/miri/blob/master/CONTRIBUTING.md#preparing-the-build-environment[Preparing
+  the build environment -- Github rust-lang/miri]
+- [[[wasmer-types,    6]]]
+  https://docs.rs/wasmer-runtime-core/0.17.1/wasmer_runtime_core/types/trait.WasmExternType.html[`WasmExternType`
+  -- Wasmer v0.17.1]
+- [[[wasmtime-inttyp, 7]]]
+  {{< gh issue "bytecodealliance/wasmtime" 677 "Support for Interface Types in wasmtime API" >}}
+- [[[witx,            8]]]
+  https://github.com/WebAssembly/WASI/blob/main/docs/witx.md[Know your `witx` --
+  Github WebAssembly/WASI]
+- [[[witx-example,    9]]]
+  https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md#defining-language-neutral-interfaces-like-wasi-revisited[Defining
+  language-neutral interfaces like WASI (revisited) --
+  GitHub WebAssembly/interface-types]
+- [[[witx-guide,     10]]] https://radu-matei.com/blog/wasm-api-witx/[Writing a
+  simple WASM API layer using interface types and Wasmtime -- radu's blog]
