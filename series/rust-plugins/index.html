@@ -76,26 +76,6 @@ In this series I implement a Plugin System in Rust in hopes of reducing the size
 </div>
 </header>
 <article class="post-entry tag-entry">
-<div class=entry-group>
-<header class=entry-header>
-<h2>Plugins in Rust: Getting our Hands Dirty
-</h2>
-</header>
-<section class=entry-content>
-<p>1. Current Limitations 2. External/Complex types If your codebase is large enough, you’ll eventually find out that there are types in the standard library that don’t have an alternative in abi_stable:
-Non-trivial StableAbi implementations in Tremor:
-Connectors:
-Sources:
-serde_yaml::Value in SourceReply
-Pin in EventPayload (in SourceReply and by itself)
-tremor_value::Value in ValueAndMeta in EventPayload
-Sinks:...</p>
-</section>
-<footer class=entry-footer><span title="2021-11-07 00:00:00 +0000 UTC">November 7, 2021</span>&nbsp;·&nbsp;5 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
-<a class=entry-link aria-label="post link to Plugins in Rust: Getting our Hands Dirty" href=https://nullderef.com/blog/plugin-impl/></a>
-</div>
-</article>
-<article class="post-entry tag-entry">
 <figure class=entry-preview>
 <img loading=lazy src=https://nullderef.com/blog/plugin-abi-stable/cratesio.jpg alt="Plugins in Rust: Reducing the Pain with Dependencies">
 </figure>
@@ -107,7 +87,7 @@ Sinks:...</p>
 <section class=entry-content>
 <p>The last article of this series covered how the plugin system could be implemented from scratch. This is a lot of work if you’re dealing with a relatively large codebase and therefore a complex interface in your plugin system, so let’s see how we can make our lives easier. I’ve been wanting to try abi_stable for this since the beginning, which was specifically created for plugins. But we aren’t really locked to that crate, so I’ll show other alternatives as well, which can even be combined to your liking....</p>
 </section>
-<footer class=entry-footer><span title="2021-11-07 00:00:00 +0000 UTC">November 7, 2021</span>&nbsp;·&nbsp;28 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
+<footer class=entry-footer><span title="2021-11-08 00:00:00 +0000 UTC">November 8, 2021</span>&nbsp;·&nbsp;28 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
 <a class=entry-link aria-label="post link to Plugins in Rust: Reducing the Pain with Dependencies" href=https://nullderef.com/blog/plugin-abi-stable/></a>
 </div>
 </article>
@@ -162,11 +142,23 @@ Some probably weren’t expecting me to continue the series, as in the last arti
 <a class=entry-link aria-label="post link to Plugins in Rust: The Technologies" href=https://nullderef.com/blog/plugin-tech/></a>
 </div>
 </article>
-<footer class=page-footer>
-<nav class=pagination>
-<a class=next href=https://nullderef.com/series/rust-plugins/page/2/>Next Page »</a>
-</nav>
-</footer>
+<article class="post-entry tag-entry">
+<figure class=entry-preview>
+<img loading=lazy src=https://nullderef.com/blog/gsoc-proposal/logo.png alt="GSoC Proposal: Implementing a Plugin Development Kit for Tremor">
+</figure>
+<div class=entry-group>
+<header class=entry-header>
+<h2>GSoC Proposal: Implementing a Plugin Development Kit for Tremor
+</h2>
+</header>
+<section class=entry-content>
+<p>Abstract This Google Summer of Code project consists on developing a universal interface for Tremor plugins[1], allowing said library to become more modular and reduce the core set of dependencies.
+This will achieve a considerably reduced core size for Tremor, meaning that the library will be faster to compile and have a smaller binary size. Most importantly, it will transform Tremor’s architecture to be completely modular, where plugins can be configured as needed and developed independently, in a language-agnostic way....</p>
+</section>
+<footer class=entry-footer><span title="2021-04-13 00:00:00 +0000 UTC">April 13, 2021</span>&nbsp;·&nbsp;10 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
+<a class=entry-link aria-label="post link to GSoC Proposal: Implementing a Plugin Development Kit for Tremor" href=https://nullderef.com/blog/gsoc-proposal/></a>
+</div>
+</article>
 </main>
 <footer class=footer>
 <span>See this site&rsquo;s source code <a href=https://github.com/marioortizmanero/nullderef.com>here</a>, licensed under GPLv3 ·</span>

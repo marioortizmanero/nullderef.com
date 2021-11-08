@@ -7,11 +7,11 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Sun, 07 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/series/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 08 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/series/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Plugin Development Kit in Rust</title>
       <link>https://nullderef.com/series/rust-plugins/</link>
-      <pubDate>Sun, 07 Nov 2021 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/series/rust-plugins/</guid>
       <description>In this series I implement a Plugin System in Rust in hopes of reducing the size of Tremor&amp;#39;s core.</description>
