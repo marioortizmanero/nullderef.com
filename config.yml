@@ -41,6 +41,7 @@ params:
   description: "NullDeref - Yet Another Programming Blog"
   author: Mario Ortiz Manero
   keywords: ["rust", "rustlang", "guides", "open-source", "programming", "software"]
+  images: ["/static/logo-banner.png"]
 
   defaultTheme: auto
   ShowCodeCopyButtons: true
