@@ -4,6 +4,10 @@
     <title>beginners on NullDeref</title>
     <link>https://nullderef.com/tags/beginners/</link>
     <description>Recent content in beginners on NullDeref</description>
+    <image>
+      <url>https://nullderef.com/static/logo-banner.png</url>
+      <link>https://nullderef.com/static/logo-banner.png</link>
+    </image>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
