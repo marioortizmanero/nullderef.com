@@ -2,13 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://nullderef.com/tags/abi/</loc>
+    <lastmod>2021-11-08T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/blog/</loc>
     <lastmod>2021-11-08T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/dynamic-loading/</loc>
     <lastmod>2021-11-08T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://nullderef.com/tags/ffi/</loc>
+    <lastmod>2021-11-08T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/</loc>
+    <lastmod>2021-11-08T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/plugin/</loc>
     <lastmod>2021-11-08T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/series/rust-plugins/</loc>
@@ -35,11 +44,20 @@
     <loc>https://nullderef.com/tags/open-source/</loc>
     <lastmod>2021-10-13T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://nullderef.com/tags/programming/</loc>
+    <lastmod>2021-10-13T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/tags/rspotify/</loc>
     <lastmod>2021-10-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/web-api/</loc>
     <lastmod>2021-10-13T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/bpf/</loc>
+    <lastmod>2021-10-05T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/ebpf/</loc>
+    <lastmod>2021-10-05T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/plugin-dynload/</loc>
     <lastmod>2021-10-05T00:00:00+00:00</lastmod>
@@ -50,13 +68,28 @@
     <loc>https://nullderef.com/tags/beginners/</loc>
     <lastmod>2021-07-06T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://nullderef.com/tags/cargo/</loc>
+    <lastmod>2021-07-06T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/tags/guide/</loc>
     <lastmod>2021-07-06T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/rust-features/</loc>
     <lastmod>2021-07-06T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://nullderef.com/tags/ipc/</loc>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/blog/plugin-tech/</loc>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/scripting/</loc>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/wasm/</loc>
+    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/webassembly/</loc>
     <lastmod>2021-05-17T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/gsoc-proposal/</loc>

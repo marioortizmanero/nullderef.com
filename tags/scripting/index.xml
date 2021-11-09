@@ -1,0 +1,1068 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>scripting on NullDeref</title>
+    <link>https://nullderef.com/tags/scripting/</link>
+    <description>Recent content in scripting on NullDeref</description>
+    <image>
+      <url>https://nullderef.com/static/logo-banner.png</url>
+      <link>https://nullderef.com/static/logo-banner.png</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
+    <lastBuildDate>Mon, 17 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/scripting/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Plugins in Rust: The Technologies</title>
+      <link>https://nullderef.com/blog/plugin-tech/</link>
+      <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/blog/plugin-tech/</guid>
+      <description>A more in-depth look at Rust PDKs</description>
+      <content:encoded><![CDATA[<div class="paragraph">
+<p>In this first article I will further analyze how a Plugin Development Kit (PDK)
+could be implemented in Rust. Note that I’m no expert in the topic; my objective
+is to merely collect all the information I’ve found so far and present it as a
+summary, with enough resources for the reader to learn more on their own and
+make their own decisions.</p>
+</div>
+<div class="sect1">
+<h2 id="requirements">1. The Problem</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is actually part of my Google Summer of Code project for
+<a href="https://www.tremor.rs/">Tremor</a>. My first article about a Plugin System in Rust
+was in the <a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>, which serves as
+a brief introduction and might be interesting as well. While this will
+specifically cover Tremor’s use case, I’m sure many other applications in the
+future will have similar requirements for their own program. And considering the
+few articles I found about plugins in Rust, this
+<a href="https://nullderef.com/series/rust-plugins/">series</a> may be helpful to the
+community.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Google didn’t end up allocating a slot for me in the GSoC, but I’ll still
+be able to continue through
+<a href="https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff">a
+LFX Mentorship</a>.
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>After showing the proposal to the Tremor team, I was given an important
+suggestion: in this case there isn’t really a need to be able to write plugins
+from multiple programming languages; it’s not worth the additional complexity.
+It would definitely be interesting but with this I can focus on the main
+problems I discovered in my proposal: the ABI instability, and safety.</p>
+</div>
+<div class="paragraph">
+<p>Besides that, the rest of the main points to consider remain the same:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Mandatory:</strong> Being able to load/unload the plugins both at start-time and at
+run-time.</p>
+</li>
+<li>
+<p><strong>Mandatory:</strong> Cross-platform support</p>
+</li>
+<li>
+<p><strong>Mandatory:</strong> Low overhead</p>
+</li>
+<li>
+<p><strong>Mandatory:</strong> Available at least from Rust</p>
+</li>
+<li>
+<p><strong>Extra:</strong> <a href="#safety">Safety</a></p>
+</li>
+<li>
+<p><strong>Extra:</strong> <a href="#back-comp">Backwards compatibility</a></p>
+</li>
+<li>
+<p><strong>Extra</strong>: Not much work to port from the existing implementations</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="safety">2. Safety Concerns</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I’ve been wanting to take a look at the possible safety concerns a PDK could
+bring to Tremor since the initial proposal.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Depending on the approach that is taken for the Plugin System,
+implementing solutions to some of the points I make below can be really complex,
+so I wouldn’t work on them for the initial deadline. For now, it’s something we
+have to be aware of.
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="sect2">
+<h3 id="_unsafe_code">2.1. Unsafe Code</h3>
+<div class="paragraph">
+<p>Many of the technologies that can be used to implement a Plugin System work with
+unsafe code, like <a href="#ffi">FFIs</a> or <a href="#memory-sharing">IPC Memory Sharing</a>. This
+isn’t necessarily a problem if it’s self-contained and thoroughly reviewed, but
+we lose some of the safety guarantees Rust provides us, increasing the
+maintenance cost of the library.</p>
+</div>
+<div class="paragraph">
+<p>It takes considerably more work to make sure the implementation is sound, even
+with tools like <a href="https://github.com/rust-lang/miri">MIRI</a>, which I plan on
+integrating into Tremor if I do end up having to use <code>unsafe</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_error_resilience">2.2. Error Resilience</h3>
+<div class="paragraph">
+<p>Rust doesn’t protect its users from leaking memory. In fact, it’s as easy as
+calling <code>mem::forget</code>. The thing is that if a plugin leaks memory, the entire
+process also does, meaning that Tremor’s performance could be affected by
+incorrectly developed plugins.</p>
+</div>
+<div class="paragraph">
+<p>This doesn’t happen just with memory leaks; a plugin could abort or panic and
+crash the entire thing very easily.</p>
+</div>
+<div class="paragraph">
+<p>Ideally, Tremor could detect plugins that aren’t performing well and stop them
+before it’s too late. The core of the program could continue running even when a
+plugin fails, and perhaps warn the user about its malfunctioning, for optimal
+error resilience.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_remote_code_execution_via_plugins">2.3. Remote Code Execution via Plugins</h3>
+<div class="paragraph">
+<p><a href="https://en.wikipedia.org/wiki/Component_Object_Model#Security">This was a problem
+with Internet Explorer</a>, for example. It used COM and ActiveX, which implement
+no sandboxing at all and were ran directly on the user’s machine, allowing
+malware to be included in plugins with the ability to execute arbitrary code on
+the host machine. This can be less of a problem when installing only trusted
+plugins via digital signatures, but it’s still a huge risk.</p>
+</div>
+<div class="paragraph">
+<p>In the case of Tremor plugins this is a similar problem. The end user — those
+who will add plugins to their configuration — is a developer, who should be
+more wary of what they’re including in their own projects. But the truth is that
+it isn’t any better.</p>
+</div>
+<div class="paragraph">
+<p>I would compare the situation more specifically to how package managers like
+<a href="https://www.npmjs.com/">npm</a> work (or anything that deals with dependencies,
+really). The entire infrastructure is usually based on trust; noone’s really
+stopping you from uploading a malicious package/crate for remote code execution
+or to steal data <a href="#npm-trust-1">[1]</a> <a href="#npm-trust-2">[2]</a>. Plugins are like dependencies in
+this case; they have full access to the host’s computer, and thus shouldn’t be
+trusted by default.</p>
+</div>
+<div class="paragraph">
+<p>An improved approach to Node + npm would be something like
+<a href="https://github.com/denoland/deno">Deno</a>, which is a secure by default
+JavaScript/TypeScript runtime. This is enabled thanks to sandboxing, and
+requires the developer to manually toggle e.g. access to the filesystem or to
+the network. This is no panacea because people might end up enabling whatever
+permission is required by the dependency they want to install without thinking
+about it, but it’s similar to <code>unsafe</code>: at least it makes you aware that you
+might mess up.</p>
+</div>
+<div class="paragraph">
+<p>One could argue that their program is realistically going to be ran in a Virtual
+Machine or a container most of the times, where this may not matter so much. But
+should you really assume that? Should user safety rely on the fact that the
+machine is ran on an isolated kernel? Containers, by the way, introduce a much
+bigger overhead in comparison to some sandboxing methods. And even if the system
+as a whole is isolated, there is still a possibility for internal leaks: the
+Postgres plugin has access to whatever is being used by the Apache Kafka plugin,
+which may have sensitive logs you don’t want anyone to see.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="back-comp">3. Backward Compatibility</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As I discovered in the last post, backward compatibility is complicated for
+plugin systems in Rust with the typical approach, a FFI. Since it doesn’t
+currently offer a stable ABI — and probably never will — the slightest
+difference between the version used to compile a plugin and the core of the
+program will break it.</p>
+</div>
+<div class="paragraph">
+<p>Apart from the instability issues incoming from the Rust compiler, the core
+itself may change with frequency as well. And this isn’t limited to dynamic
+libraries. If the plugin receives a struct from the core, but the struct had one
+of its members removed in a new version, it’s all broken again.</p>
+</div>
+<div class="sect2">
+<h3 id="_possible_solutions">3.1. Possible Solutions</h3>
+<div class="paragraph">
+<p>The easiest fix for backward compatibility issues I can come up with is to
+serialize and deserialize the data with a flexible protocol rather than using
+its binary representation directly. If something like JSON is used to
+communicate between the core and its plugins, adding a field to a message won’t
+break anything, and removing one can be done via a deprecation process.
+Unfortunately, this introduces some overhead the application may not be
+interested in.</p>
+</div>
+<div class="paragraph">
+<p>Other more involved methods for binary representations include <a href="#swift-abi">[3]</a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Reserving space in the struct for future use.</p>
+</li>
+<li>
+<p>Making the struct an opaque type, requiring function calls to get the fields.</p>
+</li>
+<li>
+<p>Giving the struct a pointer to its “version 2” data (opaque in “version
+1”).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>As to breakage due to compiler version mismatches, there are a couple ways this
+can be fixed that I’ll investigate in later sections. Some technologies other
+than <a href="#ffi">FFI</a> don’t have this problem by nature, like <a href="#ipc">IPC</a> or
+<a href="#scripting-langs">scripting languages</a>, and we have some unofficial fixes from
+the community available, like <code>abi_stable</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_avoiding_breakage">3.2. Avoiding Breakage</h3>
+<div class="paragraph">
+<p>There are times when breakage is inevitable. Tremor may want to rewrite part of
+its core or finally remove a deprecated feature without being afraid of breaking
+all the plugins previously developed.</p>
+</div>
+<div class="paragraph">
+<p>For that, the plugins must embed a bit of metadata about the different versions
+of rustc/core/etc it was developed for, so that when it’s loaded by Tremor, it
+may check if they’re compatible, rather than breaking in mysterious ways.
+<a href="https://nullderef.com/blog/gsoc-proposal/#_defining_an_interface">I already
+talked about this in the past</a>, so I won’t get into the details.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_possible_approaches">4. Possible Approaches</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following are the most viable technologies that could be used as the base of
+a PDK. Some of the won’t match the requirements I mentioned earlier at first
+glance, but it’s a good idea to at least <em>consider</em> all of them. I haven’t
+written a line of code yet, so if an approach were to catch someone’s eye we
+could investigate more about it. I will rate each of the alternatives in a scale
+from 1 to 5 (approximately) in order to easen the decision-taking.</p>
+</div>
+<div class="sect2">
+<h3 id="scripting-langs">4.1. Scripting Languages</h3>
+<div class="paragraph">
+<p>Plenty of projects use scripting languages to extend their functionality at
+runtime, like Python, Ruby, Perl, Bash or JavaScript. Most notably, Vim created
+its own scripting language, Vimscript, in order to be fully customizable, and
+NeoVim is now pushing <a href="http://www.lua.org/">Lua</a> as a first-class language for
+configuration. Even Tremor itself has the interpreted query language
+<a href="https://docs.tremor.rs/tremor-query/"><code>tremor-query</code></a> for configuration.</p>
+</div>
+<div class="paragraph">
+<p>Lua is seen in game development; it’s a quite simple language with a very
+performant JIT implementation, which in any case I think would be the best
+option here. It could be embedded into the main program’s core (it’s only 247 kB
+compiled! <a href="#lua-wiki">[4]</a>) and used to load plugins at either start-time or
+run-time. And knowing it’s used in games, which are <em>obsessed</em> with performance,
+it might not be that much of a big deal in that regard.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+There are <a href="https://arewegameyet.rs/ecosystem/scripting/">languages
+specifically designed to extend Rust’s capabilities</a>, which you might be
+interested in, but I’ll just simplify this part by going for Lua.
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>Rust has libraries like <a href="https://github.com/amethyst/rlua"><code>rlua</code></a> which provide
+bindings for interoperability with Lua. <code>rlua</code> in particular seems to focus on
+having an idiomatic and safe interface, which is rare for a bindings library and
+good news, though it seems to be currently semi-abandoned, and forked by
+<a href="https://github.com/khvzak/mlua"><code>mlua</code></a>. Unfortunately, after digging a bit the
+Rust ecosystem for Lua bindings doesn’t seem to be as mature as I’d like for a
+project this big; there’s still some work to do to reach more stability.</p>
+</div>
+<div class="paragraph">
+<p>Lua gets extra points in safety. It’s possible to sandbox it by blocking
+whichever functions you don’t want users to access <a href="#lua-sandbox">[5]</a> (though it’s
+“tricky and generally speaking difficult to get right”). Similarly, one can
+also handle resource exhaustion issues within Lua programs. Not to mention that
+this wouldn’t require <code>unsafe</code> at all with an optimal set of bindings.</p>
+</div>
+<div class="paragraph">
+<p>Anyhow, the main deal breaker with scripting languages in this case is that it
+would be extremely complicated to port everything in Tremor so that it can be
+used from Lua. For new projects this could perhaps be something interesting, but
+not if the entirety of the already existing plugins have to be rewritten.</p>
+</div>
+<div class="paragraph">
+<p>Still, it’s a pretty interesting option for new projects, as you have ABI
+stability guarantees, solid safety overall, and it’s very straightforward to
+use.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">4/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Backwards compatibility</strong></p>
+</li>
+<li>
+<p><strong class="red white-background txt-margin-right txt-round">0/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ipc">4.2. Inter-Process Communication</h3>
+<div class="paragraph">
+<p>Another possibility for plugins is to define a protocol for Inter-Process
+Communication, turning your program into a server that extends its capabilities
+by connecting to external plugins. For instance, most text editors use this
+method to support the
+<a href="https://microsoft.github.io/language-server-protocol/">Language Server Protocol</a>,
+which uses JSON-RPC.</p>
+</div>
+<div class="paragraph">
+<p>There are of course multiple ways to do IPC, which I’ll briefly list below.
+Performance-wise, this graph shows a comparison of the overhead of each of them
+<a href="#ipc-wisc">[6]</a>:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="ipc-comparison.png" alt="IPC comparison" width="60%"/>
+</div>
+</div>
+<div class="sect3">
+<h4 id="sockets">4.2.1. Based on Sockets</h4>
+<div class="paragraph">
+<p>Sockets are the “worst”-performing alternative in the previous chart, but they’re
+so common and easy to use in most languages that it’s worth taking a look at.
+Using relatively lightweight protocols like
+<a href="https://developers.google.com/protocol-buffers">Protocol Buffers</a>, the
+performance would be close to passing raw structs, but with improved
+backwards/forwards compatibility <a href="#protobuf-perf">[7]</a>. JSON would probably not make
+that big of a difference in terms of performance either. This would make it
+possible to write a plugin in any language as well — including Rust — as long
+as there’s an implementation of the protocol available. But there’s still
+noticeable overhead when communicating via sockets; sending and receiving the
+messages can be much costlier than just calling a function, even if this happens
+on localhost.</p>
+</div>
+<div class="paragraph">
+<p>This alternative is much more interesting than <a href="#scripting-langs">Scripting Languages</a> for Tremor’s
+specific case: we don’t have to completely rewrite everything, since Rust can
+still be used, and implementing the protocol to communicate between the Tremor
+core and its plugins should be as easy as <code>#[derive(Serialize)]</code> for sending
+and <code>#[derive(Deserialize)]</code> for receiving.</p>
+</div>
+<div class="paragraph">
+<p>As to safety, separate processes imply that malfunctioning plugins don’t affect
+Tremor directly, and the PDK basically consists on implementing servers, which
+require no <code>unsafe</code> at all and has much more popularity and support in Rust.
+It’s still hard to properly sandbox the plugins, though.</p>
+</div>
+<div class="paragraph">
+<p>Overall, I consider this a very solid solution, with its main drawback being
+performance. I can’t really guess the effect this would have in Tremor’s speed,
+so I would love to create a quick benchmark when I get to implement the first
+prototypes to see if it’s actually the best choice, if Tremor devs think it’s
+worth my time.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Backwards compatibility</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="pipes">4.2.2. Based on Pipes</h4>
+<div class="paragraph">
+<p>Pipes have always been fairly popular specifically on Unix systems, and enable
+Inter-Process Communication with less overhead than sockets. They are made to be
+ran on the same machine, which is exactly what we need. The terminal file
+manager <a href="https://github.com/jarun/nnn">nnn</a> uses this approach: plugins can read
+from a FIFO (Named Pipe) to receive selections from nnn (lists of files or
+directories) and act accordingly.</p>
+</div>
+<div class="paragraph">
+<p>The rest is basically the same as with <a href="#sockets">Sockets</a>, maybe with extra
+points for performance, and less for Rust availability, since there don’t seem
+to be any reliable libraries for pipes (maybe
+<a href="https://docs.rs/interprocess/1.1.1/interprocess/"><code>interprocess</code></a> or
+<a href="https://crates.io/crates/ipipe"><code>ipipe</code></a>). But really, are libraries necessary at
+all? The <code>std</code> library
+<a href="https://doc.rust-lang.org/rust-by-example/std_misc/process/pipe.html">has support
+for cross-platform pipes when executing external commands</a> for stdin, stdout,
+and stderr, which most times is enough. The plugin can just use stdin to receive
+messages and stdout to send them. If that’s enough for your case then it’s
+vastly simplified.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">4/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">4/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Backwards compatibility</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="memory-sharing">4.2.3. Based on Memory Sharing</h4>
+<div class="paragraph">
+<p>Knowing that the plugins are intended to be on the same machine as the core of
+Tremor, there’s no need to actually send and receive messages. One can share
+memory between multiple processes and send notifications to receive updates. The
+performance is comparable to using a FFI, since the only overhead is the initial
+cost from setting up the shared pages, having regular memory access afterwards
+<a href="#memory-share-so">[8]</a>.</p>
+</div>
+<div class="paragraph">
+<p>This feature heavily depends on the system’s kernel, so it may hurt the
+“Cross-Compatibility” requirement. We have libraries like
+<a href="https://docs.rs/shared_memory"><code>shared_memory</code></a> +
+<a href="https://docs.rs/raw_sync"><code>raw_sync</code></a> in Rust that wrap all the OS
+implementations under the same interface, but admittedly, they don’t seem
+anywhere near as popular as most of the other alternatives. Not to mention that
+the examples for <code>shared_memory</code> <em>do</em> use <code>unsafe</code>, and a lot of it.</p>
+</div>
+<div class="paragraph">
+<p>Maybe if it was easier to use this would be a good idea, but IPC shared memory
+doesn’t seem to be any better than FFIs overall.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="red white-background txt-margin-right txt-round">2/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="red white-background txt-margin-right txt-round">2/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Backwards compatibility</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ffi">4.3. FFI</h3>
+<div class="paragraph">
+<p>This is possibly the <em>least weird</em> way to implement a Plugin Development Kit,
+i.e. it’s the most popular method I’ve seen outside of Rust. A <em>Foreign Function
+Interface</em> can allow us to directly access resources in separately compiled
+objects, even after the linking phase with dynamic loading. It’s one of the
+fastest options available because there’s no overhead at all after dynamically
+loading the library.</p>
+</div>
+<div class="paragraph">
+<p>The main library for this is
+<a href="https://github.com/nagisa/rust_libloading"><code>libloading</code></a>. There’s also the less
+popular <a href="https://docs.rs/dlopen/0.1.8/dlopen/"><code>dlopen</code></a> and
+<a href="https://github.com/Tyleo/sharedlib"><code>sharedlib</code></a>, with some small differences
+<a href="#ffi-comparison">[9]</a>. It seems to be a lower-level implementation for any kind of
+FFI that requires <code>unsafe</code> for almost everything — what I was expecting. Based
+on it there’s <a href="https://github.com/emoon/dynamic_reload"><code>dynamic_reload</code></a>, which
+is very interesting in order to “live reload” the plugins when they are
+recompiled. This would be useful for the development process of the plugins,
+since it also handles unloading the <em>same plugin</em> seamlessly, but that’s not a
+goal for this project so I don’t plan on using it. And the
+<a href="https://github.com/vberger/dlib"><code>dlib</code></a> crate provides macros to make the
+library loading simpler, based on <code>libloading</code>.</p>
+</div>
+<div class="paragraph">
+<p>I already briefly discussed about Rust-to-C FFIs in detail in the
+<a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>. It’s a lot of work to
+create an internal interface for Tremor through C. But it’s unfortunately the
+only way to do this, since Rust-to-Rust FFI is not stable. It also has awful
+safety; lots of <code>unsafe</code> usage is required with plenty of caveats
+<a href="#ffi-caveat-1">[10]</a> <a href="#ffi-caveat-2">[11]</a>, including subtle differences in the interface
+between Operating Systems <a href="#ffi-cross-platform">[12]</a>, although <code>dlopen</code> seems to be
+better in that regard <a href="#ffi-dlopen-safety">[13]</a>. No sandboxing either. And plugins
+can abort Tremor’s core execution when panicking/leaking memory/similars (I
+haven’t been able to find information about using <code>catch_unwind</code>).</p>
+</div>
+<div class="paragraph">
+<p>I recently discovered the
+<a href="https://github.com/rodrimati1992/abi_stable_crates"><code>abi_stable</code></a> crate, which
+guarantees Rust ABI’s stability unofficially and helps a lot with the binary
+compatibility aspect.</p>
+</div>
+<div class="paragraph">
+<p>It includes FFI-safe alternatives to many of the types in <code>std</code>, and even
+external ones (namely <code>crossbeam</code>, <code>parking_lot</code> and <code>serde_json</code>). This works
+by implementing a
+<a href="https://docs.rs/abi_stable/*/abi_stable/abi_stability/stable_abi_trait/trait.StableAbi.html"><code>StableAbi</code></a>
+trait that guarantees its FFI-safety, which may be done automatically with one
+of its procedural macros. Internal ABI stability is also guaranteed with macros
+like <code>#[sabi(last_prefix_field)]</code>, which would allow Tremor to add fields to
+existing structs
+<a href="https://github.com/rodrimati1992/abi_stable_crates/blob/19d71ec9175f870c1c784c37dae730b99948cacf/examples/0_modules_and_interface_types/interface/src/lib.rs#L45">without
+breaking backwards compatibility</a>.</p>
+</div>
+<div class="paragraph">
+<p>Fortunately, this crate has a
+<a href="https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples">few very
+detailed examples</a> one can look at to better understand how it works, and it’s
+exceptionally well documented. If I’ve understood it correctly, some of its
+inconvenients are the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>You have to use the types from <code>abi_stable</code> instead of <code>std</code> for the values
+passed through FFI.</p>
+</li>
+<li>
+<p>The whole crate seems huge and would probably add considerable complexity to
+this FFI method.</p>
+</li>
+<li>
+<p>It’s worth mentioning that library unloading is a non-feature; although it’s
+not going to be implemented for this project, it might in the future.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>While it’s a really interesting concept and look forward to seeing how it
+evolves, I’m not a big fan of having to resort to it. And the fact that it’s
+unofficial and not that popular doesn’t give me full confidence that this will
+still work in 5 years, or that it won’t be outdated/abandoned.</p>
+</div>
+<div class="paragraph">
+<p>More people have tried writing Rust FFIs in the past, so we can take a look at
+existing tutorials in order to see their experience:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The one and only Amos wrote an extremely detailed blog post on fasterthanlime
+<a href="https://fasterthanli.me/articles/so-you-want-to-live-reload-rust">here</a>,
+specifically about live reloading Rust — a closely related topic.</p>
+</li>
+<li>
+<p>Michael Bryan made a guided introduction to Plugins in Rust
+<a href="https://adventures.michaelfbryan.com/posts/plugins-in-rust/">here</a>, and also
+wrote a tutorial for his unofficial Rust FFI book
+<a href="https://michael-f-bryan.github.io/rust-ffi-guide/dynamic_loading.html">here</a>.</p>
+</li>
+<li>
+<p><a href="https://github.com/zicklag">@zicklag</a>, who had read Michael’s article, tried it
+by himself in order to add a plugin system to
+<a href="https://github.com/amethyst/amethyst">Amethyst</a>, and posted
+<a href="https://zicklag.github.io/rust-tutorials/rust-plugins.html">this tutorial</a>.
+When he shared the post on the official Rust forum, it was accompanied by this
+demotivating comment, after failing <a href="#amethyst-fail">[14]</a> to implement it for
+Amethyst:</p>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Unfortunately I found that dynamic linking doesn’t actually work in Rust across
+different versions of Rust, and the technique for plugins also failed, even
+inside the same version of Rust, when I tried to compile an app with other
+dependencies like Amethyst. That leaves the technique outlined in the tutorial
+not very practical for real applications.</p>
+</div>
+<div class="paragraph">
+<p>The closest thing I’ve found to accomplish something similar is [<code>abi_stable</code>].</p>
+</div>
+</blockquote>
+<div class="attribution">
+— https://users.rust-lang.org/t/creating-rust-apps-with-dynamically-loaded-rust-plugins/28814/111092
+</div>
+</div>
+<div class="paragraph">
+<p>He also added later on:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>It could very well be possible [to use WebAssembly here].
+It wouldn’t be exactly the same workflow, but I’ve considered using Wasmtime
+or CraneLift, which Wasmtime is built on, to Run Wasm modules as plugins.</p>
+</div>
+</blockquote>
+<div class="attribution">
+— https://users.rust-lang.org/t/creating-rust-apps-with-dynamically-loaded-rust-plugins/28814/7
+</div>
+</div>
+<div class="paragraph">
+<p>He didn’t have time to end up doing so, so we’ll have to investigate ourselves.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>So, more or less:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="red white-background txt-margin-right txt-round">1/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="red white-background txt-margin-right txt-round">0/5</strong> <strong>Backwards compatibility</strong> (may be <strong class="green white-background txt-margin-right txt-round">5/5</strong> if
+using <code>abi_stable</code>)</p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="wasm">4.4. WebAssembly Interface</h3>
+<div class="paragraph">
+<p>Now, this is what I wanted to emphasize in this article! Turns out WebAssembly
+isn’t limited to web development anymore; it’s slowly evolving into a portable
+binary-code format. As far as I know, this should be like a mix between <a href="#ffi">FFI</a>
+and <a href="#scripting-langs">Scripting Languages</a>, with a stronger focus in stability and portability.
+Here’s what Wikipedia has to say about it:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>WebAssembly (sometimes abbreviated Wasm) is an open standard that defines a
+portable binary-code format for executable programs, and a corresponding textual
+assembly language, as well as interfaces for facilitating interactions between
+such programs and their host environment. The main goal of WebAssembly is to
+enable high-performance applications on web pages, <mark>but the format is designed to
+be executed and integrated in other environments as well, including standalone
+ones.</mark></p>
+</div>
+</blockquote>
+<div class="attribution">
+— https://en.wikipedia.org/wiki/WebAssembly
+</div>
+</div>
+<div class="paragraph">
+<p>So to clear it up, <strong>Wasm</strong> is an <em>assembly language</em>, and
+<a href="https://wasi.dev/"><strong>WASI</strong></a> is a <em>system interface</em> to run it outside the web. The
+latter is extremely well explained
+<a href="https://hacks.mozilla.org/2019/03/standardizing-wasi-a-webassembly-system-interface/">in
+this article by Mozilla</a>, I suggest giving it a read for more details.
+<a href="https://bytecodealliance.org/articles/announcing-the-bytecode-alliance">This one</a>
+is also very nice to read and explains the isolation system it provides,
+specifically.</p>
+</div>
+<div class="paragraph">
+<p>The two main points WebAssembly offers are, in a nutshell:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>When compiled, it doesn’t need to know what Operating System is being
+targeted. This is handled by the runtime, and the binary itself is fully
+portable.</p>
+</li>
+<li>
+<p>In order to handle untrustworthy programs, it implements a sandbox. With that,
+the host can limit exactly what a program has access to.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>WASI is just a standard, so there’s multiple runtimes available. The most
+popular ones are coincidentally implemented in Rust as well:
+<a href="https://github.com/bytecodealliance/wasmtime"><strong>wasmtime</strong></a> and
+<a href="https://github.com/wasmerio/wasmer"><strong>wasmer</strong></a>. Both use the
+<a href="https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md">Cranelift</a>
+backend to generate the WebAssembly machine code (although wasmer seems to
+support more backends, like LLVM). Then, the runtime can be used to run the
+generated <code>.wasm</code> binary in different ways (say, as a CLI or a library). This
+also means that plugins could be written in any language that compiles to
+WebAssembly.</p>
+</div>
+<div class="paragraph">
+<p>The differences between the two runtimes aren’t that big. You can read
+<a href="https://wiki.alopex.li/ActuallyUsingWasm">this wiki article for more details,
+including examples</a>, but I particularly liked this quote:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Just based on what they demonstrate, wasmer is more focused on embedding wasm in
+your native program, while wasmtime is more focused on executing standalone wasm
+programs using WASI. Both are capable of both, it just seems a matter of
+emphasis.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>The article also includes a <span class="line-through">not reliable at all</span> benchmark,
+which can serve us as a way to compare its performance with the native code
+you’d get with e.g. <a href="#ffi">FFI</a>. It estimates that Wasm is a bit less than an order
+of magnitude slower than native code, and the same applies to memory usage.
+<a href="https://github.com/jedisct1/webassembly-benchmarks/tree/master/2021-Q1">A more
+thorough benchmark</a> was done in libsodium that shows better results: Wasm can be
+just about 3 times slower than native code. Do note that this depends on the
+runtime that’s being used, and it may improve in the future, as WebAssembly is
+just 4 years old.</p>
+</div>
+<div class="paragraph">
+<p>There’s a whole series on how to make a Plugins System with Wasmer
+<a href="https://freemasen.com/blog/wasmer-plugin-pt-1/">here</a>, which will come in handy
+to know what to expect. The usability doesn’t actually seem to be that good,
+since by default you can only use integers, floating-point or vectors
+<a href="#wasmer-types">[15]</a> as parameters when calling Wasm plugins. For more complex
+types, you have to resort to encoding and decoding via a crate like
+<a href="https://github.com/bincode-org/bincode"><code>bincode</code></a>, although most of the
+boilerplate can be reduced with procedural macros or a wrapper like
+<a href="https://github.com/alec-deason/wasm_plugin"><code>wasm_plugin</code></a>, and this opens up the
+possibility of using serialization with support for backwards compatibility
+within Tremor. The
+<a href="https://freemasen.com//blog/wasmer-plugin-pt-4/index.html">last part</a> of the
+series is the most interesting one, as it includes a real-world example, with a
+version of the final code in <a href="https://github.com/FreeMasen/wasmer-plugin">this
+repository</a>.</p>
+</div>
+<div class="paragraph">
+<p>All in all, WebAssembly seems to win against <a href="#ffi">FFI</a> in terms of security by not
+needing <code>unsafe</code> at all and including sandboxing by default, at the cost of
+efficiency. This is up to the managers of the project and what they consider
+more important.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Cross-platform support</strong></p>
+</li>
+<li>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Low overhead</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Rust availability</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Safety</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">4/5</strong> <strong>Backwards compatibility</strong></p>
+</li>
+<li>
+<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_prior_art">5. Prior Art</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It’s very important to take a look at projects that have already done this in
+the past in order to learn from their mistakes and not start from scratch.</p>
+</div>
+<div class="paragraph">
+<p>Here’s a list of some of the libraries I found with Plugin Systems, specifically
+written in Rust:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rust-lang/cargo"><code>cargo</code></a>,
+<a href="https://github.com/rust-lang/mdBook"><code>mdbook</code></a>: both have an extension system
+via CLI commands. Adding a subcommand to either of these utilities is as easy
+as creating a binary with a fixed prefix (e.g. <code>cargo-expand</code>), and if it’s
+available in the <code>$PATH</code> when running <code>cargo</code>, it will be possible to invoke
+the plugin with <code>cargo expand</code> as well.</p>
+<div class="paragraph">
+<p>This is a very interesting approach, specially because of how simple it
+is to use. Cargo doesn’t seem to need to communicate with the extension at all,
+but <code>mdbook</code> does use stdin to receive messages and stdout to send them, via
+serialization. So it’s basically the IPC <a href="#pipes">Based on Pipes</a> approach.</p>
+</div>
+</li>
+<li>
+<p><a href="https://github.com/zellij-org/zellij"><code>zellij</code></a>: a terminal workspace with “a
+plugin system allowing one to create plugins in any language that compiles to
+WebAssembly”.</p>
+<div class="paragraph">
+<p>This is an extremely valuable resource in case the <a href="#wasm">WebAssembly Interface</a> option is chosen, as
+it’s very similar to what Tremor needs. One can even subscribe to events in
+order to simulate the traits in Tremor that currently use <code>async</code>.</p>
+</div>
+<div class="paragraph">
+<p>After trying it out and seeing its source code, it seems to work with a <code>wasm</code>
+binary that acts as a standalone program, where the communication takes place
+via stdin and stdout, serializing and deserializing with
+<a href="https://serde.rs/">serde</a>. <code>zellij</code> includes a few plugins by default, like the
+status bar, or a file manager. Very neat architecture!</p>
+</div>
+<div class="paragraph">
+<p>Other WebAssmbly-based PDKs:
+<a href="https://book.veloren.net/contributors/developers/codebase-structure.html#plugins">Veloren</a>,
+<a href="https://github.com/feather-rs/feather/tree/main/quill">Feather</a>.</p>
+</div>
+</li>
+<li>
+<p><a href="https://github.com/xi-editor/xi-editor"><code>xi</code></a>: a now abandoned modern text
+editor. Its plugins, described
+<a href="https://raphlinus.github.io/xi/2020/06/27/xi-retrospective.html#json">here in
+detail</a>, are based on <a href="https://docs.rs/xi-rpc/0.3.0/xi_rpc/">JSON RPC</a>.</p>
+<div class="paragraph">
+<p>Text editors overall are very interesting, because they must be built with
+extensibility in mind and thus have to implement some kind of plugin system.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Visual Studio Code is based on Electron, so it has a renderer process for the
+frontend, and a main process with Node. Its extensions share the same event
+loop,
+<a href="https://github.com/microsoft/vscode/issues/75627#issuecomment-519125065">which
+has been an issue for a long time in case an extension blocks temporarily</a>,
+causing lag.</p>
+</li>
+<li>
+<p>Eclipse’s plugin architecture is based on Java classes <a href="#eclipse">[16]</a> loaded at
+runtime and configured with XML manifests.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://bevyengine.org/"><code>bevy</code></a>: a very promising game engine whose features
+are implemented as plugins. Most times they are loaded at compile-time, but
+the
+<a href="https://docs.rs/bevy/0.5.0/bevy/dynamic_plugin/index.html"><code>bevy::dynamic_plugin</code></a>
+allows this to happen at runtime. It uses <code>libloading</code> internally, with
+actually
+<a href="https://github.com/bevyengine/bevy/blob/v0.5.0/crates/bevy_dynamic_plugin/src/loader.rs">very
+little code</a>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">6. Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This article has covered quite a few ways to approach a Plugin System. The final
+choice depends on what trade-offs the project wants to make. Most of them
+require sacrificing some level of performance for safety or usability. Here’s a
+drawing that <strong><em>very roughly</em></strong> compares the main methods:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="triangle.svg" alt="Triangle Chart" width="70%"/>
+</div>
+</div>
+<div class="paragraph">
+<p>There’s never a single answer in programming: how much performance are you
+willing to lose in exchange for safety and usability? Is that performance
+actually measurable, or is it just hypothetical? Don’t forget that this depends
+on the use case, so make sure you run a couple benchmarks if the resulting
+overhead may be important for your program.</p>
+</div>
+<div class="paragraph">
+<p>You can join the discussion at
+<a href="https://www.reddit.com/r/rust/comments/nenql8/plugins_in_rust_the_technologies_nullderefcom/?">Reddit</a>
+if you have any additional suggestions or comments, or leave a comment below.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="ulist bibliography">
+<ul class="bibliography">
+<li>
+<p><a id="npm-trust-1"></a>[1] <a href="https://jamie.build/how-to-build-an-npm-worm">How
+to build an npm worm — Jamie Kyle</a></p>
+</li>
+<li>
+<p><a id="npm-trust-2"></a>[2]
+<a href="https://snyk.io/blog/yet-another-malicious-package-found-in-npm-targeting-cryptocurrency-wallets/">Yet
+another malicious package found in npm, targeting cryptocurrency wallets — snyk</a></p>
+</li>
+<li>
+<p><a id="swift-abi"></a>[3] <a href="https://gankra.github.io/blah/swift-abi/">How
+Swift Achieved Dynamic Linking Where Rust Couldn’t — Alexis Beingessner</a></p>
+</li>
+<li>
+<p><a id="lua-wiki"></a>[4]
+<a href="https://en.wikipedia.org/wiki/Lua_(programming_language)">Lua (programming
+language) — Wikipedia</a></p>
+</li>
+<li>
+<p><a id="lua-sandbox"></a>[5] <a href="http://lua-users.org/wiki/SandBoxes">Sand Boxes — lua-users</a></p>
+</li>
+<li>
+<p><a id="ipc-wisc"></a>[6]
+<a href="http://pages.cs.wisc.edu/~adityav/Evaluation_of_Inter_Process_Communication_Mechanisms.pdf">Evaluation
+of Inter-Process Communication Mechanisms (paper)</a></p>
+</li>
+<li>
+<p><a id="protobuf-perf"></a>[7]
+<a href="https://google.github.io/flatbuffers/flatbuffers_benchmarks.html">C++
+Benchmarks — FlatBuffers </a></p>
+</li>
+<li>
+<p><a id="memory-share-so"></a>[8]
+<a href="https://stackoverflow.com/a/14512554/11488352">Performance difference between
+IPC shared memory and threads memory — StackOverflow</a></p>
+</li>
+<li>
+<p><a id="ffi-comparison"></a>[9]
+<a href="https://docs.rs/dlopen/0.1.8/dlopen/#compare-with-other-libraries">Compare with
+other libraries — dlopen v0.1.8</a></p>
+</li>
+<li>
+<p><a id="ffi-caveat-1"></a>[10]
+<a href="https://stackoverflow.com/a/46249019/11488352">Idiomatic Rust plugin system — StackOverflow</a></p>
+</li>
+<li>
+<p><a id="ffi-caveat-2"></a>[11]
+<a href="https://github.com/kurtlawrence/papyrus/blob/1c7f0a669fed59d220bdefb161c568072126d3d5/src/compile/execute.rs#L36"><code>papyrus/src/compile/execute.rs</code> — GitHub kurtlawrence/papyrus</a></p>
+</li>
+<li>
+<p><a id="ffi-cross-platform"></a>[12]
+<a href="https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#thread-safety">Thread-safety — libloading v0.7.0</a></p>
+</li>
+<li>
+<p><a id="ffi-dlopen-safety"></a>[13]
+<a href="https://docs.rs/dlopen/0.1.8/dlopen/#safety">Safety — dlopen v0.1.8</a></p>
+</li>
+<li>
+<p><a id="amethyst-fail"></a>[14] 
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/amethyst/amethyst/issues/1729" style="text-decoration: none;">[NEW FEATURE] WebAssembly scripting system
+    <span class="gh-number">amethyst/amethyst#1729</span></a>
+
+</span>
+
+</p>
+</li>
+<li>
+<p><a id="wasmer-types"></a>[15]
+<a href="https://docs.rs/wasmer/2.0.0/wasmer/type.Val.html"><code>Val</code> — Wasmer v2.0.0</a></p>
+</li>
+<li>
+<p><a id="eclipse"></a>[16]
+<a href="http://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html">Notes
+on the Eclipse Plug-in Architecture - Eclipse</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+]]></content:encoded>
+    </item>
+    
+  </channel>
+</rss>
