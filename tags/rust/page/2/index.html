@@ -8,7 +8,7 @@
 <meta name=description content="NullDeref - Yet Another Programming Blog">
 <meta name=author content="Mario Ortiz Manero">
 <link rel=canonical href=https://nullderef.com/tags/rust/>
-<link crossorigin=anonymous href=/assets/css/stylesheet.min.04db5d214b4b7774d8ffb4618b3c04c7aa340b33d9ff048c68f1093c7d52a86a.css integrity="sha256-BNtdIUtLd3TY/7RhizwEx6o0CzPZ/wSMaPEJPH1SqGo=" rel="preload stylesheet" as=style>
+<link crossorigin=anonymous href=/assets/css/stylesheet.min.d29654a6ac06376c019ee7ea918465c88edfef994ab5ffe20eb9cdd007061e95.css integrity="sha256-0pZUpqwGN2wBnufqkYRlyI7f75lKtf/iDrnN0AcGHpU=" rel="preload stylesheet" as=style>
 <link rel=icon href=https://nullderef.com/favicon.ico>
 <link rel=icon type=image/png sizes=16x16 href=https://nullderef.com/favicon-16x16.png>
 <link rel=icon type=image/png sizes=32x32 href=https://nullderef.com/favicon-32x32.png>
@@ -85,7 +85,7 @@
 <p>In this first article I will further analyze how a Plugin Development Kit (PDK) could be implemented in Rust. Note that I’m no expert in the topic; my objective is to merely collect all the information I’ve found so far and present it as a summary, with enough resources for the reader to learn more on their own and make their own decisions.
 1. The Problem This is actually part of my Google Summer of Code project for Tremor....</p>
 </section>
-<footer class=entry-footer><span title="2021-05-17 00:00:00 +0000 UTC">May 17, 2021</span>&nbsp;·&nbsp;22 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
+<footer class=entry-footer>May 17, 2021&nbsp;·&nbsp;22 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
 <a class=entry-link aria-label="post link to Plugins in Rust: The Technologies" href=https://nullderef.com/blog/plugin-tech/></a>
 </div>
 </article>
@@ -102,7 +102,7 @@
 <p>Abstract This Google Summer of Code project consists on developing a universal interface for Tremor plugins[1], allowing said library to become more modular and reduce the core set of dependencies.
 This will achieve a considerably reduced core size for Tremor, meaning that the library will be faster to compile and have a smaller binary size. Most importantly, it will transform Tremor’s architecture to be completely modular, where plugins can be configured as needed and developed independently, in a language-agnostic way....</p>
 </section>
-<footer class=entry-footer><span title="2021-04-13 00:00:00 +0000 UTC">April 13, 2021</span>&nbsp;·&nbsp;10 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
+<footer class=entry-footer>April 13, 2021&nbsp;·&nbsp;10 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
 <a class=entry-link aria-label="post link to GSoC Proposal: Implementing a Plugin Development Kit for Tremor" href=https://nullderef.com/blog/gsoc-proposal/></a>
 </div>
 </article>
@@ -119,7 +119,7 @@ This will achieve a considerably reduced core size for Tremor, meaning that the 
 <p>Optional or default parameters are a very interesting feature of some languages that Rust specifically doesn’t cover (and looks like it won’t anytime soon ). Say your library has lots of endpoints like so:
 fn endpoint&lt;T1, T2, T3, ...>(mandatory: T1, opt1: Option&lt;T2>, opt2: Option&lt;T3>, ...); In this case, when you call endpoint, you have to use endpoint(mandatory, None, None, ...), or endpoint(mandatory, Some(val1), Some(val2), ...), instead of the more intuitive endpoint(mandatory) or endpoint(mandatory, val1, val2)....</p>
 </section>
-<footer class=entry-footer><span title="2020-10-10 00:00:00 +0000 UTC">October 10, 2020</span>&nbsp;·&nbsp;11 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
+<footer class=entry-footer>October 10, 2020&nbsp;·&nbsp;11 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>
 <a class=entry-link aria-label="post link to Optional parameters in Rust" href=https://nullderef.com/blog/rust-parameters/></a>
 </div>
 </article>
@@ -141,7 +141,7 @@ Powered by
 </a>
 <script>MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"]],tags:"none"},options:{ignoreHtmlClass:"nostem|noasciimath"},asciimath:{delimiters:[["\\$","\\$"]]}}</script>
 <script type=text/javascript id=MathJax-script async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js></script>
-<script>let menu=document.getElementById('menu');menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener("click",function(b){b.preventDefault();var a=this.getAttribute("href").substr(1);window.matchMedia('(prefers-reduced-motion: reduce)').matches?document.querySelector(`[id='${decodeURIComponent(a)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(a)}']`).scrollIntoView({behavior:"smooth"}),a==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${a}`)})})</script>
+<script>let menu=document.getElementById('menu');menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)},document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener("click",function(b){b.preventDefault();var a=this.getAttribute("href").substr(1);window.matchMedia('(prefers-reduced-motion: reduce)').matches?document.querySelector(`[id='${decodeURIComponent(a)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(a)}']`).scrollIntoView({behavior:"smooth"}),a==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${a}`)})})</script>
 <script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script>
 <script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove('dark'),localStorage.setItem("pref-theme",'light')):(document.body.classList.add('dark'),localStorage.setItem("pref-theme",'dark'))})</script>
 </body>
