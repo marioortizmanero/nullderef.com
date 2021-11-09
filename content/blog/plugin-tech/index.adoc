@@ -3,7 +3,7 @@ title: "Plugins in Rust: The Technologies"
 description: "A more in-depth look at Rust PDKs"
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-tech/triangle.png"]
-tags: ["rust", "dynamic-loading"]
+tags: ["rust", "rustlang", "dynamic-loading"]
 series: ["rust-plugins"]
 date: 2021-05-17
 GHissueID: 5
