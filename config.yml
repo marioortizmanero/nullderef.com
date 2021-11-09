@@ -38,7 +38,7 @@ languages:
 
 params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
-  description: "NullDeref - Yet Another Programming Blog"
+  description: "My personal blog, where I write about software development and the projects I'm working on"
   author: Mario Ortiz Manero
   keywords: ["rust", "rustlang", "guides", "open-source", "programming", "software"]
   images: ["/logo-banner.png"]
@@ -60,7 +60,7 @@ params:
     LogoLight: /logo-light-theme.png
     LogoDark: /logo-dark-theme.png
     Content: >
-      Yet Another Programming Blog \
+      My personal blog, where I write about software development and the projects I'm working on \
 
       Written by Mario Ortiz Manero
 
