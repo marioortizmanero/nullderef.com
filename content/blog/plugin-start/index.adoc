@@ -3,7 +3,7 @@ title: "Plugins in Rust: Getting Started"
 description: "My first steps trying to implement the PDK"
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-start/connectors.png"]
-tags: ["rust", "rustlang", "dynamic-loading"]
+tags: ["rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi"]
 series: ["rust-plugins"]
 date: 2021-09-05
 GHissueID: 30
