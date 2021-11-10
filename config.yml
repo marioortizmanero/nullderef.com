@@ -62,7 +62,7 @@ params:
     Content: >
       My personal blog, where I write about software development and the projects I'm working on \
 
-      Written by Mario Ortiz Manero
+      _Written by Mario Ortiz Manero_
 
   socialIcons:
     - name: github
