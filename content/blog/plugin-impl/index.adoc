@@ -5,7 +5,6 @@ author: "Mario Ortiz Manero"
 tags: ["rust", "rustlang", "dynamic-loading", "plugins", "ffi", "abi"]
 series: ["rust-plugins"]
 date: 2021-11-08
-draft: true
 GHissueID: 30
 ---
 
