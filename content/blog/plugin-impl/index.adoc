@@ -13,6 +13,29 @@ GHissueID: 30
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
+== Tips for prototyping
+
+[source, rust]
+----
+// TODO: disable and cleanup with `cargo fix` automatically once done
+#![allow(unused_imports)]
+
+// TODO: turn back on
+// #![deny(warnings)]
+// #![deny(missing_docs)]
+
+// TODO: turn back on
+// #![deny(
+//     clippy::all,
+//     clippy::unwrap_used,
+//     clippy::unnecessary_unwrap,
+//     clippy::pedantic
+// )]
+----
+
+* Don't get lost in details, we just want it to work first of all. Hacks are OK
+  in the first implementation.
+
 == Current Limitations
 
 == External/Complex types
