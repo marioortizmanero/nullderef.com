@@ -13,32 +13,42 @@ GHissueID: 30
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
-== Tips for prototyping
+== My prototyping methodology
+
+The first thing I did was remove the many warnings the Rust compiler will print
+when you prototype:
 
 [source, rust]
 ----
 // TODO: disable and cleanup with `cargo fix` automatically once done
-#![allow(unused_imports)]
-
-// TODO: turn back on
-// #![deny(warnings)]
-// #![deny(missing_docs)]
-
-// TODO: turn back on
-// #![deny(
-//     clippy::all,
-//     clippy::unwrap_used,
-//     clippy::unnecessary_unwrap,
-//     clippy::pedantic
-// )]
+#![allow(unused)]
+#![allow(dead_code)]
 ----
 
-* Don't get lost in details, we just want it to work first of all. Hacks are OK
-  in the first implementation.
+Don't get lost in details, we just want it to work first of all. Hacks are OK in
+the first implementation as long as it runs:
+
+** Dirty and unnecessary conversions when needed
+** If stuck, just slap a `.clone()` in there
+** Unclean code
+** Non-performant code
+** No tests
+** No clippy
+
+One month later, I was able to finally compile `tremor-runtime` with the initial
+PDK:
+
+image::compilation.png[width=80%, align=center]
+
+Once it's compiling, you can remove the `allow` statements from the beginning
+and just run `cargo fix && cargo fmt`. That will take care of the trivial
+warnings, such as unused imports, saving _lots_ of time doing cumbersome work.
 
 == Current Limitations
 
 == External/Complex types
+
+TODO: also mention temporary types like having two values.
 
 If your codebase is large enough, you'll eventually find out that there are
 types in the standard library that don't have an alternative in `abi_stable`:
@@ -93,6 +103,7 @@ Required contributions to upstream packages:
 * https://github.com/rodrimati1992/abi_stable_crates/pull/58
 * https://github.com/rodrimati1992/abi_stable_crates/pull/61
 * https://github.com/simd-lite/value-trait/pull/14
+* https://github.com/rodrimati1992/abi_stable_crates/pull/68
 ____
 
 Adding wrappers to each of these individual types has a complexity so large that
