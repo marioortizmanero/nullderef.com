@@ -44,6 +44,12 @@ Once it's compiling, you can remove the `allow` statements from the beginning
 and just run `cargo fix && cargo fmt`. That will take care of the trivial
 warnings, such as unused imports, saving _lots_ of time doing cumbersome work.
 
+TODO strategy
+
+* `abi_stable` from the root
+* opaque type
+* copy-paste and convert from/into temporarily
+
 == Current Limitations
 
 == External/Complex types
