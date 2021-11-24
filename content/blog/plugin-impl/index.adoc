@@ -112,6 +112,7 @@ Required contributions to upstream packages:
 * https://github.com/rodrimati1992/abi_stable_crates/pull/68
 * https://github.com/oxalica/async-ffi/pull/10
 * https://github.com/oxalica/async-ffi/pull/11
+* https://github.com/simd-lite/simd-json-derive/pull/9
 ____
 
 Adding wrappers to each of these individual types has a complexity so large that
