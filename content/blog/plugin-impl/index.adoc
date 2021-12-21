@@ -107,6 +107,7 @@ https://github.com/rodrimati1992[@rodrimati1992], so it's quite the risk.
 Required contributions to upstream packages:
 
 * https://github.com/rodrimati1992/abi_stable_crates/pull/58
+* https://github.com/rodrimati1992/abi_stable_crates/pull/59
 * https://github.com/rodrimati1992/abi_stable_crates/pull/61
 * https://github.com/simd-lite/value-trait/pull/14
 * https://github.com/rodrimati1992/abi_stable_crates/pull/68
