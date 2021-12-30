@@ -1201,7 +1201,7 @@ fine in that regard:</p>
 <div class="paragraph">
 <p>Note that comparing the blocking clients for now is unfair, because instead of
 using <code>reqwest::blocking</code>, now it’s <code>ureq</code>. Furthermore, the async and sync
-versions can’t be compared either, because the former requires setting up the
+versions can’t be compared either, since the former requires setting up the
 tokio runtime and a bunch of other stuff.</p>
 </div>
 <div class="paragraph">
@@ -1232,7 +1232,7 @@ Binary Size (MB)</th>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-center valign-top"><p class="tableblock">0.10.0, blocking</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0.10, blocking</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">72.7</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">126.2</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">271.3</p></td>
@@ -1240,7 +1240,7 @@ Binary Size (MB)</th>
 <td class="tableblock halign-center valign-top"><p class="tableblock">4.9</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-center valign-top"><p class="tableblock">0.10.0, async</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0.10, async</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">72.2</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">115.7</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">428.0</p></td>
@@ -1248,7 +1248,7 @@ Binary Size (MB)</th>
 <td class="tableblock halign-center valign-top"><p class="tableblock">5.2</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-center valign-top"><p class="tableblock">master, blocking (ureq)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0.11, blocking (ureq)</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">38.5</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">55.9</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">503.6</p></td>
@@ -1256,7 +1256,7 @@ Binary Size (MB)</th>
 <td class="tableblock halign-center valign-top"><p class="tableblock">2.6</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-center valign-top"><p class="tableblock">master, async (reqwest)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0.11, async (reqwest)</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">51.014</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">86.594</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">432.49</p></td>
