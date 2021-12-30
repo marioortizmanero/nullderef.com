@@ -894,7 +894,7 @@ In terms of execution time, I didn't expect it to be any better. Even though the
 architecture and implementation is cleaner, some of the new features introduce
 noticeable overhead. For example, now that we have automatically refreshing
 tokens, the `Token` has to be saved in an `Arc<Mutex<T>>`, which means we're
-locking and unlocking at least once per request. Still, the difference is almost
+locking and unlocking at least once per request. Still, the difference is
 negligible: just a 1% increase.
 
 The cleanup and all these dependencies we removed mean that the resulting binary
