@@ -16,6 +16,11 @@ disqusShortname: nullderef-com
 
 paginate: 5
 
+security:
+  exec:
+    allow:
+      - asciidoctor
+
 languages:
   en:
     languageName: "English"
