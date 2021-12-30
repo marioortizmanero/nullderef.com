@@ -863,7 +863,7 @@ image::/blog/web-api-client/iterations.png[align=center]
 
 Note that comparing the blocking clients for now is unfair, because instead of
 using `reqwest::blocking`, now it's `ureq`. Furthermore, the async and sync
-versions can't be compared either, because the former requires setting up the
+versions can't be compared either, since the former requires setting up the
 tokio runtime and a bunch of other stuff.
 
 The asynchronous clients in both versions should give a rough idea of the actual
