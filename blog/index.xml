@@ -2606,7 +2606,7 @@ release mode.</p>
 architecture and implementation is cleaner, some of the new features introduce
 noticeable overhead. For example, now that we have automatically refreshing
 tokens, the <code>Token</code> has to be saved in an <code>Arc&lt;Mutex&lt;T&gt;&gt;</code>, which means we’re
-locking and unlocking at least once per request. Still, the difference is almost
+locking and unlocking at least once per request. Still, the difference is
 negligible: just a 1% increase.</p>
 </div>
 <div class="paragraph">
