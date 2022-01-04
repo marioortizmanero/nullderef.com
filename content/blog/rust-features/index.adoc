@@ -5,7 +5,7 @@ author: "Mario Ortiz Manero"
 images: ["/blog/rust-features/compiler-explorer.png"]
 tags: ["rust", "rustlang", "guide", "beginners", "cargo"]
 date: 2021-07-06
-GHissueID: 20
+GHissueID: 6
 ---
 
 Rust makes it very easy to express conditional compilation, specially thanks to

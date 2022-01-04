@@ -6,7 +6,7 @@ author: "Mario Ortiz Manero"
 images: ["/blog/web-api-client/crate_hierarchy.png"]
 tags: ["rust", "rustlang", "open-source", "rspotify", "web-api", "programming"]
 date: 2021-10-13
-GHissueID: 41
+GHissueID: 2
 ---
 
 This article describes my journey of basically rewriting the entirety of

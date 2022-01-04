@@ -6,7 +6,7 @@ images: ["/blog/plugin-tech/triangle.png"]
 tags: ["rust", "rustlang", "dynamic-loading", "ffi", "plugin", "wasm", "webassembly", "ipc", "scripting"]
 series: ["rust-plugins"]
 date: 2021-05-17
-GHissueID: 5
+GHissueID: 9
 ---
 
 :stem: latexmath

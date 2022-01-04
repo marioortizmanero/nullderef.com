@@ -7,7 +7,7 @@ images: ["/blog/plugin-abi-stable/cratesio.jpg"]
 tags: ["rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi"]
 series: ["rust-plugins"]
 date: 2021-11-08
-GHissueID: 45
+GHissueID: 1
 ---
 
 :sectnums:

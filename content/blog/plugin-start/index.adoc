@@ -6,7 +6,7 @@ images: ["/blog/plugin-start/connectors.png"]
 tags: ["rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi"]
 series: ["rust-plugins"]
 date: 2021-09-05
-GHissueID: 30
+GHissueID: 5
 ---
 
 :sectnums:

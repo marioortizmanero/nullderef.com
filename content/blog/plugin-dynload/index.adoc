@@ -6,7 +6,7 @@ images: ["/blog/plugin-dynload/example.png"]
 tags: ["rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "bpf", "ebpf"]
 series: ["rust-plugins"]
 date: 2021-10-05
-GHissueID: 38
+GHissueID: 3
 ---
 
 :sectnums:

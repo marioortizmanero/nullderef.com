@@ -6,7 +6,7 @@ images: ["/blog/gsoc-proposal/logo.png"]
 tags: ["rust", "rustlang", "dynamic-loading"]
 series: ["rust-plugins"]
 date: 2021-04-13
-GHissueID: 6
+GHissueID: 8
 ---
 
 == Abstract
