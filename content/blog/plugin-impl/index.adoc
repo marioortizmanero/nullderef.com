@@ -1,6 +1,6 @@
 ---
 title: "Plugins in Rust: Getting our Hands Dirty"
-description: "TODO"
+description: "Finally implementing the plugin system!"
 author: "Mario Ortiz Manero"
 tags: ["rust", "rustlang", "dynamic-loading", "plugins", "ffi", "abi"]
 series: ["rust-plugins"]
@@ -12,6 +12,68 @@ GHissueID: 30
 :stem: latexmath
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
+
+Welcome to one of the last articles of this series!
+https://nullderef.com/blog/plugin-abi-stable[Previously] in
+https://nullderef.com/series/rust-plugins/[this series], we covered how to use
+external dependencies to lessen the work necessary to implement our plugin
+system. Now that we know how to actually get started, we will implement the
+plugin system once and for all.
+
+== Defining our public interface
+
+The first step that we can do is define the interface of the plugin. In my case,
+it looks like:
+
+[source, rust]
+----
+/// This type represents a connector plugin that has been loaded with
+/// `abi_stable`. It serves as a builder, making it possible to construct a
+/// trait object of `RawConnector`.
+///
+/// Note that its interface may change heavily in the future in order to support
+/// more kinds of plugins. It's also important to keep the plugin interface as
+/// simple as possible, so with time this may be worked on.
+#[repr(C)]
+#[derive(StableAbi)]
+#[sabi(kind(Prefix))]
+pub struct ConnectorMod {
+    /// the type of the connector
+    pub connector_type: extern "C" fn() -> ConnectorType,
+
+    /// create a connector from the given `id` and `config`
+    ///
+    /// # Errors
+    ///  * If the config is invalid for the connector
+    #[sabi(last_prefix_field)]
+    pub from_config: extern "C" fn(
+        id: RString,
+        config: ROption<PdkValue<'static>>,
+    ) -> FfiFuture<RResult<BoxedRawConnector>>,
+}
+
+// Marking `MinMod` as the main module in this plugin. Note that `MinMod_Ref` is
+// a pointer to the prefix of `MinMod`.
+impl RootModule for ConnectorMod_Ref {
+    // The name of the dynamic library
+    const BASE_NAME: &'static str = "connector";
+    // The name of the library for logging and similars
+    const NAME: &'static str = "connector";
+    // The version of this plugin's crate
+    const VERSION_STRINGS: VersionStrings = package_version_strings!();
+
+    // Implements the `RootModule::root_module_statics` function, which is the
+    // only required implementation for the `RootModule` trait.
+    declare_root_module_statics! {ConnectorMod_Ref}
+}
+----
+
+== Recursively making everything {repr-c}
+
+Now, this is the complicated part. The previous step may have seemed simple, but
+you might find yourself falling into madness as you find that you need to make
+all the types in the interface {repr-c}, and also all the subtypes each of these
+types hold...
 
 == My prototyping methodology
 
