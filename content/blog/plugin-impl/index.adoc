@@ -2,7 +2,7 @@
 title: "Plugins in Rust: Getting our Hands Dirty"
 description: "Finally implementing the plugin system!"
 author: "Mario Ortiz Manero"
-tags: ["rust", "rustlang", "dynamic-loading", "plugins", "ffi", "abi"]
+tags: ["rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi"]
 series: ["rust-plugins"]
 date: 2021-11-08
 GHissueID: 30
@@ -17,14 +17,71 @@ Welcome to one of the last articles of this series!
 https://nullderef.com/blog/plugin-abi-stable[Previously] in
 https://nullderef.com/series/rust-plugins/[this series], we covered how to use
 external dependencies to lessen the work necessary to implement our plugin
-system. Now that we know how to actually get started, we will implement the
-plugin system once and for all.
+system. Now that we know how to actually get started, we will implement it once
+and for all. I will personally use the crate {{< crate abi_stable >}}, but the
+concepts should be the same for any dynamic loading method.
+
+== Some prototyping advice
+
+Before anything else, I'd like to give out some miscellaneous advice regarding
+refactoring with Rust. You'll be introducing a good amount of changes, so it's
+good to do some brief planning beforehand. Otherwise, it will take forever if
+your codebase is complex enough.
+
+The most important thing is: Don't get lost in details, we just want it to work
+first of all. Hacks are OK in the first implementation as long as it runs:
+
+* Ugly code
+* Non-performant code
+** If stuck with lifetimes, just slap a `.clone()` in there
+** Dirty and unnecessary conversions when needed
+* No tests
+* No clippy
+
+The first thing I did was remove a few warnings the Rust compiler will print
+when you're prototyping. By default, a Rust program still compiles with
+warnings, but in my experience they're always in my way when trying to deal with
+actual errors. For example, I don't care that an import is unused at all. I'll
+fix it once I'm done, but please let me keep trying to make this work!
+
+[source, rust]
+----
+// TODO: disable and cleanup with `cargo fix` automatically once done
+#![allow(unused)]
+#![allow(dead_code)]
+----
+
+Note that I'm not using `#![allow(warnings)]`, because most warnings will
+actually be really helpful when refactoring. We just want to get rid of the
+annoying ones, such as unused functions or imports, or dead code that we haven't
+cleaned up yet. Most of the times these are harmless.
+
+One month later, I was able to finally compile `tremor-runtime` with the initial
+PDK:
+
+image::compilation.png[width=80%, align=center]
+
+Once it's compiling, you can remove the `allow` statements from the beginning
+and just run `cargo fix && cargo fmt`. That will take care of the trivial
+warnings, such as unused imports, saving _lots_ of time doing cumbersome work.
+
+TODO strategy
+
+* `abi_stable` from the root
+* opaque type
+* copy-paste and convert from/into temporarily
 
 == Defining our public interface
 
-The first step that we can do is define the interface of the plugin. In my case,
-it looks like:
+The first step that we can do is define the interface of the plugin system, i.e.
+what a plugin binary must implement in order to be loadable from the runtime.
+If you're doing this over an already existing codebase, you'll probably get tons
+of errors. We'll ignore them for now; this is only our first sketch and you'll
+end up changing it a thousand times anyway.
 
+In my case, it looks like this:
+
+// TODO: update
 [source, rust]
 ----
 /// This type represents a connector plugin that has been loaded with
@@ -75,42 +132,6 @@ you might find yourself falling into madness as you find that you need to make
 all the types in the interface {repr-c}, and also all the subtypes each of these
 types hold...
 
-== My prototyping methodology
-
-The first thing I did was remove the many warnings the Rust compiler will print
-when you prototype:
-
-[source, rust]
-----
-// TODO: disable and cleanup with `cargo fix` automatically once done
-#![allow(unused)]
-#![allow(dead_code)]
-----
-
-Don't get lost in details, we just want it to work first of all. Hacks are OK in
-the first implementation as long as it runs:
-
-** Dirty and unnecessary conversions when needed
-** If stuck, just slap a `.clone()` in there
-** Unclean code
-** Non-performant code
-** No tests
-** No clippy
-
-One month later, I was able to finally compile `tremor-runtime` with the initial
-PDK:
-
-image::compilation.png[width=80%, align=center]
-
-Once it's compiling, you can remove the `allow` statements from the beginning
-and just run `cargo fix && cargo fmt`. That will take care of the trivial
-warnings, such as unused imports, saving _lots_ of time doing cumbersome work.
-
-TODO strategy
-
-* `abi_stable` from the root
-* opaque type
-* copy-paste and convert from/into temporarily
 
 == Current Limitations
 
