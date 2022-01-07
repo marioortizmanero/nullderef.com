@@ -83,9 +83,9 @@ at least try to minimize it.
 
 The first thing I did was remove a few warnings the Rust compiler will print
 when you're prototyping. By default, a Rust program still compiles with
-warnings, but in my experience they're always in my way when trying to deal with
-actual errors. For example, I don't care that an import is unused at all. I'll
-fix it once I'm done, but please let me keep trying to make this work!
+warnings, but in my experience they're always in the way when trying to deal
+with actual errors. For example, I don't care that an import is unused at all.
+I'll fix it once I'm done, but please let me keep trying to "`make this work`"!
 
 [source, rust]
 ----
@@ -95,24 +95,18 @@ fix it once I'm done, but please let me keep trying to make this work!
 ----
 
 Note that I'm not using `#![allow(warnings)]`, because most warnings will
-actually be really helpful when refactoring. We just want to get rid of the
-annoying ones, such as unused functions or imports, or dead code that we haven't
-cleaned up yet. Most of the times these are harmless.
+actually be really helpful when refactoring to avoid early bugs. We just want to
+get rid of the annoying ones, such as unused functions or imports, or dead code
+that we haven't cleaned up yet, which are harmless most of the times.
 
 One month later, I was able to finally compile `tremor-runtime` with the initial
-PDK:
+PDK prototype. The following screenshot made my day, as simple as it may seem:
 
 image::compilation.png[width=80%, align=center]
 
-Once it's compiling, you can remove the `allow` statements from the beginning
-and just run `cargo fix && cargo fmt`. That will take care of the trivial
+At this point, you can remove these `allow` statements and just run `cargo fix
+&& cargo fmt`. They're built-in, and will automatically take care of the trivial
 warnings, such as unused imports, saving _lots_ of time doing cumbersome work.
-
-TODO strategy
-
-* `abi_stable` from the root
-* opaque type
-* copy-paste and convert from/into temporarily
 
 == Defining our public interface
 
@@ -174,6 +168,14 @@ Now, this is the complicated part. The previous step may have seemed simple, but
 you might find yourself falling into madness as you find that you need to make
 all the types in the interface {repr-c}, and also all the subtypes each of these
 types hold...
+
+////
+TODO strategy
+
+* `abi_stable` from the root
+* opaque type
+* copy-paste and convert from/into temporarily
+////
 
 
 == Current Limitations
