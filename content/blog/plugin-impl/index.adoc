@@ -13,9 +13,9 @@ GHissueID: 30
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
-Welcome to one of the last articles of this series!
-https://nullderef.com/blog/plugin-abi-stable[Previously] in
-https://nullderef.com/series/rust-plugins/[this series], we covered how to use
+Welcome to one of the last articles of
+https://nullderef.com/series/rust-plugins/[this series]!
+https://nullderef.com/blog/plugin-abi-stable[Previously], we covered how to use
 external dependencies to lessen the work necessary to implement our plugin
 system. Now that we know how to actually get started, we will implement it once
 and for all. I will personally use the crate {{< crate abi_stable >}}, but the
@@ -23,20 +23,63 @@ concepts should be the same for any dynamic loading method.
 
 == Some prototyping advice
 
-Before anything else, I'd like to give out some miscellaneous advice regarding
-refactoring with Rust. You'll be introducing a good amount of changes, so it's
-good to do some brief planning beforehand. Otherwise, it will take forever if
-your codebase is complex enough.
+Before anything else, I'd like to give out some advice regarding refactoring
+with Rust, based on my experience. You'll be introducing a good amount of
+changes, so it's good to do some brief planning beforehand -- otherwise it'll
+take forever with a complex enough codebase. Maybe all of this will be obvious
+to you, or you will prefer taking a different approach. But it certainly worked
+for me, so it's worth a shot. I'm personally very satisfied about how much I've
+learned about the process.
 
-The most important thing is: Don't get lost in details, we just want it to work
-first of all. Hacks are OK in the first implementation as long as it runs:
+=== The "`just make it work`" approach
 
-* Ugly code
+// TODO: engraved? drilled?
+What I struggled the most to get TODO into my head is not getting lost in the
+details. *We just want it to work first of all*. I'll repeat. We just want it to
+*work* first of all. As long as the plugin system runs, the following are
+completely fine:
+
+* Ugly code (non-idiomatic, repetitive, somewhat messy, etc)
 * Non-performant code
-** If stuck with lifetimes, just slap a `.clone()` in there
-** Dirty and unnecessary conversions when needed
+* Poor documentation
 * No tests
 * No clippy
+
+Or, more specific examples:
+
+* If stuck with lifetimes, just slap a `.clone()` in there and call it a day.
+* A good ol' `.unwrap()` will make your life easier.
+* You can resort to "`dirty`" or unnecessary type conversions if necessary.
+* Just pulling in a new dependency instead of implementing something more
+  tailored to your use-case from scratch will save you a lot of time.
+
+// TODO: rewording, arguable?
+I will say that not working on tests until the plugin system is running is
+definitely arguable for those who prefer to follow test-driven development.
+However, I personally didn't feel the need to write any tests; my work basically
+consisted on making some changes and then trying to make the compiler happy
+about them, repeatedly. I only moved to that step once I was happy enough with
+the results, and everything seemed to work when running it manually.
+
+// TODO: source for this quote
+Furthermore, premature optimization is the source of all evil, so trying to
+specifically worry about performance here is no better. Once you're done, you
+can actually spend some time profiling and benchmarking in order to know which
+optimizations are worth your time. You might be worrying about avoiding a
+`clone` that doesn't actually affect your program speed at all.
+
+// TODO: blocking? barrier?
+My point is that every single test, cleanup or optimization you try to make at
+this stage will most likely end up being wasted effort. You'll reach a TODO at
+some point later on and have to rethink and rewrite lots of stuff. When
+everything compiles, seemingly runs fine, and you consider it a decent approach,
+you can actually start working on these points. Don't misunderstand me -- it's
+okay to "`waste`" effort on wrong approaches, because you aren't really
+"`wasting`" it; they're a necessary step to arrive to the final solution. But
+it's frustrating to delete code you've spent time thinking about, so we should
+at least try to minimize it.
+
+=== Specific to Rust
 
 The first thing I did was remove a few warnings the Rust compiler will print
 when you're prototyping. By default, a Rust program still compiles with
