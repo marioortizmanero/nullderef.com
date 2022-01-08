@@ -168,81 +168,89 @@ end.
 
 == Recursively making everything {repr-c}
 
+// TODO: Mention that it's Tremor's value, and that this also happens with
+// serde_yaml's type, for example
+
 Now, this is the complicated part. The previous step may have seemed simple, but
 you might find yourself falling into madness as you realize that you need to
 make all the types in the interface {repr-c}, and also all the subtypes each of
-these types hold...
+these types hold, and on...
 
-////
-TODO strategy
+It's very likely that you eventually find out that there are types in the
+standard library that don't have an alternative in `abi_stable`.
 
-* `abi_stable` from the root
-* opaque type
-* copy-paste and convert from/into temporarily
-////
+In the case of Tremor, the main issue was the `Value` type. It's used to
+represent a JSON-like payload; roughly defined as follows:
 
-TODO: also mention temporary types like having two values.
+[source, rust]
+----
+pub enum Value {
+    /// Static values (integers, booleans, etc)
+    Static(StaticNode),
+    /// String type
+    String(String),
+    /// Array type
+    Array(Vec<Value>),
+    /// Object type
+    Object(Box<HashMap<String, Value>>),
+    /// A binary type
+    Bytes(Vec<u8>),
+}
+----
 
-If your codebase is large enough, you'll eventually find out that there are
-types in the standard library that don't have an alternative in `abi_stable`:
+It can be converted to:
 
-____
-Non-trivial `StableAbi` implementations in Tremor:
+[source, rust]
+----
+pub enum Value {
+    /// Static values (integers, booleans, etc)
+    Static(StaticNode),
+    /// String type
+    String(RString),
+    /// Array type
+    Array(RVec<Value>),
+    /// Object type
+    Object(RBox<RHashMap<RString, Value>>),
+    /// A binary type
+    Bytes(RVec<u8>),
+}
+----
 
-* Connectors:
-** Sources:
-*** `serde_yaml::Value` in `SourceReply`
-*** `Pin` in `EventPayload` (in `SourceReply` and by itself)
-*** `tremor_value::Value` in `ValueAndMeta` in `EventPayload`
-** Sinks:
-*** `Pin` in `EventPayload` (in `Event` and by itself)
-*** `tremor_value::Value` in `ValueAndMeta` in `EventPayload` (in `Event` and by
-    itself)
-*** `simd_json::Value` in `OpMeta` in `Event`
-*** `serde_yaml::Value` in `ConfigMap` in `config::Codec` in `EventSerializer`
-* Codecs:
-** `tremor_value::Value` for encoding and decoding
-* Preprocessors: none! The interface only needs basic types.
-* Postprocessors: same as preprocessors. These two seem trivial to implement
-  (_famous last words before death_)
+// TODO: solution by adding a pr upstream with support
+The first problem arises in the `Static` variant, however.
 
-Final unique list:
+// TODO: Link halfbrown::HashMap and beef::Cow
+Our second, more important issue, is that by changing the internal definition of
+`Value`, the previous implementations for it will now fail to compile. You will
+need to use `RString::new` instead of `String::new` and similars, for instance.
+But this gets more complicated, if you were using something like TODO1 TODO2
+instead of the standard library. These usually offer extra functionality that
+isn't available even in the case 
 
-* `Pin` -> it's only a hint so we can avoid it
-* `value_trait::StaticNode` -> hard but fixable {{< gh pr TODO "simd-lite/value-trait" "TODO" >}}
-* `serde_yaml::Value` -> it's avoidable
+Options:
 
-Thoughts:
+=== Avoid the type in the first place
 
-* There is only an `RHashMap` in `abi_stable`, no `RBTreeMap`, so we'll have to
-  use it instead if it's OK. Not sure if trees are used for performance or
-  they're just an inconsistency and don't matter much for maps.
-* Can we avoid `EventSerializer` in the sinks or make it an opaque type instead?
-* How can we modify an external crate such as `value_trait::StaticNode` so that
-  it implements `StableAbi`?
+You can just avoid the type
 
-////
-TODO: The JSON codec actually exports both `json` and `json-sorted`: how could
-we do that with plugins? Definitely doable but needs some thinking.
-////
+=== Implement a wrapper
 
-We would be _**very**_ dependant on `abi_stable`; Tremor should definitely help
-maintain it or provide resources so that it doesn't get obsolete. It's a huge
-crate that's currently maintained by a single person,
-https://github.com/rodrimati1992[@rodrimati1992], so it's quite the risk.
+=== Re-implement with {repr-c} from scratch
 
-Required contributions to upstream packages:
+=== Opaque types
 
-* https://github.com/rodrimati1992/abi_stable_crates/pull/58
-* https://github.com/rodrimati1992/abi_stable_crates/pull/59
-* https://github.com/rodrimati1992/abi_stable_crates/pull/61
-* https://github.com/simd-lite/value-trait/pull/14
-* https://github.com/rodrimati1992/abi_stable_crates/pull/68
-* https://github.com/oxalica/async-ffi/pull/10
-* https://github.com/oxalica/async-ffi/pull/11
-* https://github.com/simd-lite/simd-json-derive/pull/9
-* https://github.com/rodrimati1992/abi_stable_crates/pull/70
-____
+=== Copy-pasting
+
+// NOTE: may be the same as before
+
+// NOTE: reorganize this part
+
+. You re-implement the external type with {repr-c}:  not viable in many cases
+. You add a wrapper (TODO add link to the already existing ones)
+. You avoid using that extra functionality
+. You copy-paste the original type and perform type conversions from and to it
+
+// TODO: reorder the following, make the list into sub-sections instead
 
 Adding wrappers to each of these individual types has a complexity so large that
 makes this task practically impossible for Tremor. For reference, the
@@ -265,9 +273,6 @@ available methods, which then are {wrapping}[wrapped for ease of use under the
 `RMutex` type].
 
 I'll try to use `cglue` for that exact problem and see how it works out.
-
-TIP #1: try to minimize the usage of complex types. Try to make the plugin
-interface as simple as possible, ans move as much as you can to the runtime.
 
 abi_stable ends up being propagated throughout the entire codebase. This means
 that the functionality is also affected, and it's very painful. Should I
@@ -329,8 +334,6 @@ impl Value for serde_yaml::Value {
 }
 ////
 
-== Trying to simplify the interface
-
 == Implementing existing functionality as built-in plugins
 
 === Generics
@@ -372,6 +375,8 @@ There are two ways to fix this:
 ////
 
 === Asynchronous communication
+
+// TODO: outdated
 
 As much as I wanted to avoid communication primitives with the plugins other
 than plain synchronous calls, some parts _need_ asynchronous communication. For
@@ -427,11 +432,11 @@ So far I've been assuming the following structure for the plugin system:
   runtime
 
 However, if you aren't starting from scratch, it's very likely that you don't
-have a `common` crate. Instead, it might be just have a single binary crate with
-both the runtime and the functionality in `common`.
+have a `common` crate. Instead, you'll just have a single binary crate with both
+the runtime and the functionality in `common`.
 
-Now, this isn't really a problem, since you can just have the plugins depend on
-the runtime crate rather than `common`, and skip it altogether. But one of the
+This isn't really a problem, since you can just have the plugins depend on the
+runtime crate rather than `common`, and skip it altogether. But one of the
 points of making this PDK is decreasing your compile times
 
 == Conclusion
@@ -448,6 +453,34 @@ For instance, I managed to make Tremor... 35% slower on release!
 So yeah, I still have some work to do in that regard. But it's super cool to
 finally have it compiling and running. The next and last article will cover my
 last step in trying to make the PDK ready for Tremor's next version.
+
+Lastly, I've found it especially rewarding to do all of this in an open source
+environment. Even if you're working for a company with propietary software,
+please try to contribute upstream instead of forking or patching. Try to be nice
+to those who are saving you so much work, and submit a PR or an issue:
+
+// TODO: use github shortcode
+.Most of my contributions while implementing the PDK
+* https://github.com/rodrimati1992/abi_stable_crates/pull/58
+* https://github.com/rodrimati1992/abi_stable_crates/pull/59
+* https://github.com/rodrimati1992/abi_stable_crates/pull/61
+* https://github.com/simd-lite/value-trait/pull/14
+* https://github.com/rodrimati1992/abi_stable_crates/pull/68
+* https://github.com/oxalica/async-ffi/pull/10
+* https://github.com/oxalica/async-ffi/pull/11
+* https://github.com/simd-lite/simd-json-derive/pull/9
+* https://github.com/rodrimati1992/abi_stable_crates/pull/70
+
+And the final Pull Request for Tremor where this work was submitted can be found
+here:
+
+* TODO
+
+// TODO: propose supporting crates your PDK relies on
+We would be _**very**_ dependant on `abi_stable`; Tremor should definitely help
+maintain it or provide resources so that it doesn't get obsolete. It's a huge
+crate that's currently maintained by a single person,
+https://github.com/rodrimati1992[@rodrimati1992], so it's quite the risk.
 
 [bibliography]
 == References
