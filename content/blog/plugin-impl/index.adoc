@@ -21,6 +21,7 @@ system. Now that we know how to actually get started, we will implement it once
 and for all. I will personally use the crate {{< crate abi_stable >}}, but the
 concepts should be the same for any dynamic loading method.
 
+[[advice]]
 == Some prototyping advice
 
 Before anything else, I'd like to give out some advice regarding refactoring
@@ -81,6 +82,8 @@ at least try to minimize it.
 
 === Specific to Rust
 
+// TODO: more tips like these?
+
 The first thing I did was remove a few warnings the Rust compiler will print
 when you're prototyping. By default, a Rust program still compiles with
 warnings, but in my experience they're always in the way when trying to deal
@@ -114,20 +117,17 @@ The first step that we can do is define the interface of the plugin system, i.e.
 what a plugin binary must implement in order to be loadable from the runtime.
 If you're doing this over an already existing codebase, you'll probably get tons
 of errors. We'll ignore them for now; this is only our first sketch and you'll
-end up changing it a thousand times anyway.
+end up changing it a thousand times anyway. Some of these type names may not
+exist yet, or may not be meant to be used for FFI. But it'll serve us as a list
+of things to work on.
 
-In my case, it looks like this:
+In my case, it first looked like this:
 
-// TODO: update
 [source, rust]
 ----
 /// This type represents a connector plugin that has been loaded with
 /// `abi_stable`. It serves as a builder, making it possible to construct a
 /// trait object of `RawConnector`.
-///
-/// Note that its interface may change heavily in the future in order to support
-/// more kinds of plugins. It's also important to keep the plugin interface as
-/// simple as possible, so with time this may be worked on.
 #[repr(C)]
 #[derive(StableAbi)]
 #[sabi(kind(Prefix))]
@@ -146,8 +146,8 @@ pub struct ConnectorMod {
     ) -> FfiFuture<RResult<BoxedRawConnector>>,
 }
 
-// Marking `MinMod` as the main module in this plugin. Note that `MinMod_Ref` is
-// a pointer to the prefix of `MinMod`.
+// Marking `ConnectorMod` as the main module in this plugin. Note that
+// `ConnectorMod_Ref` is just a pointer to the prefix of `ConnectorMod`.
 impl RootModule for ConnectorMod_Ref {
     // The name of the dynamic library
     const BASE_NAME: &'static str = "connector";
@@ -162,12 +162,16 @@ impl RootModule for ConnectorMod_Ref {
 }
 ----
 
+If you're using {{< crate libloading >}} directly then you'd be implementing it
+via a struct with function pointers, but it boils down to the same thing in the
+end.
+
 == Recursively making everything {repr-c}
 
 Now, this is the complicated part. The previous step may have seemed simple, but
-you might find yourself falling into madness as you find that you need to make
-all the types in the interface {repr-c}, and also all the subtypes each of these
-types hold...
+you might find yourself falling into madness as you realize that you need to
+make all the types in the interface {repr-c}, and also all the subtypes each of
+these types hold...
 
 ////
 TODO strategy
@@ -176,11 +180,6 @@ TODO strategy
 * opaque type
 * copy-paste and convert from/into temporarily
 ////
-
-
-== Current Limitations
-
-== External/Complex types
 
 TODO: also mention temporary types like having two values.
 
@@ -330,24 +329,11 @@ impl Value for serde_yaml::Value {
 }
 ////
 
-== Not having a `common` crate
+== Trying to simplify the interface
 
-So far I've been assuming the following structure for the plugin system:
+== Implementing existing functionality as built-in plugins
 
-* The plugin crates
-* The runtime crate that excutes the plugins
-* The `common` crate, with the interface shared between the plugin and the
-  runtime
-
-However, if you aren't starting from scratch, it's very likely that you don't
-have a `common` crate. Instead, it might be just have a single binary crate with
-both the runtime and the functionality in `common`.
-
-Now, this isn't really a problem, since you can just have the plugins depend on
-the runtime crate rather than `common`, and skip it altogether. But one of the
-points of making this PDK is decreasing your compile times
-
-== Generics
+=== Generics
 
 ////
 In the connectors plugin interface there is a single `new` function that exports
@@ -385,7 +371,7 @@ There are two ways to fix this:
   changed, but it's actually possible to do this.
 ////
 
-== Asynchronous communication
+=== Asynchronous communication
 
 As much as I wanted to avoid communication primitives with the plugins other
 than plain synchronous calls, some parts _need_ asynchronous communication. For
@@ -431,33 +417,37 @@ note: closures can only be coerced to `fn` types if they do not capture any vari
 For more information about this error, try `rustc --explain E0308`.
 ----
 
-== Full implementation
+== Splitting up the runtime and the shared parts
 
-Since it may be simpler to get `native-connector` running, let's start with
-that. We'll just copy all the necessary code for the
-https://github.com/tremor-rs/tremor-runtime/tree/883f13e29b4c6ec7b6703f2487aac321c738e7c8[current
-implementation] of connectors as a standalone program:
+So far I've been assuming the following structure for the plugin system:
+
+* The plugin crates
+* The runtime crate that excutes the plugins
+* The `common` crate, with the interface shared between the plugin and the
+  runtime
+
+However, if you aren't starting from scratch, it's very likely that you don't
+have a `common` crate. Instead, it might be just have a single binary crate with
+both the runtime and the functionality in `common`.
+
+Now, this isn't really a problem, since you can just have the plugins depend on
+the runtime crate rather than `common`, and skip it altogether. But one of the
+points of making this PDK is decreasing your compile times
 
 == Conclusion
 
-////
-== Benchmarking
+That's basically how I managed to implement the PDK for Tremor. As I covered in
+the <<advice,first section>>, though, it's only a prototype, and we need to
+polish it. It seems to work perfectly when I execute the runtime manually and
+load some simple plugins I've implemented. But the final step consists on making
+the PDK ready for deployment. This means cleaning up, testing, and benchmarking.
+For instance, I managed to make Tremor... 35% slower on release!
 
-I've always wanted to run some benchmarks in order to find out the actual
-difference in performance between dynamic loading (with native code) and Wasm
-(with interpreted code). Of course, the former will be faster. But, is it
-noticeable?
+// TODO: insert picture in presentation
 
-TODO compare with already existing benchmarks, what to expect, etc
-
-Now that I have some examples of both dynamic loading and Wasm plugins, I can
-make a few benchmarks in order to see the difference by myself. The `wasm-bench`
-and `dynamic-bench` directories in
-https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] can be
-compiled and then ran with
-https://doc.rust-lang.org/1.7.0/book/benchmark-tests.html[Rust's integrated
-benchmarking system] (which requires nightly for now)
-////
+So yeah, I still have some work to do in that regard. But it's super cool to
+finally have it compiling and running. The next and last article will cover my
+last step in trying to make the PDK ready for Tremor's next version.
 
 [bibliography]
 == References
