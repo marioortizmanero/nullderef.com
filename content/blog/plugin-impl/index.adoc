@@ -19,14 +19,14 @@ https://nullderef.com/blog/plugin-abi-stable[Previously], we covered how to use
 external dependencies to lessen the work necessary to implement our plugin
 system. Now that we know how to actually get started, we will implement it once
 and for all. I will personally use the crate {{< crate abi_stable >}}, but the
-concepts should be the same for any dynamic loading method.
+concepts should be roughly the same for any dynamic loading method.
 
 [[advice]]
 == Some prototyping advice
 
 Before anything else, I'd like to give out some advice regarding refactoring
 with Rust, based on my experience. You'll be introducing a good amount of
-changes, so it's good to do some brief planning beforehand -- otherwise it'll
+changes, so it'd be wise to do some brief planning beforehand -- otherwise it'll
 take forever with a complex enough codebase. Maybe all of this will be obvious
 to you, or you will prefer taking a different approach. But it certainly worked
 for me, so it's worth a shot. I'm personally very satisfied about how much I've
@@ -34,8 +34,7 @@ learned about the process.
 
 === The "`just make it work`" approach
 
-// TODO: engraved? drilled?
-What I struggled the most to get TODO into my head is not getting lost in the
+What I struggled the most to get drilled into my head is not getting lost in the
 details. *We just want it to work first of all*. I'll repeat. We just want it to
 *work* first of all. As long as the plugin system runs, the following are
 completely fine:
@@ -49,46 +48,46 @@ completely fine:
 Or, more specific examples:
 
 * If stuck with lifetimes, just slap a `.clone()` in there and call it a day.
-* A good ol' `.unwrap()` will make your life easier.
+* A good ol' `.unwrap()` will make your life easier in case of doubt.
 * You can resort to "`dirty`" or unnecessary type conversions if necessary.
 * Just pulling in a new dependency instead of implementing something more
   tailored to your use-case from scratch will save you a lot of time.
+* If something that's not really important is taking you too much time, you can
+  always resort to `// TODO` or `// FIXME`.
 
-// TODO: rewording, arguable?
 I will say that not working on tests until the plugin system is running is
 definitely arguable for those who prefer to follow test-driven development.
-However, I personally didn't feel the need to write any tests; my work basically
-consisted on making some changes and then trying to make the compiler happy
-about them, repeatedly. I only moved to that step once I was happy enough with
-the results, and everything seemed to work when running it manually.
+However, I personally didn't feel the need to write any tests; my progress
+basically consisted on making some changes and then trying to make the compiler
+happy about them, repeatedly. I only moved to the testing step once I was happy
+enough with the results, and everything seemed to work when running it manually.
 
-// TODO: source for this quote
-Furthermore, premature optimization is the source of all evil, so trying to
-specifically worry about performance here is no better. Once you're done, you
-can actually spend some time profiling and benchmarking in order to know which
-optimizations are worth your time. You might be worrying about avoiding a
-`clone` that doesn't actually affect your program speed at all.
+Furthermore, premature optimization is the source of all evil. You're not at a
+point where that's important yet. Once you're done, you can actually spend some
+time profiling and benchmarking in order to know which optimizations are worth
+your time. Don't get me wrong -- you can certainly worry about choosing an
+approach that's appropiate in terms of performance, which is why I discarded
+WebAssembly or IPC at the beginning. But definitely give up on trying to avoid a
+`clone` that might not actually affect your program speed after all.
 
-// TODO: blocking? barrier?
-My point is that every single test, cleanup or optimization you try to make at
-this stage will most likely end up being wasted effort. You'll reach a TODO at
+My point is that every test, cleanup or optimization you try to make at this
+stage will most likely end up being wasted effort. You'll reach a blocker at
 some point later on and have to rethink and rewrite lots of stuff. When
 everything compiles, seemingly runs fine, and you consider it a decent approach,
-you can actually start working on these points. Don't misunderstand me -- it's
-okay to "`waste`" effort on wrong approaches, because you aren't really
-"`wasting`" it; they're a necessary step to arrive to the final solution. But
-it's frustrating to delete code you've spent time thinking about, so we should
-at least try to minimize it.
+you can actually start working on these points. It's okay to "`waste`" effort on
+wrong approaches, because you aren't really "`wasting`" it; they're a necessary
+step to arrive to the final solution. But it's painful to delete code you've
+spent time thinking about, so we should at least try to minimize it.
 
 === Specific to Rust
 
 // TODO: more tips like these?
 
-The first thing I did was remove a few warnings the Rust compiler will print
-when you're prototyping. By default, a Rust program still compiles with
-warnings, but in my experience they're always in the way when trying to deal
-with actual errors. For example, I don't care that an import is unused at all.
-I'll fix it once I'm done, but please let me keep trying to "`make this work`"!
+The first thing I did was remove a few warnings the compiler will print when
+you're prototyping. By default, a Rust program still compiles with warnings, but
+in my experience they're always in the way when trying to deal with actual
+errors. For example, I don't care that an import is unused at all. I'll fix it
+once I'm done, but please let me keep trying to "`make this work`"!
 
 [source, rust]
 ----
@@ -163,24 +162,25 @@ impl RootModule for ConnectorMod_Ref {
 ----
 
 If you're using {{< crate libloading >}} directly then you'd be implementing it
-via a struct with function pointers, but it boils down to the same thing in the
-end.
+via a struct with function pointers. You'd also need to store metadata about the
+plugin with constants yourself. But in the end, it boils down to the same thing;
+you're specifying the functions that the plugins must export.
 
 == Recursively making everything {repr-c}
 
 // TODO: Mention that it's Tremor's value, and that this also happens with
 // serde_yaml's type, for example
 
-Now, this is the complicated part. The previous step may have seemed simple, but
-you might find yourself falling into madness as you realize that you need to
-make all the types in the interface {repr-c}, and also all the subtypes each of
-these types hold, and on...
+Now, this is the actually complicated part. The previous step may have seemed
+simple, but you might find yourself falling into madness as you realize that you
+need to make all the types in the interface {repr-c}, and also all the fields
+each of these types hold, and on...
 
 It's very likely that you eventually find out that there are types in the
-standard library that don't have an alternative in `abi_stable`.
-
-In the case of Tremor, the main issue was the `Value` type. It's used to
-represent a JSON-like payload; roughly defined as follows:
+standard library that don't have an alternative in `abi_stable`. These will most
+likely be external types, but things like async are a bit complicated to deal
+with as well. In the case of Tremor, the main issue was the `Value` type. It's
+used to represent a JSON-like payload; roughly defined as follows:
 
 [source, rust]
 ----
@@ -198,10 +198,12 @@ pub enum Value {
 }
 ----
 
-It can be converted to:
+In order to be able to use `Value` in the plugin system, it can be converted to:
 
 [source, rust]
 ----
+#[repr(C)]
+#[derive(StableAbi)] // Only necessary with abi_stable
 pub enum Value {
     /// Static values (integers, booleans, etc)
     Static(StaticNode),
@@ -217,7 +219,42 @@ pub enum Value {
 ----
 
 // TODO: solution by adding a pr upstream with support
-The first problem arises in the `Static` variant, however.
+The first problem arises in the `Static` variant.
+https://docs.rs/value-trait/latest/value_trait/enum.StaticNode.html[`StaticNode`]
+is a type from the {{< crate value_trait >}} library that may hold a list of
+basic types: numbers, booleans, or null:
+
+[source, rust]
+----
+pub enum StaticNode {
+    I64(i64),
+    U64(u64),
+    F64(f64),
+    Bool(bool),
+    Null,
+}
+----
+
+We could solve this by applying the same procedure as before, which will work in
+this case because there aren't any other non-trivial types in our enum. We can
+TODO it to a feature flag so that it's applied only for those that actually need
+to use the library in an FFI context thanks to `cfg_attr`:
+
+[source, rust]
+----
+#[cfg_attr(feature = "c-abi", repr(C))]
+#[cfg_attr(feature = "c-abi", derive(abi_stable::StableAbi))]
+pub enum StaticNode {
+    I64(i64),
+    U64(u64),
+    F64(f64),
+    Bool(bool),
+    Null,
+}
+----
+
+// TODO: mention and link properly
+https://github.com/simd-lite/value-trait/pull/14
 
 // TODO: Link halfbrown::HashMap and beef::Cow
 Our second, more important issue, is that by changing the internal definition of
@@ -465,6 +502,8 @@ to those who are saving you so much work, and submit a PR or an issue:
 * https://github.com/rodrimati1992/abi_stable_crates/pull/59
 * https://github.com/rodrimati1992/abi_stable_crates/pull/61
 * https://github.com/simd-lite/value-trait/pull/14
+* https://github.com/simd-lite/value-trait/pull/16
+* https://github.com/simd-lite/value-trait/pull/18
 * https://github.com/rodrimati1992/abi_stable_crates/pull/68
 * https://github.com/oxalica/async-ffi/pull/10
 * https://github.com/oxalica/async-ffi/pull/11
