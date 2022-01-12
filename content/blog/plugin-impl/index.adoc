@@ -113,14 +113,16 @@ warnings, such as unused imports, saving _lots_ of time doing cumbersome work.
 == Defining our public interface
 
 The first step that we can do is define the interface of the plugin system, i.e.
-what a plugin binary must implement in order to be loadable from the runtime.
-If you're doing this over an already existing codebase, you'll probably get tons
-of errors. We'll ignore them for now; this is only our first sketch and you'll
-end up changing it a thousand times anyway. Some of these type names may not
-exist yet, or may not be meant to be used for FFI. But it'll serve us as a list
-of things to work on.
+what a plugin binary must implement in order to be loadable by the runtime. If
+you're doing this over an already existing codebase, you'll probably get tons of
+errors. We'll ignore them for now; this is only our first sketch and you'll end
+up changing it a thousand times anyway. Some of these type names may not exist
+yet, or may not be meant to be used for FFI. But it'll serve us as a list of
+things to work on.
 
-In my case, it first looked like this:
+In my case, it first looked as follows. The specifics about how this works with
+{{< crate abi_stable >}} are explained in the
+https://nullderef.com/blog/plugin-abi-stable/[previous post].
 
 [source, rust]
 ----
@@ -161,10 +163,10 @@ impl RootModule for ConnectorMod_Ref {
 }
 ----
 
-If you're using {{< crate libloading >}} directly then you'd be implementing it
-via a struct with function pointers. You'd also need to store metadata about the
-plugin with constants yourself. But in the end, it boils down to the same thing;
-you're specifying the functions that the plugins must export.
+If you're using {{< crate libloading >}} directly then you would also be
+implementing it via a struct with function pointers, and you'd need to store
+metadata about the plugin with constants. So in the end, it boils down to the
+same thing; just with different amounts of boilerplate.
 
 == Recursively making everything {repr-c}
 
@@ -176,11 +178,11 @@ simple, but you might find yourself falling into madness as you realize that you
 need to make all the types in the interface {repr-c}, and also all the fields
 each of these types hold, and on...
 
-It's very likely that you eventually find out that there are types in the
-standard library that don't have an alternative in `abi_stable`. These will most
-likely be external types, but things like async are a bit complicated to deal
-with as well. In the case of Tremor, the main issue was the `Value` type. It's
-used to represent a JSON-like payload; roughly defined as follows:
+It's very likely that you eventually find out about types in the standard
+library that don't have an alternative in {{< crate abi_stable >}}. These will
+most likely be external types, but things like async are a bit complicated to
+deal with as well. In the case of Tremor, the main issue was the `Value` type.
+It's used to represent a JSON-like payload; roughly defined as follows:
 
 [source, rust]
 ----
@@ -218,7 +220,6 @@ pub enum Value {
 }
 ----
 
-// TODO: solution by adding a pr upstream with support
 The first problem arises in the `Static` variant.
 https://docs.rs/value-trait/latest/value_trait/enum.StaticNode.html[`StaticNode`]
 is a type from the {{< crate value_trait >}} library that may hold a list of
@@ -235,10 +236,10 @@ pub enum StaticNode {
 }
 ----
 
-We could solve this by applying the same procedure as before, which will work in
-this case because there aren't any other non-trivial types in our enum. We can
-TODO it to a feature flag so that it's applied only for those that actually need
-to use the library in an FFI context thanks to `cfg_attr`:
+We could solve this by applying the very same procedure again (hence
+_recursively_). In this case, it will work in because there aren't any other
+non-trivial types in our enum. We can make it optional under a feature flag so
+that it's applied only for those that actually need {repr-c} in the library.
 
 [source, rust]
 ----
@@ -253,8 +254,12 @@ pub enum StaticNode {
 }
 ----
 
-// TODO: mention and link properly
-https://github.com/simd-lite/value-trait/pull/14
+Since it's an external library, we'll have to make a Pull Request and cross our
+fingers that the changes get accepted. In my case, it was accepted, so that was
+all I had to do:
+
+[.text-center]
+{{< gh pr "simd-lite/value-trait" 14 "TODO" "paragraph" >}}
 
 // TODO: Link halfbrown::HashMap and beef::Cow
 Our second, more important issue, is that by changing the internal definition of
