@@ -12,6 +12,7 @@ GHissueID: 30
 :stem: latexmath
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
+:work: pass:quotes["`just make it work`"]
 
 // TODO: review that both abi_stable and raw are considered
 // TODO: review that both changing from existing codebase and from scratch are
@@ -36,7 +37,7 @@ to you, or you will prefer taking a different approach. But it certainly worked
 for me, so it's worth a shot. I'm personally very satisfied about how much I've
 learned about the process.
 
-=== The "`just make it work`" approach
+=== The {work} approach
 
 What I struggled the most to get drilled into my head is not getting lost in the
 details. *We just want it to work first of all*. I'll repeat. We just want it to
@@ -114,7 +115,7 @@ At this point, you can remove these `allow` statements and just run `cargo fix
 && cargo fmt`. They're built-in, and will automatically take care of the trivial
 warnings, such as unused imports, saving _lots_ of time doing cumbersome work.
 
-== Defining our public interface
+== Defining the plugin interface
 
 The first step that we can do is define the interface of the plugin system, i.e.
 what a plugin binary must implement in order to be loadable by the runtime. If
@@ -349,10 +350,10 @@ modifying _tons_ of files unrelated to the plugin system.
 I https://nullderef.com/blog/plugin-abi-stable/#_type_conversions[already
 investigated in the past], and the good news is that converting between types in
 `std` and `abi_stable` is stem:[O(1)]. Most of the times it's equivalent to a
-pointer cast or a match. So here's when the "`just make it work`" approach is
-useful: we'll just keep the FFI barrier minimal and add conversions as early as
-possible. After we're done, we'll see if there are any performance issues, and
-then work on them.
+pointer cast or a match. So here's when the {work} approach is useful: we'll
+just keep the FFI barrier minimal and add conversions as early as possible.
+After we're done, we'll see if there are any performance issues, and then work
+on them.
 
 == Reaching {repr-c} blockers
 
@@ -383,25 +384,76 @@ However, this stops being as "`easy`" when you have to convert from _an external
 library_ to {{< crate abi_stable >}}. The <<value_decl,declaration of `Value`
 that I included in this post>> was an oversimplification. For performance
 reasons, Tremor actually uses {{< crate halfbrown >}}'s implementation of a hash
-map instead of `std::collections::HashMap`. {{< crate halfbrown >}} is based on
-{{< crate hashbrown >}}, which was actually merged into the standard library at
-some point.
+map instead of `std::collections::HashMap`. It's based on {{< crate hashbrown
+>}}, which was actually merged into the standard library at some point.
 
+// TODO: check this with Heinz before publishing
 {{< crate halfbrown >}} also has some additional functionality over ``std``'s
-implementation. Some of it is actually available on Nightly, but it basically
-means that it's not present in {{< crate abi_stable >}}'s `RHashMap`.
+implementation. Some of it is actually available on Nightly, but for that reason
+it's not meant to be in the stable `RHashMap` either. This is used in Tremor,
+for example with
+https://doc.rust-lang.org/std/collections/hash_map/struct.HashMap.html#method.raw_entry[`raw_entry`].
+There is an optimization for JSON handling that consists on memoizing the hash
+of a known item in a map in order to access its value directly with it. After
+switching to `RHashMap`, it becomes an impossible task without writing an FFI
+wrapper for {{< crate halfbrown >}}.
 
-// TODO: explain https://doc.rust-lang.org/std/collections/hash_map/struct.HashMap.html#method.raw_entry[`raw_entry`],
+Even if I managed to fix the hash map mess, the same story repeats itself for
+`Cow`. Tremor uses {{< crate beef >}}'s `Cow` instead of `std::borrow::Cow`
+because it's faster and more compact, at the cost of a slightly different usage.
 
-Options:
+There are a few possible ways to approach these kinds of issues, which I'll
+cover in the following subsections.
+
+In order to solve these we can:
+
+* Implement wrappers for these libraries, which is a very cumbersome task in
+  my experience. And the performance gains from the optimizations that they
+  provide become less clear, as we're introducing overheads with the wrappers.
+* Implement these libraries from scratch with {repr-c}. Obviously the most time
+  consuming, but with this we actually make sure that it's as performant as it
+  gets. For example, writing a wrapper for `beef` wouldn't make that much sense,
+  because a wrapper via opaque types would require a pointer indirection
+* Go for a different approach
 
 === Avoid the type in the first place
 
-You can just avoid the type
+As always, we'll try to follow the {work} advice in here. It's a perfectly valid
+solution to just comment out the optimizations and add a `// TODO` above so that
+they can be reviewed later. You might be asking for too much complexity in your
+plugin system and limiting yourself to the functionality in `std` may be more
+than enough for now. You'll see in the following sections that it's always
+possible to fix it, but it might be too much effort at the moment.
+
+In ``Value``'s specific case, it seems like removing the optimizations that are
+giving us trouble is the easiest way to fix this problem. And it would, if
+removing code wasn't also tricky in some situations. If the optimizations were
+only performed internally and transparently to the hash map functionality, then
+it would most likely be the wisest choice. But after trying to remove them I
+eventually gave up because I considered it was getting out of hands with so many
+changes.
 
 === Implement a wrapper
 
+Another possibility is to write a _wrapper_ for {{< crate halfbrown >}}. Opaque
+types, for instance, may be used to wrap the functionality of an underlying type
+that's not FFI-safe, as we covered in previous articles. This is what {{< crate
+abi_stable >}} does in its `external_types` module for crates like {{< crate
+crossbeam >}} or {{< crate parking_log >}}.
+
+As you may see with the already existing examples, however, implementing
+wrappers is a very cumbersome task. Even after you're done you'll have to keep
+them up to date, so this will increase your maintainance burden as well. {{<
+crate halfbrown >}} and {{< crate beef >}} are somewhat complex libraries, so I
+decided this wasn't the best choice either.
+
 === Re-implement with {repr-c} from scratch
+
+Basically the same as implementing a wrapper, but on steroids. It might seem
+like overkill, but as far as I know it's the only choice in some scenarios,
+because with it we can make sure it's as performant as it can get. In
+``Value``'s example, the problematic types are optimizations, so writing a
+wrapper may have a performance hit and render them useless.
 
 === Opaque types
 
