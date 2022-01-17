@@ -13,6 +13,10 @@ GHissueID: 30
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
+// TODO: review that both abi_stable and raw are considered
+// TODO: review that both changing from existing codebase and from scratch are
+// considered
+
 Welcome to one of the last articles of
 https://nullderef.com/series/rust-plugins/[this series]!
 https://nullderef.com/blog/plugin-abi-stable[Previously], we covered how to use
@@ -116,9 +120,9 @@ The first step that we can do is define the interface of the plugin system, i.e.
 what a plugin binary must implement in order to be loadable by the runtime. If
 you're doing this over an already existing codebase, you'll probably get tons of
 errors. We'll ignore them for now; this is only our first sketch and you'll end
-up changing it a thousand times anyway. Some of these type names may not exist
-yet, or may not be meant to be used for FFI. But it'll serve us as a list of
-things to work on.
+up changing it a thousand times anyway. Some of the types in the interface may
+not exist yet, or they may not be meant to be used for FFI. But it'll serve us
+as an initial list of things to work on.
 
 In my case, it first looked as follows. The specifics about how this works with
 {{< crate abi_stable >}} are explained in the
@@ -163,10 +167,26 @@ impl RootModule for ConnectorMod_Ref {
 }
 ----
 
-If you're using {{< crate libloading >}} directly then you would also be
-implementing it via a struct with function pointers, and you'd need to store
-metadata about the plugin with constants. So in the end, it boils down to the
-same thing; just with different amounts of boilerplate.
+In my case, I had to basically turn the `Connector` trait into a plugin. Its
+implementations were meant to be constructed with `ConnectorBuilder`, and from
+that moment on Tremor was able to treat a connector generically with `dyn
+Connector`. Thus, I thought the best idea would be to turn `ConnectorBuilder`
+into my `RootModule`, making it possible to construct the implementor once the
+plugin was loaded with the `from_config` function. It would now be called
+`ConnectorMod`, and instead of `dyn Connector` I used
+``abi_stable::sabi_trait``'s macro functionality, making its usage possible
+within FFI.
+
+For reference, when I first wrote `ConnectorMod`, `PdkValue` wasn't even
+{repr-c}. I had also added the `#[sabi_trait]` call to the `RawConnector` trait
+declaration, but the types used there weren't {repr-c} either. So I had tons of
+errors everywhere, but that was OK. I would be working on them step by step
+until it compiled again.
+
+If you're using {{< crate libloading >}} directly then you would be implementing
+the interface via a struct with function pointers instead, and you'd need to
+store metadata about the plugin with constants. But in the end, it boils down to
+the same thing; just with different amounts of boilerplate.
 
 == Recursively making everything {repr-c}
 
@@ -176,14 +196,16 @@ same thing; just with different amounts of boilerplate.
 Now, this is the actually complicated part. The previous step may have seemed
 simple, but you might find yourself falling into madness as you realize that you
 need to make all the types in the interface {repr-c}, and also all the fields
-each of these types hold, and on...
+each of these types hold, and so on...
 
 It's very likely that you eventually find out about types in the standard
 library that don't have an alternative in {{< crate abi_stable >}}. These will
-most likely be external types, but things like async are a bit complicated to
-deal with as well. In the case of Tremor, the main issue was the `Value` type.
-It's used to represent a JSON-like payload; roughly defined as follows:
+most likely be external ones, but things like async are a bit complicated to
+deal with as well. In the case of Tremor, the most problematic part was the
+`Value` type. It's used to represent a JSON-like payload; roughly defined as
+follows:
 
+[[value_decl]]
 [source, rust]
 ----
 pub enum Value {
@@ -222,8 +244,8 @@ pub enum Value {
 
 The first problem arises in the `Static` variant.
 https://docs.rs/value-trait/latest/value_trait/enum.StaticNode.html[`StaticNode`]
-is a type from the {{< crate value_trait >}} library that may hold a list of
-basic types: numbers, booleans, or null:
+is a type from our {{< crate value_trait >}} dependency, which may hold a list
+of basic types: numbers, booleans, or null:
 
 [source, rust]
 ----
@@ -236,10 +258,12 @@ pub enum StaticNode {
 }
 ----
 
-We could solve this by applying the very same procedure again (hence
-_recursively_). In this case, it will work in because there aren't any other
-non-trivial types in our enum. We can make it optional under a feature flag so
-that it's applied only for those that actually need {repr-c} in the library.
+The solution would be as easy as applying the very same procedure again (hence
+_recursively_ until everything is {repr-c}). Here it will finally work because
+there aren't any other non-trivial types in `StaticNode`. But since it's an
+external library, we'll have to make a Pull Request and hope that the author is
+okay with the changes. It should be optional under a feature flag so that it's
+applied only for those that actually need {repr-c} in the library:
 
 [source, rust]
 ----
@@ -254,20 +278,120 @@ pub enum StaticNode {
 }
 ----
 
-Since it's an external library, we'll have to make a Pull Request and cross our
-fingers that the changes get accepted. In my case, it was accepted, so that was
-all I had to do:
+That's exactly what I did in my case:
 
 [.text-center]
-{{< gh pr "simd-lite/value-trait" 14 "TODO" "paragraph" >}}
+{{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" >}}
 
-// TODO: Link halfbrown::HashMap and beef::Cow
-Our second, more important issue, is that by changing the internal definition of
-`Value`, the previous implementations for it will now fail to compile. You will
-need to use `RString::new` instead of `String::new` and similars, for instance.
-But this gets more complicated, if you were using something like TODO1 TODO2
-instead of the standard library. These usually offer extra functionality that
-isn't available even in the case 
+== Overcoming problems with {repr-c}
+
+Awesome. We got `Value` working now for FFI. Right? No? Oh. It seems like the
+compiler strongly disagrees. By changing the variants of `Value`, a great amount
+of the code that used it will now fail to compile in multiple ways:
+
+[source, rust]
+----
+// Won't work because Value::String holds a RString now
+let value = Value::String(String::new());
+----
+
+That's the easiest one, we just need to change `String` to `RString` and it
+should be fine. The types in {{< crate abi_stable >}} are meant to be a drop-in
+replacement for the ones in `std`:
+
+[source, rust]
+----
+let value = Value::String(RString::new());
+----
+
+It gets a bit more complicated when the types are exposed in methods, because
+you have to decide whether or not to expand the FFI barrier from the _internals_
+of `Value` to the _users_ of `Value`. For instance, the `Value::Object` variant
+holds a `RHashMap` now, but the method `Value::as_object` used to return a
+reference to a `HashMap`. You'll get another error in there, which raises a
+decision that must be made: returning `RHashMap` or adding an internal
+conversion to `HashMap`:
+
+[source, rust]
+----
+impl Value {
+    // Original code
+    fn as_object(&self) -> Option<&HashMap<String, Value>> {
+        match self {
+            // Problem: `m` is a `RHashMap` now, but the function returns a
+            // `HashMap`.
+            //
+            // Solution 1: change the return type to `RHashMap`
+            // Solution 2: convert `m` to a `HashMap` with `m.into()`
+            Self::Object(m) => Some(m),
+            _ => None,
+        }
+    }
+}
+----
+
+* If the return type is changed to `RHashMap`, almost every caller to
+  `as_object` in the program will now fail to compile because it expects a
+  `HashMap`. You'll have to clean it up one by one and figure out how `RHashMap`
+  can be used in that case instead. This is very messy because in order to avoid
+  conversions, your plugin system will _infect_ the entire codebase.
++
+You'll quickly find yourself propagating the usage of `RHashMap` everywhere,
+even when the PDK isn't that important. For example, `Value` was also used in
+Trickle's implementation, the scripting language used to configure Tremor's
+pipelines. Having to use `RHashMap` in there was a bit confusing, and I was
+modifying _tons_ of files unrelated to the plugin system.
+* If you perform an internal conversion to `HashMap` in `as_object` we'll avoid
+  all of these errors, but we're adding a small overhead. It's by far the
+  easiest choice, but if `Value::as_object` is frequently used in e.g. your hot
+  loop, you may notice a considerable performance degradation.
++
+I https://nullderef.com/blog/plugin-abi-stable/#_type_conversions[already
+investigated in the past], and the good news is that converting between types in
+`std` and `abi_stable` is stem:[O(1)]. Most of the times it's equivalent to a
+pointer cast or a match. So here's when the "`just make it work`" approach is
+useful: we'll just keep the FFI barrier minimal and add conversions as early as
+possible. After we're done, we'll see if there are any performance issues, and
+then work on them.
+
+== Reaching {repr-c} blockers
+
+That was my first attempt at making `Value` FFI-compatible, and unfortunately,
+it didn't end there. Converting from `std` to {{< crate abi_stable >}} is a
+relatively painless experience; their usage intends to be the same. You may
+find that a method in {{< crate abi_stable >}} isn't available because it's not
+updated as regularly. But most of the times you can just copy-paste the
+implementation from `std` into {{< crate abi_stable >}}'s and create a new Pull
+Request, which is what I did a few times:
+
+[.text-center]
+{{< gh pr "rodrimati1992/abi_stable_crates" 58 "Add support for .keys() and .values() in RHashMap" >}}
+
+[.text-center]
+{{< gh pr "rodrimati1992/abi_stable_crates" 59 "Implement `Index` for slices and vectors" >}}
+
+[.text-center]
+{{< gh pr "rodrimati1992/abi_stable_crates" 61 "Support for `f32` and `f64`" >}}
+
+[.text-center]
+{{< gh pr "rodrimati1992/abi_stable_crates" 68 "Implement `ROption::as_deref`" >}}
+
+[.text-center]
+{{< gh pr "rodrimati1992/abi_stable_crates" 70 "Implement RVec::append" "paragraph" >}}
+
+However, this stops being as "`easy`" when you have to convert from _an external
+library_ to {{< crate abi_stable >}}. The <<value_decl,declaration of `Value`
+that I included in this post>> was an oversimplification. For performance
+reasons, Tremor actually uses {{< crate halfbrown >}}'s implementation of a hash
+map instead of `std::collections::HashMap`. {{< crate halfbrown >}} is based on
+{{< crate hashbrown >}}, which was actually merged into the standard library at
+some point.
+
+{{< crate halfbrown >}} also has some additional functionality over ``std``'s
+implementation. Some of it is actually available on Nightly, but it basically
+means that it's not present in {{< crate abi_stable >}}'s `RHashMap`.
+
+// TODO: explain https://doc.rust-lang.org/std/collections/hash_map/struct.HashMap.html#method.raw_entry[`raw_entry`],
 
 Options:
 
@@ -506,14 +630,14 @@ to those who are saving you so much work, and submit a PR or an issue:
 * https://github.com/rodrimati1992/abi_stable_crates/pull/58
 * https://github.com/rodrimati1992/abi_stable_crates/pull/59
 * https://github.com/rodrimati1992/abi_stable_crates/pull/61
+* https://github.com/rodrimati1992/abi_stable_crates/pull/68
+* https://github.com/rodrimati1992/abi_stable_crates/pull/70
 * https://github.com/simd-lite/value-trait/pull/14
 * https://github.com/simd-lite/value-trait/pull/16
 * https://github.com/simd-lite/value-trait/pull/18
-* https://github.com/rodrimati1992/abi_stable_crates/pull/68
 * https://github.com/oxalica/async-ffi/pull/10
 * https://github.com/oxalica/async-ffi/pull/11
 * https://github.com/simd-lite/simd-json-derive/pull/9
-* https://github.com/rodrimati1992/abi_stable_crates/pull/70
 
 And the final Pull Request for Tremor where this work was submitted can be found
 here:
