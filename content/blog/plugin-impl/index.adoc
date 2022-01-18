@@ -405,17 +405,6 @@ because it's faster and more compact, at the cost of a slightly different usage.
 There are a few possible ways to approach these kinds of issues, which I'll
 cover in the following subsections.
 
-In order to solve these we can:
-
-* Implement wrappers for these libraries, which is a very cumbersome task in
-  my experience. And the performance gains from the optimizations that they
-  provide become less clear, as we're introducing overheads with the wrappers.
-* Implement these libraries from scratch with {repr-c}. Obviously the most time
-  consuming, but with this we actually make sure that it's as performant as it
-  gets. For example, writing a wrapper for `beef` wouldn't make that much sense,
-  because a wrapper via opaque types would require a pointer indirection
-* Go for a different approach
-
 === Avoid the type in the first place
 
 As always, we'll try to follow the {work} advice in here. It's a perfectly valid
@@ -427,130 +416,150 @@ possible to fix it, but it might be too much effort at the moment.
 
 In ``Value``'s specific case, it seems like removing the optimizations that are
 giving us trouble is the easiest way to fix this problem. And it would, if
-removing code wasn't also tricky in some situations. If the optimizations were
-only performed internally and transparently to the hash map functionality, then
-it would most likely be the wisest choice. But after trying to remove them I
-eventually gave up because I considered it was getting out of hands with so many
-changes.
+removing code wasn't also tricky when the optimizations aren't performed
+internally and transparently to the hash map functionality. After trying to
+remove them I eventually gave up because I considered it was getting out of
+hands with so many changes.
 
 === Implement a wrapper
 
 Another possibility is to write a _wrapper_ for {{< crate halfbrown >}}. Opaque
 types, for instance, may be used to wrap the functionality of an underlying type
-that's not FFI-safe, as we covered in previous articles. This is what {{< crate
+that's not FFI-safe, as I covered in previous articles. This is what {{< crate
 abi_stable >}} does in its `external_types` module for crates like {{< crate
-crossbeam >}} or {{< crate parking_log >}}.
+crossbeam >}} or {{< crate parking_lot >}}.
 
-As you may see with the already existing examples, however, implementing
-wrappers is a very cumbersome task. Even after you're done you'll have to keep
-them up to date, so this will increase your maintainance burden as well. {{<
-crate halfbrown >}} and {{< crate beef >}} are somewhat complex libraries, so I
-decided this wasn't the best choice either.
+As you may see with the
+https://github.com/rodrimati1992/abi_stable_crates/tree/edfb2a97a7b5d7ecbc29c1f9f115f61e26f42da6/abi_stable/src/external_types[already
+existing examples], however, implementing wrappers can be quite a cumbersome
+task. And even after you're done you'll have to keep them up to date, so this
+will increase your maintainance burden. {{< crate halfbrown >}} and {{< crate
+beef >}} are somewhat complex libraries, so I decided this wasn't the best
+choice at that moment.
 
 === Re-implement with {repr-c} from scratch
 
-Basically the same as implementing a wrapper, but on steroids. It might seem
-like overkill, but as far as I know it's the only choice in some scenarios,
-because with it we can make sure it's as performant as it can get. In
-``Value``'s example, the problematic types are optimizations, so writing a
-wrapper may have a performance hit and render them useless.
+Similar to implementing a wrapper, but on steroids. It might seem like overkill,
+but as far as I know it's the only choice in some scenarios, because we can make
+sure the type is as performant as it can get. In ``Value``'s example, the
+problematic types are optimizations, so writing a wrapper over them may have a
+performance hit and render them useless (e.g. if we used opaque types we would
+introduce a mandatory pointer indirection).
 
-=== Opaque types
+// TODO: fact-check `Value` comment
+If this part of the project is important enough, or you consider yourself with
+enough manpower, then it might not be such a bad idea to create a new
+implementation with your use-case in mind. It's actually why Tremor's `Value`
+was created in the first place; `simd_json::Value` wasn't flexible enough for
+them, so they decided to define their own version. Same thing could be applied
+for your plugin system.
 
-=== Copy-pasting
+=== Simplifying the type at the FFI boundary
 
-// NOTE: may be the same as before
+The last idea I came up with, that ended up being the easiest one, was just
+copy-pasting the type and adding an intermediate conversion. We can just
+simplify the type as much as possible in order to pass it through the FFI
+boundary, and then convert it back to access its full functionality.
 
-// NOTE: reorganize this part
-
-. You re-implement the external type with {repr-c}:  not viable in many cases
-. You add a wrapper (TODO add link to the already existing ones)
-. You avoid using that extra functionality
-. You copy-paste the original type and perform type conversions from and to it
-
-// TODO: reorder the following, make the list into sub-sections instead
-
-Adding wrappers to each of these individual types has a complexity so large that
-makes this task practically impossible for Tremor. For reference, the
-https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/serde_json.rs[current
-wrapper for `serde_json`] (the simplest one) is 597 lines of untested code.
-Others such as `crossbeam` are over 1500 lines.
-
-:rmutex: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L77
-:opaque-mutex: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L29
-:vtable: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L338
-:wrapping: https://github.com/rodrimati1992/abi_stable_crates/blob/f7136dbc3d00fa7e97eddd36c06368ce524eeb8f/abi_stable/src/external_types/parking_lot/mutex.rs#L267
-
-The good news are that creating a wrapper can be considered "`trivial`". All you
-need to do is wrap the FFI-unsafe type under an opaque type, and create a
-https://en.wikipedia.org/wiki/Virtual_method_table[vtable] that has access to
-all of its methods. You can see this for example in the wrapper for
-`crossbeam::Mutex<T>`: the {rmutex}[FFI-safe `RMutex` type] holds an
-{opaque-mutex}[opaque mutex] and also a {vtable}[vtable] with all of its
-available methods, which then are {wrapping}[wrapped for ease of use under the
-`RMutex` type].
-
-I'll try to use `cglue` for that exact problem and see how it works out.
-
-abi_stable ends up being propagated throughout the entire codebase. This means
-that the functionality is also affected, and it's very painful. Should I
-continue, or is it better to perhaps write wrappers for the higher level types
-instead?
-
-NOTE: create wrapper over raw abi_stable stuff and convert back to std, or use
-as it is?
-
-////
-//! This showcases how even with external and complex types not supported by
-//! `abi_stable` by defalut, it's still possible to create a stable ABI.
-//!
-//! This is thanks to opaque types: instead of using the original type as we
-//! normally would, we write its functionality as a trait and then use it with
-//! `dyn`.
-
-use abi_stable::{
-    std_types::{RBox, ROption, RString},
-    StableAbi,
-};
-
-/// Internal type with types that aren't wrapped by `abi_stable`
+[source, rust]
+----
 #[repr(C)]
 #[derive(StableAbi)]
-pub struct ConnectorContext {
-    /// unique identifier
-    pub uid: u64,
-    /// url of the connector
-    pub url: RString,
-    /// type name of the connector
-    pub type_name: RString,
-    /// oh no! there's no `serde_yaml::Value` in `abi_stable`, so we can't just
-    /// add `#[derive(StableAbi)]` to `ConnectorContext`!
-    ///
-    /// Solution: using its opaque alternative
-    pub enabled: Value_TO<'static, RBox<()>>,
+pub enum PdkValue {
+    /// Static values (integers, booleans, etc)
+    Static(StaticNode),
+    /// String type
+    String(RString),
+    /// Array type
+    Array(RVec<Value>),
+    /// Object type
+    Object(RBox<RHashMap<RString, Value>>),
+    /// A binary type
+    Bytes(RVec<u8>),
+}
+----
+
+We don't implement any methods at all for the new `Value`, only its variants and
+conversions in both ways. If `PdkValue` is simple enough, these conversions can
+be lightweight and not affect performance that much. But in some cases it's
+impossible to avoid iterating the data in order to convert it. For example, the
+object is a pointer to a hashmap. Unlike the array, we can't just cast it to a
+pointer and know that it will work
+
+[source, rust]
+----
+impl<'value> From<Value<'value>> for PdkValue<'value> {
+    fn from(original: Value<'value>) -> Self {
+        match original {
+            // No conversion needed; `StaticNode` implements `StableAbi`
+            Value::Static(s) => PdkValue::Static(s),
+            // This conversion is cheap
+            Value::String(s) => PdkValue::String(conv_str(s)),
+            // This unfortunately requires iterating the array
+            Value::Array(a) => {
+                let a = a.into_iter().map(Into::into).collect();
+                PdkValue::Array(a)
+            }
+            // This unfortunately requires iterating the map and a new
+            // allocation
+            Value::Object(m) => {
+                let m: halfbrown::HashMap<_, _> = *m;
+                let m = m
+                    .into_iter()
+                    .map(|(k, v)| (conv_str(k), v.into()))
+                    .collect();
+                PdkValue::Object(RBox::new(m))
+            }
+            // This conversion is cheap
+            Value::Bytes(b) => PdkValue::Bytes(conv_u8(b)),
+        }
+    }
 }
 
-#[abi_stable::sabi_trait]
-pub trait Value {
-    fn as_bool(&self) -> ROption<bool>;
-    fn as_i64(&self) -> ROption<i64>;
-    fn as_null(&self) -> ROption<()>;
+impl<'value> From<PdkValue<'value>> for Value<'value> {
+    fn from(original: PdkValue<'value>) -> Self {
+        match original {
+            // No conversion needed; `StaticNode` implements `StableAbi`
+            PdkValue::Static(s) => Value::Static(s),
+            // This conversion is cheap
+            PdkValue::String(s) => Value::String(conv_str_inv(s)),
+            // This unfortunately requires iterating the array
+            PdkValue::Array(a) => {
+                let a = a.into_iter().map(Into::into).collect();
+                Value::Array(a)
+            }
+            // This unfortunately requires iterating the map and a new
+            // allocation
+            PdkValue::Object(m) => {
+                let m = (*m).clone(); // FIXME: remove this super ugly clone
+                let m = m
+                    .into_iter()
+                    .map(|Tuple2(k, v)| (conv_str_inv(k), v.into()))
+                    .collect();
+                Value::Object(Box::new(m))
+            }
+            // This conversion is cheap
+            PdkValue::Bytes(b) => Value::Bytes(conv_u8_inv(b)),
+        }
+    }
 }
+----
 
-impl Value for serde_yaml::Value {
-    fn as_bool(&self) -> ROption<bool> {
-        self.as_bool().into()
-    }
+The main issue here is usability. In order to use our new value, we will need
+to:
 
-    fn as_i64(&self) -> ROption<i64> {
-        self.as_i64().into()
-    }
+* Convert from `Value` to `PdkValue`
+* Pass it through the FFI boundary (e.g. call a plugin function)
+* Convert from `PdkValue` to `Value`
 
-    fn as_null(&self) -> ROption<()> {
-        self.as_null().into()
-    }
+// TODO insert pretty diagram here
+
+[source, rust]
+----
+fn something(value: PdkValue) {
+    
 }
-////
+----
 
 == Implementing existing functionality as built-in plugins
 
