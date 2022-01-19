@@ -189,10 +189,7 @@ the interface via a struct with function pointers instead, and you'd need to
 store metadata about the plugin with constants. But in the end, it boils down to
 the same thing; just with different amounts of boilerplate.
 
-== Recursively making everything {repr-c}
-
-// TODO: Mention that it's Tremor's value, and that this also happens with
-// serde_yaml's type, for example
+=== Recursively making everything {repr-c}
 
 Now, this is the actually complicated part. The previous step may have seemed
 simple, but you might find yourself falling into madness as you realize that you
@@ -284,7 +281,7 @@ That's exactly what I did in my case:
 [.text-center]
 {{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" >}}
 
-== Overcoming problems with {repr-c}
+=== Overcoming problems with {repr-c}
 
 Awesome. We got `Value` working now for FFI. Right? No? Oh. It seems like the
 compiler strongly disagrees. By changing the variants of `Value`, a great amount
@@ -355,7 +352,7 @@ just keep the FFI barrier minimal and add conversions as early as possible.
 After we're done, we'll see if there are any performance issues, and then work
 on them.
 
-== Reaching {repr-c} blockers
+=== Reaching {repr-c} blockers
 
 That was my first attempt at making `Value` FFI-compatible, and unfortunately,
 it didn't end there. Converting from `std` to {{< crate abi_stable >}} is a
@@ -405,7 +402,7 @@ because it's faster and more compact, at the cost of a slightly different usage.
 There are a few possible ways to approach these kinds of issues, which I'll
 cover in the following subsections.
 
-=== Avoid the type in the first place
+==== Avoid the type in the first place
 
 As always, we'll try to follow the {work} advice in here. It's a perfectly valid
 solution to just comment out the optimizations and add a `// TODO` above so that
@@ -421,7 +418,7 @@ internally and transparently to the hash map functionality. After trying to
 remove them I eventually gave up because I considered it was getting out of
 hands with so many changes.
 
-=== Implement a wrapper
+==== Implement a wrapper
 
 Another possibility is to write a _wrapper_ for {{< crate halfbrown >}}. Opaque
 types, for instance, may be used to wrap the functionality of an underlying type
@@ -437,7 +434,7 @@ will increase your maintainance burden. {{< crate halfbrown >}} and {{< crate
 beef >}} are somewhat complex libraries, so I decided this wasn't the best
 choice at that moment.
 
-=== Re-implement with {repr-c} from scratch
+==== Re-implement with {repr-c} from scratch
 
 Similar to implementing a wrapper, but on steroids. It might seem like overkill,
 but as far as I know it's the only choice in some scenarios, because we can make
@@ -454,7 +451,7 @@ was created in the first place; `simd_json::Value` wasn't flexible enough for
 them, so they decided to define their own version. Same thing could be applied
 for your plugin system.
 
-=== Simplifying the type at the FFI boundary
+==== Simplifying the type at the FFI boundary
 
 The last idea I came up with, that ended up being the easiest one, was just
 copy-pasting the type and adding an intermediate conversion. We can just
@@ -471,9 +468,9 @@ pub enum PdkValue {
     /// String type
     String(RString),
     /// Array type
-    Array(RVec<Value>),
+    Array(RVec<PdkValue>),
     /// Object type
-    Object(RBox<RHashMap<RString, Value>>),
+    Object(RBox<RHashMap<RString, PdkValue>>),
     /// A binary type
     Bytes(RVec<u8>),
 }
@@ -561,49 +558,7 @@ fn something(value: PdkValue) {
 }
 ----
 
-== Implementing existing functionality as built-in plugins
-
-=== Generics
-
-////
-In the connectors plugin interface there is a single `new` function that exports
-a `Connector` dynamic trait from the plugin. The runtime can then use that as a
-generic connector just like how Tremor does now. On the plugin-side, the
-`create_{source,sink}` methods call `builder.spawn`, which relies on the fact
-that the type implements `Source` or `Sink`. This spawns the new task and
-communicates with the connector. As I said, this happens on the implementor
-side, so the runtime doesn't know if the concrete type implements `Sink` or
-`Source`, only that it's a `Connector`, and the plugin handles the rest itself.
-
-However, since we wanted to simplify the plugin interface as much as possible,
-the communication details should happen on the runtime rather than on the
-plugin. What I mean is that, instead of calling `builder.spawn` on the plugin
-and creating the channel on the plugin, it should happen on the runtime. Thus,
-the whole idea of `create_{source,sink}` is now somewhat pointless, because it's
-handled by the runtime. We have a `dyn Connector`, with which we can't know if
-`Source` or `Sink` are implemented as well. We'd need `dyn (Connector + Source +
-Sink)` for that, but `Source` and `Sink` are actually optional, so it depends on
-the plugin anyway.
-
-There are two ways to fix this:
-
-* The `new` function returns a `dyn (Connector + Source + Sink)` instead and has
-  fields to make sure `Source` or `Sink` are properly implemented. All of the
-  connectors implement `Source` and `Sink` always, but we can make it optional
-  by adding a marker or something like that.
-
-  Spoiler: that won't work with just `abi_stable` anyway. Only with `cglue`,
-  which makes it possible to have groups of traits. So it *would* be possible,
-  but unnecessarily complicated and not an ideal solution anyway.
-
-* The `create_{source,sink}` functions in the connector trait return a `dyn
-  Source`. This way the interface for the connectors has to be very slightly
-  changed, but it's actually possible to do this.
-////
-
-=== Asynchronous communication
-
-// TODO: outdated
+=== Plugins with `async`
 
 As much as I wanted to avoid communication primitives with the plugins other
 than plain synchronous calls, some parts _need_ asynchronous communication. For
@@ -649,22 +604,45 @@ note: closures can only be coerced to `fn` types if they do not capture any vari
 For more information about this error, try `rustc --explain E0308`.
 ----
 
-== Splitting up the runtime and the shared parts
+== Separating runtime and interface
 
-So far I've been assuming the following structure for the plugin system:
+In the previous articles I've been assuming the following structure for the
+plugin system:
 
-* The plugin crates
-* The runtime crate that excutes the plugins
+* The runtime crate, which loads and runs the plugins.
 * The `common` crate, with the interface shared between the plugin and the
-  runtime
+  runtime.
+* The plugin crates, with the loadable functionality.
+
+This is essential in order to actually improve compilation times, which is one
+of the main objectives of our plugin system. There are two ways to look at
+compilation times:
+
+. For runtime development
+. For plugin development
+
+In both cases, we want to compile _only_ either component. If we're developing a
+plugin, it makes no sense to be forced to compile the runtime as well, because
+we aren't actually changing it. And if we're working on the runtime, we don't
+want to re-compile the functionality from the plugins.
+
+If we just separate the runtime from the plugins, we can achieve the first
+point. Your functionality is now in separate plugin binaries, so the runtime
+will have considerably lower compilation times.
+
+But in order to also improve plugin compilation times, if the interface is in
+the same crate as the runtime, we'll have to compile both. The shared parts
+should be written in a separate crate.
 
 However, if you aren't starting from scratch, it's very likely that you don't
-have a `common` crate. Instead, you'll just have a single binary crate with both
-the runtime and the functionality in `common`.
+have a `common` crate. You'll just have a single binary crate with both the
+runtime and the functionality in `common`.
 
 This isn't really a problem, since you can just have the plugins depend on the
 runtime crate rather than `common`, and skip it altogether. But one of the
 points of making this PDK is decreasing your compile times
+
+== Getting it ready for deployment
 
 == Conclusion
 
@@ -688,28 +666,17 @@ to those who are saving you so much work, and submit a PR or an issue:
 
 // TODO: use github shortcode
 .Most of my contributions while implementing the PDK
+* https://github.com/oxalica/async-ffi/pull/10
+* https://github.com/oxalica/async-ffi/pull/11
 * https://github.com/rodrimati1992/abi_stable_crates/pull/58
 * https://github.com/rodrimati1992/abi_stable_crates/pull/59
 * https://github.com/rodrimati1992/abi_stable_crates/pull/61
 * https://github.com/rodrimati1992/abi_stable_crates/pull/68
 * https://github.com/rodrimati1992/abi_stable_crates/pull/70
+* https://github.com/simd-lite/simd-json-derive/pull/9
 * https://github.com/simd-lite/value-trait/pull/14
 * https://github.com/simd-lite/value-trait/pull/16
 * https://github.com/simd-lite/value-trait/pull/18
-* https://github.com/oxalica/async-ffi/pull/10
-* https://github.com/oxalica/async-ffi/pull/11
-* https://github.com/simd-lite/simd-json-derive/pull/9
-
-And the final Pull Request for Tremor where this work was submitted can be found
-here:
-
-* TODO
-
-// TODO: propose supporting crates your PDK relies on
-We would be _**very**_ dependant on `abi_stable`; Tremor should definitely help
-maintain it or provide resources so that it doesn't get obsolete. It's a huge
-crate that's currently maintained by a single person,
-https://github.com/rodrimati1992[@rodrimati1992], so it's quite the risk.
 
 [bibliography]
 == References
