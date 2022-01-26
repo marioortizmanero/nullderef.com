@@ -1,0 +1,35 @@
+---
+title: "Plugins in Rust: Working on Performance"
+description: "Getting our plugin system ready for deployment"
+author: "Mario Ortiz Manero"
+tags: ["rust", "rustlang", "plugin", "bench", "benchmarking"]
+series: ["rust-plugins"]
+date: 2021-11-09
+GHissueID: TODO
+---
+
+:sectnums:
+:stem: latexmath
+
+:repr-c: pass:quotes[`#[repr\(C)]`]
+:work: pass:quotes["`just make it work`"]
+
+== Benchmarking process
+
+Benchmarking procedure
+
+Important:
+
+* Make sure everything heavy is closed: discord, firefox, neovim + lsp, etc
+
+[source]
+----
+cd tremor-cli/tests/bench/passthrough
+export TREMOR_PATH=../../../../tremor-script/lib:../../lib/
+../../../../target/release/tremor test bench . > ~/Programming/nullderef.com/content/blog/plugin-bench/results/NAME.hgrm
+----
+
+[bibliography]
+== References
+
+- [[[empty,      1]]] http://google.com
