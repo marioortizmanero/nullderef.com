@@ -308,7 +308,7 @@ of `Value` to the _users_ of `Value`. For instance, the `Value::Object` variant
 holds a `RHashMap` now, but the method `Value::as_object` used to return a
 reference to a `HashMap`. You'll get another error in there, which raises a
 decision that must be made: returning `RHashMap` or adding an internal
-conversion to `HashMap`:
+conversion to `HashMap`.
 
 [source, rust]
 ----
@@ -483,6 +483,7 @@ impossible to avoid iterating the data in order to convert it. For example, the
 object is a pointer to a hashmap. Unlike the array, we can't just cast it to a
 pointer and know that it will work
 
+// TODO: update and simplify after it's more definitive
 [source, rust]
 ----
 impl<'value> From<Value<'value>> for PdkValue<'value> {
@@ -491,7 +492,7 @@ impl<'value> From<Value<'value>> for PdkValue<'value> {
             // No conversion needed; `StaticNode` implements `StableAbi`
             Value::Static(s) => PdkValue::Static(s),
             // This conversion is cheap
-            Value::String(s) => PdkValue::String(conv_str(s)),
+            Value::String(s) => PdkValue::String(s.into()),
             // This unfortunately requires iterating the array
             Value::Array(a) => {
                 let a = a.into_iter().map(Into::into).collect();
@@ -501,10 +502,7 @@ impl<'value> From<Value<'value>> for PdkValue<'value> {
             // allocation
             Value::Object(m) => {
                 let m: halfbrown::HashMap<_, _> = *m;
-                let m = m
-                    .into_iter()
-                    .map(|(k, v)| (conv_str(k), v.into()))
-                    .collect();
+                let m = m.into_iter().map(Into::into).collect();
                 PdkValue::Object(RBox::new(m))
             }
             // This conversion is cheap
@@ -529,10 +527,7 @@ impl<'value> From<PdkValue<'value>> for Value<'value> {
             // allocation
             PdkValue::Object(m) => {
                 let m = (*m).clone(); // FIXME: remove this super ugly clone
-                let m = m
-                    .into_iter()
-                    .map(|Tuple2(k, v)| (conv_str_inv(k), v.into()))
-                    .collect();
+                let m = m.into_iter().map(Into::into).collect();
                 Value::Object(Box::new(m))
             }
             // This conversion is cheap
