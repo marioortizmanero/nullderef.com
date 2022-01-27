@@ -14,6 +14,16 @@ GHissueID: TODO
 :repr-c: pass:quotes[`#[repr\(C)]`]
 :work: pass:quotes["`just make it work`"]
 
+////
+I even hit a bug in the compiler, which made me feel oddly proud:
+
+(include image)
+
+It's seemingly related to incremental compilation and already reported:
+
+https://github.com/rust-lang/rust/issues/90608
+////
+
 == Benchmarking process
 
 Benchmarking procedure
