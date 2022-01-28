@@ -12,6 +12,7 @@ GHissueID: 30
 :stem: latexmath
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
+:repr-rust: pass:quotes[`#[repr(Rust)]`]
 :work: pass:quotes["`just make it work`"]
 
 // TODO: review that both abi_stable and raw are considered
@@ -111,9 +112,10 @@ PDK prototype. The following screenshot made my day, as simple as it may seem:
 
 image::compilation.png[width=80%, align=center]
 
-At this point, you can remove these `allow` statements and just run `cargo fix
-&& cargo fmt`. They're built-in, and will automatically take care of the trivial
-warnings, such as unused imports, saving _lots_ of time doing cumbersome work.
+Afterwards, I removed these `allow` statements and just ran `cargo fix && cargo
+fmt`. Both cargo commands are built-in, and will automatically take care of the
+trivial warnings, such as unused imports, saving _lots_ of time doing cumbersome
+work.
 
 == Defining the plugin interface
 
@@ -168,15 +170,14 @@ impl RootModule for ConnectorMod_Ref {
 }
 ----
 
-In my case, I had to basically turn the `Connector` trait into a plugin. Its
-implementations were meant to be constructed with `ConnectorBuilder`, and from
-that moment on Tremor was able to treat a connector generically with `dyn
-Connector`. Thus, I thought the best idea would be to turn `ConnectorBuilder`
-into my `RootModule`, making it possible to construct the implementor once the
-plugin was loaded with the `from_config` function. It would now be called
-`ConnectorMod`, and instead of `dyn Connector` I used
-``abi_stable::sabi_trait``'s macro functionality, making its usage possible
-within FFI.
+In my case, I had to basically turn the `Connector` trait into a plugin. All
+`Connector` implementations were meant to be constructed with
+`ConnectorBuilder`, and from that moment on Tremor was able to use them
+generically with `dyn Connector`. Thus, I thought the best idea would be to turn
+`ConnectorBuilder` into my `RootModule` under the name `ConnectorMod`. Once the
+plugin was loaded, it would be possible to construct the connector with the
+`from_config` function. I used ``abi_stable::sabi_trait``'s macro functionality,
+making `dyn` usage possible within FFI.
 
 For reference, when I first wrote `ConnectorMod`, `PdkValue` wasn't even
 {repr-c}. I had also added the `#[sabi_trait]` call to the `RawConnector` trait
@@ -196,12 +197,11 @@ simple, but you might find yourself falling into madness as you realize that you
 need to make all the types in the interface {repr-c}, and also all the fields
 each of these types hold, and so on...
 
-It's very likely that you eventually find out about types in the standard
-library that don't have an alternative in {{< crate abi_stable >}}. These will
-most likely be external ones, but things like async are a bit complicated to
-deal with as well. In the case of Tremor, the most problematic part was the
-`Value` type. It's used to represent a JSON-like payload; roughly defined as
-follows:
+It's very likely that you'll eventually find types without an FFI alternative in
+{{< crate abi_stable >}}. These will most likely be external types, but things
+like async are a bit complicated to deal with as well. In the case of Tremor,
+the most problematic part was the `Value` type. It's used to represent a
+JSON-like payload; roughly defined as follows:
 
 [[value_decl]]
 [source, rust]
@@ -240,10 +240,10 @@ pub enum Value {
 }
 ----
 
-The first problem arises in the `Static` variant.
+The first problem arises in the `Static` variant:
 https://docs.rs/value-trait/latest/value_trait/enum.StaticNode.html[`StaticNode`]
-is a type from our {{< crate value_trait >}} dependency, which may hold a list
-of basic types: numbers, booleans, or null:
+is a {repr-rust} _external_ type. It's from our {{< crate value_trait >}}
+dependency, and it may hold different basic types: numbers, booleans, or null:
 
 [source, rust]
 ----
@@ -256,17 +256,14 @@ pub enum StaticNode {
 }
 ----
 
-The solution would be as easy as applying the very same procedure again (hence
+This could be fixed by simply applying the very same procedure again (hence
 _recursively_ until everything is {repr-c}). Here it will finally work because
-there aren't any other non-trivial types in `StaticNode`. But since it's an
-external library, we'll have to make a Pull Request and hope that the author is
-okay with the changes. It should be optional under a feature flag so that it's
-applied only for those that actually need {repr-c} in the library:
+there aren't any other {repr-rust} types in `StaticNode`:
 
 [source, rust]
 ----
-#[cfg_attr(feature = "c-abi", repr(C))]
-#[cfg_attr(feature = "c-abi", derive(abi_stable::StableAbi))]
+#[cfg_attr(feature = "abi_stable", repr(C))]
+#[cfg_attr(feature = "abi_stable", derive(abi_stable::StableAbi))]
 pub enum StaticNode {
     I64(i64),
     U64(u64),
@@ -276,10 +273,14 @@ pub enum StaticNode {
 }
 ----
 
-That's exactly what I did in my case:
+`abi_stable` should be optional so that this change is applied only to those
+that actually need {repr-c} in the library. You could also go a step further and
+differentiate between enabling {repr-c} and deriving `StableAbi` for those that
+don't need the latter. Since it's an external library, we'll have to make a Pull
+Request and hope that the author is okay with the changes:
 
 [.text-center]
-{{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" >}}
+{{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" "paragraph" >}}
 
 === Overcoming problems with {repr-c}
 
@@ -302,13 +303,13 @@ replacement for the ones in `std`:
 let value = Value::String(RString::new());
 ----
 
-It gets a bit more complicated when the types are exposed in methods, because
-you have to decide whether or not to expand the FFI barrier from the _internals_
-of `Value` to the _users_ of `Value`. For instance, the `Value::Object` variant
-holds a `RHashMap` now, but the method `Value::as_object` used to return a
-reference to a `HashMap`. You'll get another error in there, which raises a
-decision that must be made: returning `RHashMap` or adding an internal
-conversion to `HashMap`.
+It gets a bit more complicated when the old types are exposed in methods,
+because you have to decide whether or not to expand the FFI barrier from the
+_internals_ of `Value` to the _users_ of `Value`. For instance, the
+`Value::Object` variant holds a `RHashMap` now, but the method
+`Value::as_object` used to return a reference to a `HashMap`. You'll get another
+error in there, which raises a decision that must be made: returning `RHashMap`
+or adding an internal conversion to `HashMap`.
 
 [source, rust]
 ----
@@ -334,7 +335,7 @@ impl Value {
   can be used in that case instead. This is very messy because in order to avoid
   conversions, your plugin system will _infect_ the entire codebase.
 +
-You'll quickly find yourself propagating the usage of `RHashMap` everywhere,
+You may quickly find yourself propagating the usage of `RHashMap` everywhere,
 even when the PDK isn't that important. For example, `Value` was also used in
 Trickle's implementation, the scripting language used to configure Tremor's
 pipelines. Having to use `RHashMap` in there was a bit confusing, and I was
@@ -356,11 +357,12 @@ on them.
 
 That was my first attempt at making `Value` FFI-compatible, and unfortunately,
 it didn't end there. Converting from `std` to {{< crate abi_stable >}} is a
-relatively painless experience; their usage intends to be the same. You may
-find that a method in {{< crate abi_stable >}} isn't available because it's not
-updated as regularly. But most of the times you can just copy-paste the
-implementation from `std` into {{< crate abi_stable >}}'s and create a new Pull
-Request, which is what I did a few times:
+relatively painless experience; their usage intends to be the same. The only
+issue I found in that regard is that some methods from `std` weren't yet
+available in {{< crate abi_stable >}} because it's not updated as regularly.
+Most of the times you can just copy-paste the implementation from `std` into {{<
+crate abi_stable >}}'s and create a new Pull Request, which is what I did a few
+times:
 
 [.text-center]
 {{< gh pr "rodrimati1992/abi_stable_crates" 58 "Add support for .keys() and .values() in RHashMap" >}}
@@ -378,17 +380,18 @@ Request, which is what I did a few times:
 {{< gh pr "rodrimati1992/abi_stable_crates" 70 "Implement RVec::append" "paragraph" >}}
 
 However, this stops being as "`easy`" when you have to convert from _an external
-library_ to {{< crate abi_stable >}}. The <<value_decl,declaration of `Value`
-that I included in this post>> was an oversimplification. For performance
-reasons, Tremor actually uses {{< crate halfbrown >}}'s implementation of a hash
-map instead of `std::collections::HashMap`. It's based on {{< crate hashbrown
->}}, which was actually merged into the standard library at some point.
+library_ to {{< crate abi_stable >}}. I lied at the beginning of the article:
+the <<value_decl,declaration of `Value`>> was an oversimplification. For
+performance reasons, Tremor actually uses {{< crate halfbrown >}}'s
+implementation of a hash map instead of `std::collections::HashMap`. It's based
+on {{< crate hashbrown >}}, which was, in fact, merged into the standard library
+at some point.
 
 // TODO: check this with Heinz before publishing
-{{< crate halfbrown >}} also has some additional functionality over ``std``'s
+{{< crate halfbrown >}} has some additional functionality over ``std``'s
 implementation. Some of it is actually available on Nightly, but for that reason
-it's not meant to be in the stable `RHashMap` either. This is used in Tremor,
-for example with
+it's not meant to be in the stable `RHashMap` either. This extra functionality
+is used in Tremor for example with
 https://doc.rust-lang.org/std/collections/hash_map/struct.HashMap.html#method.raw_entry[`raw_entry`].
 There is an optimization for JSON handling that consists on memoizing the hash
 of a known item in a map in order to access its value directly with it. After
@@ -402,6 +405,7 @@ because it's faster and more compact, at the cost of a slightly different usage.
 There are a few possible ways to approach these kinds of issues, which I'll
 cover in the following subsections.
 
+[[avoid]]
 ==== Avoid the type in the first place
 
 As always, we'll try to follow the {work} advice in here. It's a perfectly valid
@@ -409,14 +413,17 @@ solution to just comment out the optimizations and add a `// TODO` above so that
 they can be reviewed later. You might be asking for too much complexity in your
 plugin system and limiting yourself to the functionality in `std` may be more
 than enough for now. You'll see in the following sections that it's always
-possible to fix it, but it might be too much effort at the moment.
+possible to fix it properly, but it might be too much effort at the moment.
 
 In ``Value``'s specific case, it seems like removing the optimizations that are
 giving us trouble is the easiest way to fix this problem. And it would, if
 removing code wasn't also tricky when the optimizations aren't performed
 internally and transparently to the hash map functionality. After trying to
 remove them I eventually gave up because I considered it was getting out of
-hands with so many changes.
+hands with so many changes:
+
+.You're looking at *120* errors after attempting to remove the optimizations, most of them about lifetime hell
+image::errors.png[width=100%, align=center]
 
 ==== Implement a wrapper
 
@@ -426,13 +433,13 @@ that's not FFI-safe, as I covered in previous articles. This is what {{< crate
 abi_stable >}} does in its `external_types` module for crates like {{< crate
 crossbeam >}} or {{< crate parking_lot >}}.
 
-As you may see with the
+However, as you may see with the
 https://github.com/rodrimati1992/abi_stable_crates/tree/edfb2a97a7b5d7ecbc29c1f9f115f61e26f42da6/abi_stable/src/external_types[already
-existing examples], however, implementing wrappers can be quite a cumbersome
-task. And even after you're done you'll have to keep them up to date, so this
-will increase your maintainance burden. {{< crate halfbrown >}} and {{< crate
-beef >}} are somewhat complex libraries, so I decided this wasn't the best
-choice at that moment.
+existing examples], implementing wrappers can be quite a cumbersome task. And
+even after you're done you'll have to keep them up to date, so this will
+increase your maintainance burden. {{< crate halfbrown >}} and {{< crate beef
+>}} are somewhat complex libraries, so I decided this wasn't the best choice at
+that moment.
 
 ==== Re-implement with {repr-c} from scratch
 
@@ -441,7 +448,7 @@ but as far as I know it's the only choice in some scenarios, because we can make
 sure the type is as performant as it can get. In ``Value``'s example, the
 problematic types are optimizations, so writing a wrapper over them may have a
 performance hit and render them useless (e.g. if we used opaque types we would
-introduce a mandatory pointer indirection).
+introduce at least a mandatory pointer indirection).
 
 // TODO: fact-check `Value` comment
 If this part of the project is important enough, or you consider yourself with
@@ -453,10 +460,13 @@ for your plugin system.
 
 ==== Simplifying the type at the FFI boundary
 
-The last idea I came up with, that ended up being the easiest one, was just
-copy-pasting the type and adding an intermediate conversion. We can just
-simplify the type as much as possible in order to pass it through the FFI
-boundary, and then convert it back to access its full functionality.
+The last idea I came up with was the easiest one: creating a copy of `Value`
+meant to be used _only_ for FFI communication, `PdkValue`:
+
+image::simplify.png[width=75%, align=center]
+
+Since it's a new type, we won't run into the breaking changes I showed in the
+<<avoid>> section, and it's quite easy to implement:
 
 [source, rust]
 ----
@@ -476,14 +486,11 @@ pub enum PdkValue {
 }
 ----
 
-We don't implement any methods at all for the new `Value`, only its variants and
-conversions in both ways. If `PdkValue` is simple enough, these conversions can
-be lightweight and not affect performance that much. But in some cases it's
-impossible to avoid iterating the data in order to convert it. For example, the
-object is a pointer to a hashmap. Unlike the array, we can't just cast it to a
-pointer and know that it will work
+We don't need to write any additional methods for the new `PdkValue`, only its
+conversions in both ways. The problem is that these conversions are now
+stem:[O(n)] instead of stem:[O(1)], because we have to iterate the objects and
+arrays in order to convert its inner values as well:
 
-// TODO: update and simplify after it's more definitive
 [source, rust]
 ----
 impl<'value> From<Value<'value>> for PdkValue<'value> {
@@ -492,7 +499,7 @@ impl<'value> From<Value<'value>> for PdkValue<'value> {
             // No conversion needed; `StaticNode` implements `StableAbi`
             Value::Static(s) => PdkValue::Static(s),
             // This conversion is cheap
-            Value::String(s) => PdkValue::String(s.into()),
+            Value::String(s) => PdkValue::String(conv_str(s)),
             // This unfortunately requires iterating the array
             Value::Array(a) => {
                 let a = a.into_iter().map(Into::into).collect();
@@ -501,8 +508,10 @@ impl<'value> From<Value<'value>> for PdkValue<'value> {
             // This unfortunately requires iterating the map and a new
             // allocation
             Value::Object(m) => {
-                let m: halfbrown::HashMap<_, _> = *m;
-                let m = m.into_iter().map(Into::into).collect();
+                let m = m
+                    .into_iter()
+                    .map(|(k, v)| (conv_str(k), v.into()))
+                    .collect();
                 PdkValue::Object(RBox::new(m))
             }
             // This conversion is cheap
@@ -526,8 +535,11 @@ impl<'value> From<PdkValue<'value>> for Value<'value> {
             // This unfortunately requires iterating the map and a new
             // allocation
             PdkValue::Object(m) => {
-                let m = (*m).clone(); // FIXME: remove this super ugly clone
-                let m = m.into_iter().map(Into::into).collect();
+                let m = m
+                    .into_inner() // No `Box` dereference move magic here :(
+                    .into_iter()
+                    .map(|Tuple2(k, v)| (conv_str_inv(k), v.into()))
+                    .collect();
                 Value::Object(Box::new(m))
             }
             // This conversion is cheap
@@ -537,21 +549,38 @@ impl<'value> From<PdkValue<'value>> for Value<'value> {
 }
 ----
 
-The main issue here is usability. In order to use our new value, we will need
-to:
-
-* Convert from `Value` to `PdkValue`
-* Pass it through the FFI boundary (e.g. call a plugin function)
-* Convert from `PdkValue` to `Value`
-
-// TODO insert pretty diagram here
+And then we can use it like:
 
 [source, rust]
 ----
-fn something(value: PdkValue) {
-    
+// This is implemented in the plugin
+pub extern "C" fn plugin_stuff(value: PdkValue) {
+    let value = Value::from(value);
+    value.do_stuff()
+}
+
+// This is implemented in the runtime
+fn runtime_wrapper(value: Value) {
+    plugin_stuff(value.into());
 }
 ----
+
+Suprisingly easy to get working! Two problems, though:
+
+* *Usability*: the snippet of code above shows that the conversions introduce
+  some noise in our code, as opposed to having a single {repr-c} `Value`. It
+  could be worse, but it can get annoying when you have many ``Value``s in your
+  runtime and have to pass them to the plugins.
++
+This is acutally trivial enough to simplify with a macro, perferrably
+procedural, at the cost of introducing more complexity. We're currently
+following {work} so we'll leave that for the future.
+* *Performance*: passing the value to the plugin and converting it back in there
+  means we're iterating the data twice.
++
+With experiments that I'll include in the next article, I found out that these
+conversions make up 5 to 10% of Tremor's execution time. Which is less than I
+expected, but still not good enough for production.
 
 === Plugins with `async`
 
