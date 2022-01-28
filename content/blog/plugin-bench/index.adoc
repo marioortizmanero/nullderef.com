@@ -44,8 +44,16 @@ export TREMOR_PATH=../../../../tremor-script/lib:../../lib/
 .or for flamegraph
 [source]
 ----
-../../../../target/release/tremor test bench . > ~/Programming/nullderef.com/content/blog/plugin-bench/results/NAME.hgrm
+flamegraph ../../../../target/release/tremor test bench . > ~/Programming/nullderef.com/content/blog/plugin-bench/results/NAME.hgrm
 ----
+
+== Results
+
+* Throughput was reduced 35% initially
+* Latency had also been affected considerably at every percentile (TODO insert
+  histogram here)
+* According to the flamegraph 7% of the execution time was just conversions
+  between regular and PDK types.
 
 [bibliography]
 == References
