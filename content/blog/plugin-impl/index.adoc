@@ -650,19 +650,24 @@ following {work} so we'll leave that for the future.
   Tremor's execution time. Which is less than I expected, but still not good
   enough for production.
 
-// TODO: explain that it was my final choice
+For the first version of the plugin system, this is the solution that I ended up
+using. Most of the time I spent on development was just trying the different
+available approaches, and this one won in simplicity by a huge margin. After
+being done, I would be able to decide if the performance hit was bad enough, and
+then maybe switch to a different one. Creating `PdkValue` wasn't a big time
+investment, so it wouldn't really feel like a waste.
 
 === Asynchronous plugins
 
 ==== `async_ffi`
 
-As much as I wanted to avoid communication primitives with the plugins other
-than plain synchronous calls, it may inevitable if your program uses
-asynchronous programming heavily, which is the case of Tremor. But turns out
-that using `async` in FFI isn't that complicated!
+As much as I want to avoid communication primitives with the plugins other than
+plain synchronous calls, it may inevitable if your program uses asynchronous
+programming heavily, which is the case of Tremor. But turns out that using
+`async` in FFI isn't that complicated!
 
 In the previous post I introduced the {{< crate async_ffi >}} crate, which
-exports FFI-compatible ``Future``s. And it's quite easy to use:
+exports FFI-compatible ``Future``s. It's quite easy to use:
 
 .Example from the docs
 [source, rust]
@@ -681,7 +686,7 @@ pub extern "C" fn work(arg: u32) -> FfiFuture<u32> {
 ----
 
 The types in {{< crate async_ffi >}} implement `Future`, so calling that
-function is as easy as usual; just adding an `.await` after the parenthesis.
+function is as easy as usual: just adding an `.await` after the parenthesis.
 
 It's admittedly a bit ugly to use `async move { }.into_ffi()` everywhere,
 specially because it increases the indentation in one level. But that's
@@ -703,26 +708,21 @@ juggling. I will confirm this in the next post with some benchmarks, though.
 
 Tremor also needs some channels for asynchronous communication. For example, a
 connector may need to indicate the runtime that the connection has been lost at
-any point of its execution.
-
-This is because it's very likely that this connection drop
-happens at any point of the plugin execution. Many plugins will spawn a new task
-to run in the background (think of a TCP server), which is what's going to
-notify the runtime. We can't delay that until the next synchronous call happens
+any point of its execution. We can't delay that until the next synchronous call
 because we don't know when that might happen, and we want to keep Tremor
 low-latency.
 
-We have two options here:
+We have a few options here:
 
 * Keep using a channel: turns out `abi_stable` includes an FFI-safe wrapper for
   {{< crate crossbeam >}}. We could just switch the usage of `Sender<T>` to
   https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html[`RSender<T>`]
   and that's it.
-* Try to use something simpler: I was wondering if we could manage to avoid
-  pulling in `crossbeam` and using channels.
-
-// TODO: talk about callbacks
-
+// TODO: update after making `notify()` a callback
+* Callbacks: if the use-case is simple enough, they might work out. I
+  https://github.com/marioortizmanero/pdk-experiments/tree/master/callbacks[experimented
+  a bit] with callbacks, and 
++
 [source, text]
 ----
 error[E0308]: mismatched types
@@ -746,10 +746,11 @@ note: closures can only be coerced to `fn` types if they do not capture any vari
 For more information about this error, try `rustc --explain E0308`.
 ----
 
-== Separating runtime and interface
+== Getting it ready for deployment
 
-In the previous articles I've been assuming the following structure for the
-plugin system:
+=== Separating runtime and interface
+
+So far I've been assuming the following structure for the plugin system:
 
 * The runtime crate, which loads and runs the plugins.
 * The `common` crate, with the interface shared between the plugin and the
@@ -769,31 +770,36 @@ we aren't actually changing it. And if we're working on the runtime, we don't
 want to re-compile the functionality from the plugins.
 
 If we just separate the runtime from the plugins, we can achieve the first
-point. Your functionality is now in separate plugin binaries, so the runtime
-will have considerably lower compilation times.
+point. The functionality is now in separate plugin binaries, so the runtime will
+have considerably lower compilation times.
 
-But in order to also improve plugin compilation times, if the interface is in
+But we also want to improve plugin compilation times, and if the interface is in
 the same crate as the runtime, we'll have to compile both. The shared parts
 should be written in a separate crate.
 
-However, if you aren't starting from scratch, it's very likely that you don't
-have a `common` crate. You'll just have a single binary crate with both the
-runtime and the functionality in `common`.
+The problem is that if you aren't starting from scratch, it's very likely that
+you don't have a `common` crate. You'll just have a single binary crate with
+both the runtime and the functionality in `common`.
 
-This isn't really a problem, since you can just have the plugins depend on the
-runtime crate rather than `common`, and skip it altogether. But one of the
-points of making this PDK is decreasing your compile times
+=== Tests
 
-== Getting it ready for deployment
+=== Benchmarking
 
 == Conclusion
 
-That's basically how I managed to implement the PDK for Tremor. As I covered in
-the <<advice,first section>>, though, it's only a prototype, and we need to
-polish it. It seems to work perfectly when I execute the runtime manually and
-load some simple plugins I've implemented. But the final step consists on making
-the PDK ready for deployment. This means cleaning up, testing, and benchmarking.
-For instance, I managed to make Tremor... 35% slower on release!
+So that's been my road to implementing the first versions of Tremor's PDK. It
+still needs some polishing, but it works! The next and last article will cover
+the final cleaning up, testing and benchmarking required to make our plugin
+system ready for deployment.
+
+For those interested, I recently gave a quick talk about the whole project in
+the LFX Mentorship Showcase. Unfortunately, it was a 15 minutes presentation, so
+I couldn't get into many technical details, but it covers how the whole
+experience has been so far, and what I've learned:
+
+++++
+<iframe width="1600" height="400" src="https://www.youtube.com/embed/htLCyqY0kt0?start=3166" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+++++
 
 // TODO: insert picture in presentation
 
