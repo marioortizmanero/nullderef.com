@@ -38,13 +38,14 @@ Important:
 ----
 cd tremor-cli/tests/bench/passthrough
 export TREMOR_PATH=../../../../tremor-script/lib:../../lib/
-../../../../target/release/tremor test bench . > ~/Programming/nullderef.com/content/blog/plugin-bench/results/NAME.hgrm
+../../../../target/release/tremor test bench . >
+~/Programming/nullderef.com/content/blog/plugin-end/results/NAME.hgrm
 ----
 
 .or for flamegraph
 [source]
 ----
-flamegraph ../../../../target/release/tremor test bench . > ~/Programming/nullderef.com/content/blog/plugin-bench/results/NAME.hgrm
+flamegraph ../../../../target/release/tremor test bench . > ~/Programming/nullderef.com/content/blog/plugin-end/results/NAME.hgrm
 ----
 
 == Results
