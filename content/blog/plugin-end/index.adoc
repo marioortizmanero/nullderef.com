@@ -1,8 +1,9 @@
 ---
-title: "Plugins in Rust: Working on Performance"
-description: "Getting our plugin system ready for deployment"
+title: "Plugins in Rust: Preparing for Deployment"
+description: "The last finishing touches to the plugin system so that it can be
+released in Tremor's new version"
 author: "Mario Ortiz Manero"
-tags: ["rust", "rustlang", "plugin", "bench", "benchmarking"]
+tags: ["rust", "rustlang", "plugin", "benchmarking", "testing", "deployment"]
 series: ["rust-plugins"]
 date: 2021-11-09
 GHissueID: TODO
