@@ -339,7 +339,7 @@ You may quickly find yourself propagating the usage of `RHashMap` everywhere,
 even when the PDK isn't that important. For example, `Value` was also used in
 Trickle's implementation, the scripting language used to configure Tremor's
 pipelines. Having to use `RHashMap` in there was a bit confusing, and I was
-modifying _tons_ of files unrelated to the plugin system.
+modifying lots of files unrelated to the plugin system.
 * If you perform an internal conversion to `HashMap` in `as_object` we'll avoid
   all of these errors, but we're adding a small overhead. It's by far the
   easiest choice, but if `Value::as_object` is frequently used in e.g. your hot
@@ -383,11 +383,13 @@ However, this stops being as "`easy`" when you have to convert from _an external
 library_ to {{< crate abi_stable >}}. I lied at the beginning of the article:
 the <<value_decl,declaration of `Value`>> was an oversimplification. For
 performance reasons, Tremor actually uses {{< crate halfbrown >}}'s
-implementation of a hash map instead of `std::collections::HashMap`. It's based
-on {{< crate hashbrown >}}, which was, in fact, merged into the standard library
-at some point.
+implementation of a hash map instead of `std::collections::HashMap`.
 
-// TODO: check this with Heinz before publishing
+{{< crate halfbrown >}} is based on {{< crate hashbrown >}}, which was, in fact,
+merged into the standard library at some point. Although with this plugin system
+we're suffering the consequences of not having a stable ABI, seeing that it
+enables things like that makes me less bitter.
+
 {{< crate halfbrown >}} has some additional functionality over ``std``'s
 implementation. Some of it is actually available on Nightly, but for that reason
 it's not meant to be in the stable `RHashMap` either. This extra functionality
@@ -395,12 +397,13 @@ is used in Tremor for example with
 https://doc.rust-lang.org/std/collections/hash_map/struct.HashMap.html#method.raw_entry[`raw_entry`].
 There is an optimization for JSON handling that consists on memoizing the hash
 of a known item in a map in order to access its value directly with it. After
-switching to `RHashMap`, it becomes an impossible task without writing an FFI
-wrapper for {{< crate halfbrown >}}.
+switching to `RHashMap`, this becomes an impossible task.
 
 Even if I managed to fix the hash map mess, the same story repeats itself for
-`Cow`. Tremor uses {{< crate beef >}}'s `Cow` instead of `std::borrow::Cow`
-because it's faster and more compact, at the cost of a slightly different usage.
+`Cow`. Tremor uses {{< crate beef >}}'s
+https://docs.rs/beef/latest/beef/generic/struct.Cow.html[`Cow`] instead of
+`std::borrow::Cow` because it's faster and more compact, at the cost of a
+slightly different usage.
 
 There are a few possible ways to approach these kinds of issues, which I'll
 cover in the following subsections.
@@ -411,9 +414,9 @@ cover in the following subsections.
 As always, we'll try to follow the {work} advice in here. It's a perfectly valid
 solution to just comment out the optimizations and add a `// TODO` above so that
 they can be reviewed later. You might be asking for too much complexity in your
-plugin system and limiting yourself to the functionality in `std` may be more
-than enough for now. You'll see in the following sections that it's always
-possible to fix it properly, but it might be too much effort at the moment.
+plugin system; limiting yourself to the functionality in `std` may be more than
+enough for now. You'll see in the following sections that it's always possible
+to fix this properly. It just might be too much effort at the moment.
 
 In ``Value``'s specific case, it seems like removing the optimizations that are
 giving us trouble is the easiest way to fix this problem. And it would, if
@@ -446,12 +449,11 @@ that moment.
 Similar to implementing a wrapper, but on steroids. It might seem like overkill,
 but as far as I know it's the only choice in some scenarios, because we can make
 sure the type is as performant as it can get. In ``Value``'s example, the
-problematic types are optimizations, so writing a wrapper over them may have a
-performance hit and render them useless (e.g. if we used opaque types we would
-introduce at least a mandatory pointer indirection).
+problematic types are part of optimizations, so writing a wrapper over them may
+have a performance hit and render them useless (e.g. if we used opaque types we
+would introduce at least a mandatory pointer indirection).
 
-// TODO: fact-check `Value` comment
-If this part of the project is important enough, or you consider yourself with
+If this part of the project is important enough, or you consider that there's
 enough manpower, then it might not be such a bad idea to create a new
 implementation with your use-case in mind. It's actually why Tremor's `Value`
 was created in the first place; `simd_json::Value` wasn't flexible enough for
@@ -499,7 +501,7 @@ impl<'value> From<Value<'value>> for PdkValue<'value> {
             // No conversion needed; `StaticNode` implements `StableAbi`
             Value::Static(s) => PdkValue::Static(s),
             // This conversion is cheap
-            Value::String(s) => PdkValue::String(conv_str(s)),
+            Value::String(s) => PdkValue::String(s.into()),
             // This unfortunately requires iterating the array
             Value::Array(a) => {
                 let a = a.into_iter().map(Into::into).collect();
@@ -508,10 +510,7 @@ impl<'value> From<Value<'value>> for PdkValue<'value> {
             // This unfortunately requires iterating the map and a new
             // allocation
             Value::Object(m) => {
-                let m = m
-                    .into_iter()
-                    .map(|(k, v)| (conv_str(k), v.into()))
-                    .collect();
+                let m = m.into_iter().map(Into::into).collect();
                 PdkValue::Object(RBox::new(m))
             }
             // This conversion is cheap
@@ -520,29 +519,24 @@ impl<'value> From<Value<'value>> for PdkValue<'value> {
     }
 }
 
+// Same as before, but inversely
 impl<'value> From<PdkValue<'value>> for Value<'value> {
     fn from(original: PdkValue<'value>) -> Self {
         match original {
-            // No conversion needed; `StaticNode` implements `StableAbi`
             PdkValue::Static(s) => Value::Static(s),
-            // This conversion is cheap
-            PdkValue::String(s) => Value::String(conv_str_inv(s)),
-            // This unfortunately requires iterating the array
+            PdkValue::String(s) => Value::String(s.into()),
             PdkValue::Array(a) => {
                 let a = a.into_iter().map(Into::into).collect();
                 Value::Array(a)
             }
-            // This unfortunately requires iterating the map and a new
-            // allocation
             PdkValue::Object(m) => {
                 let m = m
-                    .into_inner() // No `Box` dereference move magic here :(
+                    .into_inner() // No Box dereference move magic with RBox :(
                     .into_iter()
-                    .map(|Tuple2(k, v)| (conv_str_inv(k), v.into()))
+                    .map(|Tuple2(k, v)| (k.into(), v.into()))
                     .collect();
                 Value::Object(Box::new(m))
             }
-            // This conversion is cheap
             PdkValue::Bytes(b) => Value::Bytes(conv_u8_inv(b)),
         }
     }
@@ -576,23 +570,45 @@ This is acutally trivial enough to simplify with a macro, perferrably
 procedural, at the cost of introducing more complexity. We're currently
 following {work} so we'll leave that for the future.
 * *Performance*: passing the value to the plugin and converting it back in there
-  means we're iterating the data twice.
-+
-With experiments that I'll include in the next article, I found out that these
-conversions make up 5 to 10% of Tremor's execution time. Which is less than I
-expected, but still not good enough for production.
+  means we're iterating the data twice. With experiments that I'll include in
+  the next article, I found out that these conversions make up 5 to 10% of
+  Tremor's execution time. Which is less than I expected, but still not good
+  enough for production.
 
 === Plugins with `async`
 
 As much as I wanted to avoid communication primitives with the plugins other
-than plain synchronous calls, some parts _need_ asynchronous communication. For
-example, the connector context passed to the plugin holds the `Sender<T>` part
-of a channel that can be used to indicate the runtime that the connection has
-been lost. This is because it's very likely that this connection drop happens at
-any point of the plugin execution. Many plugins will spawn a new task to run in
-the background (think of a TCP server), which is what's going to notify the
-runtime. We can't delay that until the next synchronous call happens because we
-don't know when that might happen, and we want to keep Tremor low-latency.
+than plain synchronous calls, it may inevitable if your program uses
+asynchronous programming heavily, which is the case of Tremor. Anyway, turns out
+that using `async` isn't that complicated!
+
+In the previous post I introduced {{< crate async_ffi >}}, which
+
+[source, rust]
+----
+use async_ffi::{FfiFuture, FutureExt};
+
+#[no_mangle]
+pub extern "C" fn work(arg: u32) -> FfiFuture<u32> {
+    async move {
+        let ret = do_some_io(arg).await;
+        do_some_sleep(42).await;
+        ret
+    }
+    .into_ffi()
+}
+----
+
+The only problem that this brought me was 
+
+For example, the connector context passed to the plugin holds the `Sender<T>`
+part of a channel that can be used to indicate the runtime that the connection
+has been lost. This is because it's very likely that this connection drop
+happens at any point of the plugin execution. Many plugins will spawn a new task
+to run in the background (think of a TCP server), which is what's going to
+notify the runtime. We can't delay that until the next synchronous call happens
+because we don't know when that might happen, and we want to keep Tremor
+low-latency.
 
 We have two options here:
 
