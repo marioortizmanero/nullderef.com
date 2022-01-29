@@ -89,6 +89,8 @@ spent time thinking about, so we should at least try to minimize it.
 
 // TODO: more tips like these?
 
+==== Disable the annoying warnings
+
 The first thing I did was remove a few warnings the compiler will print when
 you're prototyping. By default, a Rust program still compiles with warnings, but
 in my experience they're always in the way when trying to deal with actual
@@ -116,6 +118,79 @@ Afterwards, I removed these `allow` statements and just ran `cargo fix && cargo
 fmt`. Both cargo commands are built-in, and will automatically take care of the
 trivial warnings, such as unused imports, saving _lots_ of time doing cumbersome
 work.
+
+==== Don't touch previous `use` statements
+
+As my Pull Request got bigger and bigger, I started running into problems with
+Git. The parent branch was also under work from a team of three people, so it
+changed quite often. All of this resulted into frequent conflicts, and having to
+painfully resolve them many times until I got the hang of it.
+
+Say, you have a number of `use` statements at the top of your file. After adding
+some changes related to the PDK, you now need to import `PdkValue` as well.
+You'd usually do:
+
+.Before
+[source, rust]
+----
+use tremor_value::{Value, ValueTrait};
+----
+.After
+[source, rust]
+----
+use tremor_value::{Value, ValueTrait, PdkValue};
+----
+
+The problem is that if the parent branch later adds or removes one of the items
+in that `use` statement, you may encounter a conflict. Git isn't smart enough to
+handle Rust import statements (although that'd be pretty cool). Multiply this by
+100 statements, and you might eventually go crazy. You can keep your sanity by
+adding the new item in a separate block of ``use``s instead:
+
+[source, rust]
+----
+use tremor_value::{Value, ValueTrait};
+
+use tremor_value::PdkValue; // <--
+----
+
+Same thing may happen if `tremor_value` wasn't imported and you have to add a
+new line to the already existing `use` block:
+
+.Before
+[source, rust]
+----
+use more_stuff::{X, Y, Z};
+use other_stuff::{A, B, C};
+----
+
+.After
+[source, rust]
+----
+use more_stuff::{X, Y, Z};
+use tremor_value::PdkValue;
+use other_stuff::{A, B, C};
+----
+
+In my experience, Git also trips up with this sometimes. You can follow the same
+advice:
+
+[source, rust]
+----
+use more_stuff::{X, Y, Z};
+use other_stuff::{A, B, C};
+
+use tremor_value::PdkValue; // <--
+----
+
+In summary, you can just add a new block after all the previous ``use``s and add
+your stuff in there. You can clean it up at the end or in a different pull
+request.
+
+This is harder to do if you're _removing_ `use` statements. But if you also
+followed the previous section about ignoring annoying warnings, it won't be a
+problem in the first place. You can just leave the unused imports and clean up
+when you're done with the PR.
 
 == Defining the plugin interface
 
@@ -559,7 +634,7 @@ fn runtime_wrapper(value: Value) {
 }
 ----
 
-Suprisingly easy to get working! Two problems, though:
+Surprisingly easy to get working! Two problems, though:
 
 * *Usability*: the snippet of code above shows that the conversions introduce
   some noise in our code, as opposed to having a single {repr-c} `Value`. It
@@ -575,15 +650,21 @@ following {work} so we'll leave that for the future.
   Tremor's execution time. Which is less than I expected, but still not good
   enough for production.
 
-=== Plugins with `async`
+// TODO: explain that it was my final choice
+
+=== Asynchronous plugins
+
+==== `async_ffi`
 
 As much as I wanted to avoid communication primitives with the plugins other
 than plain synchronous calls, it may inevitable if your program uses
-asynchronous programming heavily, which is the case of Tremor. Anyway, turns out
-that using `async` isn't that complicated!
+asynchronous programming heavily, which is the case of Tremor. But turns out
+that using `async` in FFI isn't that complicated!
 
-In the previous post I introduced {{< crate async_ffi >}}, which
+In the previous post I introduced the {{< crate async_ffi >}} crate, which
+exports FFI-compatible ``Future``s. And it's quite easy to use:
 
+.Example from the docs
 [source, rust]
 ----
 use async_ffi::{FfiFuture, FutureExt};
@@ -599,11 +680,32 @@ pub extern "C" fn work(arg: u32) -> FfiFuture<u32> {
 }
 ----
 
-The only problem that this brought me was 
+The types in {{< crate async_ffi >}} implement `Future`, so calling that
+function is as easy as usual; just adding an `.await` after the parenthesis.
 
-For example, the connector context passed to the plugin holds the `Sender<T>`
-part of a channel that can be used to indicate the runtime that the connection
-has been lost. This is because it's very likely that this connection drop
+It's admittedly a bit ugly to use `async move { }.into_ffi()` everywhere,
+specially because it increases the indentation in one level. But that's
+something that can be fixed with a
+https://github.com/oxalica/async-ffi/issues/12[procedural macro in the future].
+
+The only problem was that the futures didn't implement `StableAbi`, so it wasn't
+possible to use with {{< crate abi_stable >}}. It took me a while to understand
+the crate, but it's nothing a Pull Request can't fix:
+
+[.text-center]
+{{< gh pr "oxalica/async-ffi" 10 "Support for `abi_stable`" "paragraph" >}}
+
+One concern here may be performance. I imagine that it's not a huge problem
+because the crate is actualy quite small and only introduces some pointer
+juggling. I will confirm this in the next post with some benchmarks, though.
+
+==== Channels
+
+Tremor also needs some channels for asynchronous communication. For example, a
+connector may need to indicate the runtime that the connection has been lost at
+any point of its execution.
+
+This is because it's very likely that this connection drop
 happens at any point of the plugin execution. Many plugins will spawn a new task
 to run in the background (think of a TCP server), which is what's going to
 notify the runtime. We can't delay that until the next synchronous call happens
