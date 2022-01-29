@@ -24,18 +24,6 @@ to try {{< crate abi_stable >}} for this since the beginning, which was
 specifically created for plugins. But we aren't really locked to that crate, so
 I'll show other alternatives as well, which can even be combined to your liking.
 
-== Important lessons learned so far
-
-This wasn't just about the PDK, it was a project as a whole, with its own
-learning experience. My most important lessons that might be of use for you as
-well:
-
-* _Really_, just make it work first. Then, you can worry about performance. It's
-  one of those things that I know and have learned in the past, but I keep
-  forgetting about it when dealing with complex software.
-* Don't modify existing `use` statements, just add a new block under the already
-  existing one so that there aren't as many conflicts.
-
 == Handy tools for our Plugin System
 
 === Async with the C ABI
