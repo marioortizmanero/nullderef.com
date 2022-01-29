@@ -57,6 +57,26 @@ flamegraph ../../../../target/release/tremor test bench . > ~/Programming/nullde
 * According to the flamegraph 7% of the execution time was just conversions
   between regular and PDK types (TODO insert screenshot with search)
 
+Lastly, I've found it especially rewarding to do all of this in an open source
+environment. Even if you're working for a company with propietary software,
+please try to contribute upstream instead of forking or patching. Try to be nice
+to those who are saving you so much work, and submit a PR or an issue:
+
+// TODO: use github shortcode
+.Most of my contributions while implementing the PDK
+* https://github.com/oxalica/async-ffi/pull/10
+* https://github.com/oxalica/async-ffi/pull/11
+* https://github.com/rodrimati1992/abi_stable_crates/pull/58
+* https://github.com/rodrimati1992/abi_stable_crates/pull/59
+* https://github.com/rodrimati1992/abi_stable_crates/pull/61
+* https://github.com/rodrimati1992/abi_stable_crates/pull/68
+* https://github.com/rodrimati1992/abi_stable_crates/pull/70
+* https://github.com/rodrimati1992/abi_stable_crates/pull/74
+* https://github.com/simd-lite/simd-json-derive/pull/9
+* https://github.com/simd-lite/value-trait/pull/14
+* https://github.com/simd-lite/value-trait/pull/16
+* https://github.com/simd-lite/value-trait/pull/18
+
 [bibliography]
 == References
 
