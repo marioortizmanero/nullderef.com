@@ -781,10 +781,18 @@ both the runtime and the functionality in `common`.
 
 == Conclusion
 
-So that's been my road to implementing the first versions of Tremor's PDK. It
-still needs some polishing, but it works! The next and last article will cover
-the final cleaning up, testing and benchmarking required to make our plugin
-system ready for deployment.
+So that's been my road to implementing the first versions of Tremor's plugin
+system. It still needs some polishing, but it works! The next and last article
+will cover the final cleaning up, testing and benchmarking required to make it
+ready for deployment, hopefully in v0.12 :)
+
+After I'm fully done I will also reorganize this series a bit and make it an
+easier read. I have been writing these articles as I learned how the plugin
+system could be implemented, so there might be some outdated or repetitive
+arguments in previous ones. If you have any suggestions you can leave them here:
+
+[.text-center]
+{{< gh issue "marioortizmanero/nullderef.com" 50 "Reorganize rust plugins series once I'm done" "paragraph" >}}
 
 For those interested, I recently gave a quick talk about the whole project in
 the LFX Mentorship Showcase. Unfortunately, it was a 15 minutes presentation, so
