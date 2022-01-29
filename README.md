@@ -4,4 +4,6 @@ This repository contains the source code needed to build the
 [nullderef](https://nullderef.com) website, which for now is just a personal
 blog.
 
-You can read more about Hugo [here](https://gohugo.io/).
+You can also visit
+[nullderef-comments](https://github.com/marioortizmanero/nullderef.com-comments)
+to see all the comments in the articles.
