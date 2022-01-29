@@ -43,7 +43,7 @@ languages:
 
 params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
-  description: "My personal blog, where I write about software development and the projects I'm working on"
+  description: "My personal blog, where I write about software development and the projects I'm working on."
   author: Mario Ortiz Manero
   keywords: ["rust", "rustlang", "guides", "open-source", "programming", "software"]
   images: ["/logo-banner.png"]
@@ -65,9 +65,9 @@ params:
     LogoLight: /logo-light-theme.png
     LogoDark: /logo-dark-theme.png
     Content: >
-      My personal blog, where I write about software development and the projects I'm working on \
+      My personal blog, where I write about software development and the projects I'm working on. \
 
-      _Written by Mario Ortiz Manero_
+      _-- Mario Ortiz Manero_
 
   socialIcons:
     - name: github
