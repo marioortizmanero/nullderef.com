@@ -108,7 +108,7 @@ once I'm done, but please let me keep trying to "`make this work`"!
 Note that I'm not using `#![allow(warnings)]`, because most warnings will
 actually be really helpful when refactoring to avoid early bugs. We just want to
 get rid of the annoying ones, such as unused functions or imports, or dead code
-that we haven't cleaned up yet, which are harmless most of the times.
+that we haven't cleaned up yet, which are usually harmless.
 
 One month later, I was able to finally compile `tremor-runtime` with the initial
 PDK prototype. The following screenshot made my day, as simple as it may seem:
@@ -195,13 +195,13 @@ when you're done with the PR.
 
 == Defining the plugin interface
 
-The first step that we can do is define the interface of the plugin system, i.e.
-what a plugin binary must implement in order to be loadable by the runtime. If
-you're doing this over an already existing codebase, you'll probably get tons of
-errors. We'll ignore them for now; this is only our first sketch and you'll end
-up changing it a thousand times anyway. Some of the types in the interface may
-not exist yet, or they may not be meant to be used for FFI. But it'll serve us
-as an initial list of things to work on.
+The first step that we can do is define the interface of the plugin system,
+i.e., what a plugin binary must implement in order to be loadable by the
+runtime. If you're doing this over an already existing codebase, you'll probably
+get tons of errors. We'll ignore them for now; this is only our first sketch,
+and you'll end up changing it a thousand times anyway. Some types in the
+interface may not exist yet, or they may not be meant to be used for FFI. But
+it'll serve us as an initial list of things to work on.
 
 In my case, it first looked as follows. The specifics about how this works with
 {{< crate abi_stable >}} are explained in the
@@ -380,7 +380,7 @@ let value = Value::String(RString::new());
 ----
 
 It gets a bit more complicated when the old types are exposed in methods,
-because you have to decide whether or not to expand the FFI barrier from the
+because you have to decide whether to expand the FFI barrier from the
 _internals_ of `Value` to the _users_ of `Value`. For instance, the
 `Value::Object` variant holds a `RHashMap` now, but the method
 `Value::as_object` used to return a reference to a `HashMap`. You'll get another
@@ -418,8 +418,8 @@ pipelines. Having to use `RHashMap` in there was a bit confusing, and I was
 modifying lots of files unrelated to the plugin system.
 * If you perform an internal conversion to `HashMap` in `as_object` we'll avoid
   all of these errors, but we're adding a small overhead. It's by far the
-  easiest choice, but if `Value::as_object` is frequently used in e.g. your hot
-  loop, you may notice a considerable performance degradation.
+  easiest choice, but if `Value::as_object` is frequently used in, e.g., your
+  hot loop, you may notice a considerable performance degradation.
 +
 I https://nullderef.com/blog/plugin-abi-stable/#_type_conversions[already
 investigated in the past], and the good news is that converting between types in
@@ -436,9 +436,8 @@ it didn't end there. Converting from `std` to {{< crate abi_stable >}} is a
 relatively painless experience; their usage intends to be the same. The only
 issue I found in that regard is that some methods from `std` weren't yet
 available in {{< crate abi_stable >}} because it's not updated as regularly.
-Most of the times you can just copy-paste the implementation from `std` into {{<
-crate abi_stable >}}'s and create a new Pull Request, which is what I did a few
-times:
+Usually, you can just copy-paste the implementation from `std` into {{< crate
+abi_stable >}}'s and create a new Pull Request, which is what I did a few times:
 
 [.text-center]
 {{< gh pr "rodrimati1992/abi_stable_crates" 58 "Add support for .keys() and .values() in RHashMap" >}}
@@ -526,7 +525,7 @@ Similar to implementing a wrapper, but on steroids. It might seem like overkill,
 but as far as I know it's the only choice in some scenarios, because we can make
 sure the type is as performant as it can get. In ``Value``'s example, the
 problematic types are part of optimizations, so writing a wrapper over them may
-have a performance hit and render them useless (e.g. if we used opaque types we
+have a performance hit and render them useless (e.g., if we used opaque types we
 would introduce at least a mandatory pointer indirection).
 
 If this part of the project is important enough, or you consider that there's
@@ -663,7 +662,7 @@ investment, so it wouldn't really feel like a waste.
 ==== `async_ffi`
 
 As much as I want to avoid communication primitives with the plugins other than
-plain synchronous calls, it may inevitable if your program uses asynchronous
+plain synchronous calls, it may be inevitable if your program uses asynchronous
 programming heavily, which is the case of Tremor. But turns out that using
 `async` in FFI isn't that complicated!
 
@@ -782,7 +781,7 @@ both the runtime and the functionality in `common`.
 
 == Conclusion
 
-So that's been my road to implementing the first versions of Tremor's plugin
+This has been my road to implementing the first versions of Tremor's plugin
 system. It still needs some polishing, but it works! The next and last article
 will cover the final cleaning up, testing and benchmarking required to make it
 ready for deployment, hopefully in v0.12 :)
