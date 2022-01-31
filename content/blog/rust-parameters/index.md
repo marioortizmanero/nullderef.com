@@ -9,9 +9,9 @@ GHissueID: 7
 ---
 
 Optional or default parameters are a very interesting feature of some languages
-that Rust specifically doesn't cover (and looks like it won't [anytime soon
-](https://github.com/rust-lang/rfcs/pull/2964)). Say your library has lots of
-endpoints like so:
+that Rust specifically doesn't cover (and looks like it won't [anytime
+soon](https://github.com/rust-lang/rfcs/pull/2964)). Say your library has lots
+of endpoints like so:
 
 ```rust
 fn endpoint<T1, T2, T3, ...>(mandatory: T1, opt1: Option<T2>, opt2: Option<T3>, ...);
@@ -24,10 +24,10 @@ val1, val2)`. Other languages like Python have named arguments, which make
 optional parameters natural and easier to read: `endpoint(mandatory, opt1=val1,
 opt2=val2)`, while also allowing them to be written in any order.
 
-Even without official support, there are are lots of different ways to approach
-them in Rust, which is what this blog post tries to analyze. My goal is not to
-show which one is the "best" option, but to exhaustively showcase the different
-ways they can be approached, and the ups and downs of each of them.
+Even without official support, there are lots of different ways to approach them
+in Rust, which is what this blog post tries to analyze. My goal is not to show
+which one is the "best" option, but to exhaustively showcase the different ways
+they can be approached, and the ups and downs of each of them.
 
 ## Introducing an example
 Let's start with a typical web API wrapper library. These often require a client
@@ -90,7 +90,7 @@ api.approach_a("option", None, None)?;
 ### Downsides
 * Multiple optional parameters require lots of `None` and `Some`.
 * Parameter names unknown when reading the code, which is specially annoying
-with `None` values, since these don't have context to know what they are for.
+  with `None` values, since these don't have context to know what they are for.
 
 ## B) With `Into<Option<T>>`
 A variation of the previous approach consists on using `Into<Option<T>>` as the
@@ -124,7 +124,7 @@ api.approach_b("into_option", None, None)?;
 * No parameter names either.
 * More complex function signatures, and might not be too "idiomatic".
 * Requires generics, 2^N copies of this function may be generated, where N is
-the number of optional parameters.
+  the number of optional parameters.
 
 ## C) With a custom struct
 Another option is to create a struct that holds the parameters and use that
@@ -175,18 +175,18 @@ impl APIClient {
 
 ### Upsides
 * Some APIs might feel more natural this way, if the combination of these
-parameters as a group makes sense.
+  parameters as a group makes sense.
 * The struct can be reused in different calls.
 
 ### Downsides
 * Multiple optional parameters require lots of `None` and `Some`.
 * Way more verbose.
 * Can be difficult to scale, since it needs a struct and a function per
-endpoint.
+  endpoint.
 
 ## D) With the builder pattern
-The previous approach can be improved by using the [builder pattern
-](https://doc.rust-lang.org/1.0.0/style/ownership/builders.html) for the
+The previous approach can be improved by using the [builder
+pattern](https://doc.rust-lang.org/1.0.0/style/ownership/builders.html) for the
 parameters, so that building the parameters is simpler and more pretty to look
 at:
 
@@ -204,9 +204,9 @@ let call2 = params::ApproachDBuilder::default()
 api.approach_d(&call2)?;
 ```
 
-In this case, we use the [`derive_builder`
-](https://crates.io/crates/derive_builder) crate to make the implementation less
-repetitive:
+In this case, we use the
+[`derive_builder`](https://crates.io/crates/derive_builder) crate to make the
+implementation less repetitive:
 
 ```rust
 mod params {
@@ -232,17 +232,17 @@ impl APIClient {
 * It's the most popular pattern in Rust for optional parameters.
 * The struct can still be reused in different calls.
 * No `None` or `Some` at sight.
-* Optional parameters are now associated to their name, which makes it easier
-to read.
+* Optional parameters are now associated to their name, which makes it easier to
+  read.
 
 ### Downsides
 * Somewhat verbose.
 * In our example it can be difficult to scale, since it needs a struct and a
-function per endpoint.
+  function per endpoint.
 * More overhead, both at runtime and compile-time (specially if macros are
-used).
+  used).
 * Constructing the values may fail. Thus, the documentation has to specify very
-clearly which parameters are mandatory and which aren't.
+  clearly which parameters are mandatory and which aren't.
 
 ## E) Endpoint-oriented interface
 Here's a different take: what if the API was endpoint-oriented instead of
@@ -287,12 +287,12 @@ impl ApproachEBuilder {
 ```
 
 Note: this is assuming the client contains necessary information to make the
-requests, like a [`reqwest::Client`
-](https://docs.rs/reqwest/latest/reqwest/struct.Client.html) or authentication
-details. But for example, `ureq` can perform calls without a client instance,
-just by calling [`ureq::get` and similars
-](https://docs.rs/ureq/latest/ureq/fn.get.html). In that case, the API could
-just not have a client at all, and the `call` method wouldn't require a
+requests, like a
+[`reqwest::Client`](https://docs.rs/reqwest/latest/reqwest/struct.Client.html)
+or authentication details. But for example, `ureq` can perform calls without a
+client instance, just by calling [`ureq::get` and
+similars](https://docs.rs/ureq/latest/ureq/fn.get.html). In that case, the API
+could just not have a client at all, and the `call` method wouldn't require a
 reference to the client.
 
 ### Upsides
@@ -301,7 +301,7 @@ reference to the client.
 * Just as readable as the previous case.
 * The struct may be reused.
 * Simple to use and implement, since it doesn't need declaring both a function
-in the client and a parameters struct, only the latter.
+  in the client and a parameters struct, only the latter.
 
 ### Downsides
 * Still relatively verbose, might not be compatible with some APIs.
@@ -365,12 +365,13 @@ the builder always has to be initialized with `Builder::default()`. With a
 custom implementation, we could have this new method integrated in the builder
 itself instead, like `Builder::new(A, B, C)`.
 
-Thus, it might be better to use other crates like [`typed-builder`
-](https://crates.io/crates/typed-builder), or just a custom implementation.
+Thus, it might be better to use other crates like
+[`typed-builder`](https://crates.io/crates/typed-builder), or just a custom
+implementation.
 
 ### Upsides
 * Although mandatory parameters don't have a parameter name now, it's still
-quite readable. It's also much less verbose.
+  quite readable. It's also much less verbose.
 * No `None` or `Some` needed.
 * Can't fail to initialize the endpoint value, so it's "safer".
 * A custom implementation would avoid runtime overhead.
@@ -459,24 +460,24 @@ call to make sure the user is using it properly.
 
 ### Upsides
 * Basically the same as the hybrid builder pattern, but with an easier
-implementation, and it might fit perfectly for some APIs that have clearly
-established groups of endpoints.
+  implementation, and it might fit perfectly for some APIs that have clearly
+  established groups of endpoints.
 
 ### Downsides
 * It's a bit odd, specially because the order is inverse to what you'd expect.
-And as it's based on the hybrid builder pattern, it may still be hacky to
-implement and require compilation-time overhead.
+  And as it's based on the hybrid builder pattern, it may still be hacky to
+  implement and require compilation-time overhead.
 
 ## I) Macros
 Rust macros support variadic arguments, which make it possible to create a
 macro with named parameters, like `foo!(1, c = 30, b = -2.0)`. Ideally, we
 want a macro that generates the macros for us, which does sound crazy. I wanted
-to at least try how existing crates approached this, and only found [`named`
-](https://crates.io/crates/named) and [`duang`](https://crates.io/crates/duang),
-which haven't been updated in years, and probably for good. I tried `duang`
-with Rust 1.47 but got some unexpected errors, so we can assume there are no
-crates that support this yet. It definitely sounds like a fun challenge, if
-it's still possible to implement.
+to at least try how existing crates approached this, and only found
+[`named`](https://crates.io/crates/named) and
+[`duang`](https://crates.io/crates/duang), which haven't been updated in years,
+and probably for good. I tried `duang` with Rust 1.47 but got some unexpected
+errors, so we can assume there are no crates that support this yet. It
+definitely sounds like a fun challenge, if it's still possible to implement.
 
 ## Conclusion
 Whew! That took more than I expected. Some of these endpoints might be
@@ -486,11 +487,11 @@ and that reading this served as a learning experience. I look forward to seeing
 new crates in the future that help make some of the approaches easier to
 implement.
 
-The code for the different approaches can be found [here
-](https://github.com/marioortizmanero/rust-optional-params). Bear in mind that
-there are a lot of different ways to implement the approaches, as I explained
-in this post. You can discuss about it at the [reddit thread
-](https://www.reddit.com/r/rust/comments/j8p6fx/optional_parameters_in_rust).
+The code for the different approaches can be found
+[here](https://github.com/marioortizmanero/rust-optional-params). Bear in mind
+that there are a lot of different ways to implement the approaches, as I
+explained in this post. You can discuss about it at the [reddit
+thread](https://www.reddit.com/r/rust/comments/j8p6fx/optional_parameters_in_rust).
 
 This was one of my first blog posts, so please let me know what you think about
 the writing, the structure and just your overall rating, or if you found any
