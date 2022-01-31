@@ -42,8 +42,8 @@ learned about the process.
 === The {work} approach
 
 What I struggled the most to get drilled into my head is not getting lost in the
-details. *We just want it to work first of all*. I'll repeat. We just want it to
-*work* first of all. As long as the plugin system runs, the following are
+details. *First of all, we just want it to work*. I'll repeat. First of all, we
+just want it to *work*. As long as the plugin system runs, the following are
 completely fine:
 
 * Ugly code (non-idiomatic, repetitive, somewhat messy, etc)
@@ -73,13 +73,13 @@ Furthermore, premature optimization is the source of all evil. You're not at a
 point where that's important yet. Once you're done, you can actually spend some
 time profiling and benchmarking in order to know which optimizations are worth
 your time. Don't get me wrong -- you can certainly worry about choosing an
-approach that's appropiate in terms of performance, which is why I discarded
+approach that's appropriate in terms of performance, which is why I discarded
 WebAssembly or IPC at the beginning. But definitely give up on trying to avoid a
 `clone` that might not actually affect your program speed after all.
 
-My point is that every test, cleanup or optimization you try to make at this
+My point is that every test, clean-up or optimization you try to make at this
 stage will most likely end up being wasted effort. You'll reach a blocker at
-some point later on and have to rethink and rewrite lots of stuff. When
+some point later on, and have to rethink and rewrite lots of stuff. When
 everything compiles, seemingly runs fine, and you consider it a decent approach,
 you can actually start working on these points. It's okay to "`waste`" effort on
 wrong approaches, because you aren't really "`wasting`" it; they're a necessary
@@ -94,7 +94,7 @@ spent time thinking about, so we should at least try to minimize it.
 
 The first thing I did was remove a few warnings the compiler will print when
 you're prototyping. By default, a Rust program still compiles with warnings, but
-in my experience they're always in the way when trying to deal with actual
+in my experience, they're always in the way when trying to deal with actual
 errors. For example, I don't care that an import is unused at all. I'll fix it
 once I'm done, but please let me keep trying to "`make this work`"!
 
