@@ -121,8 +121,8 @@ have to be aware of.
 <p>Many of the technologies that can be used to implement a Plugin System work with
 unsafe code, like <a href="#ffi">FFIs</a> or <a href="#memory-sharing">IPC Memory Sharing</a>. This
 isn’t necessarily a problem if it’s self-contained and thoroughly reviewed, but
-we lose some of the safety guarantees Rust provides us, increasing the
-maintenance cost of the library.</p>
+we lose some safety guarantees provided by Rust, increasing the maintenance cost
+of the library.</p>
 </div>
 <div class="paragraph">
 <p>It takes considerably more work to make sure the implementation is sound, even
@@ -153,8 +153,8 @@ error resilience.</p>
 <h3 id="_remote_code_execution_via_plugins">2.3. Remote Code Execution via Plugins</h3>
 <div class="paragraph">
 <p><a href="https://en.wikipedia.org/wiki/Component_Object_Model#Security">This was a problem
-with Internet Explorer</a>, for example. It used COM and ActiveX, which implement
-no sandboxing at all and were ran directly on the user’s machine, allowing
+with Internet Explorer</a>, for example. It used COM and ActiveX, which implemented
+no sandboxing at all and were running directly on the user’s machine, allowing
 malware to be included in plugins with the ability to execute arbitrary code on
 the host machine. This can be less of a problem when installing only trusted
 plugins via digital signatures, but it’s still a huge risk.</p>
@@ -178,21 +178,21 @@ trusted by default.</p>
 <p>An improved approach to Node + npm would be something like
 <a href="https://github.com/denoland/deno">Deno</a>, which is a secure by default
 JavaScript/TypeScript runtime. This is enabled thanks to sandboxing, and
-requires the developer to manually toggle e.g. access to the filesystem or to
+requires the developer to manually toggle, e.g., access to the filesystem or to
 the network. This is no panacea because people might end up enabling whatever
 permission is required by the dependency they want to install without thinking
 about it, but it’s similar to <code>unsafe</code>: at least it makes you aware that you
 might mess up.</p>
 </div>
 <div class="paragraph">
-<p>One could argue that their program is realistically going to be ran in a Virtual
-Machine or a container most of the times, where this may not matter so much. But
-should you really assume that? Should user safety rely on the fact that the
-machine is ran on an isolated kernel? Containers, by the way, introduce a much
-bigger overhead in comparison to some sandboxing methods. And even if the system
-as a whole is isolated, there is still a possibility for internal leaks: the
-Postgres plugin has access to whatever is being used by the Apache Kafka plugin,
-which may have sensitive logs you don’t want anyone to see.</p>
+<p>One could argue that their program is realistically going to be running in a
+Virtual Machine or a container most of the times, where this may not matter so
+much. But should you really assume that? Should user safety rely on the fact
+that the machine is running on an isolated kernel? Containers, by the way,
+introduce a much bigger overhead in comparison to some sandboxing methods. And
+even if the system as a whole is isolated, there is still a possibility for
+internal leaks: the Postgres plugin has access to whatever is being used by the
+Apache Kafka plugin, which may have sensitive logs you don’t want anyone to see.</p>
 </div>
 </div>
 </div>
@@ -202,7 +202,7 @@ which may have sensitive logs you don’t want anyone to see.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>As I discovered in the last post, backward compatibility is complicated for
-plugin systems in Rust with the typical approach, a FFI. Since it doesn’t
+plugin systems in Rust with the typical approach, FFI. Since it doesn’t
 currently offer a stable ABI — and probably never will — the slightest
 difference between the version used to compile a plugin and the core of the
 program will break it.</p>
@@ -271,7 +271,7 @@ talked about this in the past</a>, so I won’t get into the details.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The following are the most viable technologies that could be used as the base of
-a PDK. Some of the won’t match the requirements I mentioned earlier at first
+a PDK. Some of them won’t match the requirements I mentioned earlier at first
 glance, but it’s a good idea to at least <em>consider</em> all of them. I haven’t
 written a line of code yet, so if an approach were to catch someone’s eye we
 could investigate more about it. I will rate each of the alternatives in a scale
@@ -281,7 +281,7 @@ from 1 to 5 (approximately) in order to easen the decision-taking.</p>
 <h3 id="scripting-langs">4.1. Scripting Languages</h3>
 <div class="paragraph">
 <p>Plenty of projects use scripting languages to extend their functionality at
-runtime, like Python, Ruby, Perl, Bash or JavaScript. Most notably, Vim created
+runtime, like Python, Ruby, Perl, Bash, or JavaScript. Most notably, Vim created
 its own scripting language, Vimscript, in order to be fully customizable, and
 NeoVim is now pushing <a href="http://www.lua.org/">Lua</a> as a first-class language for
 configuration. Even Tremor itself has the interpreted query language
@@ -326,7 +326,7 @@ also handle resource exhaustion issues within Lua programs. Not to mention that
 this wouldn’t require <code>unsafe</code> at all with an optimal set of bindings.</p>
 </div>
 <div class="paragraph">
-<p>Anyhow, the main deal breaker with scripting languages in this case is that it
+<p>Anyhow, the main deal-breaker with scripting languages in this case is that it
 would be extremely complicated to port everything in Tremor so that it can be
 used from Lua. For new projects this could perhaps be something interesting, but
 not if the entirety of the already existing plugins have to be rewritten.</p>
@@ -490,7 +490,7 @@ vastly simplified.</p>
 <p>Knowing that the plugins are intended to be on the same machine as the core of
 Tremor, there’s no need to actually send and receive messages. One can share
 memory between multiple processes and send notifications to receive updates. The
-performance is comparable to using a FFI, since the only overhead is the initial
+performance is comparable to using FFI, since the only overhead is the initial
 cost from setting up the shared pages, having regular memory access afterwards
 <a href="#memory-share-so">[8]</a>.</p>
 </div>
@@ -535,11 +535,11 @@ doesn’t seem to be any better than FFIs overall.</p>
 <h3 id="ffi">4.3. FFI</h3>
 <div class="paragraph">
 <p>This is possibly the <em>least weird</em> way to implement a Plugin Development Kit,
-i.e. it’s the most popular method I’ve seen outside of Rust. A <em>Foreign Function
-Interface</em> can allow us to directly access resources in separately compiled
-objects, even after the linking phase with dynamic loading. It’s one of the
-fastest options available because there’s no overhead at all after dynamically
-loading the library.</p>
+i.e., it’s the most popular method I’ve seen outside of Rust. A <em>Foreign
+Function Interface</em> can allow us to directly access resources in separately
+compiled objects, even after the linking phase with dynamic loading. It’s one of
+the fastest options available because there’s no overhead at all after
+dynamically loading the library.</p>
 </div>
 <div class="paragraph">
 <p>The main library for this is
@@ -552,12 +552,12 @@ on it there’s <a href="https://github.com/emoon/dynamic_reload"><code>dynamic_
 is very interesting in order to “live reload” the plugins when they are
 recompiled. This would be useful for the development process of the plugins,
 since it also handles unloading the <em>same plugin</em> seamlessly, but that’s not a
-goal for this project so I don’t plan on using it. And the
+goal for this project, so I don’t plan on using it. And the
 <a href="https://github.com/vberger/dlib"><code>dlib</code></a> crate provides macros to make the
 library loading simpler, based on <code>libloading</code>.</p>
 </div>
 <div class="paragraph">
-<p>I already briefly discussed about Rust-to-C FFIs in detail in the
+<p>I already briefly discussed Rust-to-C FFIs in detail in the
 <a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>. It’s a lot of work to
 create an internal interface for Tremor through C. But it’s unfortunately the
 only way to do this, since Rust-to-Rust FFI is not stable. It also has awful
@@ -610,10 +610,10 @@ not going to be implemented for this project, it might in the future.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>While it’s a really interesting concept and look forward to seeing how it
-evolves, I’m not a big fan of having to resort to it. And the fact that it’s
-unofficial and not that popular doesn’t give me full confidence that this will
-still work in 5 years, or that it won’t be outdated/abandoned.</p>
+<p>While it’s a fascinating concept and look forward to seeing how it evolves, I’m
+not a big fan of having to resort to it. And the fact that it’s unofficial and
+not that popular doesn’t give me full confidence that this will still work in 5
+years, or that it won’t be outdated/abandoned.</p>
 </div>
 <div class="paragraph">
 <p>More people have tried writing Rust FFIs in the past, so we can take a look at
@@ -696,8 +696,8 @@ or CraneLift, which Wasmtime is built on, to Run Wasm modules as plugins.</p>
 <p><strong class="red white-background txt-margin-right txt-round">1/5</strong> <strong>Safety</strong></p>
 </li>
 <li>
-<p><strong class="red white-background txt-margin-right txt-round">0/5</strong> <strong>Backwards compatibility</strong> (may be <strong class="green white-background txt-margin-right txt-round">5/5</strong> if
-using <code>abi_stable</code>)</p>
+<p><strong class="red white-background txt-margin-right txt-round">0/5</strong> <strong>Backwards compatibility</strong> (maybe <strong class="green white-background txt-margin-right txt-round">5/5</strong> if using
+<code>abi_stable</code>)</p>
 </li>
 <li>
 <p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
@@ -757,8 +757,8 @@ the host can limit exactly what a program has access to.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>WASI is just a standard, so there’s multiple runtimes available. The most
-popular ones are coincidentally implemented in Rust as well:
+<p>WASI is just a standard, so it has multiple runtimes available. The most popular
+ones are coincidentally implemented in Rust as well:
 <a href="https://github.com/bytecodealliance/wasmtime"><strong>wasmtime</strong></a> and
 <a href="https://github.com/wasmerio/wasmer"><strong>wasmer</strong></a>. Both use the
 <a href="https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md">Cranelift</a>
@@ -786,7 +786,7 @@ emphasis.</p>
 <div class="paragraph">
 <p>The article also includes a <span class="line-through">not reliable at all</span> benchmark,
 which can serve us as a way to compare its performance with the native code
-you’d get with e.g. <a href="#ffi">FFI</a>. It estimates that Wasm is a bit less than an order
+you’d get with e.g., <a href="#ffi">FFI</a>. It estimates that Wasm is a bit less than an order
 of magnitude slower than native code, and the same applies to memory usage.
 <a href="https://github.com/jedisct1/webassembly-benchmarks/tree/master/2021-Q1">A more
 thorough benchmark</a> was done in libsodium that shows better results: Wasm can be
@@ -859,7 +859,7 @@ written in Rust:</p>
 <p><a href="https://github.com/rust-lang/cargo"><code>cargo</code></a>,
 <a href="https://github.com/rust-lang/mdBook"><code>mdbook</code></a>: both have an extension system
 via CLI commands. Adding a subcommand to either of these utilities is as easy
-as creating a binary with a fixed prefix (e.g. <code>cargo-expand</code>), and if it’s
+as creating a binary with a fixed prefix (e.g., <code>cargo-expand</code>), and if it’s
 available in the <code>$PATH</code> when running <code>cargo</code>, it will be possible to invoke
 the plugin with <code>cargo expand</code> as well.</p>
 <div class="paragraph">

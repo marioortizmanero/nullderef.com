@@ -22,11 +22,11 @@
       <content:encoded><![CDATA[<div class="paragraph">
 <p>This article describes my journey of basically rewriting the entirety of
 <a href="https://github.com/ramsayleung/rspotify">Rspotify</a>; around 13 months of work (in
-my free time), starting at September of 2020, up until October of 2021. I think
-this has given me enough experience for an article regarding API design on Rust,
-and perhaps those who attempt the same in the future can take some ideas and
-save time. Specially considering how much I’ve gone in circles and how much time
-I’ve “wasted” implementing things that ended up being discarded.</p>
+my free time), starting at September 2020, up until October 2021. I think this
+has given me enough experience for an article regarding API design on Rust, and
+perhaps those who attempt the same in the future can take some ideas and save
+time. Specially considering how much I’ve gone in circles and how much time I’ve
+“wasted” implementing things that ended up being discarded.</p>
 </div>
 <div class="sect1">
 <h2 id="_the_story">The story</h2>
@@ -39,12 +39,12 @@ as me. This all started when I wanted to use a Rust Spotify API wrapper for one
 of my projects at that time, <a href="https://vidify.org/">Vidify</a>. I went to
 <a href="https://crates.io/">crates.io</a> and looked for &#34;Spotify&#34;, and all I found was <a href="https://crates.io/crates/rspotify"><code>rspotify</code></a>
  (the most popular one at that time), <a href="https://crates.io/crates/aspotify"><code>aspotify</code></a>
- (
-an asynchronous-only alternative), and a bunch of other outdated or incomplete
+
+(an asynchronous-only alternative), and a bunch of other outdated or incomplete
 libraries.</p>
 </div>
 <div class="paragraph">
-<p>The author of <code>aspotify</code> had made a brand new library from scratch, because as
+<p>The author of <code>aspotify</code> had made a brand-new library from scratch, because as
 he commented in its release, “[rspotify’s] API in general I found hard to use
 and confusing” <a href="#aspotify-release">[1]</a>. Honestly, depending on the state of the
 original library this is the easiest choice because you don’t have to worry
@@ -97,8 +97,8 @@ user-friendly feature-full library for the Spotify API.</p>
 </li>
 <li>
 <p>It was considered a necessary evil. In my opinion, the library was doomed
-without a big rewrite. Otherwise it’d eventually become really hard to maintain and work
-with. I admit that said breaking changes could’ve been
+without a big rewrite. Otherwise, it’d eventually become really hard to
+maintain and work with. I admit that said breaking changes could’ve been
 smaller, but I thought that while I’m at it I might as well make it as close
 as possible to a perfect Rust interface.</p>
 </li>
@@ -159,7 +159,7 @@ for those who want to lean more.</p>
 <div class="paragraph">
 <p>For now, I’ll just explain how it works for clients of the same type: either
 synchronous or asynchronous. Since the usage for an HTTP client in an API is
-often very basic, i.e. you only need to make requests and get the results, we
+often very basic, i.e., you only need to make requests and get the results, we
 can cover its usage under a single interface. For example:</p>
 </div>
 <div class="listingblock">
@@ -310,7 +310,7 @@ builder pattern is great, but it might become too verbose or confusing:</p>
 parameters?</p>
 </li>
 <li>
-<p>Which authorization method are we using above again? Currently it’s possible
+<p>Which authorization method are we using above again? Currently, it’s possible
 to call <code>seek_track</code> after having followed an authorization process that
 doesn’t give access to it. And since we’re mixing all of them under the same
 client it quickly becomes a mess, having many <code>Option&lt;T&gt;</code> fields that are only
@@ -318,7 +318,7 @@ client it quickly becomes a mess, having many <code>Option&lt;T&gt;</code> field
 client for each authorization method?</p>
 </li>
 <li>
-<p>Wouldn’t it be nice have some type safety, too? The <code>unwrap</code> hurts my eyes.</p>
+<p>Wouldn’t it be nice to have some type safety, too? The <code>unwrap</code> hurts my eyes.</p>
 </li>
 </ul>
 </div>
@@ -585,8 +585,8 @@ details</a>.</p>
 <p>Even though it’s basic, I keep forgetting about this: don’t get obsessed with
 performance. As you add new features to the crate, it’s completely natural that
 some overheads are introduced here and there. And even then, they might not even
-be noticeable. First of all get that new feature working. Then, measure the
-actual effect on performance. And finally, if it’s more than you expected, then
+be noticeable. First of all get that new feature working. Then, measure the real
+effect on performance. And finally, if it’s more than you expected, then
 actually think about optimizing it.</p>
 </div>
 <div class="paragraph">
@@ -603,8 +603,8 @@ this into a separate feature for those interested, which is disabled by default.
 <p>On the topic of configuration, it’s important to have sane defaults as well.
 This is highly subjective, but I prefer to do as little as possible under the
 hood <em>without the user knowing about it</em>. When initializing a client we used to
-automatically try to read from the environment variables, and if that didn’t
-work then we tried to use the default values or we just panicked in the builder:</p>
+automatically try to read from the environment variables. If that didn’t work
+then we tried to use the default values or we just panicked in the builder:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -617,7 +617,7 @@ work then we tried to use the default values or we just panicked in the builder:
 </div>
 <div class="paragraph">
 <p>This is a pretty useful feature, but we can’t be sure the writer/reader of the
-code knows about it, and it could potentially cause cause unintended behaviour.
+code knows about it, and it could potentially cause unintended behaviour.
 Instead, we can just have a <code>default</code> method that does nothing special, which is
 what the user would expect, and also <code>from_env</code>, which <em>explicitly</em> tells us
 what it does:</p>
@@ -645,7 +645,7 @@ function <a href="#str-param">[12]</a> <a href="#gh-iterators">[13]</a>. The sam
 type <code>Vec&lt;T&gt;</code>; it’s probably a better idea to take a <code>&amp;[T]</code> instead, or the even
 more fancy <code>impl IntoIterator&lt;Item = T&gt;</code>. The last option makes it possible to
 pass iterators to the function without requiring a <code>collect</code>, which not only is
-more user friendly, but also avoids a memory allocation. Its only downside is
+more user-friendly, but also avoids a memory allocation. Its only downside is
 that the function signatures become a bit uglier, and all the consequences of
 using generics. Either of these options are fine, really, so it’s up to you.</p>
 </div>
@@ -654,7 +654,7 @@ using generics. Either of these options are fine, really, so it’s up to you.</
 <h3 id="_optional_parameters">Optional parameters</h3>
 <div class="paragraph">
 <p>Similarly, if the functions your library frequently include optional parameters
-(i.e. of type <code>Option&lt;T&gt;</code>), you might want to consider other ways to handle
+(i.e., of type <code>Option&lt;T&gt;</code>), you might want to consider other ways to handle
 them. In our case, we were using generics with <code>Into&lt;Option&lt;T&gt;&gt;</code> in order to not
 have to wrap the parameters in <code>Some</code> when passing them to the function, but it
 wasn’t consistent. We finally agreed that using plain <code>Option&lt;T&gt;</code> was good
@@ -699,8 +699,8 @@ more generic and moving into a separate crate for everyone to use
 <div class="paragraph">
 <p>The most important one here is splitting up the wrapper into the model and the
 clients. The model is generic enough that it can be used by any client, even
-outside of Rspotify. Some users have to implement their own custom clients for
-different reasons, and pulling our model helps avoiding lots of complexity and
+outside Rspotify. Some users have to implement their own custom clients for
+different reasons, and pulling our model helps to avoid lots of complexity and
 maintainance work <a href="#model-separation">[16]</a>. It can also be shared with other public
 crates, such as <code>aspotify</code>, and join forces in keeping the model up to date
 <a href="#gh-aspotify-share">[17]</a>.</p>
@@ -1171,7 +1171,7 @@ hand, we now have a much more extensive set of tests and new features that add
 up. In total, we have about 33% less lines to be maintained.</p>
 </div>
 <div class="paragraph">
-<p>The number of dependencies has decreased both by default and with all of the
+<p>The number of dependencies has decreased both by default and with all the
 features enabled. We cleaned up a lot of them and tried to keep the defaults
 leaner <a href="#gh-cleanup">[20]</a>. Since the new version adds more features such as PKCE, we
 even had to add new dependencies like <a href="https://crates.io/crates/sha2"><code>sha2</code></a>
@@ -1331,17 +1331,17 @@ is also smaller, and by a lot: there’s a 23% decrease in its size.</p>
 features I listed here, read and reviewed <em>every single one of my issues and
 pull requests</em>. I’ve learned how important it is to have a second opinon, and
 someone else who proofreads everything before you merge dumb stuff into
-<code>master</code>. Note that I <em>did</em> proofread my own ideas and pull requests, but
-there’s some things that you just don’t realize on time, as much as you try to.
-This is a problem that I think is particularly relevant in open source. I
-personally had worked on projects alone most of the times, and the difference is
-huge. I would suggest everyone to try to join forces with at least one more
-person when working in side projects.</p>
+<code>master</code>. Note that I <em>did</em> proofread my own ideas and pull requests, but there
+are some things that you just don’t realize on time, as much as you try to. This
+is a problem that I think is particularly relevant in open source. I personally
+had worked on projects alone most of the times, and the difference is huge. I
+would suggest everyone to try to join forces with at least one more person when
+working in side projects.</p>
 </div>
 <div class="paragraph">
 <p>That’s all! I hope this post provided insightful information and that you
 learned something from it. Remember that you can leave a comment at the bottom
-in case you want to discuss about it.</p>
+in case you want to discuss it.</p>
 </div>
 <div class="paragraph">
 <p>Lots of love,<br/>

@@ -84,7 +84,7 @@ to implement it at that time, so maybe in the future.</p>
 <h3 id="_lccc">1.2. LCCC</h3>
 <div class="paragraph">
 <p>The <a href="https://github.com/LightningCreations/lccc"><em>Lightning Creations Compiler
-Collection</em></a> provides a set of frontends and backends with an uniform
+Collection</em></a> provides a set of frontends and backends with a uniform
 intermediate representation for multiple programming languages,
 <a href="https://github.com/LightningCreations/lccc/tree/riir/xlang/xlang_abi/src/">including
 Rust</a>.</p>
@@ -98,7 +98,7 @@ includes the most popular types your library may use: <code>HashMap</code>, <cod
 astral magic.</p>
 </div>
 <div class="paragraph">
-<p>It’s not too popular right now and it’s still Work In Progress, but it serves as
+<p>It’s not too popular right now, and it’s still Work In Progress, but it serves as
 an example of what we’re looking for in this article. We just want to simplify
 our lives by having a <code>#[repr(C)]</code>-compatible standard library so that we don’t have
 to write it ourselves. If all you need is something simple like LCCC, consider
@@ -108,9 +108,8 @@ this library or a similar one.</p>
 <div class="sect2">
 <h3 id="_safer_ffi">1.3. Safer FFI</h3>
 <div class="paragraph">
-<p>If you don’t like any of the solutions listed in this article and you’re going
-to end up writing the plugin interfaces by hand, you might be interested in
-<a href="https://crates.io/crates/safer_ffi"><code>safer_ffi</code></a>
+<p>If you don’t like any of the solutions listed in this article, and you’re going
+to end up writing the plugin interfaces by hand, you might be interested in <a href="https://crates.io/crates/safer_ffi"><code>safer_ffi</code></a>
 .</p>
 </div>
 <div class="paragraph">
@@ -249,7 +248,7 @@ documentation</a>:</p>
 Rust’s module system or namespacing. This means that if cbindgen sees that it
 needs the definition for <code>MyType</code> and there exists two things in your project
 with the type name <code>MyType</code>, it won’t know what to do. Currently, cbindgen’s
-behaviour is unspecified if this happens. However this may be ok if they have
+behaviour is unspecified if this happens. However, this may be ok if they have
 <a href="https://github.com/eqrion/cbindgen/blob/master/docs.md#defines-and-cfgs">different
 cfgs</a>.</p>
 </div>
@@ -288,8 +287,8 @@ works, and then we can maybe focus on trying to make it available in other
 languages, making it more performant, or whatever.</p>
 </div>
 <div class="paragraph">
-<p>So let’s start comparing <code>abi_stable</code> with the my experiments in the previous
-post using raw dynamic linking. I’ve created the <code>abi-stable-simple</code> directory
+<p>So let’s start comparing <code>abi_stable</code> with my experiments in the previous post
+using raw dynamic linking. I’ve created the <code>abi-stable-simple</code> directory
 <a href="https://github.com/marioortizmanero/pdk-experiments">in the pdk-experiments
 repository</a>. I’ll be taking a look at the already implemented
 <a href="https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples">examples</a>
@@ -337,7 +336,7 @@ when running the plugin. While it doesn’t exactly stick to semantic versioning
 it’s good enough for us.</p>
 </div>
 <div class="paragraph">
-<p>The version checking for the entire <code>common</code> crate is already implemented, i.e.
+<p>The version checking for the entire <code>common</code> crate is already implemented, i.e.,
 we can’t try to mix different versions that aren’t compatible. We could still
 add a version string for each kind of plugin if more fine-grained control is
 needed, as described in the previous post.</p>
@@ -451,7 +450,7 @@ could change them if we wanted to):</p>
 <div class="ulist">
 <ul>
 <li>
-<p>It does so non-recursively, i.e. only checking the immediate files in the
+<p>It does so non-recursively, i.e., only checking the immediate files in the
 given directory.</p>
 </li>
 <li>
@@ -731,7 +730,7 @@ Layout of found type:
 entire layout tree of the types that don’t match for each of its versions
 (runtime vs plugin). For this example, I changed the <code>State</code> trait to use a
 boolean instead of an integer counter, and the message describes it perfectly:
-their sizes, alignments and types differ in the trait’s methods.</p>
+their sizes, alignments, and types differ in the trait’s methods.</p>
 </div>
 </div>
 <div class="sect2">
@@ -786,7 +785,7 @@ to me at the beginning.</p>
 <div class="paragraph">
 <p>For example, the following snippet will panic after creating the vector. If
 panics were configured to abort, the contents of the vector wouldn’t be freed at
-all; the program would just end abruptly and the cleaning up would be left to
+all; the program would just end abruptly, and the cleaning up would be left to
 the Operating System. But if it <em>unwinds</em>, Rust will call <code>Vec</code>&#39;s destructor,
 freeing its allocated memory properly, making it possible to continue the
 execution of the program.</p>
@@ -938,7 +937,7 @@ at the beginning of the function, which contains its filename and line of code.
 If something panics and unwraps, <code>AbortBomb</code>&#39;s destructor will be called,
 which aborts the program. Otherwise, <code>mem::forget</code> is called for the <code>AbortBomb</code>
 at the end of the function, which will avoid calling its destructor and the
-function will be able to end end successfully.</p>
+function will be able to end successfully.</p>
 </div>
 <div class="paragraph">
 <p>Note that even though <code>mem::forget</code> is called, no memory is actually being
@@ -957,7 +956,7 @@ doesn’t support unloading, we’d be leaking memory, and if the plugin keeps
 panicking it’d eventually crash.</p>
 </div>
 <div class="paragraph">
-<p>Recovering from a plugin panicking is definitely viable and it might be an
+<p>Recovering from a plugin panicking is definitely viable, and it might be an
 interesting feature for the future. Unfortunately, it’s a lot of work to make
 sure it works properly, and it’s not really an objective for the first
 implementation, so for now I’ll just use <code>abi_stable</code>&#39;s solution.</p>
@@ -1012,7 +1011,7 @@ this:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Ideally, <code>MayPanic</code> could be accompanied with a <code>#[may_panic]</code> procedural macro
+<p>Ideally, <code>MayPanic</code> could be accompanied by a <code>#[may_panic]</code> procedural macro
 that adds this boilerplate automatically to the function it’s attached to.
 Additionally, it could come with a <code>#[may_not_panic]</code> variant that attaches the
 <code>#[no_panic]</code> macro from the <a href="https://crates.io/crates/no-panic"><code>no-panic</code></a>
@@ -1037,7 +1036,7 @@ plugin system anyway.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>It’s important to know the complexity of conversions from and to <code>abi_stable</code>
-types. If <code>std::Vec</code> → <code>abi_stable::RVec</code> wasn \(O(n)\) it might be worth
+types. If <code>std::Vec</code> → <code>abi_stable::RVec</code> wasn’t \(O(n)\) it might be worth
 avoiding it altogether.</p>
 </div>
 <div class="paragraph">
@@ -1107,7 +1106,7 @@ types is written with a macro, but if expanded, it looks like this:</p>
 <div class="paragraph">
 <p>The only “weird” part is the usage of <code>std::mem::ManuallyDrop</code>, which is
 simply a wrapper that indicates Rust to not call the destructor of its contents
-automatically. In this case it’s basically a less error prone
+automatically. In this case it’s basically a less error-prone
 <code>std::mem::forget</code>, as
 <a href="https://doc.rust-lang.org/stable/std/mem/fn.forget.html#relationship-with-manuallydrop">its
 docs explain</a>. Thanks to it, the memory from the <code>Vec</code> won’t be dropped when
@@ -1167,7 +1166,7 @@ article</a> explains that the only performance difference is saving the
 <a href="https://en.wikipedia.org/wiki/Position-independent_code">resolved address</a> of
 the symbol in a table the first time, and then it’s just a couple more
 instructions to access it. Also, obviously, the fact that the compiler can’t
-optimize parts of the code (e.g. inline function calls).</p>
+optimize parts of the code (e.g., inline function calls).</p>
 </li>
 </ul>
 </div>
@@ -1357,9 +1356,9 @@ discarding Wasm for this specific PDK, I wanted to try to get a more realistic
 example with dynamic loading and work towards the final implementation.</p>
 </div>
 <div class="paragraph">
-<p>Since the Tremor team suggested to begin by implementing connectors, we’ll first
-have to learn more about them. Matthias ran me through their current state in a
-meeting, which I’ll try to summarize. We won’t need to know much for this
+<p>Since the Tremor team suggested that I began by implementing connectors, we’ll
+first have to learn more about them. Matthias ran me through their current state
+in a meeting, which I’ll try to summarize. We won’t need to know much for this
 specific article, though.</p>
 </div>
 <div class="sect1">
@@ -1372,13 +1371,13 @@ unstructured data. One of its many usages may be to:</p>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Receive logs from different applications in your business</p>
+<p>Receive logs from different applications in your business.</p>
 </li>
 <li>
-<p>Filter, transform, and mix them up following the same structure</p>
+<p>Filter, transform, and mix them up following the same structure.</p>
 </li>
 <li>
-<p>Send all the now structured logs to your database</p>
+<p>Send all the now structured logs to your database.</p>
 </li>
 </ol>
 </div>
@@ -1437,11 +1436,10 @@ trait</a>, is somewhat stable.</p>
 </div>
 <div class="paragraph">
 <p>It’s important to keep the plugin interface as simple as possible. The
-communication details should be left to the runtime, so that  the plugin can be
+communication details should be left to the runtime, so that the plugin can be
 simplified to just exporting a number of synchronous functions. With this we can
 avoid passing some complex types (<code>async</code>, channels, etc) between the runtime
-and plugin, which can be impossible if you have to maintain ABI stability
-(<a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+and plugin, which can be impossible if you have to maintain ABI stability (<a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
  doesn’t even support <code>async</code>).</p>
 </div>
 <div class="paragraph">
@@ -1516,9 +1514,9 @@ you.</p>
 rest, breathe, and have fun. Taking a break from programming is a good idea
 from time to time.</p>
 <div class="paragraph">
-<p>I’ve personally experienced burnout myself so I know this first hand. You may
+<p>I’ve personally experienced burnout myself, so I know this first hand. You may
 immerse yourself too much in computers or coding (specially under a pandemic
-that restricts how much you can go out). Finding a hobby outside of that is
+that restricts how much you can go out). Finding a hobby outside that is
 incredibly helpful.</p>
 </div>
 </li>
@@ -1537,7 +1535,7 @@ PDK as much as possible in order to keep my sanity.</p>
 <p>I jumped into the codebase of
 <a href="https://github.com/tremor-rs/tremor-runtime"><code>tremor/tremor-runtime</code></a> and tried
 to figure out how it was structured, also with the help of the team later on.
-First of all: Tremor is loosely based on the actor model. Quoting Wikipedia:</p>
+Tremor is loosely based on the actor model. Quoting Wikipedia:</p>
 </div>
 <div class="quoteblock">
 <blockquote>
@@ -1555,7 +1553,7 @@ lock-based synchronization).</p>
 </div>
 </div>
 <div class="paragraph">
-<p>It doesn’t use a language (e.g. Erlang) or framework (e.g. <a href="https://crates.io/crates/bastion"><code>bastion</code></a>
+<p>It doesn’t use a language (e.g., Erlang) or framework (e.g., <a href="https://crates.io/crates/bastion"><code>bastion</code></a>
 , maybe in the future) that strictly follows the actor model, but it often
 re-implements the same patterns manually. Tremor is currently implemented with
 <a href="https://en.wikipedia.org/wiki/Asynchrony_(computer_programming)">asynchronous
@@ -1608,7 +1606,7 @@ handling their communication details.</p>
 <div class="paragraph">
 <p>Once all the managers are initialized, Tremor currently registers all the
 built-in artifacts in a “hardcoded” way with <code>register_builtin_types</code>. But
-after the PDK is implemented, this will happen dynamically, i.e. Tremor will
+after the PDK is implemented, this will happen dynamically, i.e., Tremor will
 automatically look for DLL/SO files in its configured directory and try to
 register all the plugins it can find. The user may additionally request a
 specific plugin to be loaded while Tremor is running.</p>
@@ -1631,11 +1629,11 @@ now try to understand:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Since it’s a multi-step process (it’s actually more complicated than
-registration + creation), the first part of it already provides the tools to
-initialize the connector (mainly the builder). When the connector needs to start
-running because it’s been added to a binding in the pipeline, the builder helps
-to construct it generically with the previously provided configuration details.
+<p>Since it’s a multistep process (it’s actually more complicated than registration
++ creation), the first part of it already provides the tools to initialize the
+connector (mainly the builder). When the connector needs to start running
+because it’s been added to a binding in the pipeline, the builder helps to
+construct it generically with the previously provided configuration details.
 Finally, it’s moved into a task of its own, so that it may communicate with
 other parts of Tremor.</p>
 </div>
@@ -1929,7 +1927,7 @@ make it easier for the user, plugins should be found and loaded automatically.
 But how exactly should this work? I’ll explain a few ideas.</p>
 </div>
 <div class="paragraph">
-<p>First of all, the plugins can be found automatically by searching one or more
+<p>Firstly, the plugins can be found automatically by searching one or more
 user-configurable directories. For instance, in Tremor’s case we could use the
 environment variable
 <a href="https://www.tremor.rs/docs/tremor-query/modules#defaults"><code>TREMOR_PATH</code></a>. Once we
@@ -1955,7 +1953,7 @@ the most sensible choice here).</p>
 and which aren’t. The easiest way to do it is with file extensions, but this
 introduces the problem of cross-compatibility. Dynamic libraries usually have a
 different extension name for each Operating System: Windows uses <code>.dll</code>, Linux
-and FreeBSD use <code>.so</code>, and MacOS uses <code>.dylib</code>, as specified by
+and FreeBSD use <code>.so</code>, and macOS uses <code>.dylib</code>, as specified by
 <a href="https://doc.rust-lang.org/std/env/consts/constant.DLL_EXTENSION.html"><code>std::env::consts::DLL_EXTENSION</code></a>.
 It would make sense that our runtime only tried to load plugins with their
 respective extensions.</p>
@@ -2092,7 +2090,7 @@ lifetimes they are only annotations for the Rust compiler; monomorphization is
 not applied.</p>
 </div>
 <div class="paragraph">
-<p>If you want to know more about this topic I’d suggest watching
+<p>If you want to know more about this topic, I’d suggest watching
 <a href="https://www.youtube.com/watch?v=xcygqF5LVmM">this video by Jon Gjengset</a>.</p>
 </div>
 </div>
@@ -2361,8 +2359,8 @@ Segmentation fault (core dumped)</code></pre>
 <h3 id="_wrong_address">8.4. Wrong address</h3>
 <div class="paragraph">
 <p>Unfortunately, there’s not much we can do about out of bounds pointers. If the
-plugin exports e.g. the name with a null pointer, we’ll just get a segmentation
-fault:</p>
+plugin exports, e.g., the name with a null pointer, we’ll just get a
+segmentation fault:</p>
 </div>
 <div class="listingblock">
 <div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongaddress">See the full code here</a></div>
@@ -2431,7 +2429,7 @@ plugin and the runtime.</p>
 <p>The plugins are manually loaded given a directory.</p>
 </li>
 <li>
-<p>The runtime looks for plugins in the immediate files of the directory, i.e.
+<p>The runtime looks for plugins in the immediate files of the directory, i.e.,
 non-recursively.</p>
 </li>
 <li>
@@ -2610,7 +2608,7 @@ course be hard, but no need to worry about things you can’t control yet.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>My mentors were Matthias, Darach and Heinz. They seemed like very different
+<p>My mentors were Matthias, Darach, and Heinz. They seemed like very different
 kinds of people; something they knew and took advantage of. Decision-taking is
 hard; it requires good communication and an open mind. I also took note of this
 quote (roughly) from them:</p>
@@ -2629,7 +2627,7 @@ considering.</p>
 </div>
 <div class="paragraph">
 <p>Also note that while writing this post I quite literally broke my leg (tibia &amp;
-fibula). The team was very supportive and I took some rest until I went through
+fibula). The team was very supportive, and I took some rest until I went through
 surgery (I’m still recovering). Which is another reason as to why this article
 has taken me longer than usual to release. Thanks a lot to all of them ❤️.</p>
 </div>
@@ -2639,12 +2637,12 @@ has taken me longer than usual to release. Thanks a lot to all of them ❤️.</
 <div class="paragraph">
 <p>In the first reunion I was suggested to meet the other LFX mentee at that
 moment, @aryan9600 on Discord, which seemed like a good idea. I’d seen him a
-couple times and knew he’d been contributing to Tremor even before the
+couple of times and knew he’d been contributing to Tremor even before the
 mentorship.</p>
 </div>
 <div class="paragraph">
 <p>Aryan turned out to be a very nice colleague! He was very enthusiastic about the
-project and he explained me his progress in detail. In summary, he was starting
+project, and he explained me his progress in detail. In summary, he was starting
 to add gRPC support to Tremor, and wasn’t sure how to approach it so that new
 interfaces could be added outside the compilation time. He had multiple ideas on
 how to implement this, but the one that interested me the most was via Wasm or
@@ -2665,10 +2663,10 @@ PDK. Which is very hard at first because you need to know more about the
 internals of Tremor and how it works.</p>
 </div>
 <div class="paragraph">
-<p>Luckily, Matthias spent the second meeting explaining me how Tremor works, with
-the help of some drawings, taking a look at the code, and running it. He also
-taught me the novel concept of a <em>connector</em>, which is just an abstraction over
-both sources and sinks. The thing was that connectors were still Work In
+<p>Luckily, Matthias spent the second meeting explaining to me how Tremor works,
+with the help of some drawings, taking a look at the code, and running it. He
+also taught me the novel concept of a <em>connector</em>, which is just an abstraction
+over both sources and sinks. The thing was that connectors were still Work In
 Progress, and Matthias needed to know how the PDK would work to modify the
 <code>Connector</code> interface. Mainly how to combine plugins and generics, which is what
 I’ll try to figure out in this article.</p>
@@ -2726,16 +2724,16 @@ recommend checking out:</p>
 <ul>
 <li>
 <p><a href="https://fasterthanli.me/articles/so-you-want-to-live-reload-rust">So you want
-to live-reload Rust - fasterthanli.me</a></p>
+to live-reload Rust — fasterthanli.me</a></p>
 </li>
 <li>
 <p><a href="https://adventures.michaelfbryan.com/posts/wasm-as-a-platform-for-abstraction/">WebAssembly
-as a Platform for Abstraction - adventures.michaelfbryan.com</a>, recommended to
+as a Platform for Abstraction — adventures.michaelfbryan.com</a>, recommended to
 me by Aryan</p>
 </li>
 <li>
 <p><a href="https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/">FFI-Safe
-Polymorphism: Thin Trait Objects - adventures.michaelfbryan.com</a></p>
+Polymorphism: Thin Trait Objects — adventures.michaelfbryan.com</a></p>
 </li>
 </ul>
 </div>
@@ -2827,7 +2825,7 @@ declare a <code>static</code> variable, but the example showcases how <code>exte
 well. Since we want to use the C ABI, we’ll have to specify <code>crate-type</code> as
 <code>cdylib</code> in our <code>Cargo.toml</code>. Note that <code>#[no_mangle]</code> is necessary so that the
 variable’s name isn’t <a href="https://en.wikipedia.org/wiki/Name_mangling"><em>mangled</em></a> and
-we can access it when when dynamically loading the library.</p>
+we can access it when dynamically loading the library.</p>
 </div>
 <div class="listingblock">
 <div class="title"><code>plugin-sample/src/lib.rs</code></div>
@@ -2853,10 +2851,10 @@ updated two years ago as well, but their GitHub repo seemed somewhat active in
 comparison.</p>
 </div>
 <div class="paragraph">
-<p>For now I’ll just use <code>libloading</code> for being the most popular crate, and perhaps
-I’ll consider using <code>dlopen</code> in the future. In terms of relevant features and
-performance they’re pretty close anyway <a href="#dynload-comp">[2]</a>. Here’s what the code
-looks like:</p>
+<p>For now, I’ll just use <code>libloading</code> for being the most popular crate, and
+perhaps I’ll consider using <code>dlopen</code> in the future. In terms of relevant
+features and performance they’re pretty close anyway <a href="#dynload-comp">[2]</a>. Here’s
+what the code looks like:</p>
 </div>
 <div class="listingblock">
 <div class="title"><code>src/main.rs</code></div>
@@ -2901,7 +2899,7 @@ Running plugin:
 The <code>common</code> crate I introduced earlier could just be a header.</p>
 </li>
 <li>
-<p>There are many different options to configure <code>crate-type</code> as a
+<p>There are many options to configure <code>crate-type</code> as a
 <a href="https://doc.rust-lang.org/reference/linkage.html">dynamic library</a>. What are
 they and which one should I choose?</p>
 </li>
@@ -2978,7 +2976,7 @@ dynamic linking with the <code>crate-type</code> field</a> in the crate’s <cod
 </div>
 <div class="paragraph">
 <p>Once again, this difference has to do with the ABIs in the dynamic library
-<a href="#dylib">[3]</a>. <code>cdylib</code> is meant for linking into C/C++ programs (so it strip away
+<a href="#dylib">[3]</a>. <code>cdylib</code> is meant for linking into C/C++ programs (so it strips away
 all functions that aren’t publicly exported), and <code>dylib</code> is meant for Rust
 libraries.</p>
 </div>
@@ -3010,7 +3008,7 @@ representation (MIR). It can run binaries and test suites of cargo projects and
 detect certain classes of undefined behavior.</p>
 </div>
 <div class="paragraph">
-<p><mark>You can use Miri to emulate programs on other targets</mark>, e.g. to ensure that
+<p><mark>You can use Miri to emulate programs on other targets</mark>, e.g., to ensure that
 byte-level data manipulation works correctly both on little-endian and
 big-endian systems.</p>
 </div>
@@ -3251,7 +3249,7 @@ types like structs or enums:</p>
 Proposal</strong> for WebAssembly</a>. It defines the binary format for encoding and
 decoding the newly supported types, and specifies a set of instructions to
 transform the data between WebAssembly and the outside world. Note that this
-proposal is not meant to define a fixed representation of e.g. a string in
+proposal is not meant to define a fixed representation of e.g., a string in
 Wasm, it attempts to allow representation-agnostic high-level value types.</p>
 <div class="openblock">
 <div class="content">
@@ -3311,7 +3309,7 @@ itself</a> for more detailed information; it’s very well explained.</p>
 <div class="paragraph">
 <p>The main problem is that this proposal is still at
 <a href="https://github.com/WebAssembly/proposals#phase-1---feature-proposal-cg">Phase 1</a>.
-It’s still actively being worked on and its specification is far from stable.</p>
+It’s still actively being worked on, and its specification is far from stable.</p>
 </div>
 <div class="ulist">
 <ul>

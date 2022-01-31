@@ -238,7 +238,7 @@ that much bloat.</p>
 <p>It depends, of course, but binary bloat isn’t that much of a problem for higher
 level binaries, in my opinion. Rust already statically embeds its standard
 library, its runtime, and a ton of debug info in each binary, which sums up to
-around 3MB. And the only overhead you may get at runtime is a branch.</p>
+around 3 MB. And the only overhead you may get at runtime is a branch.</p>
 </div>
 </div>
 </div>
@@ -715,7 +715,7 @@ implement.</p>
 <p>The code for the different approaches can be found
 <a href="https://github.com/marioortizmanero/rust-optional-params">here</a>. Bear in mind
 that there are a lot of different ways to implement the approaches, as I
-explained in this post. You can discuss about it at the <a href="https://www.reddit.com/r/rust/comments/j8p6fx/optional_parameters_in_rust">reddit
+explained in this post. You can discuss it at the <a href="https://www.reddit.com/r/rust/comments/j8p6fx/optional_parameters_in_rust">reddit
 thread</a>.</p>
 <p>This was one of my first blog posts, so please let me know what you think about
 the writing, the structure and just your overall rating, or if you found any
