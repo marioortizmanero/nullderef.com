@@ -27,8 +27,8 @@ coding and have the v0.1.0 release ready in a few days. "`Neat`", you say, as
 `cargo publish` finishes successfully and uploads your work to
 https://crates.io[crates.io].
 
-A couple days pass and you get a new notification on GitHub. Someone opened an
-issue:
+A couple of days pass, and you get a new notification on GitHub. Someone opened
+an issue:
 
 ____
 *How can I use this library synchronously?*
@@ -101,7 +101,7 @@ yourself to double your efforts!
 
 There is no way to make sure both implementations are equivalent either unless
 you test absolutely everything. Which isn't a bad idea either, but maybe you
-copy pasted the tests wrong! How about that? The poor reviewer of the Pull
+copy-pasted the tests wrong! How about that? The poor reviewer of the Pull
 Request would have to read through the same code twice as well to make sure both
 sides look alright -- which sounds incredibly prone to human errors.
 
@@ -304,7 +304,7 @@ This solution has none of the downsides I listed in previous attempts:
 * Quite easy to understand for the user; just configure a flag in you
   `Cargo.toml`
 
-However, stop reading for a couple minutes and try to figure out why you
+However, stop reading for a couple of minutes and try to figure out why you
 shouldn't do this. In fact, I'll give you 9 months, which is how long it took me
 to do so...
 
@@ -352,7 +352,7 @@ example of conflicting features, which breaks with any feature resolver.
 
 === Other fails
 
-There are a a few crates that have this problem currently:
+There are a few crates that have this problem currently:
 
 * {{< crate arangors >}} and {{< crate aragog >}}: wrappers for ArangoDB. Both
   use `maybe_async` to switch between async and sync (``arangors``'s author is
@@ -397,8 +397,8 @@ be added to each call to your library. I wondered if it would be possible to do
 it in a more ergonomic way. I forked `maybe_async` and gave it a try, about
 which you can read more
 https://github.com/fMeow/maybe-async-rs/issues/6#issuecomment-880581551[in this
-series of comments]. But in summary it was very complicated and I ultimately
-gave up.
+series of comments]. In summary, it was too complicated, and I ultimately gave
+up.
 
 The only way to fix this edge case would be to considerably worsen the usability
 of Rspotify for everyone. Someone depending on both async and sync is a minority
