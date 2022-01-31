@@ -859,8 +859,8 @@ Segmentation fault (core dumped)
 === Wrong address
 
 Unfortunately, there's not much we can do about out of bounds pointers. If the
-plugin exports e.g., the name with a null pointer, we'll just get a segmentation
-fault:
+plugin exports, e.g., the name with a null pointer, we'll just get a
+segmentation fault:
 
 .https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongaddress[See the full code here]
 [source, text]

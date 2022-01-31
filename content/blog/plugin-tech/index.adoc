@@ -116,7 +116,7 @@ trusted by default.
 An improved approach to Node + npm would be something like
 https://github.com/denoland/deno[Deno], which is a secure by default
 JavaScript/TypeScript runtime. This is enabled thanks to sandboxing, and
-requires the developer to manually toggle e.g. access to the filesystem or to
+requires the developer to manually toggle, e.g., access to the filesystem or to
 the network. This is no panacea because people might end up enabling whatever
 permission is required by the dependency they want to install without thinking
 about it, but it's similar to `unsafe`: at least it makes you aware that you

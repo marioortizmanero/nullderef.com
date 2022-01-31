@@ -121,7 +121,7 @@ for those who want to lean more.
 
 For now, I'll just explain how it works for clients of the same type: either
 synchronous or asynchronous. Since the usage for an HTTP client in an API is
-often very basic, i.e. you only need to make requests and get the results, we
+often very basic, i.e., you only need to make requests and get the results, we
 can cover its usage under a single interface. For example:
 
 [source, rust]
@@ -563,7 +563,7 @@ using generics. Either of these options are fine, really, so it's up to you.
 === Optional parameters
 
 Similarly, if the functions your library frequently include optional parameters
-(i.e. of type `Option<T>`), you might want to consider other ways to handle
+(i.e., of type `Option<T>`), you might want to consider other ways to handle
 them. In our case, we were using generics with `Into<Option<T>>` in order to not
 have to wrap the parameters in `Some` when passing them to the function, but it
 wasn't consistent. We finally agreed that using plain `Option<T>` was good
