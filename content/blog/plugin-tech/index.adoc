@@ -69,8 +69,8 @@ have to be aware of.
 Many of the technologies that can be used to implement a Plugin System work with
 unsafe code, like <<ffi,FFIs>> or <<memory-sharing,IPC Memory Sharing>>. This
 isn't necessarily a problem if it's self-contained and thoroughly reviewed, but
-we lose some of the safety guarantees Rust provides us, increasing the
-maintenance cost of the library.
+we lose some safety guarantees provided by Rust, increasing the maintenance cost
+of the library.
 
 It takes considerably more work to make sure the implementation is sound, even
 with tools like https://github.com/rust-lang/miri[MIRI], which I plan on
@@ -94,8 +94,8 @@ error resilience.
 === Remote Code Execution via Plugins
 
 https://en.wikipedia.org/wiki/Component_Object_Model#Security[This was a problem
-with Internet Explorer], for example. It used COM and ActiveX, which implement
-no sandboxing at all and were ran directly on the user's machine, allowing
+with Internet Explorer], for example. It used COM and ActiveX, which implemented
+no sandboxing at all and were running directly on the user's machine, allowing
 malware to be included in plugins with the ability to execute arbitrary code on
 the host machine. This can be less of a problem when installing only trusted
 plugins via digital signatures, but it's still a huge risk.
@@ -122,20 +122,20 @@ permission is required by the dependency they want to install without thinking
 about it, but it's similar to `unsafe`: at least it makes you aware that you
 might mess up.
 
-One could argue that their program is realistically going to be ran in a Virtual
-Machine or a container most of the times, where this may not matter so much. But
-should you really assume that? Should user safety rely on the fact that the
-machine is ran on an isolated kernel? Containers, by the way, introduce a much
-bigger overhead in comparison to some sandboxing methods. And even if the system
-as a whole is isolated, there is still a possibility for internal leaks: the
-Postgres plugin has access to whatever is being used by the Apache Kafka plugin,
-which may have sensitive logs you don't want anyone to see.
+One could argue that their program is realistically going to be running in a
+Virtual Machine or a container most of the times, where this may not matter so
+much. But should you really assume that? Should user safety rely on the fact
+that the machine is running on an isolated kernel? Containers, by the way,
+introduce a much bigger overhead in comparison to some sandboxing methods. And
+even if the system as a whole is isolated, there is still a possibility for
+internal leaks: the Postgres plugin has access to whatever is being used by the
+Apache Kafka plugin, which may have sensitive logs you don't want anyone to see.
 
 [[back-comp]]
 == Backward Compatibility
 
 As I discovered in the last post, backward compatibility is complicated for
-plugin systems in Rust with the typical approach, a FFI. Since it doesn't
+plugin systems in Rust with the typical approach, FFI. Since it doesn't
 currently offer a stable ABI -- and probably never will -- the slightest
 difference between the version used to compile a plugin and the core of the
 program will break it.
@@ -183,7 +183,7 @@ talked about this in the past], so I won't get into the details.
 == Possible Approaches
 
 The following are the most viable technologies that could be used as the base of
-a PDK. Some of the won't match the requirements I mentioned earlier at first
+a PDK. Some of them won't match the requirements I mentioned earlier at first
 glance, but it's a good idea to at least _consider_ all of them. I haven't
 written a line of code yet, so if an approach were to catch someone's eye we
 could investigate more about it. I will rate each of the alternatives in a scale
@@ -197,7 +197,7 @@ from 1 to 5 (approximately) in order to easen the decision-taking.
 === Scripting Languages
 
 Plenty of projects use scripting languages to extend their functionality at
-runtime, like Python, Ruby, Perl, Bash or JavaScript. Most notably, Vim created
+runtime, like Python, Ruby, Perl, Bash, or JavaScript. Most notably, Vim created
 its own scripting language, Vimscript, in order to be fully customizable, and
 NeoVim is now pushing http://www.lua.org/[Lua] as a first-class language for
 configuration. Even Tremor itself has the interpreted query language
@@ -228,7 +228,7 @@ whichever functions you don't want users to access <<lua-sandbox>> (though it's
 also handle resource exhaustion issues within Lua programs. Not to mention that
 this wouldn't require `unsafe` at all with an optimal set of bindings.
 
-Anyhow, the main deal breaker with scripting languages in this case is that it
+Anyhow, the main deal-breaker with scripting languages in this case is that it
 would be extremely complicated to port everything in Tremor so that it can be
 used from Lua. For new projects this could perhaps be something interesting, but
 not if the entirety of the already existing plugins have to be rewritten.
@@ -335,7 +335,7 @@ vastly simplified.
 Knowing that the plugins are intended to be on the same machine as the core of
 Tremor, there's no need to actually send and receive messages. One can share
 memory between multiple processes and send notifications to receive updates. The
-performance is comparable to using a FFI, since the only overhead is the initial
+performance is comparable to using FFI, since the only overhead is the initial
 cost from setting up the shared pages, having regular memory access afterwards
 <<memory-share-so>>.
 
@@ -361,11 +361,11 @@ doesn't seem to be any better than FFIs overall.
 === FFI
 
 This is possibly the _least weird_ way to implement a Plugin Development Kit,
-i.e. it's the most popular method I've seen outside of Rust. A _Foreign Function
-Interface_ can allow us to directly access resources in separately compiled
-objects, even after the linking phase with dynamic loading. It's one of the
-fastest options available because there's no overhead at all after dynamically
-loading the library.
+i.e., it's the most popular method I've seen outside of Rust. A _Foreign
+Function Interface_ can allow us to directly access resources in separately
+compiled objects, even after the linking phase with dynamic loading. It's one of
+the fastest options available because there's no overhead at all after
+dynamically loading the library.
 
 The main library for this is
 https://github.com/nagisa/rust_libloading[`libloading`]. There's also the less
@@ -377,11 +377,11 @@ on it there's https://github.com/emoon/dynamic_reload[`dynamic_reload`], which
 is very interesting in order to "`live reload`" the plugins when they are
 recompiled. This would be useful for the development process of the plugins,
 since it also handles unloading the _same plugin_ seamlessly, but that's not a
-goal for this project so I don't plan on using it. And the
+goal for this project, so I don't plan on using it. And the
 https://github.com/vberger/dlib[`dlib`] crate provides macros to make the
 library loading simpler, based on `libloading`.
 
-I already briefly discussed about Rust-to-C FFIs in detail in the
+I already briefly discussed Rust-to-C FFIs in detail in the
 https://nullderef.com/blog/gsoc-proposal/[proposal]. It's a lot of work to
 create an internal interface for Tremor through C. But it's unfortunately the
 only way to do this, since Rust-to-Rust FFI is not stable. It also has awful
@@ -421,10 +421,10 @@ inconvenients are the following:
 * It's worth mentioning that library unloading is a non-feature; although it's
   not going to be implemented for this project, it might in the future.
 
-While it's a really interesting concept and look forward to seeing how it
-evolves, I'm not a big fan of having to resort to it. And the fact that it's
-unofficial and not that popular doesn't give me full confidence that this will
-still work in 5 years, or that it won't be outdated/abandoned.
+While it's a fascinating concept and look forward to seeing how it evolves, I'm
+not a big fan of having to resort to it. And the fact that it's unofficial and
+not that popular doesn't give me full confidence that this will still work in 5
+years, or that it won't be outdated/abandoned.
 
 More people have tried writing Rust FFIs in the past, so we can take a look at
 existing tutorials in order to see their experience:
@@ -472,8 +472,8 @@ So, more or less:
 . [{rank-good}]*5/5* *Low overhead*
 . [{rank-good}]*5/5* *Rust availability*
 . [{rank-bad}]*1/5* *Safety*
-. [{rank-bad}]*0/5* *Backwards compatibility* (may be [{rank-good}]*5/5* if
-  using `abi_stable`)
+. [{rank-bad}]*0/5* *Backwards compatibility* (maybe [{rank-good}]*5/5* if using
+  `abi_stable`)
 . [{rank-good}]*5/5* *Ease of porting existing implementations*
 
 [[wasm]]
@@ -513,8 +513,8 @@ The two main points WebAssembly offers are, in a nutshell:
 * In order to handle untrustworthy programs, it implements a sandbox. With that,
   the host can limit exactly what a program has access to.
 
-WASI is just a standard, so there's multiple runtimes available. The most
-popular ones are coincidentally implemented in Rust as well:
+WASI is just a standard, so it has multiple runtimes available. The most popular
+ones are coincidentally implemented in Rust as well:
 https://github.com/bytecodealliance/wasmtime[*wasmtime*] and
 https://github.com/wasmerio/wasmer[*wasmer*]. Both use the
 https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md[Cranelift]
@@ -538,7 +538,7 @@ ____
 
 The article also includes a [.line-through]#not reliable at all# benchmark,
 which can serve us as a way to compare its performance with the native code
-you'd get with e.g. <<ffi>>. It estimates that Wasm is a bit less than an order
+you'd get with e.g., <<ffi>>. It estimates that Wasm is a bit less than an order
 of magnitude slower than native code, and the same applies to memory usage.
 https://github.com/jedisct1/webassembly-benchmarks/tree/master/2021-Q1[A more
 thorough benchmark] was done in libsodium that shows better results: Wasm can be
@@ -585,7 +585,7 @@ written in Rust:
 * https://github.com/rust-lang/cargo[`cargo`],
   https://github.com/rust-lang/mdBook[`mdbook`]: both have an extension system
   via CLI commands. Adding a subcommand to either of these utilities is as easy
-  as creating a binary with a fixed prefix (e.g. `cargo-expand`), and if it's
+  as creating a binary with a fixed prefix (e.g., `cargo-expand`), and if it's
   available in the `$PATH` when running `cargo`, it will be possible to invoke
   the plugin with `cargo expand` as well.
 +
