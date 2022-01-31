@@ -187,7 +187,7 @@ that much bloat.
 It depends, of course, but binary bloat isn't that much of a problem for higher
 level binaries, in my opinion. Rust already statically embeds its standard
 library, its runtime, and a ton of debug info in each binary, which sums up to
-around 3MB. And the only overhead you may get at runtime is a branch.
+around 3 MB. And the only overhead you may get at runtime is a branch.
 
 == Conclusion
 
