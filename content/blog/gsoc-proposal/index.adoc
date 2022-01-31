@@ -155,9 +155,8 @@ After defining its interfaces and implementing the PDK architecture, these
 features would be turned into plugins, which would allow them to be developed
 independently, and thus wouldn't have to be in the main
 https://github.com/tremor-rs/tremor-runtime[tremor-runtime] repository. For
-simplicity, though, it might be best to keep them there -- or at least group
-them up in less repositories -- to avoid a large number of repos and thus a
-bigger maintenance cost. Some components are
+simplicity, though, it might be best to keep them there. Or at least group them
+up in less repositories to avoid having too many. Some components are
 https://github.com/tremor-rs/tremor-runtime/blob/main/src/codec/null.rs[quite
 simple] and it might not be necessary to create a new repository for them, with
 a copy of the CI, README... But this is up to the core contributors of Tremor,
@@ -178,8 +177,8 @@ there's remaining time after the main goals are fully finished:
 . Make trickle sub-graphs a first-class modular and pluggable artefact
 
 The most likely to be implemented of these is the fifth, as documentation is
-important for this new breaking feature and it looks like the easiest of them,
-or at least seemingly more flexible, considering there most likely won't be that
+important for this new breaking feature. It also looks like the easiest one, or
+at least seemingly more flexible, considering there most likely won't be that
 much extra time after the main goals, if any.
 
 The "`development tooling`" part would also be inevitably developed as the
@@ -187,7 +186,7 @@ project progresses, since I'll need them anyway to move the existing <<impls>>
 to the PDK. Said resources could be contained in a separate `tremor_plugin`
 crate, with all kinds of utilities to make plugin development easier, including
 traits or even procedural macros if necessary, which are a very interesting part
-of Rust and I'm looking forward to on working on as well, and
+of Rust, and I'm looking forward to on working on as well, and
 https://github.com/vidify/structconf[I've already done in the past].
 
 == Proposal Timeline
