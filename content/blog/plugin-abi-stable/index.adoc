@@ -71,7 +71,7 @@ to implement it at that time, so maybe in the future.
 === LCCC
 
 The https://github.com/LightningCreations/lccc[_Lightning Creations Compiler
-Collection_] provides a set of frontends and backends with an uniform
+Collection_] provides a set of frontends and backends with a uniform
 intermediate representation for multiple programming languages,
 https://github.com/LightningCreations/lccc/tree/riir/xlang/xlang_abi/src/[including
 Rust].
@@ -83,7 +83,7 @@ includes the most popular types your library may use: `HashMap`, `Vec`,
 `std`, which often includes lots of procedural macros and various forms of
 astral magic.
 
-It's not too popular right now and it's still Work In Progress, but it serves as
+It's not too popular right now, and it's still Work In Progress, but it serves as
 an example of what we're looking for in this article. We just want to simplify
 our lives by having a {repr-c}-compatible standard library so that we don't have
 to write it ourselves. If all you need is something simple like LCCC, consider
@@ -91,9 +91,9 @@ this library or a similar one.
 
 === Safer FFI
 
-If you don't like any of the solutions listed in this article and you're going
-to end up writing the plugin interfaces by hand, you might be interested in
-{{< crate safer_ffi >}}.
+If you don't like any of the solutions listed in this article, and you're going
+to end up writing the plugin interfaces by hand, you might be interested in {{<
+crate safer_ffi >}}.
 
 All this crate provides is a set of procedural macros to make FFI interfacing an
 easier and safer task. With it, you'll be able to get rid of lots of `extern
@@ -210,7 +210,7 @@ pass:[NOTE:] A major limitation of cbindgen is that it does not understand
 Rust's module system or namespacing. This means that if cbindgen sees that it
 needs the definition for `MyType` and there exists two things in your project
 with the type name `MyType`, it won't know what to do. Currently, cbindgen's
-behaviour is unspecified if this happens. However this may be ok if they have
+behaviour is unspecified if this happens. However, this may be ok if they have
 https://github.com/eqrion/cbindgen/blob/master/docs.md#defines-and-cfgs[different
 cfgs].
 ____
@@ -239,8 +239,8 @@ crate libloading >}}. The only thing I want right now is a plugin system that
 works, and then we can maybe focus on trying to make it available in other
 languages, making it more performant, or whatever.
 
-So let's start comparing `abi_stable` with the my experiments in the previous
-post using raw dynamic linking. I've created the `abi-stable-simple` directory
+So let's start comparing `abi_stable` with my experiments in the previous post
+using raw dynamic linking. I've created the `abi-stable-simple` directory
 https://github.com/marioortizmanero/pdk-experiments[in the pdk-experiments
 repository]. I'll be taking a look at the already implemented
 https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples[examples]
@@ -270,7 +270,7 @@ compatible, but it automatically makes sure that its versions are compatible
 when running the plugin. While it doesn't exactly stick to semantic versioning,
 it's good enough for us.
 
-The version checking for the entire `common` crate is already implemented, i.e.
+The version checking for the entire `common` crate is already implemented, i.e.,
 we can't try to mix different versions that aren't compatible. We could still
 add a version string for each kind of plugin if more fine-grained control is
 needed, as described in the previous post.
@@ -364,7 +364,7 @@ impl RootModule for MinMod_Ref {
 When loading directories, it makes the following decisions by default (though we
 could change them if we wanted to):
 
-* It does so non-recursively, i.e. only checking the immediate files in the
+* It does so non-recursively, i.e., only checking the immediate files in the
   given directory.
 * The name of the library must be the `RootModule::BASE_NAME` in lowercase,
   according to the https://doc.rust-lang.org/std/env/consts/index.html[Operating
@@ -612,7 +612,7 @@ The error message is way too long to show here, but it basically shows the
 entire layout tree of the types that don't match for each of its versions
 (runtime vs plugin). For this example, I changed the `State` trait to use a
 boolean instead of an integer counter, and the message describes it perfectly:
-their sizes, alignments and types differ in the trait's methods.
+their sizes, alignments, and types differ in the trait's methods.
 
 === Panicking
 
@@ -657,7 +657,7 @@ to me at the beginning.
 
 For example, the following snippet will panic after creating the vector. If
 panics were configured to abort, the contents of the vector wouldn't be freed at
-all; the program would just end abruptly and the cleaning up would be left to
+all; the program would just end abruptly, and the cleaning up would be left to
 the Operating System. But if it _unwinds_, Rust will call ``Vec``'s destructor,
 freeing its allocated memory properly, making it possible to continue the
 execution of the program.
@@ -756,7 +756,7 @@ at the beginning of the function, which contains its filename and line of code.
 If something panics and unwraps, ``AbortBomb``'s destructor will be called,
 which aborts the program. Otherwise, `mem::forget` is called for the `AbortBomb`
 at the end of the function, which will avoid calling its destructor and the
-function will be able to end end successfully.
+function will be able to end successfully.
 
 Note that even though `mem::forget` is called, no memory is actually being
 leaked, because the filename is a `'static str` -- which lives for the entirety
@@ -772,7 +772,7 @@ use that instead for the remainder of the program. But since our plugin system
 doesn't support unloading, we'd be leaking memory, and if the plugin keeps
 panicking it'd eventually crash.
 
-Recovering from a plugin panicking is definitely viable and it might be an
+Recovering from a plugin panicking is definitely viable, and it might be an
 interesting feature for the future. Unfortunately, it's a lot of work to make
 sure it works properly, and it's not really an objective for the first
 implementation, so for now I'll just use ``abi_stable``'s solution.
@@ -821,7 +821,7 @@ fn plugin_stuff() -> MayPanic<Whatever> {
 }
 ----
 
-Ideally, `MayPanic` could be accompanied with a `\#[may_panic]` procedural macro
+Ideally, `MayPanic` could be accompanied by a `\#[may_panic]` procedural macro
 that adds this boilerplate automatically to the function it's attached to.
 Additionally, it could come with a `#[may_not_panic]` variant that attaches the
 `\#[no_panic]` macro from the {{< crate no-panic >}} crate to make sure the
@@ -839,7 +839,7 @@ plugin system anyway.
 == Type conversions
 
 It's important to know the complexity of conversions from and to `abi_stable`
-types. If `std::Vec` -> `abi_stable::RVec` wasn stem:[O(n)] it might be worth
+types. If `std::Vec` -> `abi_stable::RVec` wasn't stem:[O(n)] it might be worth
 avoiding it altogether.
 
 This means that I should spend at least a bit of my time on understanding how
@@ -905,7 +905,7 @@ impl<T> From<Vec<T>> for RVec<T> {
 
 The only "`weird`" part is the usage of `std::mem::ManuallyDrop`, which is
 simply a wrapper that indicates Rust to not call the destructor of its contents
-automatically. In this case it's basically a less error prone
+automatically. In this case it's basically a less error-prone
 `std::mem::forget`, as
 https://doc.rust-lang.org/stable/std/mem/fn.forget.html#relationship-with-manuallydrop[its
 docs explain]. Thanks to it, the memory from the `Vec` won't be dropped when
@@ -948,7 +948,7 @@ should expect once our PDK is polished and ready for deployment:
   https://en.wikipedia.org/wiki/Position-independent_code[resolved address] of
   the symbol in a table the first time, and then it's just a couple more
   instructions to access it. Also, obviously, the fact that the compiler can't
-  optimize parts of the code (e.g. inline function calls).
+  optimize parts of the code (e.g., inline function calls).
 
 These are the results of the benchmarks I wrote, on my not-so-fast laptop:
 
