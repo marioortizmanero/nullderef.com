@@ -116,7 +116,7 @@ This will achieve a considerably reduced core size for Tremor, meaning that the 
 </h2>
 </header>
 <section class=entry-content>
-<p>Optional or default parameters are a very interesting feature of some languages that Rust specifically doesn’t cover (and looks like it won’t anytime soon ). Say your library has lots of endpoints like so:
+<p>Optional or default parameters are a very interesting feature of some languages that Rust specifically doesn’t cover (and looks like it won’t anytime soon). Say your library has lots of endpoints like so:
 fn endpoint&lt;T1, T2, T3, ...>(mandatory: T1, opt1: Option&lt;T2>, opt2: Option&lt;T3>, ...); In this case, when you call endpoint, you have to use endpoint(mandatory, None, None, ...), or endpoint(mandatory, Some(val1), Some(val2), ...), instead of the more intuitive endpoint(mandatory) or endpoint(mandatory, val1, val2)....</p>
 </section>
 <footer class=entry-footer><span title="2020-10-10 00:00:00 +0000 UTC">October 10, 2020</span>&nbsp;·&nbsp;11 min&nbsp;·&nbsp;Mario Ortiz Manero</footer>

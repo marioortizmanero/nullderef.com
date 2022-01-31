@@ -308,17 +308,17 @@ reminder! If you have any suggestions please leave them in the section below :)<
       <guid>https://nullderef.com/blog/rust-parameters/</guid>
       <description>Analyzing different approaches for optional parameters in Rust</description>
       <content:encoded><![CDATA[<p>Optional or default parameters are a very interesting feature of some languages
-that Rust specifically doesn&rsquo;t cover (and looks like it won&rsquo;t <a href="https://github.com/rust-lang/rfcs/pull/2964">anytime soon
-</a>). Say your library has lots of
-endpoints like so:</p>
+that Rust specifically doesn&rsquo;t cover (and looks like it won&rsquo;t <a href="https://github.com/rust-lang/rfcs/pull/2964">anytime
+soon</a>). Say your library has lots
+of endpoints like so:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">endpoint</span><span style="color:#f92672">&lt;</span>T1, T2, T3, <span style="color:#f92672">..</span>.<span style="color:#f92672">&gt;</span>(mandatory: <span style="color:#a6e22e">T1</span>, opt1: Option<span style="color:#f92672">&lt;</span>T2<span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span>T3<span style="color:#f92672">&gt;</span>, <span style="color:#f92672">..</span>.);
 </code></pre></div><p>In this case, when you call <code>endpoint</code>, you have to use <code>endpoint(mandatory, None, None, ...)</code>, or <code>endpoint(mandatory, Some(val1), Some(val2), ...)</code>,
 instead of the more intuitive <code>endpoint(mandatory)</code> or <code>endpoint(mandatory, val1, val2)</code>. Other languages like Python have named arguments, which make
 optional parameters natural and easier to read: <code>endpoint(mandatory, opt1=val1, opt2=val2)</code>, while also allowing them to be written in any order.</p>
-<p>Even without official support, there are are lots of different ways to approach
-them in Rust, which is what this blog post tries to analyze. My goal is not to
-show which one is the &ldquo;best&rdquo; option, but to exhaustively showcase the different
-ways they can be approached, and the ups and downs of each of them.</p>
+<p>Even without official support, there are lots of different ways to approach them
+in Rust, which is what this blog post tries to analyze. My goal is not to show
+which one is the &ldquo;best&rdquo; option, but to exhaustively showcase the different ways
+they can be approached, and the ups and downs of each of them.</p>
 <h2 id="introducing-an-example">Introducing an example</h2>
 <p>Let&rsquo;s start with a typical web API wrapper library. These often require a client
 struct to hold authentication fields and such:</p>
@@ -446,8 +446,8 @@ parameters as a group makes sense.</li>
 endpoint.</li>
 </ul>
 <h2 id="d-with-the-builder-pattern">D) With the builder pattern</h2>
-<p>The previous approach can be improved by using the <a href="https://doc.rust-lang.org/1.0.0/style/ownership/builders.html">builder pattern
-</a> for the
+<p>The previous approach can be improved by using the <a href="https://doc.rust-lang.org/1.0.0/style/ownership/builders.html">builder
+pattern</a> for the
 parameters, so that building the parameters is simpler and more pretty to look
 at:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> call1 <span style="color:#f92672">=</span> params::ApproachDBuilder::default()
@@ -461,9 +461,9 @@ api.approach_d(<span style="color:#f92672">&amp;</span>call1)<span style="color:
     .name(<span style="color:#e6db74">&#34;builder&#34;</span>)
     .build()<span style="color:#f92672">?</span>;
 api.approach_d(<span style="color:#f92672">&amp;</span>call2)<span style="color:#f92672">?</span>;
-</code></pre></div><p>In this case, we use the <a href="https://crates.io/crates/derive_builder"><code>derive_builder</code>
-</a> crate to make the implementation less
-repetitive:</p>
+</code></pre></div><p>In this case, we use the
+<a href="https://crates.io/crates/derive_builder"><code>derive_builder</code></a> crate to make the
+implementation less repetitive:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">mod</span> params {
     <span style="color:#75715e">#[derive(Default, Builder)]</span>
     <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachD</span> {
@@ -486,8 +486,8 @@ repetitive:</p>
 <li>It&rsquo;s the most popular pattern in Rust for optional parameters.</li>
 <li>The struct can still be reused in different calls.</li>
 <li>No <code>None</code> or <code>Some</code> at sight.</li>
-<li>Optional parameters are now associated to their name, which makes it easier
-to read.</li>
+<li>Optional parameters are now associated to their name, which makes it easier to
+read.</li>
 </ul>
 <h3 id="downsides-3">Downsides</h3>
 <ul>
@@ -534,12 +534,12 @@ ApproachEBuilder::default()
     }
 }
 </code></pre></div><p>Note: this is assuming the client contains necessary information to make the
-requests, like a <a href="https://docs.rs/reqwest/latest/reqwest/struct.Client.html"><code>reqwest::Client</code>
-</a> or authentication
-details. But for example, <code>ureq</code> can perform calls without a client instance,
-just by calling <a href="https://docs.rs/ureq/latest/ureq/fn.get.html"><code>ureq::get</code> and similars
-</a>. In that case, the API could
-just not have a client at all, and the <code>call</code> method wouldn&rsquo;t require a
+requests, like a
+<a href="https://docs.rs/reqwest/latest/reqwest/struct.Client.html"><code>reqwest::Client</code></a>
+or authentication details. But for example, <code>ureq</code> can perform calls without a
+client instance, just by calling <a href="https://docs.rs/ureq/latest/ureq/fn.get.html"><code>ureq::get</code> and
+similars</a>. In that case, the API
+could just not have a client at all, and the <code>call</code> method wouldn&rsquo;t require a
 reference to the client.</p>
 <h3 id="upsides-4">Upsides</h3>
 <ul>
@@ -603,8 +603,9 @@ of a waste to use this macro. It also forces us to create the wrapper because
 the builder always has to be initialized with <code>Builder::default()</code>. With a
 custom implementation, we could have this new method integrated in the builder
 itself instead, like <code>Builder::new(A, B, C)</code>.</p>
-<p>Thus, it might be better to use other crates like <a href="https://crates.io/crates/typed-builder"><code>typed-builder</code>
-</a>, or just a custom implementation.</p>
+<p>Thus, it might be better to use other crates like
+<a href="https://crates.io/crates/typed-builder"><code>typed-builder</code></a>, or just a custom
+implementation.</p>
 <h3 id="upsides-5">Upsides</h3>
 <ul>
 <li>Although mandatory parameters don&rsquo;t have a parameter name now, it&rsquo;s still
@@ -698,12 +699,12 @@ implement and require compilation-time overhead.</li>
 <p>Rust macros support variadic arguments, which make it possible to create a
 macro with named parameters, like <code>foo!(1, c = 30, b = -2.0)</code>. Ideally, we
 want a macro that generates the macros for us, which does sound crazy. I wanted
-to at least try how existing crates approached this, and only found <a href="https://crates.io/crates/named"><code>named</code>
-</a> and <a href="https://crates.io/crates/duang"><code>duang</code></a>,
-which haven&rsquo;t been updated in years, and probably for good. I tried <code>duang</code>
-with Rust 1.47 but got some unexpected errors, so we can assume there are no
-crates that support this yet. It definitely sounds like a fun challenge, if
-it&rsquo;s still possible to implement.</p>
+to at least try how existing crates approached this, and only found
+<a href="https://crates.io/crates/named"><code>named</code></a> and
+<a href="https://crates.io/crates/duang"><code>duang</code></a>, which haven&rsquo;t been updated in years,
+and probably for good. I tried <code>duang</code> with Rust 1.47 but got some unexpected
+errors, so we can assume there are no crates that support this yet. It
+definitely sounds like a fun challenge, if it&rsquo;s still possible to implement.</p>
 <h2 id="conclusion">Conclusion</h2>
 <p>Whew! That took more than I expected. Some of these endpoints might be
 unnecessarily complicated or straight up weird, but I hope this was as a good
@@ -711,11 +712,11 @@ showcase of the different ways optional parameters can be approached in Rust,
 and that reading this served as a learning experience. I look forward to seeing
 new crates in the future that help make some of the approaches easier to
 implement.</p>
-<p>The code for the different approaches can be found <a href="https://github.com/marioortizmanero/rust-optional-params">here
-</a>. Bear in mind that
-there are a lot of different ways to implement the approaches, as I explained
-in this post. You can discuss about it at the <a href="https://www.reddit.com/r/rust/comments/j8p6fx/optional_parameters_in_rust">reddit thread
-</a>.</p>
+<p>The code for the different approaches can be found
+<a href="https://github.com/marioortizmanero/rust-optional-params">here</a>. Bear in mind
+that there are a lot of different ways to implement the approaches, as I
+explained in this post. You can discuss about it at the <a href="https://www.reddit.com/r/rust/comments/j8p6fx/optional_parameters_in_rust">reddit
+thread</a>.</p>
 <p>This was one of my first blog posts, so please let me know what you think about
 the writing, the structure and just your overall rating, or if you found any
 errors or things that could be improved about the Rust code.</p>
