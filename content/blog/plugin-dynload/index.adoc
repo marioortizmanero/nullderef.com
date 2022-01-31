@@ -19,9 +19,9 @@ experiments of plugins both with WebAssembly and dynamic loading. After
 discarding Wasm for this specific PDK, I wanted to try to get a more realistic
 example with dynamic loading and work towards the final implementation.
 
-Since the Tremor team suggested to begin by implementing connectors, we'll first
-have to learn more about them. Matthias ran me through their current state in a
-meeting, which I'll try to summarize. We won't need to know much for this
+Since the Tremor team suggested that I began by implementing connectors, we'll
+first have to learn more about them. Matthias ran me through their current state
+in a meeting, which I'll try to summarize. We won't need to know much for this
 specific article, though.
 
 == Learning more about connectors
@@ -48,9 +48,9 @@ Later on:
 First of all, https://www.tremor.rs/[Tremor] is an event processing system for
 unstructured data. One of its many usages may be to:
 
-. Receive logs from different applications in your business
-. Filter, transform, and mix them up following the same structure
-. Send all the now structured logs to your database
+. Receive logs from different applications in your business.
+. Filter, transform, and mix them up following the same structure.
+. Send all the now structured logs to your database.
 
 image::example.png[width=100%]
 
@@ -91,11 +91,11 @@ https://github.com/tremor-rs/tremor-runtime/blob/883f13e29b4c6ec7b6703f2487aac32
 trait], is somewhat stable.
 
 It's important to keep the plugin interface as simple as possible. The
-communication details should be left to the runtime, so that  the plugin can be
+communication details should be left to the runtime, so that the plugin can be
 simplified to just exporting a number of synchronous functions. With this we can
 avoid passing some complex types (`async`, channels, etc) between the runtime
-and plugin, which can be impossible if you have to maintain ABI stability
-({{< crate abi_stable >}} doesn't even support `async`).
+and plugin, which can be impossible if you have to maintain ABI stability ({{<
+crate abi_stable >}} doesn't even support `async`).
 
 Once this lean plugin interface is defined, we can create some kind of wrapper
 in the runtime (a _manager_, in Tremor terms) that handles communication and
@@ -149,9 +149,9 @@ software engineering career, so I took note of it and reflected for a bit:
   rest, breathe, and have fun. Taking a break from programming is a good idea
   from time to time.
 +
-I've personally experienced burnout myself so I know this first hand. You may
+I've personally experienced burnout myself, so I know this first hand. You may
 immerse yourself too much in computers or coding (specially under a pandemic
-that restricts how much you can go out). Finding a hobby outside of that is
+that restricts how much you can go out). Finding a hobby outside that is
 incredibly helpful.
 
 ////
@@ -195,7 +195,7 @@ PDK as much as possible in order to keep my sanity.
 I jumped into the codebase of
 https://github.com/tremor-rs/tremor-runtime[`tremor/tremor-runtime`] and tried
 to figure out how it was structured, also with the help of the team later on.
-First of all: Tremor is loosely based on the actor model. Quoting Wikipedia:
+Tremor is loosely based on the actor model. Quoting Wikipedia:
 
 [quote, 'https://en.wikipedia.org/wiki/Actor_model[Actor model, Wikipedia]']
 ____
@@ -207,7 +207,7 @@ only affect each other indirectly through messaging (removing the need for
 lock-based synchronization). 
 ____
 
-It doesn't use a language (e.g. Erlang) or framework (e.g. {{< crate bastion
+It doesn't use a language (e.g., Erlang) or framework (e.g., {{< crate bastion
 >}}, maybe in the future) that strictly follows the actor model, but it often
 re-implements the same patterns manually. Tremor is currently implemented with
 https://en.wikipedia.org/wiki/Asynchrony_(computer_programming)[asynchronous
@@ -246,7 +246,7 @@ image::registering.png[width = 100%]
 
 Once all the managers are initialized, Tremor currently registers all the
 built-in artifacts in a "`hardcoded`" way with `register_builtin_types`. But
-after the PDK is implemented, this will happen dynamically, i.e. Tremor will
+after the PDK is implemented, this will happen dynamically, i.e., Tremor will
 automatically look for DLL/SO files in its configured directory and try to
 register all the plugins it can find. The user may additionally request a
 specific plugin to be loaded while Tremor is running.
@@ -263,11 +263,11 @@ now try to understand:
 
 image::initializing.png[width = 100%]
 
-Since it's a multi-step process (it's actually more complicated than
-registration + creation), the first part of it already provides the tools to
-initialize the connector (mainly the builder). When the connector needs to start
-running because it's been added to a binding in the pipeline, the builder helps
-to construct it generically with the previously provided configuration details.
+Since it's a multistep process (it's actually more complicated than registration
++ creation), the first part of it already provides the tools to initialize the
+connector (mainly the builder). When the connector needs to start running
+because it's been added to a binding in the pipeline, the builder helps to
+construct it generically with the previously provided configuration details.
 Finally, it's moved into a task of its own, so that it may communicate with
 other parts of Tremor.
 
@@ -498,7 +498,7 @@ Another complicated topic is plugin distribution and management. In order to
 make it easier for the user, plugins should be found and loaded automatically.
 But how exactly should this work? I'll explain a few ideas.
 
-First of all, the plugins can be found automatically by searching one or more
+Firstly, the plugins can be found automatically by searching one or more
 user-configurable directories. For instance, in Tremor's case we could use the
 environment variable
 https://www.tremor.rs/docs/tremor-query/modules#defaults[`TREMOR_PATH`]. Once we
@@ -516,7 +516,7 @@ Once we're traversing a directory, we have to figure out which files are plugins
 and which aren't. The easiest way to do it is with file extensions, but this
 introduces the problem of cross-compatibility. Dynamic libraries usually have a
 different extension name for each Operating System: Windows uses `.dll`, Linux
-and FreeBSD use `.so`, and MacOS uses `.dylib`, as specified by
+and FreeBSD use `.so`, and macOS uses `.dylib`, as specified by
 https://doc.rust-lang.org/std/env/consts/constant.DLL_EXTENSION.html[`std::env::consts::DLL_EXTENSION`].
 It would make sense that our runtime only tried to load plugins with their
 respective extensions.
@@ -628,7 +628,7 @@ Even though lifetimes and generics share the same syntax, in the case of
 lifetimes they are only annotations for the Rust compiler; monomorphization is
 not applied.
 
-If you want to know more about this topic I'd suggest watching
+If you want to know more about this topic, I'd suggest watching
 https://www.youtube.com/watch?v=xcygqF5LVmM[this video by Jon Gjengset].
 
 === `dyn` in plugins?
@@ -859,7 +859,7 @@ Segmentation fault (core dumped)
 === Wrong address
 
 Unfortunately, there's not much we can do about out of bounds pointers. If the
-plugin exports e.g. the name with a null pointer, we'll just get a segmentation
+plugin exports e.g., the name with a null pointer, we'll just get a segmentation
 fault:
 
 .https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongaddress[See the full code here]
@@ -904,7 +904,7 @@ still implementing a working plugin system. More specifically:
 * Versioning requires an exact match between the version of `common` in the
   plugin and the runtime.
 * The plugins are manually loaded given a directory.
-* The runtime looks for plugins in the immediate files of the directory, i.e.
+* The runtime looks for plugins in the immediate files of the directory, i.e.,
   non-recursively.
 * The state is passed as a void pointer, rather than trying to use inheritance.
 
