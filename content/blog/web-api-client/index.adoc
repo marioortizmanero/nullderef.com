@@ -11,11 +11,11 @@ GHissueID: 2
 
 This article describes my journey of basically rewriting the entirety of
 https://github.com/ramsayleung/rspotify[Rspotify]; around 13 months of work (in
-my free time), starting at September of 2020, up until October of 2021. I think
-this has given me enough experience for an article regarding API design on Rust,
-and perhaps those who attempt the same in the future can take some ideas and
-save time. Specially considering how much I've gone in circles and how much time
-I've "`wasted`" implementing things that ended up being discarded.
+my free time), starting at September 2020, up until October 2021. I think this
+has given me enough experience for an article regarding API design on Rust, and
+perhaps those who attempt the same in the future can take some ideas and save
+time. Specially considering how much I've gone in circles and how much time I've
+"`wasted`" implementing things that ended up being discarded.
 
 == The story
 
@@ -25,11 +25,11 @@ rewrite is interesting for other open source maintainers in the same situation
 as me. This all started when I wanted to use a Rust Spotify API wrapper for one
 of my projects at that time, https://vidify.org/[Vidify]. I went to
 https://crates.io/[crates.io] and looked for "Spotify", and all I found was {{<
-crate rspotify >}} (the most popular one at that time), {{< crate aspotify >}} (
-an asynchronous-only alternative), and a bunch of other outdated or incomplete
+crate rspotify >}} (the most popular one at that time), {{< crate aspotify >}}
+(an asynchronous-only alternative), and a bunch of other outdated or incomplete
 libraries.
 
-The author of `aspotify` had made a brand new library from scratch, because as
+The author of `aspotify` had made a brand-new library from scratch, because as
 he commented in its release, "`[rspotify's] API in general I found hard to use
 and confusing`" <<aspotify-release>>. Honestly, depending on the state of the
 original library this is the easiest choice because you don't have to worry
@@ -72,8 +72,8 @@ library because of the following reasons:
 * The fundamentals of the library would remain the same: being the most
   user-friendly feature-full library for the Spotify API.
 * It was considered a necessary evil. In my opinion, the library was doomed
-  without a big rewrite. Otherwise it'd eventually become really hard to maintain and work
-  with. I admit that said breaking changes could've been
+  without a big rewrite. Otherwise, it'd eventually become really hard to
+  maintain and work with. I admit that said breaking changes could've been
   smaller, but I thought that while I'm at it I might as well make it as close
   as possible to a perfect Rust interface.
 
@@ -258,13 +258,13 @@ builder pattern is great, but it might become too verbose or confusing:
 
 * Do we really need it for `Credentials`, which always takes the same two
   parameters?
-* Which authorization method are we using above again? Currently it's possible
+* Which authorization method are we using above again? Currently, it's possible
   to call `seek_track` after having followed an authorization process that
   doesn't give access to it. And since we're mixing all of them under the same
   client it quickly becomes a mess, having many `Option<T>` fields that are only
   `Some` for specific authorization methods. So, what if we have a Spotify
   client for each authorization method?
-* Wouldn't it be nice have some type safety, too? The `unwrap` hurts my eyes.
+* Wouldn't it be nice to have some type safety, too? The `unwrap` hurts my eyes.
 
 After removing the builder pattern and being more explicit about the
 authorization method that's being used, this is more or less what we get:
@@ -505,8 +505,8 @@ details].
 Even though it's basic, I keep forgetting about this: don't get obsessed with
 performance. As you add new features to the crate, it's completely natural that
 some overheads are introduced here and there. And even then, they might not even
-be noticeable. First of all get that new feature working. Then, measure the
-actual effect on performance. And finally, if it's more than you expected, then
+be noticeable. First of all get that new feature working. Then, measure the real
+effect on performance. And finally, if it's more than you expected, then
 actually think about optimizing it.
 
 One correct usage would be our new `cli` feature. We have some utilities for
@@ -520,8 +520,8 @@ this into a separate feature for those interested, which is disabled by default.
 On the topic of configuration, it's important to have sane defaults as well.
 This is highly subjective, but I prefer to do as little as possible under the
 hood _without the user knowing about it_. When initializing a client we used to
-automatically try to read from the environment variables, and if that didn't
-work then we tried to use the default values or we just panicked in the builder:
+automatically try to read from the environment variables. If that didn't work
+then we tried to use the default values or we just panicked in the builder:
 
 [source, rust]
 ----
@@ -533,7 +533,7 @@ let creds = SpotifyClientCredentials::default() // this reads the env variables
 ----
 
 This is a pretty useful feature, but we can't be sure the writer/reader of the
-code knows about it, and it could potentially cause cause unintended behaviour.
+code knows about it, and it could potentially cause unintended behaviour.
 Instead, we can just have a `default` method that does nothing special, which is
 what the user would expect, and also `from_env`, which _explicitly_ tells us
 what it does:
@@ -556,7 +556,7 @@ function <<str-param>> <<gh-iterators>>. The same thing applies to the owned
 type `Vec<T>`; it's probably a better idea to take a `&[T]` instead, or the even
 more fancy `impl IntoIterator<Item = T>`. The last option makes it possible to
 pass iterators to the function without requiring a `collect`, which not only is
-more user friendly, but also avoids a memory allocation. Its only downside is
+more user-friendly, but also avoids a memory allocation. Its only downside is
 that the function signatures become a bit uglier, and all the consequences of
 using generics. Either of these options are fine, really, so it's up to you.
 
@@ -591,8 +591,8 @@ image::/blog/web-api-client/crate_hierarchy.png[align=center]
 
 The most important one here is splitting up the wrapper into the model and the
 clients. The model is generic enough that it can be used by any client, even
-outside of Rspotify. Some users have to implement their own custom clients for
-different reasons, and pulling our model helps avoiding lots of complexity and
+outside Rspotify. Some users have to implement their own custom clients for
+different reasons, and pulling our model helps to avoid lots of complexity and
 maintainance work <<model-separation>>. It can also be shared with other public
 crates, such as `aspotify`, and join forces in keeping the model up to date
 <<gh-aspotify-share>>.
@@ -841,7 +841,7 @@ lines that needed to be maintained, so they count just as much. On the other
 hand, we now have a much more extensive set of tests and new features that add
 up. In total, we have about 33% less lines to be maintained.
 
-The number of dependencies has decreased both by default and with all of the
+The number of dependencies has decreased both by default and with all the
 features enabled. We cleaned up a lot of them and tried to keep the defaults
 leaner <<gh-cleanup>>. Since the new version adds more features such as PKCE, we
 even had to add new dependencies like {{< crate sha2 >}}, but it's still a clear
@@ -921,12 +921,12 @@ I'm specially grateful towards Ramsay, who apart from contributing many of the
 features I listed here, read and reviewed _every single one of my issues and
 pull requests_. I've learned how important it is to have a second opinon, and
 someone else who proofreads everything before you merge dumb stuff into
-`master`. Note that I _did_ proofread my own ideas and pull requests, but
-there's some things that you just don't realize on time, as much as you try to.
-This is a problem that I think is particularly relevant in open source. I
-personally had worked on projects alone most of the times, and the difference is
-huge. I would suggest everyone to try to join forces with at least one more
-person when working in side projects.
+`master`. Note that I _did_ proofread my own ideas and pull requests, but there
+are some things that you just don't realize on time, as much as you try to. This
+is a problem that I think is particularly relevant in open source. I personally
+had worked on projects alone most of the times, and the difference is huge. I
+would suggest everyone to try to join forces with at least one more person when
+working in side projects.
 
 That's all! I hope this post provided insightful information and that you
 learned something from it. Remember that you can leave a comment at the bottom
