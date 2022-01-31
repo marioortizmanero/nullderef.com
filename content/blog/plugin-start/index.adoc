@@ -52,7 +52,7 @@ I particularly liked the three "`rules`" of their workflow:
 * Take good notes
 * Don't worry
 
-My mentors were Matthias, Darach and Heinz. They seemed like very different
+My mentors were Matthias, Darach, and Heinz. They seemed like very different
 kinds of people; something they knew and took advantage of. Decision-taking is
 hard; it requires good communication and an open mind. I also took note of this
 quote (roughly) from them:
@@ -65,7 +65,7 @@ considering.
 ____
 
 Also note that while writing this post I quite literally broke my leg (tibia &
-fibula). The team was very supportive and I took some rest until I went through
+fibula). The team was very supportive, and I took some rest until I went through
 surgery (I'm still recovering). Which is another reason as to why this article
 has taken me longer than usual to release. Thanks a lot to all of them ❤️.
 
@@ -73,11 +73,11 @@ has taken me longer than usual to release. Thanks a lot to all of them ❤️.
 
 In the first reunion I was suggested to meet the other LFX mentee at that
 moment, @aryan9600 on Discord, which seemed like a good idea. I'd seen him a
-couple times and knew he'd been contributing to Tremor even before the
+couple of times and knew he'd been contributing to Tremor even before the
 mentorship.
 
 Aryan turned out to be a very nice colleague! He was very enthusiastic about the
-project and he explained me his progress in detail. In summary, he was starting
+project, and he explained me his progress in detail. In summary, he was starting
 to add gRPC support to Tremor, and wasn't sure how to approach it so that new
 interfaces could be added outside the compilation time. He had multiple ideas on
 how to implement this, but the one that interested me the most was via Wasm or
@@ -95,10 +95,10 @@ need to find more specific requisites by defining the basic interfaces of the
 PDK. Which is very hard at first because you need to know more about the
 internals of Tremor and how it works.
 
-Luckily, Matthias spent the second meeting explaining me how Tremor works, with
-the help of some drawings, taking a look at the code, and running it. He also
-taught me the novel concept of a _connector_, which is just an abstraction over
-both sources and sinks. The thing was that connectors were still Work In
+Luckily, Matthias spent the second meeting explaining to me how Tremor works,
+with the help of some drawings, taking a look at the code, and running it. He
+also taught me the novel concept of a _connector_, which is just an abstraction
+over both sources and sinks. The thing was that connectors were still Work In
 Progress, and Matthias needed to know how the PDK would work to modify the
 `Connector` interface. Mainly how to combine plugins and generics, which is what
 I'll try to figure out in this article.
@@ -131,12 +131,12 @@ articles and forum discussions, but it's a rabbit hole 🐰! A few links I
 recommend checking out:
 
 * https://fasterthanli.me/articles/so-you-want-to-live-reload-rust[So you want
-  to live-reload Rust - fasterthanli.me]
+  to live-reload Rust -- fasterthanli.me]
 * https://adventures.michaelfbryan.com/posts/wasm-as-a-platform-for-abstraction/[WebAssembly
-  as a Platform for Abstraction - adventures.michaelfbryan.com], recommended to
+  as a Platform for Abstraction -- adventures.michaelfbryan.com], recommended to
   me by Aryan
 * https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/[FFI-Safe
-  Polymorphism: Thin Trait Objects - adventures.michaelfbryan.com]
+  Polymorphism: Thin Trait Objects -- adventures.michaelfbryan.com]
 
 Michael F. Bryan has put a lot of effort into teaching how dynamic loading and
 Wasm work in Rust. Thanks a lot to him!
@@ -210,7 +210,7 @@ declare a `static` variable, but the example showcases how `extern` may work as
 well. Since we want to use the C ABI, we'll have to specify `crate-type` as
 `cdylib` in our `Cargo.toml`. Note that `#[no_mangle]` is necessary so that the
 variable's name isn't https://en.wikipedia.org/wiki/Name_mangling[_mangled_] and
-we can access it when when dynamically loading the library.
+we can access it when dynamically loading the library.
 
 .`plugin-sample/src/lib.rs`
 [source, rust]
@@ -231,10 +231,10 @@ made since 2017, leaving {{< crate dlopen >}} as the only alternative. Which was
 updated two years ago as well, but their GitHub repo seemed somewhat active in
 comparison.
 
-For now I'll just use `libloading` for being the most popular crate, and perhaps
-I'll consider using `dlopen` in the future. In terms of relevant features and
-performance they're pretty close anyway <<dynload-comp>>. Here's what the code
-looks like:
+For now, I'll just use `libloading` for being the most popular crate, and
+perhaps I'll consider using `dlopen` in the future. In terms of relevant
+features and performance they're pretty close anyway <<dynload-comp>>. Here's
+what the code looks like:
 
 .`src/main.rs`
 [source, rust]
@@ -272,7 +272,7 @@ Cool! This raises a few questions that I should learn more about:
 
 . Since we're using the C ABI, is it perhaps best to declare the bindings in C?
   The `common` crate I introduced earlier could just be a header.
-. There are many different options to configure `crate-type` as a
+. There are many options to configure `crate-type` as a
   https://doc.rust-lang.org/reference/linkage.html[dynamic library]. What are
   they and which one should I choose?
 . I faintly remember that `rlib` files are Rust-only objects with additional
@@ -315,7 +315,7 @@ dynamic linking with the `crate-type` field] in the crate's `Cargo.toml`:
 * `cdylib`
 
 Once again, this difference has to do with the ABIs in the dynamic library
-<<dylib>>. `cdylib` is meant for linking into C/C++ programs (so it strip away
+<<dylib>>. `cdylib` is meant for linking into C/C++ programs (so it strips away
 all functions that aren't publicly exported), and `dylib` is meant for Rust
 libraries.
 
@@ -341,7 +341,7 @@ ____
 representation (MIR). It can run binaries and test suites of cargo projects and
 detect certain classes of undefined behavior.
 
-#You can use Miri to emulate programs on other targets#, e.g. to ensure that
+#You can use Miri to emulate programs on other targets#, e.g., to ensure that
 byte-level data manipulation works correctly both on little-endian and
 big-endian systems.
 ____
@@ -476,15 +476,6 @@ Running plugin:
 * What about exporting types more complex than an `i32`? Is it possible to
   export a struct that implements a specific trait?
 
-////
-TODO: Include this?
-
-running 3 tests
-test test::dynamic_simple ... bench:     169,073 ns/iter (+/- 63,377)
-test test::wasmer_setup   ... bench:   1,058,268 ns/iter (+/- 498,406)
-test test::wasmtime_setup ... bench:   1,125,107 ns/iter (+/- 390,118)
-////
-
 === WebAssembly targets
 
 Wasmer docs don't mention this much because targets are related to the plugin,
@@ -536,7 +527,7 @@ types like structs or enums:
   Proposal* for WebAssembly]. It defines the binary format for encoding and
   decoding the newly supported types, and specifies a set of instructions to
   transform the data between WebAssembly and the outside world. Note that this
-  proposal is not meant to define a fixed representation of e.g. a string in
+  proposal is not meant to define a fixed representation of e.g., a string in
   Wasm, it attempts to allow representation-agnostic high-level value types.
 +
 --
@@ -577,7 +568,7 @@ itself] for more detailed information; it's very well explained.
 
 The main problem is that this proposal is still at
 https://github.com/WebAssembly/proposals#phase-1---feature-proposal-cg[Phase 1].
-It's still actively being worked on and its specification is far from stable.
+It's still actively being worked on, and its specification is far from stable.
 
 * At the plugin level the {{< crate wasm_bindgen >}} crate seems to be ideal,
   and it already works well. It's a very simple procedural macro that can be
