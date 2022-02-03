@@ -20,6 +20,8 @@ GHissueID: 10
 // TODO: review that both abi_stable and raw are considered
 // TODO: review that both changing from existing codebase and from scratch are
 // considered
+// TODO: mention subtyping post, and how it's separate to not get too technical
+// & because it's not really part of the plugin system's series.
 
 Welcome to one of the last articles of
 https://nullderef.com/series/rust-plugins/[this series]!
