@@ -15,6 +15,7 @@ GHissueID: 10
 :repr-c: pass:quotes[`#[repr\(C)]`]
 :repr-rust: pass:quotes[`#[repr(Rust)]`]
 :work: pass:quotes["`just make it work`"]
+:heinz: https://twitter.com/heinz_gies/:[Heinz]
 
 // TODO: review that both abi_stable and raw are considered
 // TODO: review that both changing from existing codebase and from scratch are
@@ -778,6 +779,194 @@ should be written in a separate crate.
 The problem is that if you aren't starting from scratch, it's very likely that
 you don't have a `common` crate. You'll just have a single binary crate with
 both the runtime and the functionality in `common`.
+
+// TODO: Link this mentioning that it came up while trying the single value
+// approach.
+// TODO: Maybe move to a separate post?
+[[variance]]
+== Annex I: Subtyping and Variance
+
+I tried to make `Value` FFI-compatible twice.
+https://github.com/tremor-rs/tremor-runtime/pull/1287[The first time], I changed
+its types to ``abi_stable``'s and fixed the new trivial errors that appeared.
+However, there were still over 100 of them related to lifetimes, and I had
+absolutely no idea how to even approach them because they made no sense at all:
+
+// TODO picture
+
+https://github.com/marioortizmanero/tremor-runtime/pull/11[In my second
+attempt], I had considerably more experience, and I was much more determined to
+get it working.
+
+[.text-center]
+https://github.com//issues/75
+{{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" "paragraph" >}}
+
+=== Debugging
+
+{heinz} managed to reproduce the issue:
+
+[source, rust]
+----
+use abi_stable::std_types::RCow;
+use std::borrow::Cow;
+
+fn cmp_cow<'a, 'b>(left: &Cow<'a, ()>, right: &Cow<'b, ()>) -> bool {
+    left == right
+}
+
+// This will fail to compile
+fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
+    left == right
+}
+----
+
+With the following error, again:
+
+[source]
+----
+$ cargo b
+   Compiling repro v0.1.0 (/home/mario/Downloads/repro)
+error[E0623]: lifetime mismatch
+  --> src/lib.rs:10:10
+   |
+9  | fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
+   |                            ------------          ------------
+   |                            |
+   |                            these two types are declared with different lifetimes...
+10 |     left == right
+   |          ^^ ...but data from `left` flows into `right` here
+
+For more information about this error, try `rustc --explain E0623`.
+error: could not compile `repro` due to previous error
+----
+
+At first sight, ``RCow``'s implementation of `PartialOrd` was the same as
+`Cow`'s:
+
+.RCow
+[source, rust]
+----
+impl<'a, B> PartialOrd<RCow<'a, B>> for RCow<'a, B>
+where
+    B: PartialOrd + BorrowOwned<'a> + ?Sized,
+{
+    #[inline]
+    fn partial_cmp(&self, other: &RCow<'a, B>) -> Option<Ordering> {
+        PartialOrd::partial_cmp(&**self, &**other)
+    }
+}
+----
+
+.Cow
+[source, rust]
+----
+impl<'a, B: ?Sized> PartialOrd for Cow<'a, B>
+where
+    B: PartialOrd + ToOwned,
+{
+    #[inline]
+    fn partial_cmp(&self, other: &Cow<'a, B>) -> Option<Ordering> {
+        PartialOrd::partial_cmp(&**self, &**other)
+    }
+}
+----
+
+=== Trying to fix it
+
+I first fixed the PartialEq implementation by making it explicit that I want to
+be able to compare new lifetimes:
+
+.Before
+[source, rust]
+----
+impl<'a, B> PartialEq<RCow<'a, B>> for RCow<'a, B>
+where
+    B: PartialEq + BorrowOwned<'a> + ?Sized,
+{
+    #[inline]
+    fn eq(&self, other: &RCow<'a, B>) -> bool {
+        PartialEq::eq(&**self, &**other)
+    }
+}
+----
+
+.After
+[source, rust]
+----
+impl<'a, 'b, B, C> PartialEq<RCow<'b, C>> for RCow<'a, B>
+where
+    B: PartialEq<C> + BorrowOwned<'a> + ?Sized,
+    C: BorrowOwned<'b> + ?Sized,
+{
+    #[inline]
+    fn eq(&self, other: &RCow<'b, C>) -> bool {
+        PartialEq::eq(&**self, &**other)
+    }
+}
+----
+
+Then, I created an equivalent example and tried to compile it:
+
+[source, rust]
+----
+use abi_stable::std_types::RCow;
+use std::borrow::Cow;
+
+fn cmp_cow<'a, 'b>(left: &Cow<'a, ()>, right: &Cow<'b, ()>) -> bool {
+    left.eq(right)
+}
+
+fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
+    left.eq(right)
+}
+----
+
+Thanks to that, it now compiled! Time for `PartialOrd` (I had to do `PartialEq`
+first because `PartialOrd` requires it):
+
+[source, rust]
+----
+----
+
+Possible fixes:
+
+=== Removing the trait that binds the lifetime
+=== GATs?
+=== The scary `transmute`
+
+{heinz}'s idea:
+
+[source, rust]
+----
+struct SCow<'a>(RCow<'a, ()>);
+impl<'a, 'b> PartialEq<SCow<'a>> for SCow<'b> {
+    fn eq(&self, other: &SCow<'a>) -> bool {
+        unsafe {
+            let other0: &RCow<'b, ()> = std::mem::transmute(&other.0);
+            &self.0 == other0
+        }
+    }
+}
+----
+
+This will actually work now:
+
+[source, rust]
+----
+fn cmp_cow<'a, 'b>(left: &Cow<'a, ()>, right: &Cow<'b, ()>) -> bool {
+    left == right
+}
+fn cmp_scow<'a, 'b>(left: &SCow<'a>, right: &SCow<'b>) -> bool {
+    left == right
+}
+----
+
+=== Conclusion
+
+I would honestly say that the fact it took me so long to realize the error is
+Rust's fault. There were no indications in the errors about variance. I
+understand that there were 
 
 == Conclusion
 
