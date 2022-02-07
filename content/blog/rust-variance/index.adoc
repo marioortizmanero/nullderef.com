@@ -32,17 +32,20 @@ well explained in there, so I will refrain from repeating myself. If you want to
 know more details, I would strongly recommend you to check out yourself the
 following sources, as this will only cover part of the topic.
 
-. https://doc.rust-lang.org/nomicon/subtyping.html[Subtyping and Variance -- The
-  Rustonomicon]
-. https://doc.rust-lang.org/reference/subtyping.html[Subtyping and Variance --
-  The Rust Reference]
-. https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)[Covariance
-  and contravariance -- Wikipedia]
+. https://doc.rust-lang.org/nomicon/subtyping.html["`Subtyping and Variance`" --
+  The Rustonomicon]
+. https://doc.rust-lang.org/reference/subtyping.html["`Subtyping and Variance`"
+  -- The Rust Reference]
+. https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)["`Covariance
+  and contravariance`" -- Wikipedia]
 
-// TODO: maybe mention these other sources as well:
-// * https://medium.com/@orbitalK/rust-lifetime-subtype-variance-b58434fe36ed
-// * https://www.youtube.com/watch?v=iVYWDIW71jk
-// * https://lcnr.de/blog/diving-deep-implied-bounds-and-variance/
+There's also a couple blog posts with a more practical approach, like
+https://medium.com/@orbitalK/rust-lifetime-subtype-variance-b58434fe36ed["`Rust
+Lifetime Subtype Variance`" -- Prolific K] or
+https://lcnr.de/blog/diving-deep-implied-bounds-and-variance/["`Diving Deep:
+implied bounds and variance`" -- lcnr.de]. If you're more of a visual learner,
+then https://www.youtube.com/watch?v=iVYWDIW71jk[this video from Jon Gjengset]
+might be best for you.
 
 Furthermore, this article may be unnecessarily verbose if you're _just_ trying
 to learn about subtyping and variance. That's because I also wanted to cover the
