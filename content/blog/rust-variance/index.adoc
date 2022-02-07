@@ -14,7 +14,7 @@ GHissueID: TODO
 :repr-c: pass:quotes[`#[repr\(C)]`]
 :repr-rust: pass:quotes[`#[repr(Rust)]`]
 :work: pass:quotes["`just make it work`"]
-:heinz: https://twitter.com/heinz_gies/:[Heinz]
+:heinz: https://twitter.com/heinz_gies/[Heinz]
 
 // Sources:
 // https://doc.rust-lang.org/nomicon/subtyping.html
@@ -44,37 +44,63 @@ following sources, as this will only cover part of the topic.
 // * https://www.youtube.com/watch?v=iVYWDIW71jk
 // * https://lcnr.de/blog/diving-deep-implied-bounds-and-variance/
 
+Furthermore, this article may be unnecessarily verbose if you're _just_ trying
+to learn about subtyping and variance. That's because I also wanted to cover the
+steps I took to solve the issue. Specifically, I sometimes run into lifetime
+issues that I don't even know how to approach. This is one of these cases, and I
+think I learned quite a few important lessons.
+
+== The problem
+
 As part of my https://nullderef.com/series/rust-plugins/[Plugin System in Rust]
-series, I was making one of Tremor's core types FFI-compatible. Thanks to {{<
-crate abi_stable >}}, it was theoretically as easy as changing the `std` types
-with theirs:
+series, I was making one of Tremor's core types FFI-compatible (a.k.a.
+{repr-c}). I was using the crate {{< crate abi_stable >}}, which includes
+re-implementations of the standard library that are {repr-c} for this exact
+purpose. Thanks to it, the task should be as easy as changing the `std` types in
+my enum with theirs -- theoretically.
 
-.Before
+.Before (simplified)
 [source, rust]
 ----
+pub enum Value {
+    String(String),
+    Array(Vec<Value>),
+    Object(Box<HashMap<String, Value>>),
+    Bytes(Vec<u8>),
+}
 ----
 
-.After
+.After (simplified)
 [source, rust]
 ----
+use abi_stable::std_types::{RString, RVec, RBox, RHashMap};
+
+#[repr(C)]
+pub enum Value {
+    String(RString),
+    Array(RVec<Value>),
+    Object(RBox<RHashMap<RString, Value>>),
+    Bytes(RVec<u8>),
+}
 ----
 
-However, there were still over 100 of them related to lifetimes, and I had
-absolutely no idea how to even approach them because they made no sense at all:
+Naturally, this brought up lots of compilation errors; the `Value` type was used
+a lot in the codebase, and its usage had changed. For whatever reason, some of
+these errors were related to lifetimes, and I didn't really know what was wrong.
+I chose to ignore these until the end and I spent the following hours fixing the
+simplest errors.
 
-// TODO picture
+However, after being done with these, I was left with over 70 errors related to
+lifetimes. I still had absolutely no idea how to even approach them because they
+made no sense at all:
 
-https://github.com/marioortizmanero/tremor-runtime/pull/11[In my second
-attempt], I had considerably more experience, and I was much more determined to
-get it working.
+// TODO picture or code snippet
 
-[.text-center]
-https://github.com//issues/75
-{{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" "paragraph" >}}
+Now, this doesn't necessarily have to happen to you in the same context as mine.
 
-=== Debugging
+== Debugging the issue
 
-{heinz} managed to reproduce the issue:
+{heinz}, my mentor, managed to reproduce the issue:
 
 [source, rust]
 ----
@@ -142,7 +168,7 @@ where
 }
 ----
 
-=== Trying to fix it
+== Trying to fix it
 
 I first fixed the PartialEq implementation by making it explicit that I want to
 be able to compare new lifetimes:
@@ -154,7 +180,6 @@ impl<'a, B> PartialEq<RCow<'a, B>> for RCow<'a, B>
 where
     B: PartialEq + BorrowOwned<'a> + ?Sized,
 {
-    #[inline]
     fn eq(&self, other: &RCow<'a, B>) -> bool {
         PartialEq::eq(&**self, &**other)
     }
@@ -169,7 +194,6 @@ where
     B: PartialEq<C> + BorrowOwned<'a> + ?Sized,
     C: BorrowOwned<'b> + ?Sized,
 {
-    #[inline]
     fn eq(&self, other: &RCow<'b, C>) -> bool {
         PartialEq::eq(&**self, &**other)
     }
@@ -232,8 +256,15 @@ fn cmp_scow<'a, 'b>(left: &SCow<'a>, right: &SCow<'b>) -> bool {
 }
 ----
 
-=== Conclusion
+== The final solution
+
+[.text-center]
+{{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" "paragraph" >}}
+
+== Conclusion
 
 I would honestly say that the fact it took me so long to realize the error is
 Rust's fault. There were no indications in the errors about variance. I
 understand that there were 
+
+Thanks a lot to {heinz} for the TODO help in this issue!
