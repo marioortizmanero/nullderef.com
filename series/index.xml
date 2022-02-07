@@ -13,12 +13,12 @@
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
     <lastBuildDate>Mon, 08 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/series/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Plugin Development Kit in Rust</title>
+      <title>A Plugin System in Rust</title>
       <link>https://nullderef.com/series/rust-plugins/</link>
       <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/series/rust-plugins/</guid>
-      <description>In this series I implement a Plugin System in Rust in hopes of modularizing Tremor and reducing its core size.</description>
+      <description>My [LFX mentorship](https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff) with [Tremor](https://www.tremor.rs/), in which I implement a Plugin System to maximize modularity and reduce Rust&amp;#39;s wild compilation times. This is done with [dynamic loading](https://en.wikipedia.org/wiki/Dynamic_loading), but its alternatives are also covered in detail in the first articles.</description>
       <content:encoded><![CDATA[]]></content:encoded>
     </item>
     

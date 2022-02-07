@@ -3,9 +3,9 @@
 <meta http-equiv=x-ua-compatible content="IE=edge">
 <meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no">
 <meta name=robots content="index, follow">
-<title>Plugin Development Kit in Rust | NullDeref</title>
-<meta name=keywords content="rust,rustlang,dynamic-loading">
-<meta name=description content="In this series I implement a Plugin System in Rust in hopes of modularizing Tremor and reducing its core size.">
+<title>A Plugin System in Rust | NullDeref</title>
+<meta name=keywords content="rust,rustlang,dynamic loading,plugins,plugin system,pdk">
+<meta name=description content="My [LFX mentorship](https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff) with [Tremor](https://www.tremor.rs/), in which I implement a Plugin System to maximize modularity and reduce Rust's wild compilation times. This is done with [dynamic loading](https://en.wikipedia.org/wiki/Dynamic_loading), but its alternatives are also covered in detail in the first articles.">
 <meta name=author content="Mario Ortiz Manero">
 <link rel=canonical href=https://nullderef.com/series/rust-plugins/>
 <link crossorigin=anonymous href=/assets/css/stylesheet.min.39931c950fa9d9da4f95ba8f05e27a044ff3a109416a42ec38ab6a1a74c246fa.css integrity="sha256-OZMclQ+p2dpPlbqPBeJ6BE/zoQlBakLsOKtqGnTCRvo=" rel="preload stylesheet" as=style>
@@ -24,14 +24,14 @@
 </noscript>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-MVVGNX70LX"></script>
 <script>var doNotTrack=!1;if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-MVVGNX70LX',{anonymize_ip:!1})}</script>
-<meta property="og:title" content="Plugin Development Kit in Rust">
-<meta property="og:description" content="In this series I implement a Plugin System in Rust in hopes of modularizing Tremor and reducing its core size.">
+<meta property="og:title" content="A Plugin System in Rust">
+<meta property="og:description" content="My [LFX mentorship](https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff) with [Tremor](https://www.tremor.rs/), in which I implement a Plugin System to maximize modularity and reduce Rust's wild compilation times. This is done with [dynamic loading](https://en.wikipedia.org/wiki/Dynamic_loading), but its alternatives are also covered in detail in the first articles.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nullderef.com/series/rust-plugins/"><meta property="og:image" content="https://nullderef.com/logo-banner.png">
 <meta name=twitter:card content="summary_large_image">
 <meta name=twitter:image content="https://nullderef.com/logo-banner.png">
-<meta name=twitter:title content="Plugin Development Kit in Rust">
-<meta name=twitter:description content="In this series I implement a Plugin System in Rust in hopes of modularizing Tremor and reducing its core size.">
+<meta name=twitter:title content="A Plugin System in Rust">
+<meta name=twitter:description content="My [LFX mentorship](https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff) with [Tremor](https://www.tremor.rs/), in which I implement a Plugin System to maximize modularity and reduce Rust's wild compilation times. This is done with [dynamic loading](https://en.wikipedia.org/wiki/Dynamic_loading), but its alternatives are also covered in detail in the first articles.">
 <meta name=twitter:site content="@null_deref">
 </head>
 <body class=list id=top>
@@ -71,9 +71,9 @@
 </header>
 <main class=main>
 <header class=page-header>
-<h1>Plugin Development Kit in Rust</h1>
+<h1>A Plugin System in Rust</h1>
 <div class=post-description>
-In this series I implement a Plugin System in Rust in hopes of modularizing Tremor and reducing its core size.
+My <a href=https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff>LFX mentorship</a> with <a href=https://www.tremor.rs/>Tremor</a>, in which I implement a Plugin System to maximize modularity and reduce Rust&rsquo;s wild compilation times. This is done with <a href=https://en.wikipedia.org/wiki/Dynamic_loading>dynamic loading</a>, but its alternatives are also covered in detail in the first articles.
 </div>
 </header>
 <article class="post-entry tag-entry">
