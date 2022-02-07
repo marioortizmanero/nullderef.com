@@ -1,5 +1,5 @@
 ---
-title: "Surprised by Subtyping and Variance"
+title: "Surprised by Rust's Subtyping and Variance"
 description: "TODO"
 author: "Mario Ortiz Manero"
 images: ["TODO"]
@@ -20,13 +20,34 @@ GHissueID: TODO
 // https://doc.rust-lang.org/nomicon/subtyping.html
 // https://lcnr.de/blog/diving-deep-implied-bounds-and-variance/
 
-_Subtyping and variance_ is something that works in the background and makes
-your life easier. You don't know about them until, well, they start making your
-life harder instead.
+_Subtyping and variance_ is something that works in the background, making your
+life easier without you even knowing about it. That is, until it starts making
+your life harder instead. It might be a good idea to know its pitfalls in order
+to know when you are running into these unlikely issues.
+
+This topic isn't covered in the https://doc.rust-lang.org/book/[The Rust Book].
+We'll only find it in its more obscure, unsafer brother,
+https://doc.rust-lang.org/nomicon[The Rustonomicon]. It's actually incredibly
+well explained in there, so I will refrain from repeating myself. If you want to
+know more details, I would strongly recommend you to check out yourself the
+following sources, as this will only cover part of the topic.
+
+. https://doc.rust-lang.org/nomicon/subtyping.html[Subtyping and Variance -- The
+  Rustonomicon]
+. https://doc.rust-lang.org/reference/subtyping.html[Subtyping and Variance --
+  The Rust Reference]
+. https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)[Covariance
+  and contravariance -- Wikipedia]
+
+// TODO: maybe mention these other sources as well:
+// * https://medium.com/@orbitalK/rust-lifetime-subtype-variance-b58434fe36ed
+// * https://www.youtube.com/watch?v=iVYWDIW71jk
+// * https://lcnr.de/blog/diving-deep-implied-bounds-and-variance/
 
 As part of my https://nullderef.com/series/rust-plugins/[Plugin System in Rust]
-series, I was making one of my data types FFI-compatible. Thanks to {{< crate
-abi_stable >}}, it should be as easy as changing the `std` types with theirs:
+series, I was making one of Tremor's core types FFI-compatible. Thanks to {{<
+crate abi_stable >}}, it was theoretically as easy as changing the `std` types
+with theirs:
 
 .Before
 [source, rust]
