@@ -229,7 +229,7 @@ pub struct ConnectorMod {
     #[sabi(last_prefix_field)]
     pub from_config: extern "C" fn(
         id: RString,
-        config: ROption<PdkValue<'static>>,
+        config: ROption<PdkValue>,
     ) -> FfiFuture<RResult<BoxedRawConnector>>,
 }
 
@@ -573,8 +573,8 @@ arrays in order to convert its inner values as well:
 
 [source, rust]
 ----
-impl<'value> From<Value<'value>> for PdkValue<'value> {
-    fn from(original: Value<'value>) -> Self {
+impl<'value> From<Value> for PdkValue {
+    fn from(original: Value) -> Self {
         match original {
             // No conversion needed; `StaticNode` implements `StableAbi`
             Value::Static(s) => PdkValue::Static(s),
@@ -598,8 +598,8 @@ impl<'value> From<Value<'value>> for PdkValue<'value> {
 }
 
 // Same as before, but inversely
-impl<'value> From<PdkValue<'value>> for Value<'value> {
-    fn from(original: PdkValue<'value>) -> Self {
+impl<'value> From<PdkValue> for Value {
+    fn from(original: PdkValue) -> Self {
         match original {
             PdkValue::Static(s) => Value::Static(s),
             PdkValue::String(s) => Value::String(s.into()),
