@@ -1,5 +1,5 @@
 ---
-title: "TODO"
+title: "Surprised by Subtyping and Variance"
 description: "TODO"
 author: "Mario Ortiz Manero"
 images: ["TODO"]
@@ -16,7 +16,27 @@ GHissueID: TODO
 :work: pass:quotes["`just make it work`"]
 :heinz: https://twitter.com/heinz_gies/:[Heinz]
 
-== Subtyping and Variance
+// Sources:
+// https://doc.rust-lang.org/nomicon/subtyping.html
+// https://lcnr.de/blog/diving-deep-implied-bounds-and-variance/
+
+Subtyping and variance is something that works in the background and makes your
+life easier. You don't know about them until, well, they start making your life
+harder instead.
+
+As part of my https://nullderef.com/series/rust-plugins/[Plugin System in Rust]
+series, I was making one of my data types FFI-compatible. Thanks to {{< crate
+abi_stable >}}, it should be as easy as changing the `std` types with theirs:
+
+.Before
+[source, rust]
+----
+----
+
+.After
+[source, rust]
+----
+----
 
 I tried to make `Value` FFI-compatible twice.
 https://github.com/tremor-rs/tremor-runtime/pull/1287[The first time], I changed
