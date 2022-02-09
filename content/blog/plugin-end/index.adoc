@@ -57,15 +57,48 @@ flamegraph ../../../../target/release/tremor test bench . > ~/Programming/nullde
 * According to the flamegraph 7% of the execution time was just conversions
   between regular and PDK types (TODO insert screenshot with search)
 
+// TODO: Link to Annex I
 Lastly, I've found it especially rewarding to do all of this in an open source
 environment. Even if you're working for a company with propietary software,
 please try to contribute upstream instead of forking or patching. Try to be nice
 to those who are saving you so much work, and submit a PR or an issue:
 
-// TODO: use github shortcode
-.Most of my contributions while implementing the PDK
+[bibliography]
+== References
+
+- [[[empty,      1]]] http://google.com
+
+== Appendix I: Contributions
+
+// LAST UPDATE: 09-02-2022
+// TODO: use GitHub shortcodes
+
+I've been keeping track of the contributions I made as a reference and out of
+curiosity. Some of them are more important than others, but it's still a decent
+metric for the results of the mentorship, in my opinion. This skips the issues
+or pull requests that:
+
+* Contributed nothing (e.g., asking questions).
+* Were repetitive (e.g., I made a few identical PRs in Tremor when I was fixing
+  problems with Git).
+* Issues or Pull Requests with ideas that were closed and I consider didn't
+  contribute anything.
+
+////
+TODO: Maybe remove typo fixing as well, or list separately?
+* abi_stable#55
+* abi_stable#57
+* libloading#94
+* tremor-www#72
+* dlopen#40
+////
+
+Pull Requests:
+
 * https://github.com/oxalica/async-ffi/pull/10
 * https://github.com/oxalica/async-ffi/pull/11
+* https://github.com/rodrimati1992/abi_stable_crates/pull/55
+* https://github.com/rodrimati1992/abi_stable_crates/pull/57
 * https://github.com/rodrimati1992/abi_stable_crates/pull/58
 * https://github.com/rodrimati1992/abi_stable_crates/pull/59
 * https://github.com/rodrimati1992/abi_stable_crates/pull/61
@@ -77,8 +110,27 @@ to those who are saving you so much work, and submit a PR or an issue:
 * https://github.com/simd-lite/value-trait/pull/14
 * https://github.com/simd-lite/value-trait/pull/16
 * https://github.com/simd-lite/value-trait/pull/18
+* https://github.com/nagisa/rust_libloading/pull/94
+* https://github.com/tremor-rs/tremor-www/pull/72
+* https://github.com/szymonwieloch/rust-dlopen/pull/40
 
-[bibliography]
-== References
+Issues:
 
-- [[[empty,      1]]] http://google.com
+* https://github.com/oxalica/async-ffi/issues/12
+* https://github.com/rodrimati1992/abi_stable_crates/issues/52
+* https://github.com/rodrimati1992/abi_stable_crates/issues/60
+* https://github.com/rust-lang/nomicon/issues/338
+* https://github.com/szymonwieloch/rust-dlopen/issues/42
+* https://github.com/tremor-rs/tremor-runtime/issues/1353
+* https://github.com/tremor-rs/tremor-www/issues/73
+* https://github.com/wasmerio/wasmer/issues/2539
+
+Here are the pull requests or issues in Tremor related to the PDK:
+
+* https://github.com/tremor-rs/tremor-runtime/pull/1434
+* https://github.com/marioortizmanero/tremor-runtime/pull/11
+* https://github.com/tremor-rs/tremor-runtime/pull/1447
+* https://github.com/marioortizmanero/tremor-runtime/pull/2 (second attempt)
+* https://github.com/marioortizmanero/tremor-runtime/pull/1 (second attempt)
+* https://github.com/tremor-rs/tremor-runtime/pull/1303 (second attempt)
+* https://github.com/tremor-rs/tremor-runtime/pull/1287 (first attempt)
