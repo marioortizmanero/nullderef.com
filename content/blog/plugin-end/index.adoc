@@ -72,6 +72,7 @@ to those who are saving you so much work, and submit a PR or an issue:
 
 // LAST UPDATE: 09-02-2022
 // TODO: use GitHub shortcodes
+// TODO: count and add like "Pull Requests (14):"
 
 I've been keeping track of the contributions I made as a reference and out of
 curiosity. Some of them are more important than others, but it's still a decent
