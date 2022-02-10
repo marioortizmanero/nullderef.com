@@ -676,7 +676,7 @@ investment, so it wouldn't really feel like a waste.
 
 == Asynchronous plugins
 
-=== `async_ffi`
+=== `async` functions
 
 I've always wanted to avoid communication primitives between plugins and runtime
 other than plain synchronous calls. But this might be inevitable if your program
@@ -702,13 +702,15 @@ pub extern "C" fn work(arg: u32) -> FfiFuture<u32> {
 }
 ----
 
-The types in {{< crate async_ffi >}} implement `Future`, so calling that
+The types in {{< crate async_ffi >}} implement `Future`, so invoking that
 function is as easy as usual: just adding `.await` after the function call.
 
 It's admittedly a bit ugly to use `async move { }.into_ffi()` everywhere,
 specially because it increases the indentation in one level. But that's
-something that can be fixed with a
-https://github.com/oxalica/async-ffi/issues/12[procedural macro in the future].
+something that can be fixed with a procedural macro in the future:
+
+[.text-center]
+{{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" "paragraph" >}}
 
 The only problem I found was that the futures didn't implement `StableAbi`, so
 it wasn't possible to use them with {{< crate abi_stable >}}. It took me a while
@@ -726,8 +728,8 @@ juggling. I will confirm this in the next post with some benchmarks, though.
 Tremor also needs some channels for asynchronous communication. For example, a
 connector may need to indicate the runtime that the connection has been lost at
 any point of its execution. We can't delay that until the next synchronous call
-because we don't know when that might happen, and we want to keep Tremor
-low-latency.
+from the runtime because we don't know when that might happen, and we want to
+keep Tremor low-latency.
 
 We have a few options here:
 
@@ -738,44 +740,147 @@ We could just switch the usage of `Sender<T>` to
 https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html[`RSender<T>`]
 and that's it.
 
-Problem: Tremor actually used asynchronous channels, such as
+Problem: Tremor actually uses asynchronous channels, such as
 https://docs.rs/async-std/latest/async_std/channel/index.html[`async_std::channel`],
-so it wasn't as easy as changing to `crossbeam`.
+so it wasn't as easy as changing to `crossbeam`. We want to be able to poll for
+events asynchronously.
 
 ==== Callbacks
 
-// TODO: update after making `notify()` a callback
-
-If your use-case is simple enough, callbacks might be enough. I
+If your use-case is simple enough, callbacks might be sufficient. I
 https://github.com/marioortizmanero/pdk-experiments/tree/master/callbacks[experimented
-a bit] with them
+a bit] with them and it's a good alternative if you:
 
-[source, text]
-----
-error[E0308]: mismatched types
-  --> src/lib.rs:22:17
-   |
-22 |           sender: |x| {
-   |  _________________^
-23 | |             i += x;
-24 | |             println!("callback invoked v3! {}", x)
-25 | |         }
-   | |_________^ expected fn pointer, found closure
-   |
-   = note: expected fn pointer `fn(i32)`
-                 found closure `[closure@src/lib.rs:22:17: 25:10]`
-note: closures can only be coerced to `fn` types if they do not capture any variables
-  --> src/lib.rs:23:13
-   |
-23 |             i += x;
-   |             ^ `i` captured here
+* Don't need to listen for events actively (calling `rx.recv()`)
+* Don't need to access much data other than the callback's parameters. Note that
+  it's a function and not a closure, so you'd need globals, and that can get
+  nasty real quick.
 
-For more information about this error, try `rustc --explain E0308`.
+.Simple example with callbacks
+[source, rust]
 ----
+// This type is shared by the plugin and the runtime
+#[repr(C)]
+struct ConnectorContext {
+    id: i32,
+    callback: extern "C" fn(i32),
+}
+
+// This is the plugin. It only invokes the callback with its own ID.
+extern "C" fn plugin_fn(ctx: &ConnectorContext) {
+    (ctx.callback)(ctx.id);
+}
+
+// This is the runtime. It will run a few plugins concurrently.
+pub fn run() {
+    // You still have access to some resources in the runtime, but don't
+    // abuse it.
+    static COUNT: AtomicI32 = AtomicI32::new(0);
+    extern "C" fn callback(x: i32) {
+        println!("raw callback invoked! {x:?}");
+        COUNT.fetch_add(1, Ordering::Relaxed);
+    }
+
+    let mut handles = Vec::new();
+    for id in 0..NUM_THREADS {
+        handles.push(thread::spawn(move || {
+            let ctx = ConnectorContext { id, callback };
+            plugin_fn(&ctx);
+        }))
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    println!("Final count: {}", COUNT.load(Ordering::Relaxed));
+}
+----
+
+You can even wrap the function pointer up so that the usage can remain as
+`sender.send(value)`:
+
+[source, rust]
+----
+pub struct Sender<T> {
+    callback: extern "C" fn(T),
+}
+
+impl<T> Sender<T> {
+    pub fn new(callback: extern "C" fn(T)) -> Self {
+        Self { callback }
+    }
+
+    pub fn send(&self, t: T) {
+        (self.callback)(t);
+    }
+}
+----
+
+However, the use-cases for this are very limited. If you don't really need to
+access anything in the runtime you might as well just have a regular function in
+the shared crate. And if you need more complex functionality you might be better
+off with a regular channel.
 
 ==== Opaque types
 
-// TODO
+We can resort to opaque types for anything we can't remove or simplify. This is
+what I did in order to have asynchronous channels available on the plugins.
+Using `abi_stable` it's quite easy:
+
+.In the shared crate, the interface
+[source, rust]
+----
+#[abi_stable::sabi_trait]
+pub trait SenderOpaque: Send {
+    /// Send a message to the runtime
+    fn send(&self, reply: Reply) -> async_ffi::BorrowingFfiFuture<'_, RResult<()>>;
+}
+
+/// Alias for the FFI-safe sender, boxed
+pub type BoxedSender = SenderOpaque_TO<'static, RBox<()>>;
+----
+
+.In the runtime, the plugin loading
+[source, rust]
+----
+impl SenderOpaque for async_std::channel::Sender<Reply> {
+    fn send(&self, reply: Reply) -> BorrowingFfiFuture<'_, RResult<()>> {
+        async move {
+            self.send(reply)
+                .await
+                .map_err(|e| RError::new(Error::from(e)))
+                .into()
+        }
+        .into_ffi()
+    }
+}
+
+fn runtime() {
+    // Non FFI-safe type
+    let (tx, rx) = async_std::channel::unbounded();
+
+    // Maybe multiple times in different asynchronous tasks
+    let reply_tx = BoxedSender::from_value(tx, TD_Opaque);
+    library.plugin(reply_tx);
+
+    // Waiting for events
+    while let Ok(reply) = rx.recv().await {
+        println!("Got a reply from a plugin: {reply:?}");
+    }
+}
+----
+
+.In the plugin, the functionality implementation
+[source, rust]
+----
+pub extern "C" fn plugin(sender: BoxedSender) {
+    // Asynchronous communication!
+    task::spawn(async move {
+        sender.send(Reply::Fail).await.unwrap()
+    })
+}
+----
 
 == Separating runtime and interface
 
