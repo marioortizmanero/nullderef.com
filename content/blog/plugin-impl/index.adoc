@@ -20,8 +20,6 @@ GHissueID: 10
 // TODO: review that both abi_stable and raw are considered
 // TODO: review that both changing from existing codebase and from scratch are
 // considered
-// TODO: mention subtyping post, and how it's separate to not get too technical
-// & because it's not really part of the plugin system's series.
 // TODO: clean up references
 
 Welcome to one of the last articles of
@@ -38,8 +36,8 @@ concepts should be roughly the same for any dynamic loading method.
 Before anything else, I'd like to give out some suggestions regarding
 refactoring with Rust, based on my experience. You'll be introducing a good
 amount of changes, so it would be wise to do some brief planning beforehand --
-otherwise it'll take forever with a complex enough codebase. Maybe all of this
-will be obvious to you, or you may prefer taking a different approach. But it
+otherwise it'll take forever with a complex enough codebase. Maybe this will all
+be obvious to you, or you may prefer taking a different approach. But it
 certainly worked for me, so it's worth a shot. I'm personally very satisfied
 about how much I've learned about the process.
 
@@ -100,7 +98,7 @@ least try to minimize it.
 
 ==== Disable the annoying warnings
 
-The first thing I did was remove a few warnings the compiler will print when
+The first thing I did was remove some warnings the compiler will print when
 you're prototyping. By default, a Rust program still compiles with warnings, but
 in my experience, they're always in the way when trying to deal with actual
 errors. For example, I don't care that an import is unused at all. I'll fix it
@@ -124,10 +122,10 @@ PDK prototype. This screenshot made my day, as simple as it may seem:
 
 image::compilation.png[width=80%, align=center]
 
-Afterwards, I removed these `allow` statements and ran `cargo fix && cargo fmt`.
-Both cargo commands are built-in, and will automatically take care of the
-trivial warnings, such as unused imports, saving _lots_ of time doing cumbersome
-work.
+Afterwards, I removed these `allow` statements, ran `cargo fix && cargo fmt`,
+and cleaned up a bit. `cargo fix` is built-in, and will automatically take care
+of the trivial warnings, such as unused imports, saving _lots_ of time doing
+cumbersome work.
 
 ==== Don't touch previous `use` statements
 
@@ -140,15 +138,10 @@ Say, you have a number of `use` statements at the top of your file. After adding
 some changes related to the PDK, you now need to import `PdkValue` as well.
 You'd usually do:
 
-.Before
-[source, rust]
+[source, diff]
 ----
-use tremor_value::{Value, ValueTrait};
-----
-.After
-[source, rust]
-----
-use tremor_value::{Value, ValueTrait, PdkValue};
+-use tremor_value::{Value, ValueTrait};
++use tremor_value::{Value, ValueTrait, PdkValue};
 ----
 
 The problem is that if the parent branch later adds or removes one of the items
@@ -157,44 +150,36 @@ handle Rust import statements (although that'd be pretty cool). Multiply this by
 100 statements, and you might eventually go crazy. You can keep your sanity by
 adding the new item in a separate block of ``use``s instead:
 
-[source, rust]
+[source, diff]
 ----
-use tremor_value::{Value, ValueTrait};
-
-use tremor_value::PdkValue; // <--
+-use tremor_value::{Value, ValueTrait};
++
++use tremor_value::PdkValue;
 ----
 
 Same thing may happen if `tremor_value` wasn't imported and you have to add a
 new line to the already existing `use` block:
 
-.Before
-[source, rust]
+[source, diff]
 ----
-use more_stuff::{X, Y, Z};
-use other_stuff::{A, B, C};
-----
-
-.After
-[source, rust]
-----
-use more_stuff::{X, Y, Z};
-use tremor_value::PdkValue; // <--
-use other_stuff::{A, B, C};
+ use more_stuff::{X, Y, Z};
++use tremor_value::PdkValue;
+ use other_stuff::{A, B, C};
 ----
 
 In my experience, Git also trips up with this sometimes. You can follow the same
 advice:
 
-[source, rust]
+[source, diff]
 ----
-use more_stuff::{X, Y, Z};
-use other_stuff::{A, B, C};
-
-use tremor_value::PdkValue; // <--
+ use more_stuff::{X, Y, Z};
+ use other_stuff::{A, B, C};
++
++use tremor_value::PdkValue;
 ----
 
-In summary, you can just add a new block after all the previous ``use``s and add
-your stuff in there. You can clean it up at the end or in a different pull
+In summary, you can just create a new block after all the previous ``use``s and
+add your stuff in there. You can clean it up at the end or in a different pull
 request.
 
 This is harder to do if you're _removing_ `use` statements. But if you also
@@ -235,7 +220,7 @@ pub struct ConnectorMod {
     #[sabi(last_prefix_field)]
     pub from_config: extern "C" fn(
         id: RString,
-        config: ROption<PdkValue>,
+        config: ROption<Value>,
     ) -> FfiFuture<RResult<BoxedRawConnector>>,
 }
 
@@ -264,8 +249,8 @@ to construct the connector with the `from_config` function. I used
 ``abi_stable::sabi_trait``'s macro functionality, making `dyn` usage possible
 within FFI.
 
-For reference, when I first wrote `ConnectorMod`, `PdkValue` wasn't even
-{repr-c}. I had also added the `#[sabi_trait]` call to the `RawConnector` trait
+For reference, when I first wrote `ConnectorMod`, `Value` wasn't even {repr-c}.
+I had also added the `#[sabi_trait]` attribute to the `RawConnector` trait
 declaration, but the types used there weren't {repr-c} either. So I had tons of
 errors everywhere, but that was OK. I would be working on them step by step
 until it compiled again.
@@ -358,11 +343,11 @@ pub enum StaticNode {
 }
 ----
 
-`abi_stable` should be optional so that this change is applied only to those
-that actually need {repr-c} in the library. You could also go a step further and
-differentiate between enabling {repr-c} and deriving `StableAbi` for those that
-don't need the latter. Since it's an external library, we'll have to make a Pull
-Request and hope that the author is okay with the changes:
+Since it's an external library, we'll have to make a Pull Request and hope that
+the author is okay with the changes. `abi_stable` should be optional so that
+this change is applied only to those that actually need {repr-c} in the library.
+You could also go a step further and differentiate between enabling {repr-c} and
+deriving `StableAbi` for those that don't need the latter.
 
 [.text-center]
 {{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" "paragraph" >}}
@@ -417,14 +402,15 @@ impl Value {
 * If the return type is changed to `RHashMap`, almost every caller to
   `as_object` in the program will now fail to compile because they expect a
   `HashMap`. You'll have to clean it up one by one and figure out how `RHashMap`
-  can be used in that case instead. This is very messy because in order to avoid
-  conversions, your plugin system will _infect_ the entire codebase.
+  can be used in that case instead.
 +
-You may quickly find yourself propagating the usage of `RHashMap` everywhere,
-even when the PDK isn't that important. For example, `Value` was also used in
-Trickle's implementation, the scripting language used to configure Tremor's
-pipelines. Having to use `RHashMap` in there was a bit confusing, and I was
-modifying lots of files unrelated to the plugin system.
+This can be messy because in order to avoid conversions, your plugin system will
+_infect_ the entire codebase. You may quickly find yourself propagating the
+usage of `RHashMap` everywhere, even when the PDK isn't that important. For
+example, `Value` was also used in Trickle's implementation, the scripting
+language used to configure Tremor's pipelines. Having to use `RHashMap` in there
+was a bit confusing, and I was modifying lots of files unrelated to the plugin
+system.
 * If you perform an internal conversion to `HashMap` in `as_object` we'll avoid
   all of these errors, at the cost of adding a small overhead. It's by far the
   easiest choice, but if `Value::as_object` is frequently used in, e.g., your
@@ -499,15 +485,15 @@ As always, we'll try to follow the {work} advice in here. It's a perfectly valid
 solution to just comment out the optimizations and add a `// TODO` above so that
 they can be reviewed later. You might be asking for too much complexity in your
 plugin system; limiting yourself to the functionality in `std` may be more than
-enough for now. You'll see in the following sections that it's always possible
-to fix this properly. It just might be too much effort at the moment.
+enough for now. You'll now see that it's always possible to fix this properly.
+It just might be too much effort at the moment.
 
 In ``Value``'s specific case, it seems like removing the optimizations that are
 giving us trouble is the easiest way to fix this problem. And it would, if
 removing code wasn't also tricky when the optimizations aren't performed
-internally and transparently to the hash map functionality. After trying to
-remove them I eventually gave up because I considered it was getting out of
-hands with so many changes:
+transparently to the hash map functionality. After trying to remove them I
+eventually gave up because I considered it was getting out of hands with so many
+changes:
 
 .You're looking at *120* errors after attempting to remove the optimizations, most of them about lifetime hell. More about this at the end of the article.
 image::errors.png[width=100%, align=center]
@@ -526,7 +512,8 @@ existing examples], implementing wrappers can be quite a cumbersome task. And
 even after you're done you'll have to keep them up to date, so this will
 increase your maintainance burden. {{< crate halfbrown >}} and {{< crate beef
 >}} are somewhat complex libraries, so I decided this wasn't the best choice at
-that moment.
+that moment for `Value`. I did use this approach a lot in other cases, so I've
+included an example in a <<opaque,later section>>.
 
 === Re-implement with {repr-c} from scratch
 
@@ -668,7 +655,7 @@ following {work} so we'll leave that for the future.
   enough for production.
 
 For the first version of the plugin system, this is the solution that I ended up
-using. Most of the time I spent on development was just trying the different
+using for `Value`. Most of the time I spent was just trying the different
 available approaches, and this one won in simplicity by a huge margin. After
 being done, I would be able to decide if the performance hit was bad enough, and
 then maybe switch to a different one. Creating `PdkValue` wasn't a big time
@@ -743,7 +730,7 @@ and that's it.
 Problem: Tremor actually uses asynchronous channels, such as
 https://docs.rs/async-std/latest/async_std/channel/index.html[`async_std::channel`],
 so it wasn't as easy as changing to `crossbeam`. We want to be able to poll for
-events asynchronously.
+events without blocking the thread.
 
 ==== Callbacks
 
@@ -756,25 +743,23 @@ a bit] with them and it's a good alternative if you:
   it's a function and not a closure, so you'd need globals, and that can get
   nasty real quick.
 
-.Simple example with callbacks
+.In the shared crate, the type definition
 [source, rust]
 ----
-// This type is shared by the plugin and the runtime
 #[repr(C)]
-struct ConnectorContext {
+pub struct ConnectorContext {
     id: i32,
     callback: extern "C" fn(i32),
 }
+----
 
-// This is the plugin. It only invokes the callback with its own ID.
-extern "C" fn plugin_fn(ctx: &ConnectorContext) {
-    (ctx.callback)(ctx.id);
-}
-
-// This is the runtime. It will run a few plugins concurrently.
+.In the runtime, the callback definition and the plugin loading
+[source, rust]
+----
+// This will run a few plugins concurrently.
 pub fn run() {
     // You still have access to some resources in the runtime, but don't
-    // abuse it.
+    // abuse it!
     static COUNT: AtomicI32 = AtomicI32::new(0);
     extern "C" fn callback(x: i32) {
         println!("raw callback invoked! {x:?}");
@@ -794,6 +779,15 @@ pub fn run() {
     }
 
     println!("Final count: {}", COUNT.load(Ordering::Relaxed));
+}
+----
+
+.In the plugin, the functionality implementation
+[source, rust]
+----
+// This only invokes the callback with its own ID.
+pub extern "C" fn plugin_fn(ctx: &ConnectorContext) {
+    (ctx.callback)(ctx.id);
 }
 ----
 
@@ -822,6 +816,7 @@ access anything in the runtime you might as well just have a regular function in
 the shared crate. And if you need more complex functionality you might be better
 off with a regular channel.
 
+[[opaque]]
 ==== Opaque types
 
 We can resort to opaque types for anything we can't remove or simplify. This is
@@ -834,7 +829,7 @@ Using `abi_stable` it's quite easy:
 #[abi_stable::sabi_trait]
 pub trait SenderOpaque: Send {
     /// Send a message to the runtime
-    fn send(&self, reply: Reply) -> async_ffi::BorrowingFfiFuture<'_, RResult<()>>;
+    fn send(&self, reply: Reply) -> BorrowingFfiFuture<'_, RResult<()>>;
 }
 
 /// Alias for the FFI-safe sender, boxed
@@ -882,6 +877,57 @@ pub extern "C" fn plugin(sender: BoxedSender) {
 }
 ----
 
+== Loading plugins
+
+Loading plugins in the runtime was actually the easiest part. `abi_stable` takes
+care of most of the work; the only thing that was missing for me is a way to
+_find_ the plugins. This greatly depends on your program: you may hardcode the
+location, have them passed as CLI arguments, etc.
+
+In the case of Tremor, we wanted to make it possible to configure the
+directories where the plugins may be saved. Thus, I introduced a new environment
+variable `TREMOR_PLUGIN_PATH`. It's equivalent to `PATH` in the sense that the
+directories are separated by colons.
+
+Once the runtime has a list of what directories may contain plugins, it can look
+for them recursively with the crate {{< crate walkdir >}}. It's highly
+customizable and incredibly easy to use:
+
+[source, rust]
+----
+/// Recursively finds all the connector plugins in a directory. It doesn't
+/// follow symlinks, and has a sensible maximum depth so that it doesn't get
+/// stuck.
+pub fn find_recursively(base_dir: &str) -> Vec<ConnectorMod_Ref> {
+    WalkDir::new(base_dir)
+        // No symlinks are followed for now
+        .follow_links(false)
+        // Adding some safe limits
+        .max_depth(1000)
+        .into_iter()
+        // Ignoring permission errors
+        .filter_map(Result::ok)
+        // Only try to load those that look like plugins on the current platform
+        .filter(|file| {
+            file.path()
+                .extension()
+                .map(|ext| ext == env::consts::DLL_EXTENSION)
+                .unwrap_or(false)
+        })
+        // Try to load the plugins and if successful, add them to the result.
+        // Not being able to load a plugin shouldn't be fatal because it's very
+        // likely in some situations. Errors will just be printed to the logs.
+        .filter_map(|file| match ConnectorMod_Ref::load_from_file(file.path()) {
+            Ok(plugin) => Some(plugin),
+            Err(e) => {
+                log::debug!("Failed to load plugin in '{:?}': {}", file.path(), e);
+                None
+            }
+        })
+        .collect()
+}
+----
+
 == Separating runtime and interface
 
 So far I've been assuming the following structure for the plugin system:
@@ -916,8 +962,8 @@ should be written in a separate crate.
 
 The problem is that if you aren't starting from scratch, it's very likely that
 you won't have a `common` crate. You'll just have a single binary crate with
-both the runtime and the functionality in `common`. This is exactly what
-happened to me with Tremor as well.
+both `runtime` and `common`. This is exactly what happened to me with Tremor as
+well.
 
 For now, I just have the runtime and the interface in the same crate. External
 plugins then have the entire runtime as a dependency. Which, as I said, is
@@ -930,10 +976,10 @@ image::separation-temporary.png[align=center, width=30%]
 
 == Getting closer to deployment
 
-Preparing the release for the plugin system has always been a quite complicated
-task. I've never wanted to introduce too many changes at once because otherwise
-it will become very hard to review and publish. This is why I decided to make
-some step-by-step plans for the PDK release:
+Preparing the release for the plugin system has always sounded like a quite
+complicated task. I've never wanted to introduce too many changes at once
+because otherwise it will become very hard to review and publish. This is why I
+decided to make some step-by-step plans for the PDK release:
 
 . *Release the first version of the PDK*
 . *Separate the runtime from the interface*
@@ -946,6 +992,18 @@ system. It still needs some polishing, but it works! The next and hopefully last
 article will cover the final cleaning up, testing and benchmarking required to
 make it ready for deployment, hopefully in v0.12 :)
 
+I will also work on properly making `Value` {repr-c}, instead of also having
+`PdkValue`. In retrospect, creating `PdkValue` was a great decision at that
+point: these 120 errors I got when trying to make `Value` {repr-c} were related
+to a hidden bug in ``RCow``'s implementation. Changing from `Cow` to `RCow` is
+broken in some cases because `RCow` is _invariant_. For those that don't know
+what that means, don't worry, as I will be releasing another article that
+explains everything once it's been fixed. If you're interested, you can follow
+this issue in the meanwhile, and hope that you don't run into it:
+
+[.text-center]
+{{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" "paragraph" >}}
+
 After I'm fully done I will also reorganize this series a bit and make it an
 easier read. I have been writing these articles _as I learned how the plugin
 system could be implemented_, so there might be some outdated or repetitive
@@ -956,9 +1014,9 @@ here:
 {{< gh issue "marioortizmanero/nullderef.com" 50 "Reorganize rust plugins series once I'm done" "paragraph" >}}
 
 For those interested, I recently gave a quick talk about the whole project in
-the LFX Mentorship Showcase. Unfortunately, it was a 15 minutes presentation, so
-I couldn't get into many technical details, but it covers how the whole
-experience has been so far, and what I've learned:
+the 2022 LFX Mentorship Showcase. Unfortunately, it was just a 15 minutes
+presentation, so I couldn't get into many technical details, but it covers how
+the whole experience has been so far, and what I've learned:
 
 ++++
 <iframe width="1600" height="400" src="https://www.youtube.com/embed/htLCyqY0kt0?start=3166" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
