@@ -20,7 +20,6 @@ GHissueID: 10
 // TODO: review that both abi_stable and raw are considered
 // TODO: review that both changing from existing codebase and from scratch are
 // considered
-// TODO: clean up references
 
 Welcome to one of the last articles of
 https://nullderef.com/series/rust-plugins/[this series]!
@@ -455,10 +454,10 @@ the <<value_decl,declaration of `Value`>> was an oversimplification. For
 performance reasons, Tremor actually uses {{< crate halfbrown >}}'s
 implementation of a hash map instead of `std::collections::HashMap`.
 
-NOTE: {{< crate halfbrown >}} is based on {{< crate hashbrown >}}, which was, in fact,
-merged into the standard library at some point. Although with this plugin system
-we're suffering the consequences of not having a stable ABI, seeing that it
-enables things like that makes me less bitter.
+NOTE: {{< crate halfbrown >}} is based on {{< crate hashbrown >}}, which was, in
+fact, merged into the standard library at some point <<hashbrown-merge>>.
+Although with this plugin system we're suffering the consequences of not having
+a stable ABI, seeing that it enables things like that makes me less bitter.
 
 {{< crate halfbrown >}} has some additional functionality over ``std``'s
 implementation. Some of it is actually available on Nightly, but for that reason
@@ -466,8 +465,8 @@ it's not meant to be in the stable `RHashMap` either. This extra functionality
 is used in Tremor for example with
 https://doc.rust-lang.org/std/collections/hash_map/struct.HashMap.html#method.raw_entry[`raw_entry`].
 There is an optimization for JSON handling that consists on memoizing the hash
-of a known item in a map in order to access its value directly with it. After
-switching to `RHashMap`, this becomes an impossible task.
+of a known item in a map in order to access its value directly with it
+<<known-key>>. After switching to `RHashMap`, this becomes an impossible task.
 
 Even if I managed to fix the hash map mess, the same story repeats itself for
 `Cow`. Tremor uses {{< crate beef >}}'s
@@ -1025,10 +1024,7 @@ the whole experience has been so far, and what I've learned:
 [bibliography]
 == References
 
-- [[[nginx-perf,      1]]] http://httpd.apache.org/docs/2.4/dso.html#advantages
-- [[[libloading-th,   2]]] https://docs.rs/libloading/0.7.1/libloading/struct.Library.html#thread-safety
-- [[[dlerror-th,      3]]] https://pubs.opengroup.org/onlinepubs/009604499/functions/dlerror.html
-- [[[linux-th,        4]]] https://man7.org/linux/man-pages/man3/dlerror.3.html#ATTRIBUTES
-- [[[macos-th,        5]]] https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dlerror.3.html
-- [[[windows-th,      6]]] https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setthreaderrormode
-- [[[unwinding,       7]]] https://doc.rust-lang.org/nomicon/unwinding.html
+- [[[halfbrown-merge, 1]]] {{< gh pr "rust-lang/rust" 58623 "Replace HashMap implementation with SwissTable (as an external crate)" >}}
+- [[[known-key,       2]]]
+  https://github.com/tremor-rs/tremor-runtime/blob/87fb312395b8241e915f626dd3ac3a294515e8db/tremor-value/src/known_key.rs[JSON
+  Key memoization in `tremor-runtime/tremor-value/src/known_key.rs`]
