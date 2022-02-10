@@ -2,7 +2,7 @@
 title: "Plugins in Rust: Getting our Hands Dirty"
 description: "Finally implementing the plugin system!"
 author: "Mario Ortiz Manero"
-images: ["/blog/plugin-impl/programming.jpg"]
+images: ["/blog/plugin-impl/dirty.jpg"]
 tags: ["rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "prototyping"]
 series: ["rust-plugins"]
 date: 2022-01-28
@@ -22,6 +22,7 @@ GHissueID: 10
 // considered
 // TODO: mention subtyping post, and how it's separate to not get too technical
 // & because it's not really part of the plugin system's series.
+// TODO: clean up references
 
 Welcome to one of the last articles of
 https://nullderef.com/series/rust-plugins/[this series]!
@@ -34,20 +35,20 @@ concepts should be roughly the same for any dynamic loading method.
 [[advice]]
 == Some prototyping advice
 
-Before anything else, I'd like to give out some advice regarding refactoring
-with Rust, based on my experience. You'll be introducing a good amount of
-changes, so it'd be wise to do some brief planning beforehand -- otherwise it'll
-take forever with a complex enough codebase. Maybe all of this will be obvious
-to you, or you will prefer taking a different approach. But it certainly worked
-for me, so it's worth a shot. I'm personally very satisfied about how much I've
-learned about the process.
+Before anything else, I'd like to give out some suggestions regarding
+refactoring with Rust, based on my experience. You'll be introducing a good
+amount of changes, so it would be wise to do some brief planning beforehand --
+otherwise it'll take forever with a complex enough codebase. Maybe all of this
+will be obvious to you, or you may prefer taking a different approach. But it
+certainly worked for me, so it's worth a shot. I'm personally very satisfied
+about how much I've learned about the process.
 
 === The {work} approach
 
-What I struggled the most to get drilled into my head is not getting lost in the
-details. *First of all, we just want it to work*. I'll repeat. First of all, we
-just want it to *work*. As long as the plugin system runs, the following are
-completely fine:
+What I personally struggled the most to get drilled into my head is not getting
+lost in the details. *First of all, we just want it to work*. I'll repeat. First
+of all, we just want it to *work*. As long as the plugin system runs, the
+following are completely fine:
 
 * Ugly code (non-idiomatic, repetitive, somewhat messy, etc)
 * Non-performant code
@@ -63,14 +64,15 @@ Or, more specific examples:
 * Just pulling in a new dependency instead of implementing something more
   tailored to your use-case from scratch will save you a lot of time.
 * If something that's not really important is taking you too much time, you can
-  always resort to `// TODO` or `// FIXME`.
+  always resort to a `// TODO` or `// FIXME`.
 
 I will say that not working on tests until the plugin system is running is
 definitely arguable for those who prefer to follow test-driven development.
-However, I personally didn't feel the need to write any tests; my progress
-basically consisted on making some changes and then trying to make the compiler
-happy about them, repeatedly. I only moved to the testing step once I was happy
-enough with the results, and everything seemed to work when running it manually.
+However, I personally didn't feel the need to write any tests in this case; my
+progress basically consisted on making some changes and then trying to make the
+compiler happy about them, repeatedly. I only moved to the testing step once I
+was happy enough with the results, and everything seemed to work when running it
+manually.
 
 Furthermore, premature optimization is the source of all evil. You're not at a
 point where that's important yet. Once you're done, you can actually spend some
@@ -81,13 +83,16 @@ WebAssembly or IPC at the beginning. But definitely give up on trying to avoid a
 `clone` that might not actually affect your program speed after all.
 
 My point is that every test, clean-up or optimization you try to make at this
-stage will most likely end up being wasted effort. You'll reach a blocker at
+stage will very likely end up being wasted effort. You'll reach a blocker at
 some point later on, and have to rethink and rewrite lots of stuff. When
 everything compiles, seemingly runs fine, and you consider it a decent approach,
-you can actually start working on these points. It's okay to "`waste`" effort on
-wrong approaches, because you aren't really "`wasting`" it; they're a necessary
-step to arrive to the final solution. But it's painful to delete code you've
-spent time thinking about, so we should at least try to minimize it.
+you can actually start working on these points. Just keep note of what can be
+improved so that you don't forget.
+
+It's okay to "`waste`" effort on wrong approaches, because you aren't really
+"`wasting`" it; they're a necessary step to arrive to the final solution. But
+it's painful to delete code you've spent time thinking about, so we should at
+least try to minimize it.
 
 === Specific to Rust
 
@@ -113,22 +118,23 @@ actually be really helpful when refactoring to avoid early bugs. We just want to
 get rid of the annoying ones, such as unused functions or imports, or dead code
 that we haven't cleaned up yet, which are usually harmless.
 
-One month later, I was able to finally compile `tremor-runtime` with the initial
-PDK prototype. The following screenshot made my day, as simple as it may seem:
+One month later, I was able to finally compile
+https://github.com/tremor-rs/tremor-runtime[`tremor-runtime`] with the initial
+PDK prototype. This screenshot made my day, as simple as it may seem:
 
 image::compilation.png[width=80%, align=center]
 
-Afterwards, I removed these `allow` statements and just ran `cargo fix && cargo
-fmt`. Both cargo commands are built-in, and will automatically take care of the
+Afterwards, I removed these `allow` statements and ran `cargo fix && cargo fmt`.
+Both cargo commands are built-in, and will automatically take care of the
 trivial warnings, such as unused imports, saving _lots_ of time doing cumbersome
 work.
 
 ==== Don't touch previous `use` statements
 
 As my Pull Request got bigger and bigger, I started running into problems with
-Git. The parent branch was also under work from a team of three people, so it
-changed quite often. All of this resulted into frequent conflicts, and having to
-painfully resolve them many times until I got the hang of it.
+Git. The parent branch was also undergoing changes from a team of three people,
+so it was updated quite often. All of this resulted into frequent conflicts, and
+having to painfully resolve them many times until I got the hang of it.
 
 Say, you have a number of `use` statements at the top of your file. After adding
 some changes related to the PDK, you now need to import `PdkValue` as well.
@@ -172,7 +178,7 @@ use other_stuff::{A, B, C};
 [source, rust]
 ----
 use more_stuff::{X, Y, Z};
-use tremor_value::PdkValue;
+use tremor_value::PdkValue; // <--
 use other_stuff::{A, B, C};
 ----
 
@@ -233,30 +239,30 @@ pub struct ConnectorMod {
     ) -> FfiFuture<RResult<BoxedRawConnector>>,
 }
 
-// Marking `ConnectorMod` as the main module in this plugin. Note that
-// `ConnectorMod_Ref` is just a pointer to the prefix of `ConnectorMod`.
+/// Marking `ConnectorMod` as the main module in this plugin. Note that
+/// `ConnectorMod_Ref` is just a pointer to the prefix of `ConnectorMod`.
 impl RootModule for ConnectorMod_Ref {
-    // The name of the dynamic library
+    /// The name of the dynamic library
     const BASE_NAME: &'static str = "connector";
-    // The name of the library for logging and similars
+    /// The name of the library for logging and similars
     const NAME: &'static str = "connector";
-    // The version of this plugin's crate
+    /// The version of this plugin's crate
     const VERSION_STRINGS: VersionStrings = package_version_strings!();
 
-    // Implements the `RootModule::root_module_statics` function, which is the
-    // only required implementation for the `RootModule` trait.
+    /// Implements the `RootModule::root_module_statics` function, which is the
+    /// only required method for the `RootModule` trait.
     declare_root_module_statics! {ConnectorMod_Ref}
 }
 ----
 
-In my case, I had to basically turn the `Connector` trait into a plugin. All
-`Connector` implementations were meant to be constructed with
-`ConnectorBuilder`, and from that moment on Tremor was able to use them
-generically with `dyn Connector`. Thus, I thought the best idea would be to turn
-`ConnectorBuilder` into my `RootModule` under the name `ConnectorMod`. Once the
-plugin was loaded, it would be possible to construct the connector with the
-`from_config` function. I used ``abi_stable::sabi_trait``'s macro functionality,
-making `dyn` usage possible within FFI.
+My task was to turn the `Connector` trait into a plugin. All the `Connector`
+implementors were meant to be constructed with `ConnectorBuilder`, and from that
+moment on Tremor was able to use them generically with `dyn Connector`. Thus, I
+thought the best idea would be to turn `ConnectorBuilder` into my `RootModule`
+under the name `ConnectorMod`. Once the plugin was loaded, it would be possible
+to construct the connector with the `from_config` function. I used
+``abi_stable::sabi_trait``'s macro functionality, making `dyn` usage possible
+within FFI.
 
 For reference, when I first wrote `ConnectorMod`, `PdkValue` wasn't even
 {repr-c}. I had also added the `#[sabi_trait]` call to the `RawConnector` trait
@@ -269,11 +275,11 @@ the interface via a struct with function pointers instead, and you'd need to
 store metadata about the plugin with constants. But in the end, it boils down to
 the same thing; just with different amounts of boilerplate.
 
-=== Recursively making everything {repr-c}
+== Recursively making everything {repr-c}
 
 Now, this is the actually complicated part. The previous step may have seemed
 simple, but you might find yourself falling into madness as you realize that you
-need to make all the types in the interface {repr-c}, and also all the fields
+need to make all the types in your interface {repr-c}, and also all the fields
 each of these types hold, and so on...
 
 It's very likely that you'll eventually find types without an FFI alternative in
@@ -304,7 +310,7 @@ In order to be able to use `Value` in the plugin system, it can be converted to:
 [source, rust]
 ----
 #[repr(C)]
-#[derive(StableAbi)] // Only necessary with abi_stable
+#[derive(StableAbi)] // Only necessary for abi_stable
 pub enum Value {
     /// Static values (integers, booleans, etc)
     Static(StaticNode),
@@ -361,7 +367,7 @@ Request and hope that the author is okay with the changes:
 [.text-center]
 {{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" "paragraph" >}}
 
-=== Overcoming problems with {repr-c}
+== Overcoming problems with {repr-c}
 
 Awesome. We got `Value` working now for FFI. Right? No? Oh. It seems like the
 compiler strongly disagrees. By changing the variants of `Value`, a great amount
@@ -369,17 +375,17 @@ of the code that used it will now fail to compile in multiple ways:
 
 [source, rust]
 ----
-// Won't work because Value::String holds a RString now
-let value = Value::String(String::new());
+// Won't work because Value::Array holds an RVec now
+let value = Value::Array(Vec::new());
 ----
 
-That's the easiest one, we just need to change `String` to `RString` and it
-should be fine. The types in {{< crate abi_stable >}} are meant to be a drop-in
+That's the easiest one: we just need to change `Vec` to `RVec` and it should be
+fine. The types in {{< crate abi_stable >}} are meant to be a drop-in
 replacement for the ones in `std`:
 
 [source, rust]
 ----
-let value = Value::String(RString::new());
+let value = Value::Array(RVec::new());
 ----
 
 It gets a bit more complicated when the old types are exposed in methods,
@@ -409,7 +415,7 @@ impl Value {
 ----
 
 * If the return type is changed to `RHashMap`, almost every caller to
-  `as_object` in the program will now fail to compile because it expects a
+  `as_object` in the program will now fail to compile because they expect a
   `HashMap`. You'll have to clean it up one by one and figure out how `RHashMap`
   can be used in that case instead. This is very messy because in order to avoid
   conversions, your plugin system will _infect_ the entire codebase.
@@ -420,10 +426,10 @@ Trickle's implementation, the scripting language used to configure Tremor's
 pipelines. Having to use `RHashMap` in there was a bit confusing, and I was
 modifying lots of files unrelated to the plugin system.
 * If you perform an internal conversion to `HashMap` in `as_object` we'll avoid
-  all of these errors, but we're adding a small overhead. It's by far the
+  all of these errors, at the cost of adding a small overhead. It's by far the
   easiest choice, but if `Value::as_object` is frequently used in, e.g., your
   hot loop, you may notice a considerable performance degradation.
-+
+
 I https://nullderef.com/blog/plugin-abi-stable/#_type_conversions[already
 investigated in the past], and the good news is that converting between types in
 `std` and `abi_stable` is stem:[O(1)]. Most of the times it's equivalent to a
@@ -432,7 +438,7 @@ just keep the FFI barrier minimal and add conversions as early as possible.
 After we're done, we'll see if there are any performance issues, and then work
 on them.
 
-=== Reaching {repr-c} blockers
+== Reaching {repr-c} blockers
 
 That was my first attempt at making `Value` FFI-compatible, and unfortunately,
 it didn't end there. Converting from `std` to {{< crate abi_stable >}} is a
@@ -463,7 +469,7 @@ the <<value_decl,declaration of `Value`>> was an oversimplification. For
 performance reasons, Tremor actually uses {{< crate halfbrown >}}'s
 implementation of a hash map instead of `std::collections::HashMap`.
 
-{{< crate halfbrown >}} is based on {{< crate hashbrown >}}, which was, in fact,
+NOTE: {{< crate halfbrown >}} is based on {{< crate hashbrown >}}, which was, in fact,
 merged into the standard library at some point. Although with this plugin system
 we're suffering the consequences of not having a stable ABI, seeing that it
 enables things like that makes me less bitter.
@@ -487,7 +493,7 @@ There are a few possible ways to approach these kinds of issues, which I'll
 cover in the following subsections.
 
 [[avoid]]
-==== Avoid the type in the first place
+=== Avoid the type in the first place
 
 As always, we'll try to follow the {work} advice in here. It's a perfectly valid
 solution to just comment out the optimizations and add a `// TODO` above so that
@@ -503,10 +509,10 @@ internally and transparently to the hash map functionality. After trying to
 remove them I eventually gave up because I considered it was getting out of
 hands with so many changes:
 
-.You're looking at *120* errors after attempting to remove the optimizations, most of them about lifetime hell
+.You're looking at *120* errors after attempting to remove the optimizations, most of them about lifetime hell. More about this at the end of the article.
 image::errors.png[width=100%, align=center]
 
-==== Implement a wrapper
+=== Implement a wrapper
 
 Another possibility is to write a _wrapper_ for {{< crate halfbrown >}}. Opaque
 types, for instance, may be used to wrap the functionality of an underlying type
@@ -522,12 +528,12 @@ increase your maintainance burden. {{< crate halfbrown >}} and {{< crate beef
 >}} are somewhat complex libraries, so I decided this wasn't the best choice at
 that moment.
 
-==== Re-implement with {repr-c} from scratch
+=== Re-implement with {repr-c} from scratch
 
 Similar to implementing a wrapper, but on steroids. It might seem like overkill,
 but as far as I know it's the only choice in some scenarios, because we can make
 sure the type is as performant as it can get. In ``Value``'s example, the
-problematic types are part of optimizations, so writing a wrapper over them may
+problematic types are part of optimizations, so writing a wrapper for them may
 have a performance hit and render them useless (e.g., if we used opaque types we
 would introduce at least a mandatory pointer indirection).
 
@@ -538,7 +544,7 @@ was created in the first place; `simd_json::Value` wasn't flexible enough for
 them, so they decided to define their own version. Same thing could be applied
 for your plugin system.
 
-==== Simplifying the type at the FFI boundary
+=== Simplifying the type at the FFI boundary
 
 The last idea I came up with was the easiest one: creating a copy of `Value`
 meant to be used _only_ for FFI communication, `PdkValue`:
@@ -567,13 +573,19 @@ pub enum PdkValue {
 ----
 
 We don't need to write any additional methods for the new `PdkValue`, only its
-conversions in both ways. The problem is that these conversions are now
-stem:[O(n)] instead of stem:[O(1)], because we have to iterate the objects and
-arrays in order to convert its inner values as well:
+conversions to and from the regular `Value`. This would be equivalent to,
+instead of passing a `Vec` to the PDK, replacing it with a `*const u8` for the
+data and a `u32` for the length. We're just simplifying the types at the FFI
+barrier, and then maybe converting them back for access to the full
+functionality.
+
+The problem in my case is that these conversions are now stem:[O(n)] instead of
+stem:[O(1)], because I have to iterate the objects and arrays in order to
+convert its inner values as well:
 
 [source, rust]
 ----
-impl<'value> From<Value> for PdkValue {
+impl From<Value> for PdkValue {
     fn from(original: Value) -> Self {
         match original {
             // No conversion needed; `StaticNode` implements `StableAbi`
@@ -598,7 +610,7 @@ impl<'value> From<Value> for PdkValue {
 }
 
 // Same as before, but inversely
-impl<'value> From<PdkValue> for Value {
+impl From<PdkValue> for Value {
     fn from(original: PdkValue) -> Self {
         match original {
             PdkValue::Static(s) => Value::Static(s),
@@ -608,8 +620,9 @@ impl<'value> From<PdkValue> for Value {
                 Value::Array(a)
             }
             PdkValue::Object(m) => {
+                // No Box dereference move magic with RBox, we call `into_inner`
+                let m = RBox::into_inner(m);
                 let m = m
-                    .into_inner() // No Box dereference move magic with RBox :(
                     .into_iter()
                     .map(|Tuple2(k, v)| (k.into(), v.into()))
                     .collect();
@@ -625,7 +638,8 @@ And then we can use it like:
 
 [source, rust]
 ----
-// This is implemented in the plugin
+// This is implemented in the plugin. It will work because `PdkValue` is
+// FFI-safe.
 pub extern "C" fn plugin_stuff(value: PdkValue) {
     let value = Value::from(value);
     value.do_stuff()
@@ -660,14 +674,14 @@ being done, I would be able to decide if the performance hit was bad enough, and
 then maybe switch to a different one. Creating `PdkValue` wasn't a big time
 investment, so it wouldn't really feel like a waste.
 
-=== Asynchronous plugins
+== Asynchronous plugins
 
-==== `async_ffi`
+=== `async_ffi`
 
-As much as I want to avoid communication primitives with the plugins other than
-plain synchronous calls, it may be inevitable if your program uses asynchronous
-programming heavily, which is the case of Tremor. But turns out that using
-`async` in FFI isn't that complicated!
+I've always wanted to avoid communication primitives between plugins and runtime
+other than plain synchronous calls. But this might be inevitable if your program
+uses asynchronous programming heavily, which is the case of Tremor. Anyhow,
+turns out that using `async` in FFI isn't that complicated!
 
 In the previous post I introduced the {{< crate async_ffi >}} crate, which
 exports FFI-compatible ``Future``s. It's quite easy to use:
@@ -689,16 +703,16 @@ pub extern "C" fn work(arg: u32) -> FfiFuture<u32> {
 ----
 
 The types in {{< crate async_ffi >}} implement `Future`, so calling that
-function is as easy as usual: just adding an `.await` after the parenthesis.
+function is as easy as usual: just adding `.await` after the function call.
 
 It's admittedly a bit ugly to use `async move { }.into_ffi()` everywhere,
 specially because it increases the indentation in one level. But that's
 something that can be fixed with a
 https://github.com/oxalica/async-ffi/issues/12[procedural macro in the future].
 
-The only problem was that the futures didn't implement `StableAbi`, so it wasn't
-possible to use with {{< crate abi_stable >}}. It took me a while to understand
-the crate, but it's nothing a Pull Request can't fix:
+The only problem I found was that the futures didn't implement `StableAbi`, so
+it wasn't possible to use them with {{< crate abi_stable >}}. It took me a while
+to understand the crate, but it's nothing a Pull Request can't fix:
 
 [.text-center]
 {{< gh pr "oxalica/async-ffi" 10 "Support for `abi_stable`" "paragraph" >}}
@@ -707,7 +721,7 @@ One concern here may be performance. I imagine that it's not a huge problem
 because the crate is actualy quite small and only introduces some pointer
 juggling. I will confirm this in the next post with some benchmarks, though.
 
-==== Channels
+=== Channels
 
 Tremor also needs some channels for asynchronous communication. For example, a
 connector may need to indicate the runtime that the connection has been lost at
@@ -717,15 +731,25 @@ low-latency.
 
 We have a few options here:
 
-* Keep using a channel: turns out `abi_stable` includes an FFI-safe wrapper for
-  {{< crate crossbeam >}}. We could just switch the usage of `Sender<T>` to
-  https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html[`RSender<T>`]
-  and that's it.
+==== Use ``abi_stable``'s alternatives
+
+Turns out `abi_stable` includes an FFI-safe wrapper for {{< crate crossbeam >}}.
+We could just switch the usage of `Sender<T>` to
+https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html[`RSender<T>`]
+and that's it.
+
+Problem: Tremor actually used asynchronous channels, such as
+https://docs.rs/async-std/latest/async_std/channel/index.html[`async_std::channel`],
+so it wasn't as easy as changing to `crossbeam`.
+
+==== Callbacks
+
 // TODO: update after making `notify()` a callback
-* Callbacks: if the use-case is simple enough, they might work out. I
-  https://github.com/marioortizmanero/pdk-experiments/tree/master/callbacks[experimented
-  a bit] with callbacks, and 
-+
+
+If your use-case is simple enough, callbacks might be enough. I
+https://github.com/marioortizmanero/pdk-experiments/tree/master/callbacks[experimented
+a bit] with them
+
 [source, text]
 ----
 error[E0308]: mismatched types
@@ -749,14 +773,21 @@ note: closures can only be coerced to `fn` types if they do not capture any vari
 For more information about this error, try `rustc --explain E0308`.
 ----
 
+==== Opaque types
+
+// TODO
+
 == Separating runtime and interface
 
 So far I've been assuming the following structure for the plugin system:
 
-* The runtime crate, which loads and runs the plugins.
+.The ideal structure for the plugin system
+image::separation.png[align=center, width=50%]
+
+* The `runtime` crate, which loads and runs the plugins.
 * The `common` crate, with the interface shared between the plugin and the
   runtime.
-* The plugin crates, with the loadable functionality.
+* The `plugin` crates, with the loadable functionality.
 
 This is essential in order to actually improve compilation times, which is one
 of the main objectives of our plugin system. There are two ways to look at
@@ -779,208 +810,42 @@ the same crate as the runtime, we'll have to compile both. The shared parts
 should be written in a separate crate.
 
 The problem is that if you aren't starting from scratch, it's very likely that
-you don't have a `common` crate. You'll just have a single binary crate with
-both the runtime and the functionality in `common`.
+you won't have a `common` crate. You'll just have a single binary crate with
+both the runtime and the functionality in `common`. This is exactly what
+happened to me with Tremor as well.
 
-// TODO: Link this mentioning that it came up while trying the single value
-// approach.
-// TODO: Maybe move to a separate post?
-[[variance]]
-== Annex I: Subtyping and Variance
+For now, I just have the runtime and the interface in the same crate. External
+plugins then have the entire runtime as a dependency. Which, as I said, is
+suboptimal, but it works. Moving so much stuff into a separate `common` crate
+would mean a _ton_ of conflicts, so I would rather leave it for whenever my
+first iteration of the PDK is merged.
 
-I tried to make `Value` FFI-compatible twice.
-https://github.com/tremor-rs/tremor-runtime/pull/1287[The first time], I changed
-its types to ``abi_stable``'s and fixed the new trivial errors that appeared.
-However, there were still over 100 of them related to lifetimes, and I had
-absolutely no idea how to even approach them because they made no sense at all:
+.The {work} interface for the plugin system
+image::separation-temporary.png[align=center, width=30%]
 
-// TODO picture
+== Getting closer to deployment
 
-https://github.com/marioortizmanero/tremor-runtime/pull/11[In my second
-attempt], I had considerably more experience, and I was much more determined to
-get it working.
+Preparing the release for the plugin system has always been a quite complicated
+task. I've never wanted to introduce too many changes at once because otherwise
+it will become very hard to review and publish. This is why I decided to make
+some step-by-step plans for the PDK release:
 
-[.text-center]
-https://github.com//issues/75
-{{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" "paragraph" >}}
-
-=== Debugging
-
-{heinz} managed to reproduce the issue:
-
-[source, rust]
-----
-use abi_stable::std_types::RCow;
-use std::borrow::Cow;
-
-fn cmp_cow<'a, 'b>(left: &Cow<'a, ()>, right: &Cow<'b, ()>) -> bool {
-    left == right
-}
-
-// This will fail to compile
-fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
-    left == right
-}
-----
-
-With the following error, again:
-
-[source]
-----
-$ cargo b
-   Compiling repro v0.1.0 (/home/mario/Downloads/repro)
-error[E0623]: lifetime mismatch
-  --> src/lib.rs:10:10
-   |
-9  | fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
-   |                            ------------          ------------
-   |                            |
-   |                            these two types are declared with different lifetimes...
-10 |     left == right
-   |          ^^ ...but data from `left` flows into `right` here
-
-For more information about this error, try `rustc --explain E0623`.
-error: could not compile `repro` due to previous error
-----
-
-At first sight, ``RCow``'s implementation of `PartialOrd` was the same as
-`Cow`'s:
-
-.RCow
-[source, rust]
-----
-impl<'a, B> PartialOrd<RCow<'a, B>> for RCow<'a, B>
-where
-    B: PartialOrd + BorrowOwned<'a> + ?Sized,
-{
-    #[inline]
-    fn partial_cmp(&self, other: &RCow<'a, B>) -> Option<Ordering> {
-        PartialOrd::partial_cmp(&**self, &**other)
-    }
-}
-----
-
-.Cow
-[source, rust]
-----
-impl<'a, B: ?Sized> PartialOrd for Cow<'a, B>
-where
-    B: PartialOrd + ToOwned,
-{
-    #[inline]
-    fn partial_cmp(&self, other: &Cow<'a, B>) -> Option<Ordering> {
-        PartialOrd::partial_cmp(&**self, &**other)
-    }
-}
-----
-
-=== Trying to fix it
-
-I first fixed the PartialEq implementation by making it explicit that I want to
-be able to compare new lifetimes:
-
-.Before
-[source, rust]
-----
-impl<'a, B> PartialEq<RCow<'a, B>> for RCow<'a, B>
-where
-    B: PartialEq + BorrowOwned<'a> + ?Sized,
-{
-    #[inline]
-    fn eq(&self, other: &RCow<'a, B>) -> bool {
-        PartialEq::eq(&**self, &**other)
-    }
-}
-----
-
-.After
-[source, rust]
-----
-impl<'a, 'b, B, C> PartialEq<RCow<'b, C>> for RCow<'a, B>
-where
-    B: PartialEq<C> + BorrowOwned<'a> + ?Sized,
-    C: BorrowOwned<'b> + ?Sized,
-{
-    #[inline]
-    fn eq(&self, other: &RCow<'b, C>) -> bool {
-        PartialEq::eq(&**self, &**other)
-    }
-}
-----
-
-Then, I created an equivalent example and tried to compile it:
-
-[source, rust]
-----
-use abi_stable::std_types::RCow;
-use std::borrow::Cow;
-
-fn cmp_cow<'a, 'b>(left: &Cow<'a, ()>, right: &Cow<'b, ()>) -> bool {
-    left.eq(right)
-}
-
-fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
-    left.eq(right)
-}
-----
-
-Thanks to that, it now compiled! Time for `PartialOrd` (I had to do `PartialEq`
-first because `PartialOrd` requires it):
-
-[source, rust]
-----
-----
-
-Possible fixes:
-
-=== Removing the trait that binds the lifetime
-=== GATs?
-=== The scary `transmute`
-
-{heinz}'s idea:
-
-[source, rust]
-----
-struct SCow<'a>(RCow<'a, ()>);
-impl<'a, 'b> PartialEq<SCow<'a>> for SCow<'b> {
-    fn eq(&self, other: &SCow<'a>) -> bool {
-        unsafe {
-            let other0: &RCow<'b, ()> = std::mem::transmute(&other.0);
-            &self.0 == other0
-        }
-    }
-}
-----
-
-This will actually work now:
-
-[source, rust]
-----
-fn cmp_cow<'a, 'b>(left: &Cow<'a, ()>, right: &Cow<'b, ()>) -> bool {
-    left == right
-}
-fn cmp_scow<'a, 'b>(left: &SCow<'a>, right: &SCow<'b>) -> bool {
-    left == right
-}
-----
-
-=== Conclusion
-
-I would honestly say that the fact it took me so long to realize the error is
-Rust's fault. There were no indications in the errors about variance. I
-understand that there were 
+. *Release the first version of the PDK*
+. *Separate the runtime from the interface*
+. *Actually make the plugins external*
 
 == Conclusion
 
-This has been my road to implementing the first versions of Tremor's plugin
-system. It still needs some polishing, but it works! The next and last article
-will cover the final cleaning up, testing and benchmarking required to make it
-ready for deployment, hopefully in v0.12 :)
+This has been my road to implementing the first version of Tremor's plugin
+system. It still needs some polishing, but it works! The next and hopefully last
+article will cover the final cleaning up, testing and benchmarking required to
+make it ready for deployment, hopefully in v0.12 :)
 
 After I'm fully done I will also reorganize this series a bit and make it an
-easier read. I have been writing these articles as I learned how the plugin
-system could be implemented, so there might be some outdated or repetitive
-arguments in previous ones. If you have any suggestions you can leave them here:
+easier read. I have been writing these articles _as I learned how the plugin
+system could be implemented_, so there might be some outdated or repetitive
+statements in previous articles. If you have any suggestions you can leave them
+here:
 
 [.text-center]
 {{< gh issue "marioortizmanero/nullderef.com" 50 "Reorganize rust plugins series once I'm done" "paragraph" >}}
