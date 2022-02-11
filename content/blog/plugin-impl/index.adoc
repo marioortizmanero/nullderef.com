@@ -894,7 +894,7 @@ directories are separated by colons.
 
 Once the runtime has a list of what directories may contain plugins, it can look
 for them recursively with the crate {{< crate walkdir >}}. It's highly
-customizable and incredibly easy to use:
+customizable and remarkably easy to use:
 
 [source, rust]
 ----
