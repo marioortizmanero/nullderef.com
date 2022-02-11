@@ -1139,7 +1139,7 @@ pub fn run() {
     for id in 0..NUM_THREADS {
         handles.push(thread::spawn(move || {
             let ctx = ConnectorContext { id, callback };
-            plugin_fn(&amp;ctx);
+            plugin_fn(ctx);
         }))
     }
 
@@ -1156,7 +1156,10 @@ pub fn run() {
 <div class="content">
 <pre class="highlight"><code class="language-rust" data-lang="rust">// This only invokes the callback with its own ID.
 pub extern &#34;C&#34; fn plugin_fn(ctx: &amp;ConnectorContext) {
-    (ctx.callback)(ctx.id);
+    // Asynchronous communication!
+    thread::spawn(move || {
+        (ctx.callback)(ctx.id);
+    });
 }</code></pre>
 </div>
 </div>
@@ -1245,7 +1248,7 @@ fn runtime() {
     // Asynchronous communication!
     task::spawn(async move {
         sender.send(Reply::Fail).await.unwrap()
-    })
+    });
 }</code></pre>
 </div>
 </div>
