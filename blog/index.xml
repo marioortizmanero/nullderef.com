@@ -1374,8 +1374,8 @@ should be written in a separate crate.</p>
 <div class="paragraph">
 <p>The problem is that if you aren’t starting from scratch, it’s very likely that
 you won’t have a <code>common</code> crate. You’ll just have a single binary crate with
-both <code>runtime</code> and <code>common</code>. This is exactly what happened to me with Tremor as
-well.</p>
+everything: <code>runtime</code>, <code>plugin</code>s, and <code>common</code>. This is exactly what happened
+to me with Tremor as well.</p>
 </div>
 <div class="paragraph">
 <p>For now, I just have the runtime and the interface in the same crate. External
@@ -1393,13 +1393,13 @@ first iteration of the PDK is merged.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_getting_closer_to_deployment">9. Getting closer to deployment</h2>
+<h2 id="schedule">9. Getting closer to deployment</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Preparing the release for the plugin system has always sounded like a quite
 complicated task. I’ve never wanted to introduce too many changes at once
 because otherwise it will become very hard to review and merge into the main
-branch. This is why I decided to plan the PDK release in four separate
+branch. This is why I decided to schedule the PDK release in four separate
 iterations:</p>
 </div>
 <div class="olist arabic">
@@ -1442,15 +1442,16 @@ that step for everyone else.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This has been my road to implementing the first version of Tremor’s plugin
-system. It still needs some polishing, but it works! The next and hopefully last
-article will cover the final cleaning up, testing and benchmarking required to
-make it ready for deployment, hopefully in v0.12 :)</p>
+system. I’m still only on the first step of the <a href="#schedule">schedule</a>, but hey,
+it works! The next and hopefully last article will cover the final cleaning up,
+testing and benchmarking required to make it ready for deployment, hopefully in
+v0.12 :)</p>
 </div>
 <div class="paragraph">
 <p>I will also work on properly making <code>Value</code> <code>#[repr(C)]</code>, instead of also having
 <code>PdkValue</code>. In retrospect, creating <code>PdkValue</code> was a great decision at that
 point: these 120 errors I got when trying to make <code>Value</code> <code>#[repr(C)]</code> were related
-to a hidden bug in <code>RCow</code>&#39;s implementation. Changing from <code>Cow</code> to <code>RCow</code> is
+to a nasty bug in <code>RCow</code>&#39;s implementation. Changing from <code>Cow</code> to <code>RCow</code> is
 broken in some cases because <code>RCow</code> is <em>invariant</em>. For those that don’t know
 what that means, don’t worry, as I will be releasing another article that
 explains everything once it’s been fixed. If you’re interested, you can follow
