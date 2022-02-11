@@ -17,17 +17,18 @@ GHissueID: 10
 :work: pass:quotes["`just make it work`"]
 :heinz: https://twitter.com/heinz_gies/:[Heinz]
 
-// TODO: review that both abi_stable and raw are considered
-// TODO: review that both changing from existing codebase and from scratch are
-// considered
-
 Welcome to one of the last articles of
 https://nullderef.com/series/rust-plugins/[this series]!
 https://nullderef.com/blog/plugin-abi-stable[Previously], we covered how to use
 external dependencies to lessen the work necessary to implement our plugin
-system. Now that we know how to actually get started, we will implement it once
-and for all. I will personally use the crate {{< crate abi_stable >}}, but the
-concepts should be roughly the same for any dynamic loading method.
+system. Now that we know how to actually get started, we'll implement it once
+and for all.
+
+I will personally use the crate {{< crate abi_stable >}}, but the concepts
+should be roughly the same for any dynamic loading method. Similarly, some of my
+advice is related to modifying an already existing project of large size. If
+you're starting from scratch with a plugin system (PDK) in mind, it should be
+the same, just easier in some aspects.
 
 [[advice]]
 == Some prototyping advice
@@ -64,12 +65,13 @@ Or, more specific examples:
   always resort to a `// TODO` or `// FIXME`.
 
 I will say that not working on tests until the plugin system is running is
-definitely arguable for those who prefer to follow test-driven development.
-However, I personally didn't feel the need to write any tests in this case; my
-progress basically consisted on making some changes and then trying to make the
-compiler happy about them, repeatedly. I only moved to the testing step once I
-was happy enough with the results, and everything seemed to work when running it
-manually.
+definitely arguable for those who prefer to follow a test-driven development.
+However, I personally didn't feel the need to write any tests in this case;
+thanks to Rust's strong type system, it was mostly a compiler-driven
+development. My progress basically consisted on making some changes and then
+trying to make the compiler happy about them, repeatedly. I only moved to the
+testing step once I was happy enough with the results, and everything seemed to
+work when running it manually.
 
 Furthermore, premature optimization is the source of all evil. You're not at a
 point where that's important yet. Once you're done, you can actually spend some
@@ -86,10 +88,10 @@ everything compiles, seemingly runs fine, and you consider it a decent approach,
 you can actually start working on these points. Just keep note of what can be
 improved so that you don't forget.
 
-It's okay to "`waste`" effort on wrong approaches, because you aren't really
-"`wasting`" it; they're a necessary step to arrive to the final solution. But
-it's painful to delete code you've spent time thinking about, so we should at
-least try to minimize it.
+Note that it is okay to "`waste`" effort on wrong approaches, because you aren't
+really "`wasting`" it; they're a necessary step to arrive to the final solution.
+But it's painful to delete code you've spent time thinking about, so we should
+at least try to minimize it.
 
 === Specific to Rust
 
@@ -312,7 +314,8 @@ pub enum Value {
 The first problem arises in the `Static` variant:
 https://docs.rs/value-trait/latest/value_trait/enum.StaticNode.html[`StaticNode`]
 is a {repr-rust} _external_ type. It's from our {{< crate value_trait >}}
-dependency, and it may hold different basic types: numbers, booleans, or null:
+dependency, and it may hold different basic types: numbers, booleans, or just
+nothing.
 
 [source, rust]
 ----
@@ -406,10 +409,11 @@ impl Value {
 This can be messy because in order to avoid conversions, your plugin system will
 _infect_ the entire codebase. You may quickly find yourself propagating the
 usage of `RHashMap` everywhere, even when the PDK isn't that important. For
-example, `Value` was also used in Trickle's implementation, the scripting
-language used to configure Tremor's pipelines. Having to use `RHashMap` in there
-was a bit confusing, and I was modifying lots of files unrelated to the plugin
-system.
+example, `Value` also appeared in
+https://www.tremor.rs/docs/tremor-script/index[Trickle]'s implementation, the
+scripting language used to configure Tremor's pipelines. Having to use
+`RHashMap` in there was a bit confusing, and I was modifying lots of files
+unrelated to the plugin system.
 * If you perform an internal conversion to `HashMap` in `as_object` we'll avoid
   all of these errors, at the cost of adding a small overhead. It's by far the
   easiest choice, but if `Value::as_object` is frequently used in, e.g., your
@@ -428,10 +432,10 @@ on them.
 That was my first attempt at making `Value` FFI-compatible, and unfortunately,
 it didn't end there. Converting from `std` to {{< crate abi_stable >}} is a
 relatively painless experience; their usage intends to be the same. The only
-issue I found in that regard is that some methods from `std` weren't yet
-available in {{< crate abi_stable >}} because it's not updated as regularly.
-Usually, you can just copy-paste the implementation from `std` into {{< crate
-abi_stable >}}'s and create a new Pull Request, which is what I did a few times:
+issue I found in that regard is that some methods from `std` weren't available
+in {{< crate abi_stable >}} yet because it's not updated as regularly. Usually,
+you can just copy-paste the implementation from `std` into {{< crate abi_stable
+>}}'s and create a new Pull Request, which is what I did a few times:
 
 [.text-center]
 {{< gh pr "rodrimati1992/abi_stable_crates" 58 "Add support for .keys() and .values() in RHashMap" >}}
@@ -474,8 +478,7 @@ https://docs.rs/beef/latest/beef/generic/struct.Cow.html[`Cow`] instead of
 `std::borrow::Cow` because it's faster and more compact, at the cost of a
 slightly different usage.
 
-There are a few possible ways to approach these kinds of issues, which I'll
-cover in the following subsections.
+There are a few possible ways to approach these kinds of issues:
 
 [[avoid]]
 === Avoid the type in the first place
@@ -1042,7 +1045,7 @@ the whole experience has been so far, and what I've learned:
 [bibliography]
 == References
 
-- [[[halfbrown-merge, 1]]] {{< gh pr "rust-lang/rust" 58623 "Replace HashMap implementation with SwissTable (as an external crate)" >}}
+- [[[hashbrown-merge, 1]]] {{< gh pr "rust-lang/rust" 58623 "Replace HashMap implementation with SwissTable (as an external crate)" >}}
 - [[[known-key,       2]]]
   https://github.com/tremor-rs/tremor-runtime/blob/87fb312395b8241e915f626dd3ac3a294515e8db/tremor-value/src/known_key.rs[JSON
   Key memoization in `tremor-runtime/tremor-value/src/known_key.rs`]
