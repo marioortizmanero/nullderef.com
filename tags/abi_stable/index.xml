@@ -1,0 +1,4104 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>abi_stable on NullDeref</title>
+    <link>https://nullderef.com/tags/abi_stable/</link>
+    <description>Recent content in abi_stable on NullDeref</description>
+    <image>
+      <url>https://nullderef.com/logo-banner.png</url>
+      <link>https://nullderef.com/logo-banner.png</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
+    <lastBuildDate>Fri, 11 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/abi_stable/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Plugins in Rust: Getting our Hands Dirty</title>
+      <link>https://nullderef.com/blog/plugin-impl/</link>
+      <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/blog/plugin-impl/</guid>
+      <description>Finally implementing the plugin system!</description>
+      <content:encoded><![CDATA[<div class="paragraph">
+<p>Welcome to one of the last articles of
+<a href="https://nullderef.com/series/rust-plugins/">this series</a>!
+<a href="https://nullderef.com/blog/plugin-abi-stable">Previously</a>, we covered how to use
+external dependencies to lessen the work necessary to implement our plugin
+system. Now that we know how to actually get started, we’ll implement it once
+and for all.</p>
+</div>
+<div class="paragraph">
+<p>I will personally use the crate <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+, but the concepts
+should be roughly the same for any dynamic loading method. Similarly, some of my
+advice is related to modifying an already existing project of large size. If
+you’re starting from scratch with a plugin system (PDK) in mind, it should be
+the same, just easier in some aspects.</p>
+</div>
+<div class="sect1">
+<h2 id="advice">1. Some prototyping advice</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before anything else, I’d like to give out some suggestions regarding
+refactoring with Rust, based on my experience. You’ll be introducing a good
+amount of changes, so it would be wise to do some brief planning beforehand — otherwise it’ll take forever with a complex enough codebase. Maybe this will all
+be obvious to you, or you may prefer taking a different approach. But it
+certainly worked for me, so it’s worth a shot. I’m personally very satisfied
+about how much I’ve learned about the process.</p>
+</div>
+<div class="sect2">
+<h3 id="_the_just_make_it_work_approach">1.1. The “just make it work” approach</h3>
+<div class="paragraph">
+<p>What I personally struggled the most to get drilled into my head is not getting
+lost in the details. <strong>First of all, we just want it to work</strong>. I’ll repeat. First
+of all, we just want it to <strong>work</strong>. As long as the plugin system runs, the
+following are completely fine:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Ugly code (non-idiomatic, repetitive, somewhat messy, etc)</p>
+</li>
+<li>
+<p>Non-performant code</p>
+</li>
+<li>
+<p>Poor documentation</p>
+</li>
+<li>
+<p>No tests</p>
+</li>
+<li>
+<p>No clippy</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Or, more specific examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If stuck with lifetimes, just slap a <code>.clone()</code> in there and call it a day.</p>
+</li>
+<li>
+<p>A good ol&#39; <code>.unwrap()</code> will make your life easier in case of doubt.</p>
+</li>
+<li>
+<p>You can resort to “dirty” or unnecessary type conversions if necessary.</p>
+</li>
+<li>
+<p>Just pulling in a new dependency instead of implementing something more
+tailored to your use-case from scratch will save you a lot of time.</p>
+</li>
+<li>
+<p>If something that’s not really important is taking you too much time, you can
+always resort to a <code>// TODO</code> or <code>// FIXME</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>I will say that not working on tests until the plugin system is running is
+definitely arguable for those who prefer to follow a test-driven development.
+However, I personally didn’t feel the need to write any tests in this case;
+thanks to Rust’s strong type system, it was mostly a compiler-driven
+development. My progress basically consisted on making some changes and then
+trying to make the compiler happy about them, repeatedly. I only moved to the
+testing step once I was happy enough with the results, and everything seemed to
+work when running it manually.</p>
+</div>
+<div class="paragraph">
+<p>Furthermore, premature optimization is the source of all evil. You’re not at a
+point where that’s important yet. Once you’re done, you can actually spend some
+time profiling and benchmarking in order to know which optimizations are worth
+your time. Don’t get me wrong — you can certainly worry about choosing an
+approach that’s appropriate in terms of performance, which is why I discarded
+WebAssembly or IPC at the beginning. But definitely give up on trying to avoid a
+<code>clone</code> that might not actually affect your program speed after all.</p>
+</div>
+<div class="paragraph">
+<p>My point is that every test, clean-up or optimization you try to make at this
+stage will very likely end up being wasted effort. You’ll reach a blocker at
+some point later on, and have to rethink and rewrite lots of stuff. When
+everything compiles, seemingly runs fine, and you consider it a decent approach,
+you can actually start working on these points. Just keep note of what can be
+improved so that you don’t forget.</p>
+</div>
+<div class="paragraph">
+<p>Note that it is okay to “waste” effort on wrong approaches, because you aren’t
+really “wasting” it; they’re a necessary step to arrive to the final solution.
+But it’s painful to delete code you’ve spent time thinking about, so we should
+at least try to minimize it.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_specific_to_rust">1.2. Specific to Rust</h3>
+<div class="sect3">
+<h4 id="_disable_the_annoying_warnings">1.2.1. Disable the annoying warnings</h4>
+<div class="paragraph">
+<p>The first thing I did was remove some warnings the compiler will print when
+you’re prototyping. By default, a Rust program still compiles with warnings, but
+in my experience, they’re always in the way when trying to deal with actual
+errors. For example, I don’t care that an import is unused at all. I’ll fix it
+once I’m done, but please let me keep trying to “make this work”!</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// TODO: disable and cleanup with `cargo fix` automatically once done
+#![allow(unused)]
+#![allow(dead_code)]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that I’m not using <code>#![allow(warnings)]</code>, because most warnings will
+actually be really helpful when refactoring to avoid early bugs. We just want to
+get rid of the annoying ones, such as unused functions or imports, or dead code
+that we haven’t cleaned up yet, which are usually harmless.</p>
+</div>
+<div class="paragraph">
+<p>One month later, I was able to finally compile
+<a href="https://github.com/tremor-rs/tremor-runtime"><code>tremor-runtime</code></a> with the initial
+PDK prototype. This screenshot made my day, as simple as it may seem:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="compilation.png" alt="compilation" width="80%"/>
+</div>
+</div>
+<div class="paragraph">
+<p>Afterwards, I removed these <code>allow</code> statements, ran <code>cargo fix &amp;&amp; cargo fmt</code>,
+and cleaned up a bit. <code>cargo fix</code> is built-in, and will automatically take care
+of the trivial warnings, such as unused imports, saving <em>lots</em> of time doing
+cumbersome work.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_dont_touch_previous_use_statements">1.2.2. Don’t touch previous <code>use</code> statements</h4>
+<div class="paragraph">
+<p>As my Pull Request got bigger and bigger, I started running into problems with
+Git. The parent branch was also undergoing changes from a team of three people,
+so it was updated quite often. All of this resulted into frequent conflicts, and
+having to painfully resolve them many times until I got the hang of it.</p>
+</div>
+<div class="paragraph">
+<p>Say, you have a number of <code>use</code> statements at the top of your file. After adding
+some changes related to the PDK, you now need to import <code>PdkValue</code> as well.
+You’d usually do:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-diff" data-lang="diff">-use tremor_value::{Value, ValueTrait};
++use tremor_value::{Value, ValueTrait, PdkValue};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The problem is that if the parent branch later adds or removes one of the items
+in that <code>use</code> statement, you may encounter a conflict. Git isn’t smart enough to
+handle Rust import statements (although that’d be pretty cool). Multiply this by
+100 statements, and you might eventually go crazy. You can keep your sanity by
+adding the new item in a separate block of <code>use</code>s instead:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-diff" data-lang="diff">-use tremor_value::{Value, ValueTrait};
++
++use tremor_value::PdkValue;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Same thing may happen if <code>tremor_value</code> wasn’t imported and you have to add a
+new line to the already existing <code>use</code> block:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-diff" data-lang="diff"> use more_stuff::{X, Y, Z};
++use tremor_value::PdkValue;
+ use other_stuff::{A, B, C};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In my experience, Git also trips up with this sometimes. You can follow the same
+advice:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-diff" data-lang="diff"> use more_stuff::{X, Y, Z};
+ use other_stuff::{A, B, C};
++
++use tremor_value::PdkValue;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In summary, you can just create a new block after all the previous <code>use</code>s and
+add your stuff in there. You can clean it up at the end or in a different pull
+request.</p>
+</div>
+<div class="paragraph">
+<p>This is harder to do if you’re <em>removing</em> <code>use</code> statements. But if you also
+followed the previous section about ignoring annoying warnings, it won’t be a
+problem in the first place. You can just leave the unused imports and clean up
+when you’re done with the PR.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_defining_the_plugin_interface">2. Defining the plugin interface</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The first step that we can do is define the interface of the plugin system,
+i.e., what a plugin binary must implement in order to be loadable by the
+runtime. If you’re doing this over an already existing codebase, you’ll probably
+get tons of errors. We’ll ignore them for now; this is only our first sketch,
+and you’ll end up changing it a thousand times anyway. Some types in the
+interface may not exist yet, or they may not be meant to be used for FFI. But
+it’ll serve us as an initial list of things to work on.</p>
+</div>
+<div class="paragraph">
+<p>In my case, it first looked as follows. The specifics about how this works with
+<a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+ are explained in the
+<a href="https://nullderef.com/blog/plugin-abi-stable/">previous post</a>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">/// This type represents a connector plugin that has been loaded with
+/// `abi_stable`. It serves as a builder, making it possible to construct a
+/// trait object of `RawConnector`.
+#[repr(C)]
+#[derive(StableAbi)]
+#[sabi(kind(Prefix))]
+pub struct ConnectorMod {
+    /// the type of the connector
+    pub connector_type: extern &#34;C&#34; fn() -&gt; ConnectorType,
+
+    /// create a connector from the given `id` and `config`
+    ///
+    /// # Errors
+    ///  * If the config is invalid for the connector
+    #[sabi(last_prefix_field)]
+    pub from_config: extern &#34;C&#34; fn(
+        id: RString,
+        config: ROption&lt;Value&gt;,
+    ) -&gt; FfiFuture&lt;RResult&lt;BoxedRawConnector&gt;&gt;,
+}
+
+/// Marking `ConnectorMod` as the main module in this plugin. Note that
+/// `ConnectorMod_Ref` is just a pointer to the prefix of `ConnectorMod`.
+impl RootModule for ConnectorMod_Ref {
+    /// The name of the dynamic library
+    const BASE_NAME: &amp;&#39;static str = &#34;connector&#34;;
+    /// The name of the library for logging and similars
+    const NAME: &amp;&#39;static str = &#34;connector&#34;;
+    /// The version of this plugin&#39;s crate
+    const VERSION_STRINGS: VersionStrings = package_version_strings!();
+
+    /// Implements the `RootModule::root_module_statics` function, which is the
+    /// only required method for the `RootModule` trait.
+    declare_root_module_statics! {ConnectorMod_Ref}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>My task was to turn the <code>Connector</code> trait into a plugin. All the <code>Connector</code>
+implementors were meant to be constructed with <code>ConnectorBuilder</code>, and from that
+moment on Tremor was able to use them generically with <code>dyn Connector</code>. Thus, I
+thought the best idea would be to turn <code>ConnectorBuilder</code> into my <code>RootModule</code>
+under the name <code>ConnectorMod</code>. Once the plugin was loaded, it would be possible
+to construct the connector with the <code>from_config</code> function. I used
+<code>abi_stable::sabi_trait</code>&#39;s macro functionality, making <code>dyn</code> usage possible
+within FFI.</p>
+</div>
+<div class="paragraph">
+<p>For reference, when I first wrote <code>ConnectorMod</code>, <code>Value</code> wasn’t even <code>#[repr(C)]</code>.
+I had also added the <code>#[sabi_trait]</code> attribute to the <code>RawConnector</code> trait
+declaration, but the types used there weren’t <code>#[repr(C)]</code> either. So I had tons of
+errors everywhere, but that was OK. I would be working on them step by step
+until it compiled again.</p>
+</div>
+<div class="paragraph">
+<p>If you’re using <a href="https://crates.io/crates/libloading"><code>libloading</code></a>
+ directly then you would be implementing
+the interface via a struct with function pointers instead, and you’d need to
+store metadata about the plugin with constants. But in the end, it boils down to
+the same thing; just with different amounts of boilerplate.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_recursively_making_everything_reprc">3. Recursively making everything <code>#[repr(C)]</code></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now, this is the actually complicated part. The previous step may have seemed
+simple, but you might find yourself falling into madness as you realize that you
+need to make all the types in your interface <code>#[repr(C)]</code>, and also all the fields
+each of these types hold, and so on…​</p>
+</div>
+<div class="paragraph">
+<p>It’s very likely that you’ll eventually find types without an FFI alternative in
+<a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+. These will most likely be external types, but things
+like async are a bit complicated to deal with as well. In the case of Tremor,
+the most problematic part was the <code>Value</code> type. It’s used to represent a
+JSON-like payload; roughly defined as follows:</p>
+</div>
+<div id="value_decl" class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub enum Value {
+    /// Static values (integers, booleans, etc)
+    Static(StaticNode),
+    /// String type
+    String(String),
+    /// Array type
+    Array(Vec&lt;Value&gt;),
+    /// Object type
+    Object(Box&lt;HashMap&lt;String, Value&gt;&gt;),
+    /// A binary type
+    Bytes(Vec&lt;u8&gt;),
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In order to be able to use <code>Value</code> in the plugin system, it can be converted to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[repr(C)]
+#[derive(StableAbi)] // Only necessary for abi_stable
+pub enum Value {
+    /// Static values (integers, booleans, etc)
+    Static(StaticNode),
+    /// String type
+    String(RString),
+    /// Array type
+    Array(RVec&lt;Value&gt;),
+    /// Object type
+    Object(RBox&lt;RHashMap&lt;RString, Value&gt;&gt;),
+    /// A binary type
+    Bytes(RVec&lt;u8&gt;),
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first problem arises in the <code>Static</code> variant:
+<a href="https://docs.rs/value-trait/latest/value_trait/enum.StaticNode.html"><code>StaticNode</code></a>
+is a <code>#[repr(Rust)]</code> <em>external</em> type. It’s from our <a href="https://crates.io/crates/value_trait"><code>value_trait</code></a>
+
+dependency, and it may hold different basic types: numbers, booleans, or just
+nothing.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub enum StaticNode {
+    I64(i64),
+    U64(u64),
+    F64(f64),
+    Bool(bool),
+    Null,
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This could be fixed by simply applying the very same procedure again (hence
+<em>recursively</em> until everything is <code>#[repr(C)]</code>). Here it will finally work because
+there aren’t any other <code>#[repr(Rust)]</code> types in <code>StaticNode</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[cfg_attr(feature = &#34;abi_stable&#34;, repr(C))]
+#[cfg_attr(feature = &#34;abi_stable&#34;, derive(abi_stable::StableAbi))]
+pub enum StaticNode {
+    I64(i64),
+    U64(u64),
+    F64(f64),
+    Bool(bool),
+    Null,
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Since it’s an external library, we’ll have to make a Pull Request and hope that
+the author is okay with the changes. <code>abi_stable</code> should be optional so that
+this change is applied only to those that actually need <code>#[repr(C)]</code> in the library.
+You could also go a step further and differentiate between enabling <code>#[repr(C)]</code> and
+deriving <code>StableAbi</code> for those that don’t need the latter.</p>
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<p class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/simd-lite/value-trait/pull/14" style="text-decoration: none;">Add support for StableAbi
+    <span class="gh-number">simd-lite/value-trait#14</span></a>
+
+</p>
+
+
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_overcoming_problems_with_reprc">4. Overcoming problems with <code>#[repr(C)]</code></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Awesome. We got <code>Value</code> working now for FFI. Right? No? Oh. It seems like the
+compiler strongly disagrees. By changing the variants of <code>Value</code>, a great amount
+of the code that used it will now fail to compile in multiple ways:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// Won&#39;t work because Value::Array holds an RVec now
+let value = Value::Array(Vec::new());</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That’s the easiest one: we just need to change <code>Vec</code> to <code>RVec</code> and it should be
+fine. The types in <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+ are meant to be a drop-in
+replacement for the ones in <code>std</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">let value = Value::Array(RVec::new());</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It gets a bit more complicated when the old types are exposed in methods,
+because you have to decide whether to expand the FFI barrier from the
+<em>internals</em> of <code>Value</code> to the <em>users</em> of <code>Value</code>. For instance, the
+<code>Value::Object</code> variant holds a <code>RHashMap</code> now, but the method
+<code>Value::as_object</code> used to return a reference to a <code>HashMap</code>. You’ll get another
+error in there, which raises a decision that must be made: returning <code>RHashMap</code>
+or adding an internal conversion to <code>HashMap</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">impl Value {
+    // Original code
+    fn as_object(&amp;self) -&gt; Option&lt;&amp;HashMap&lt;String, Value&gt;&gt; {
+        match self {
+            // Problem: `m` is a `RHashMap` now, but the function returns a
+            // `HashMap`.
+            //
+            // Solution 1: change the return type to `RHashMap`
+            // Solution 2: convert `m` to a `HashMap` with `m.into()`
+            Self::Object(m) =&gt; Some(m),
+            _ =&gt; None,
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the return type is changed to <code>RHashMap</code>, almost every caller to
+<code>as_object</code> in the program will now fail to compile because they expect a
+<code>HashMap</code>. You’ll have to clean it up one by one and figure out how <code>RHashMap</code>
+can be used in that case instead.</p>
+<div class="paragraph">
+<p>This can be messy because in order to avoid conversions, your plugin system will
+<em>infect</em> the entire codebase. You may quickly find yourself propagating the
+usage of <code>RHashMap</code> everywhere, even when the PDK isn’t that important. For
+example, <code>Value</code> also appeared in
+<a href="https://www.tremor.rs/docs/tremor-script/index">Trickle</a>&#39;s implementation, the
+scripting language used to configure Tremor’s pipelines. Having to use
+<code>RHashMap</code> in there was a bit confusing, and I was modifying lots of files
+unrelated to the plugin system.</p>
+</div>
+</li>
+<li>
+<p>If you perform an internal conversion to <code>HashMap</code> in <code>as_object</code> we’ll avoid
+all of these errors, at the cost of adding a small overhead. It’s by far the
+easiest choice, but if <code>Value::as_object</code> is frequently used in, e.g., your
+hot loop, you may notice a considerable performance degradation.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>I <a href="https://nullderef.com/blog/plugin-abi-stable/#_type_conversions">already
+investigated in the past</a>, and the good news is that converting between types in
+<code>std</code> and <code>abi_stable</code> is \(O(1)\). Most of the times it’s equivalent to a
+pointer cast or a match. So here’s when the “just make it work” approach is useful: we’ll
+just keep the FFI barrier minimal and add conversions as early as possible.
+After we’re done, we’ll see if there are any performance issues, and then work
+on them.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reaching_reprc_blockers">5. Reaching <code>#[repr(C)]</code> blockers</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>That was my first attempt at making <code>Value</code> FFI-compatible, and unfortunately,
+it didn’t end there. Converting from <code>std</code> to <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+ is a
+relatively painless experience; their usage intends to be the same. The only
+issue I found in that regard is that some methods from <code>std</code> weren’t available
+in <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+ yet because it’s not updated as regularly. Usually,
+you can just copy-paste the implementation from <code>std</code> into <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+’s and create a new Pull Request, which is what I did a few times:</p>
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/58" style="text-decoration: none;">Add support for .keys() and .values() in RHashMap
+    <span class="gh-number">rodrimati1992/abi_stable_crates#58</span></a>
+
+</span>
+
+
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/59" style="text-decoration: none;">Implement <code>Index</code> for slices and vectors
+    <span class="gh-number">rodrimati1992/abi_stable_crates#59</span></a>
+
+</span>
+
+
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/61" style="text-decoration: none;">Support for <code>f32</code> and <code>f64</code>
+    <span class="gh-number">rodrimati1992/abi_stable_crates#61</span></a>
+
+</span>
+
+
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/68" style="text-decoration: none;">Implement <code>ROption::as_deref</code>
+    <span class="gh-number">rodrimati1992/abi_stable_crates#68</span></a>
+
+</span>
+
+
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<p class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/70" style="text-decoration: none;">Implement RVec::append
+    <span class="gh-number">rodrimati1992/abi_stable_crates#70</span></a>
+
+</p>
+
+
+</div>
+<div class="paragraph">
+<p>However, this stops being as “easy” when you have to convert from <em>an external
+library</em> to <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+. I lied at the beginning of the article:
+the <a href="#value_decl">declaration of <code>Value</code></a> was an oversimplification. For
+performance reasons, Tremor actually uses <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
+’s
+implementation of a hash map instead of <code>std::collections::HashMap</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
+ is based on <a href="https://crates.io/crates/hashbrown"><code>hashbrown</code></a>
+, which was, in
+fact, merged into the standard library at some point <a href="#hashbrown-merge">[1]</a>.
+Although with this plugin system we’re suffering the consequences of not having
+a stable ABI, seeing that it enables things like that makes me less bitter.
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p><a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
+ has some additional functionality over <code>std</code>&#39;s
+implementation. Some of it is actually available on Nightly, but for that reason
+it’s not meant to be in the stable <code>RHashMap</code> either. This extra functionality
+is used in Tremor for example with
+<a href="https://doc.rust-lang.org/std/collections/hash_map/struct.HashMap.html#method.raw_entry"><code>raw_entry</code></a>.
+There is an optimization for JSON handling that consists on memoizing the hash
+of a known item in a map in order to access its value directly with it
+<a href="#known-key">[2]</a>. After switching to <code>RHashMap</code>, this becomes an impossible task.</p>
+</div>
+<div class="paragraph">
+<p>Even if I managed to fix the hash map mess, the same story repeats itself for
+<code>Cow</code>. Tremor uses <a href="https://crates.io/crates/beef"><code>beef</code></a>
+’s
+<a href="https://docs.rs/beef/latest/beef/generic/struct.Cow.html"><code>Cow</code></a> instead of
+<code>std::borrow::Cow</code> because it’s faster and more compact, at the cost of a
+slightly different usage.</p>
+</div>
+<div class="paragraph">
+<p>There are a few possible ways to approach these kinds of issues:</p>
+</div>
+<div class="sect2">
+<h3 id="avoid">5.1. Avoid the type in the first place</h3>
+<div class="paragraph">
+<p>As always, we’ll try to follow the “just make it work” advice in here. It’s a perfectly valid
+solution to just comment out the optimizations and add a <code>// TODO</code> above so that
+they can be reviewed later. You might be asking for too much complexity in your
+plugin system; limiting yourself to the functionality in <code>std</code> may be more than
+enough for now. You’ll now see that it’s always possible to fix this properly.
+It just might be too much effort at the moment.</p>
+</div>
+<div class="paragraph">
+<p>In <code>Value</code>&#39;s specific case, it seems like removing the optimizations that are
+giving us trouble is the easiest way to fix this problem. And it would, if
+removing code wasn’t also tricky when the optimizations aren’t performed
+transparently to the hash map functionality. After trying to remove them I
+eventually gave up because I considered it was getting out of hands with so many
+changes:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="errors.png" alt="errors" width="100%"/>
+</div>
+<div class="title">Figure 1. You’re looking at <strong>120</strong> errors after attempting to remove the optimizations, most of them about lifetime hell. More about this at the end of the article.</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_implement_a_wrapper">5.2. Implement a wrapper</h3>
+<div class="paragraph">
+<p>Another possibility is to write a <em>wrapper</em> for <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
+. Opaque
+types, for instance, may be used to wrap the functionality of an underlying type
+that’s not FFI-safe, as I covered in previous articles. This is what <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+ does in its <code>external_types</code> module for crates like <a href="https://crates.io/crates/crossbeam"><code>crossbeam</code></a>
+ or <a href="https://crates.io/crates/parking_lot"><code>parking_lot</code></a>
+.</p>
+</div>
+<div class="paragraph">
+<p>However, as you may see with the
+<a href="https://github.com/rodrimati1992/abi_stable_crates/tree/edfb2a97a7b5d7ecbc29c1f9f115f61e26f42da6/abi_stable/src/external_types">already
+existing examples</a>, implementing wrappers can be quite a cumbersome task. And
+even after you’re done you’ll have to keep them up to date, so this will
+increase your maintainance burden. <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
+ and <a href="https://crates.io/crates/beef"><code>beef</code></a>
+ are somewhat complex libraries, so I decided this wasn’t the best choice at
+that moment for <code>Value</code>. I did use this approach a lot in other cases, so I’ve
+included an example in a <a href="#opaque">later section</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_re_implement_with_reprc_from_scratch">5.3. Re-implement with <code>#[repr(C)]</code> from scratch</h3>
+<div class="paragraph">
+<p>Similar to implementing a wrapper, but on steroids. It might seem like overkill,
+but as far as I know it’s the only choice in some scenarios, because we can make
+sure the type is as performant as it can get. In <code>Value</code>&#39;s example, the
+problematic types are part of optimizations, so writing a wrapper for them may
+have a performance hit and render them useless (e.g., if we used opaque types we
+would introduce at least a mandatory pointer indirection).</p>
+</div>
+<div class="paragraph">
+<p>If this part of the project is important enough, or you consider that there’s
+enough manpower, then it might not be such a bad idea to create a new
+implementation with your use-case in mind. It’s actually why Tremor’s <code>Value</code>
+was created in the first place; <code>simd_json::Value</code> wasn’t flexible enough for
+them, so they decided to define their own version. Same thing could be applied
+for your plugin system.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_simplifying_the_type_at_the_ffi_boundary">5.4. Simplifying the type at the FFI boundary</h3>
+<div class="paragraph">
+<p>The last idea I came up with was the easiest one: creating a copy of <code>Value</code>
+meant to be used <em>only</em> for FFI communication, <code>PdkValue</code>:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="simplify.png" alt="simplify" width="75%"/>
+</div>
+</div>
+<div class="paragraph">
+<p>Since it’s a new type, we won’t run into the breaking changes I showed in the
+<a href="#avoid">Avoid the type in the first place</a> section, and it’s quite easy to implement:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[repr(C)]
+#[derive(StableAbi)]
+pub enum PdkValue {
+    /// Static values (integers, booleans, etc)
+    Static(StaticNode),
+    /// String type
+    String(RString),
+    /// Array type
+    Array(RVec&lt;PdkValue&gt;),
+    /// Object type
+    Object(RBox&lt;RHashMap&lt;RString, PdkValue&gt;&gt;),
+    /// A binary type
+    Bytes(RVec&lt;u8&gt;),
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We don’t need to write any additional methods for the new <code>PdkValue</code>, only its
+conversions to and from the regular <code>Value</code>. This would be equivalent to,
+instead of passing a <code>Vec</code> to the PDK, replacing it with a <code>*const u8</code> for the
+data and a <code>u32</code> for the length. We’re just simplifying the types at the FFI
+barrier, and then maybe converting them back for access to the full
+functionality.</p>
+</div>
+<div class="paragraph">
+<p>The problem in my case is that these conversions are now \(O(n)\) instead of
+\(O(1)\), because I have to iterate the objects and arrays in order to
+convert its inner values as well:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">impl From&lt;Value&gt; for PdkValue {
+    fn from(original: Value) -&gt; Self {
+        match original {
+            // No conversion needed; `StaticNode` implements `StableAbi`
+            Value::Static(s) =&gt; PdkValue::Static(s),
+            // This conversion is cheap
+            Value::String(s) =&gt; PdkValue::String(s.into()),
+            // This unfortunately requires iterating the array
+            Value::Array(a) =&gt; {
+                let a = a.into_iter().map(Into::into).collect();
+                PdkValue::Array(a)
+            }
+            // This unfortunately requires iterating the map and a new
+            // allocation
+            Value::Object(m) =&gt; {
+                let m = m.into_iter().map(Into::into).collect();
+                PdkValue::Object(RBox::new(m))
+            }
+            // This conversion is cheap
+            Value::Bytes(b) =&gt; PdkValue::Bytes(conv_u8(b)),
+        }
+    }
+}
+
+// Same as before, but inversely
+impl From&lt;PdkValue&gt; for Value {
+    fn from(original: PdkValue) -&gt; Self {
+        match original {
+            PdkValue::Static(s) =&gt; Value::Static(s),
+            PdkValue::String(s) =&gt; Value::String(s.into()),
+            PdkValue::Array(a) =&gt; {
+                let a = a.into_iter().map(Into::into).collect();
+                Value::Array(a)
+            }
+            PdkValue::Object(m) =&gt; {
+                // No Box dereference move magic with RBox, we call `into_inner`
+                let m = RBox::into_inner(m);
+                let m = m
+                    .into_iter()
+                    .map(|Tuple2(k, v)| (k.into(), v.into()))
+                    .collect();
+                Value::Object(Box::new(m))
+            }
+            PdkValue::Bytes(b) =&gt; Value::Bytes(conv_u8_inv(b)),
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And then we can use it like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// This is implemented in the plugin. It will work because `PdkValue` is
+// FFI-safe.
+pub extern &#34;C&#34; fn plugin_stuff(value: PdkValue) {
+    let value = Value::from(value);
+    value.do_stuff()
+}
+
+// This is implemented in the runtime
+fn runtime_wrapper(value: Value) {
+    plugin_stuff(value.into());
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Surprisingly easy to get working! Two problems, though:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Usability</strong>: the snippet of code above shows that the conversions introduce
+some noise in our code, as opposed to having a single <code>#[repr(C)]</code> <code>Value</code>. It
+could be worse, but it can get annoying when you have many <code>Value</code>s in your
+runtime and have to pass them to the plugins.</p>
+<div class="paragraph">
+<p>This is acutally trivial enough to simplify with a macro, perferrably
+procedural, at the cost of introducing more complexity. We’re currently
+following “just make it work” so we’ll leave that for the future.</p>
+</div>
+</li>
+<li>
+<p><strong>Performance</strong>: passing the value to the plugin and converting it back in there
+means we’re iterating the data twice. With experiments that I’ll include in
+the next article, I found out that these conversions make up 5 to 10% of
+Tremor’s execution time. Which is less than I expected, but still not good
+enough for production.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For the first version of the plugin system, this is the solution that I ended up
+using for <code>Value</code>. Most of the time I spent was just trying the different
+available approaches, and this one won in simplicity by a huge margin. After
+being done, I would be able to decide if the performance hit was bad enough, and
+then maybe switch to a different one. Creating <code>PdkValue</code> wasn’t a big time
+investment, so it wouldn’t really feel like a waste.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_asynchronous_plugins">6. Asynchronous plugins</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_async_functions">6.1. <code>async</code> functions</h3>
+<div class="paragraph">
+<p>I’ve always wanted to avoid communication primitives between plugins and runtime
+other than plain synchronous calls. But this might be inevitable if your program
+uses asynchronous programming heavily, which is the case of Tremor. Anyhow,
+turns out that using <code>async</code> in FFI isn’t that complicated!</p>
+</div>
+<div class="paragraph">
+<p>In the previous post I introduced the <a href="https://crates.io/crates/async_ffi"><code>async_ffi</code></a>
+ crate, which
+exports FFI-compatible <code>Future</code>s. It’s quite easy to use:</p>
+</div>
+<div class="listingblock">
+<div class="title">Example from the docs</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">use async_ffi::{FfiFuture, FutureExt};
+
+#[no_mangle]
+pub extern &#34;C&#34; fn work(arg: u32) -&gt; FfiFuture&lt;u32&gt; {
+    async move {
+        let ret = do_some_io(arg).await;
+        do_some_sleep(42).await;
+        ret
+    }
+    .into_ffi()
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The types in <a href="https://crates.io/crates/async_ffi"><code>async_ffi</code></a>
+ implement <code>Future</code>, so invoking that
+function is as easy as usual: just adding <code>.await</code> after the function call.</p>
+</div>
+<div class="paragraph">
+<p>It’s admittedly a bit ugly to use <code>async move { }.into_ffi()</code> everywhere,
+specially because it increases the indentation in one level. But that’s
+something that can be fixed with a procedural macro in the future:</p>
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<p class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/oxalica/async-ffi/issues/12" style="text-decoration: none;">Procedural macro for boilerplate
+    <span class="gh-number">oxalica/async-ffi#12</span></a>
+
+</p>
+
+
+</div>
+<div class="paragraph">
+<p>The only problem I found was that the futures didn’t implement <code>StableAbi</code>, so
+it wasn’t possible to use them with <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+. It took me a while
+to understand the crate, but it’s nothing a Pull Request can’t fix:</p>
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<p class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/oxalica/async-ffi/pull/10" style="text-decoration: none;">Support for <code>abi_stable</code>
+    <span class="gh-number">oxalica/async-ffi#10</span></a>
+
+</p>
+
+
+</div>
+<div class="paragraph">
+<p>One concern here may be performance. I imagine that it’s not a huge problem
+because the crate is actualy quite small and only introduces some pointer
+juggling. I will confirm this in the next post with some benchmarks, though.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_channels">6.2. Channels</h3>
+<div class="paragraph">
+<p>Tremor also needs some channels for asynchronous communication. For example, a
+connector may need to indicate the runtime that the connection has been lost at
+any point of its execution. We can’t delay that until the next synchronous call
+from the runtime because we don’t know when that might happen, and we want to
+keep Tremor low-latency.</p>
+</div>
+<div class="paragraph">
+<p>We have a few options here:</p>
+</div>
+<div class="sect3">
+<h4 id="_use_abi_stables_alternatives">6.2.1. Use <code>abi_stable</code>&#39;s alternatives</h4>
+<div class="paragraph">
+<p>Turns out <code>abi_stable</code> includes an FFI-safe wrapper for <a href="https://crates.io/crates/crossbeam"><code>crossbeam</code></a>
+.
+We could just switch the usage of <code>Sender&lt;T&gt;</code> to
+<a href="https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html"><code>RSender&lt;T&gt;</code></a>
+and that’s it.</p>
+</div>
+<div class="paragraph">
+<p>Problem: Tremor actually uses asynchronous channels, such as
+<a href="https://docs.rs/async-std/latest/async_std/channel/index.html"><code>async_std::channel</code></a>,
+so it wasn’t as easy as changing to <code>crossbeam</code>. We want to be able to poll for
+events without blocking the thread.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_callbacks">6.2.2. Callbacks</h4>
+<div class="paragraph">
+<p>If your use-case is simple enough, callbacks might be sufficient. I
+<a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/callbacks">experimented
+a bit</a> with them and it’s a good alternative if you:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Don’t need to listen for events actively (calling <code>rx.recv()</code>)</p>
+</li>
+<li>
+<p>Don’t need to access much data other than the callback’s parameters. Note that
+it’s a function and not a closure, so you’d need globals, and that can get
+nasty real quick.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">In the shared crate, the type definition</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[repr(C)]
+pub struct ConnectorContext {
+    id: i32,
+    callback: extern &#34;C&#34; fn(i32),
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">In the runtime, the callback definition and the plugin loading</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// This will run a few plugins concurrently.
+pub fn run() {
+    // You still have access to some resources in the runtime, but don&#39;t
+    // abuse it!
+    static COUNT: AtomicI32 = AtomicI32::new(0);
+    extern &#34;C&#34; fn callback(x: i32) {
+        println!(&#34;raw callback invoked! {x:?}&#34;);
+        COUNT.fetch_add(1, Ordering::Relaxed);
+    }
+
+    let mut handles = Vec::new();
+    for id in 0..NUM_THREADS {
+        handles.push(thread::spawn(move || {
+            let ctx = ConnectorContext { id, callback };
+            plugin_fn(&amp;ctx);
+        }))
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    println!(&#34;Final count: {}&#34;, COUNT.load(Ordering::Relaxed));
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">In the plugin, the functionality implementation</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// This only invokes the callback with its own ID.
+pub extern &#34;C&#34; fn plugin_fn(ctx: &amp;ConnectorContext) {
+    (ctx.callback)(ctx.id);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can even wrap the function pointer up so that the usage can remain as
+<code>sender.send(value)</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub struct Sender&lt;T&gt; {
+    callback: extern &#34;C&#34; fn(T),
+}
+
+impl&lt;T&gt; Sender&lt;T&gt; {
+    pub fn new(callback: extern &#34;C&#34; fn(T)) -&gt; Self {
+        Self { callback }
+    }
+
+    pub fn send(&amp;self, t: T) {
+        (self.callback)(t);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>However, the use-cases for this are very limited. If you don’t really need to
+access anything in the runtime you might as well just have a regular function in
+the shared crate. And if you need more complex functionality you might be better
+off with a regular channel.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="opaque">6.2.3. Opaque types</h4>
+<div class="paragraph">
+<p>We can resort to opaque types for anything we can’t remove or simplify. This is
+what I did in order to have asynchronous channels available on the plugins.
+Using <code>abi_stable</code> it’s quite easy:</p>
+</div>
+<div class="listingblock">
+<div class="title">In the shared crate, the interface</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[abi_stable::sabi_trait]
+pub trait SenderOpaque: Send {
+    /// Send a message to the runtime
+    fn send(&amp;self, reply: Reply) -&gt; BorrowingFfiFuture&lt;&#39;_, RResult&lt;()&gt;&gt;;
+}
+
+/// Alias for the FFI-safe sender, boxed
+pub type BoxedSender = SenderOpaque_TO&lt;&#39;static, RBox&lt;()&gt;&gt;;</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">In the runtime, the plugin loading</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">impl SenderOpaque for async_std::channel::Sender&lt;Reply&gt; {
+    fn send(&amp;self, reply: Reply) -&gt; BorrowingFfiFuture&lt;&#39;_, RResult&lt;()&gt;&gt; {
+        async move {
+            self.send(reply)
+                .await
+                .map_err(|e| RError::new(Error::from(e)))
+                .into()
+        }
+        .into_ffi()
+    }
+}
+
+fn runtime() {
+    // Non FFI-safe type
+    let (tx, rx) = async_std::channel::unbounded();
+
+    // Maybe multiple times in different asynchronous tasks
+    let reply_tx = BoxedSender::from_value(tx, TD_Opaque);
+    library.plugin(reply_tx);
+
+    // Waiting for events
+    while let Ok(reply) = rx.recv().await {
+        println!(&#34;Got a reply from a plugin: {reply:?}&#34;);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">In the plugin, the functionality implementation</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub extern &#34;C&#34; fn plugin(sender: BoxedSender) {
+    // Asynchronous communication!
+    task::spawn(async move {
+        sender.send(Reply::Fail).await.unwrap()
+    })
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_loading_plugins">7. Loading plugins</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Loading plugins in the runtime was actually the easiest part. <code>abi_stable</code> takes
+care of most of the work; the only thing that was missing for me is a way to
+<em>find</em> the plugins. This greatly depends on your program: you may hardcode the
+location, have them passed as CLI arguments, etc.</p>
+</div>
+<div class="paragraph">
+<p>In the case of Tremor, we wanted to make it possible to configure the
+directories where the plugins may be saved. Thus, I introduced a new environment
+variable <code>TREMOR_PLUGIN_PATH</code>. It’s equivalent to <code>PATH</code> in the sense that the
+directories are separated by colons.</p>
+</div>
+<div class="paragraph">
+<p>Once the runtime has a list of what directories may contain plugins, it can look
+for them recursively with the crate <a href="https://crates.io/crates/walkdir"><code>walkdir</code></a>
+. It’s highly
+customizable and incredibly easy to use:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">/// Recursively finds all the connector plugins in a directory. It doesn&#39;t
+/// follow symlinks, and has a sensible maximum depth so that it doesn&#39;t get
+/// stuck.
+pub fn find_recursively(base_dir: &amp;str) -&gt; Vec&lt;ConnectorMod_Ref&gt; {
+    WalkDir::new(base_dir)
+        // No symlinks are followed for now
+        .follow_links(false)
+        // Adding some safe limits
+        .max_depth(1000)
+        .into_iter()
+        // Ignoring permission errors
+        .filter_map(Result::ok)
+        // Only try to load those that look like plugins on the current platform
+        .filter(|file| {
+            file.path()
+                .extension()
+                .map(|ext| ext == env::consts::DLL_EXTENSION)
+                .unwrap_or(false)
+        })
+        // Try to load the plugins and if successful, add them to the result.
+        // Not being able to load a plugin shouldn&#39;t be fatal because it&#39;s very
+        // likely in some situations. Errors will just be printed to the logs.
+        .filter_map(|file| match ConnectorMod_Ref::load_from_file(file.path()) {
+            Ok(plugin) =&gt; Some(plugin),
+            Err(e) =&gt; {
+                log::debug!(&#34;Failed to load plugin in &#39;{:?}&#39;: {}&#34;, file.path(), e);
+                None
+            }
+        })
+        .collect()
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_separating_runtime_and_interface">8. Separating runtime and interface</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>So far I’ve been assuming the following structure for the plugin system:</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="separation.png" alt="separation" width="50%"/>
+</div>
+<div class="title">Figure 2. The ideal structure for the plugin system</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>runtime</code> crate, which loads and runs the plugins.</p>
+</li>
+<li>
+<p>The <code>common</code> crate, with the interface shared between the plugin and the
+runtime.</p>
+</li>
+<li>
+<p>The <code>plugin</code> crates, with the loadable functionality.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is essential in order to actually improve compilation times, which is one
+of the main objectives of our plugin system. There are two ways to look at
+compilation times:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>For <strong>runtime</strong> development</p>
+</li>
+<li>
+<p>For <strong>plugin</strong> development</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>In both cases, we want to compile <em>only</em> either component. If we’re developing a
+plugin, it makes no sense to be forced to compile the runtime as well, because
+we aren’t actually changing it. And if we’re working on the runtime, we don’t
+want to re-compile the functionality from the plugins.</p>
+</div>
+<div class="paragraph">
+<p>If we just separate the runtime from the plugins, we can achieve the first
+point. The functionality is now in separate plugin binaries, so the runtime will
+have considerably lower compilation times.</p>
+</div>
+<div class="paragraph">
+<p>But we also want to improve plugin compilation times, and if the interface is in
+the same crate as the runtime, we’ll have to compile both. The shared parts
+should be written in a separate crate.</p>
+</div>
+<div class="paragraph">
+<p>The problem is that if you aren’t starting from scratch, it’s very likely that
+you won’t have a <code>common</code> crate. You’ll just have a single binary crate with
+both <code>runtime</code> and <code>common</code>. This is exactly what happened to me with Tremor as
+well.</p>
+</div>
+<div class="paragraph">
+<p>For now, I just have the runtime and the interface in the same crate. External
+plugins then have the entire runtime as a dependency. Which, as I said, is
+suboptimal, but it works. Moving so much stuff into a separate <code>common</code> crate
+would mean a <em>ton</em> of conflicts, so I would rather leave it for whenever my
+first iteration of the PDK is merged.</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="separation-temporary.png" alt="separation temporary" width="30%"/>
+</div>
+<div class="title">Figure 3. The “just make it work” structure for the plugin system</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_getting_closer_to_deployment">9. Getting closer to deployment</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Preparing the release for the plugin system has always sounded like a quite
+complicated task. I’ve never wanted to introduce too many changes at once
+because otherwise it will become very hard to review and merge into the main
+branch. This is why I decided to plan the PDK release in four separate
+iterations:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Define the new interface and use it internally</strong>: the plugin system should be
+as minimal as possible. The program can be converted to support plugins, but
+while keeping them in the same binary, for simplicity. The plugin loading
+functionality can be left as a proof-of-concept for now. Still, this release
+could maybe include a couple external plugins for testing purposes.</p>
+</li>
+<li>
+<p><strong>Separate the runtime from the interface</strong>: what I talked about in the previous
+section can actually be done now. Plugins should be able to depend <em>only</em> on
+the <code>common</code> crate, rather than on the runtime. We may also run into many Git
+conflicts while doing this, but it should be a much faster process, since the
+crate separation is all we have to worry about now.</p>
+</li>
+<li>
+<p><strong>Actually make the plugins external</strong>: since the in-tree plugins are
+implemented with the new interface, making them actually external should be
+trivial. It’ll just require re-organizing the repository with the new crates,
+fixing the build system, and similars.</p>
+</li>
+<li>
+<p><strong>Polishing for deployment</strong>: last improvements before the release, extensive
+documentation, evaluating the final results, etc.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Step 2 and 3 can be interchanged as desired, but I thought that the sooner we
+separate the crates, the better. Plugin development should be much faster after
+that step for everyone else.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">10. Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This has been my road to implementing the first version of Tremor’s plugin
+system. It still needs some polishing, but it works! The next and hopefully last
+article will cover the final cleaning up, testing and benchmarking required to
+make it ready for deployment, hopefully in v0.12 :)</p>
+</div>
+<div class="paragraph">
+<p>I will also work on properly making <code>Value</code> <code>#[repr(C)]</code>, instead of also having
+<code>PdkValue</code>. In retrospect, creating <code>PdkValue</code> was a great decision at that
+point: these 120 errors I got when trying to make <code>Value</code> <code>#[repr(C)]</code> were related
+to a hidden bug in <code>RCow</code>&#39;s implementation. Changing from <code>Cow</code> to <code>RCow</code> is
+broken in some cases because <code>RCow</code> is <em>invariant</em>. For those that don’t know
+what that means, don’t worry, as I will be releasing another article that
+explains everything once it’s been fixed. If you’re interested, you can follow
+this issue in the meanwhile, and hope that you don’t run into it:</p>
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<p class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/issues/75" style="text-decoration: none;">lifetimes with R* types break compared to non R* types
+    <span class="gh-number">rodrimati1992/abi_stable_crates#75</span></a>
+
+</p>
+
+
+</div>
+<div class="paragraph">
+<p>After I’m fully done I will also reorganize this series a bit and make it an
+easier read. I have been writing these articles <em>as I learned how the plugin
+system could be implemented</em>, so there might be some outdated or repetitive
+statements in previous articles. If you have any suggestions you can leave them
+here:</p>
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<p class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/marioortizmanero/nullderef.com/issues/50" style="text-decoration: none;">Reorganize rust plugins series once I&rsquo;m done
+    <span class="gh-number">marioortizmanero/nullderef.com#50</span></a>
+
+</p>
+
+
+</div>
+<div class="paragraph">
+<p>For those interested, I recently gave a quick talk about the whole project in
+the 2022 LFX Mentorship Showcase. Unfortunately, it was just a 15 minutes
+presentation, so I couldn’t get into many technical details, but it covers how
+the whole experience has been so far, and what I’ve learned:</p>
+</div>
+<iframe width="1600" height="400" src="https://www.youtube.com/embed/htLCyqY0kt0?start=3166" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="ulist bibliography">
+<ul class="bibliography">
+<li>
+<p><a id="hashbrown-merge"></a>[1] 
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rust-lang/rust/pull/58623" style="text-decoration: none;">Replace HashMap implementation with SwissTable (as an external crate)
+    <span class="gh-number">rust-lang/rust#58623</span></a>
+
+</span>
+
+</p>
+</li>
+<li>
+<p><a id="known-key"></a>[2]
+<a href="https://github.com/tremor-rs/tremor-runtime/blob/87fb312395b8241e915f626dd3ac3a294515e8db/tremor-value/src/known_key.rs">JSON
+Key memoization in <code>tremor-runtime/tremor-value/src/known_key.rs</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+]]></content:encoded>
+    </item>
+    
+    <item>
+      <title>Plugins in Rust: Reducing the Pain with Dependencies</title>
+      <link>https://nullderef.com/blog/plugin-abi-stable/</link>
+      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/blog/plugin-abi-stable/</guid>
+      <description>Taking a look at the state of dynamic loading in the Rust ecosystem</description>
+      <content:encoded><![CDATA[<div class="paragraph">
+<p><a href="https://nullderef.com/blog/plugin-dynload/">The last article</a> of this
+<a href="https://nullderef.com/series/rust-plugins/">series</a> covered how the plugin system
+could be implemented from scratch. This is a lot of work if you’re dealing
+with a relatively large codebase and therefore a complex interface in your
+plugin system, so let’s see how we can make our lives easier. I’ve been wanting
+to try <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+ for this since the beginning, which was
+specifically created for plugins. But we aren’t really locked to that crate, so
+I’ll show other alternatives as well, which can even be combined to your liking.</p>
+</div>
+<div class="sect1">
+<h2 id="_handy_tools_for_our_plugin_system">1. Handy tools for our Plugin System</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_async_with_the_c_abi">1.1. Async with the C ABI</h3>
+<div class="paragraph">
+<p>In a previous post I mentioned that async was not supported in <code>abi_stable</code>.
+While this is true, because there is no FFI-safe <code>Future</code> in the crate, it’s
+certainly possible, and it might be of interest later on.</p>
+</div>
+<div class="paragraph">
+<p>Matthias recently let me know about the <a href="https://crates.io/crates/async_ffi"><code>async_ffi</code></a>
+ crate, which
+lets us do exactly that. It exports the type <code>FfiFuture&lt;T&gt;</code>, which provides the
+same functionality as <code>Box&lt;dyn Future&lt;Output = T&gt; + Send&gt;</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// This is how regular async works: the first function is practically equivalent
+// to the second.
+async fn example() -&gt; String {
+    read_file().await
+}
+fn example() -&gt; impl Future&lt;Output = String&gt; {
+    async {
+        read_file().await
+    }
+}
+
+// For FFI-safe interfaces there can&#39;t be generics involved, so the future is a
+// concrete type instead of a trait. This conversion from `Future` to
+// `FfiFuture` can be done with `into_ffi`.
+fn example() -&gt; FfiFuture&lt;String&gt; {
+    async move {
+        read_file().await
+    }
+    .into_ffi()
+}
+// `FfiFuture&lt;T&gt;` implements `Future&lt;Output = T&gt;`, so it can be awaited as usual
+async fn user() {
+    example().await
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/rodrimati1992/abi_stable_crates/issues/25">Someone asked for
+this feature in <code>abi_stable</code> back in 2019</a>, but noone seemed interested enough
+to implement it at that time, so maybe in the future.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_lccc">1.2. LCCC</h3>
+<div class="paragraph">
+<p>The <a href="https://github.com/LightningCreations/lccc"><em>Lightning Creations Compiler
+Collection</em></a> provides a set of frontends and backends with a uniform
+intermediate representation for multiple programming languages,
+<a href="https://github.com/LightningCreations/lccc/tree/riir/xlang/xlang_abi/src/">including
+Rust</a>.</p>
+</div>
+<div class="paragraph">
+<p>This means that they’ve written their own standard library with the C ABI, which
+is exactly what we need. It’s much simpler than Rust’s standard library, but it
+includes the most popular types your library may use: <code>HashMap</code>, <code>Vec</code>,
+<code>String</code>, <code>Box</code>, etc. The source code is quite nice to read in comparison to
+<code>std</code>, which often includes lots of procedural macros and various forms of
+astral magic.</p>
+</div>
+<div class="paragraph">
+<p>It’s not too popular right now, and it’s still Work In Progress, but it serves as
+an example of what we’re looking for in this article. We just want to simplify
+our lives by having a <code>#[repr(C)]</code>-compatible standard library so that we don’t have
+to write it ourselves. If all you need is something simple like LCCC, consider
+this library or a similar one.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_safer_ffi">1.3. Safer FFI</h3>
+<div class="paragraph">
+<p>If you don’t like any of the solutions listed in this article, and you’re going
+to end up writing the plugin interfaces by hand, you might be interested in <a href="https://crates.io/crates/safer_ffi"><code>safer_ffi</code></a>
+.</p>
+</div>
+<div class="paragraph">
+<p>All this crate provides is a set of procedural macros to make FFI interfacing an
+easier and safer task. With it, you’ll be able to get rid of lots of <code>extern
+&#34;C&#34;</code> and <code>unsafe</code> instances in your code, which can get out of hands in larger
+codebases. Its documentation is excellent, you can check out
+<a href="https://getditto.github.io/safer_ffi/">its book</a> for more information.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cglue">1.4. CGlue</h3>
+<div class="paragraph">
+<p>In my last post, I was brought up the <a href="https://crates.io/crates/cglue"><code>cglue</code></a>
+ crate
+<a href="https://www.reddit.com/r/rust/comments/q2n6b8/plugins_in_rust_diving_into_dynamic_loading/hfmyn6o/">by
+its own creator</a>. It takes a very interesting approach, achieving ABI stability
+through <a href="https://en.wikipedia.org/wiki/Opaque_data_type"><em>opaque types</em></a>.</p>
+</div>
+<div class="paragraph">
+<p>An opaque type is simply one for which you don’t know its concrete layout.
+There’s no <code>#[repr(C)]</code> needed at all, because one can only interact with it via
+void pointers and its associated vtables.</p>
+</div>
+<div class="paragraph">
+<p><code>cglue</code>&#39;s README showcases the following snippet of code, and the repo even
+includes an <a href="https://github.com/h33p/cglue/tree/main/examples">example of a plugin
+system</a>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">use cglue::*;
+
+// One annotation for the trait.
+#[cglue_trait]
+pub trait InfoPrinter {
+    fn print_info(&amp;self);
+}
+
+struct Info {
+    value: usize
+}
+
+impl InfoPrinter for Info {
+    fn print_info(&amp;self) {
+        println!(&#34;Info struct: {}&#34;, self.value);
+    }
+}
+
+fn use_info_printer(printer: &amp;impl InfoPrinter) {
+    println!(&#34;Printing info:&#34;);
+    printer.print_info();
+}
+
+fn main() -&gt; () {
+    let mut info = Info {
+        value: 5
+    };
+
+    // Here, the object is fully opaque, and is FFI and ABI safe.
+    let obj = trait_obj!(&amp;mut info as InfoPrinter);
+
+    use_info_printer(&amp;obj);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>cglue</code> is limited to just generating FFI-safe trait objects, trying to make the
+whole process as straightforward as possible. You could say that <code>cglue</code> covers
+just a subset of what <code>abi_stable</code> does, because most of this is also available
+in <code>abi_stable</code> through the <code>sabi_trait</code> procedural macro, which I’ll
+<a href="#sabi_trait">explain later</a>. It’s possible to combine both crates, which is
+something <code>cglue</code> plans to do in the future. <code>cglue</code> offers the following
+benefits over <code>sabi_trait</code> <a href="#cglue-vs-sabi">[1]</a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It’s possible to generate bindings for C/C++, which means that plugins can be
+written in languages other than Rust.</p>
+</li>
+<li>
+<p>You can define <em>trait groups</em>, even with optional traits.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Neither of these are particularly useful for my use-case, but if any of these
+features interests you, definitely take a deeper look. It’s actively maintained
+and constantly being improved; the documentation is great and the author
+frequently uploads updates to his <a href="https://blaz.is/">personal blog</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_miri">1.5. Miri</h3>
+<div class="paragraph">
+<p><a href="https://github.com/rust-lang/miri">Miri</a> is an interpreter for Rust’s mid-level
+intermediate representation. This doesn’t help us with the plugin system per se,
+but since it’s very likely that we’re going to end up writing unsafe code, it’s
+good to know about it. That’s exactly what Miri is used for: detecting undefined
+behavior, such as using uninitialized data or use-after-frees.</p>
+</div>
+<div class="paragraph">
+<p>I was going to use Miri from the beginning, but since I’ll be using <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+ for now, there will be no unsafe code involved. If I end up
+having to resort to it, I’ll try to add Miri to Tremor’s workflow (mainly their
+Continuous Integration).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cbindgen">1.6. cbindgen</h3>
+<div class="paragraph">
+<p>For the first steps with dynamic loading I think the C/C++ binding generator <a href="https://crates.io/crates/cbindgen"><code>cbindgen</code></a>
+ will help us understand what’s going on under the hood. We
+can take a look at the generated headers and see how it works internally.
+Unfortunately, it fails to run for the <code>abi_stable</code> crate:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">(...)
+WARN: Skip abi_stable::CONST - (...)
+
+thread &#39;main&#39; panicked at &#39;RResult has 2 params but is being instantiated with 1 values&#39;, src/bindgen/ir/enumeration.rs:596:9
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This <em>probably</em> has to do with the following warning found in
+<a href="https://github.com/eqrion/cbindgen/blob/master/docs.md"><code>cbindgen</code>&#39;s
+documentation</a>:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>NOTE: A major limitation of cbindgen is that it does not understand
+Rust’s module system or namespacing. This means that if cbindgen sees that it
+needs the definition for <code>MyType</code> and there exists two things in your project
+with the type name <code>MyType</code>, it won’t know what to do. Currently, cbindgen’s
+behaviour is unspecified if this happens. However, this may be ok if they have
+<a href="https://github.com/eqrion/cbindgen/blob/master/docs.md#defines-and-cfgs">different
+cfgs</a>.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>If you’re using something else like <code>cglue</code>, this will work without issues. But
+after letting the maintainers of <code>abi_stable</code> know about this in
+<a href="https://github.com/rodrimati1992/abi_stable_crates/issues/52">an issue</a>, they
+pointed out that this was expected and that they don’t plan on supporting
+<code>cbindgen</code> because it would take too much effort. Understandable, so let’s move
+on.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_working_with_abi_stable">2. Working with <code>abi_stable</code></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I will personally use <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+ because it seems like the easiest
+choice for now, and the one that meets my needs best. Not only does it provide a
+standard library defined with the C ABI, but also lots of other macros and
+utilities specially useful for plugin systems. With it, I won’t need a line of
+unsafe, and I’ll avoid reinventing the wheel in many instances.</p>
+</div>
+<div class="paragraph">
+<p><em>Once the plugin system is fully functional with <code>abi_stable</code></em>, I might
+consider using something more hand-crafted. This switch won’t be too
+complicated, since our interface will already be <code>#[repr(C)]</code>, which is the most
+troublesome part. All we’d have to do is remove a few procedural macros, switch
+the <code>abi_stable</code> types, and load the plugins manually with something like <a href="https://crates.io/crates/libloading"><code>libloading</code></a>
+. The only thing I want right now is a plugin system that
+works, and then we can maybe focus on trying to make it available in other
+languages, making it more performant, or whatever.</p>
+</div>
+<div class="paragraph">
+<p>So let’s start comparing <code>abi_stable</code> with my experiments in the previous post
+using raw dynamic linking. I’ve created the <code>abi-stable-simple</code> directory
+<a href="https://github.com/marioortizmanero/pdk-experiments">in the pdk-experiments
+repository</a>. I’ll be taking a look at the already implemented
+<a href="https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples">examples</a>
+for <code>abi_stable</code> in order to make the learning experience smoother. The base
+structure for a plugin system with <code>abi_stable</code> is the same as always: a crate
+for the plugin, another for the runtime, and <code>common</code>, with the shared
+interface.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_versioning">3. Versioning</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>abi_stable</code> states this regarding versioning:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>This library ensures that the loaded libraries are safe to use through these
+mechanisms:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The abi_stable ABI of the library is checked, Each <code>0.y.0</code> version and <code>x.0.0</code>
+version of abi_stable defines its own ABI which is incompatible with previous
+versions.</p>
+</li>
+<li>
+<p>Types are recursively checked when the dynamic library is loaded, before any
+function can be called.</p>
+</li>
+</ul>
+</div>
+</blockquote>
+<div class="attribution">
+— <a href="https://github.com/rodrimati1992/abi_stable_crates#safety"><code>abi_stable</code>&#39;s README</a>
+</div>
+</div>
+<div class="paragraph">
+<p>In summary, <code>abi_stable</code> itself is far from being permanently backward
+compatible, but it automatically makes sure that its versions are compatible
+when running the plugin. While it doesn’t exactly stick to semantic versioning,
+it’s good enough for us.</p>
+</div>
+<div class="paragraph">
+<p>The version checking for the entire <code>common</code> crate is already implemented, i.e.,
+we can’t try to mix different versions that aren’t compatible. We could still
+add a version string for each kind of plugin if more fine-grained control is
+needed, as described in the previous post.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_loading_plugins">4. Loading plugins</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>abi_stable</code> plugins are structured in <em>modules</em>, which can help us split up our
+functionality into smaller independent pieces. There must always be a
+<a href="https://docs.rs/abi_stable/latest/abi_stable/library/trait.RootModule.html">root
+module</a> that initializes the entire library and provides metadata such as the
+name or the version strings. Then, we can have submodules to organize the
+functions exported by the library nicely.</p>
+</div>
+<div class="paragraph">
+<p>Furthermore, the
+<a href="https://docs.rs/abi_stable/latest/abi_stable/abi_stability/stable_abi_trait/trait.StableAbi.html"><code>StableAbi</code></a>
+trait in <code>abi_stable</code> indicates that a type is FFI-safe. It contains information
+about the layout of the type, and it can be
+<a href="https://docs.rs/abi_stable/latest/abi_stable/derive.StableAbi.html">derived
+automatically</a>. Each item in <code>abi_stable</code>&#39;s standard library (<code>RStr</code>,
+<code>RSlice&lt;T&gt;</code>, <code>RArc&lt;T&gt;</code>, etc) implements this trait, and it’s used to make sure
+the types are compatible when loading the plugin.</p>
+</div>
+<div class="paragraph">
+<p>This also introduces the concept of
+<a href="https://docs.rs/abi_stable/latest/abi_stable/docs/prefix_types/index.html"><em>prefix
+types</em></a>. When a type derives <code>StableAbi</code> and has the
+<code>#[sabi(kind(Prefix(…​)))]</code> attribute, two more types are generated:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>&lt;name&gt;_Prefix</code>, which contains all the fields up to the
+<code>#[sabi(last_prefix_field)]</code> attribute in the original type.</p>
+</li>
+<li>
+<p><code>&lt;name&gt;_Ref</code>, which is a pointer to <code>&lt;name&gt;_Prefix</code> that can actually be
+passed through the FFI barrier safely.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Prefix types are needed to guarantee some kind of individual versioning to avoid
+breakage in future patches. It will let us add more fields to the module after
+the <code>last_prefix_field</code> attribute in patch (<code>0.0.x</code>) updates. Moving this
+attribute requires a backward-incompatible version bump. Prefix types are often
+used for modules and vtables.</p>
+</div>
+<div class="paragraph">
+<p>For now, I’ll just have a single root module and call it <code>MinMod</code>, exporting the
+<code>min</code> function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// Using the stable C ABI
+#[repr(C)]
+// Deriving the `StableAbi` trait, which defines the layout of the struct at
+// compile-time:
+// https://docs.rs/abi_stable/0.10.2/abi_stable/derive.StableAbi.html
+#[derive(StableAbi)]
+// Marking the struct as a prefix-type:
+// https://docs.rs/abi_stable/0.10.2/abi_stable/docs/prefix_types/index.html
+#[sabi(kind(Prefix))]
+pub struct MinMod {
+    /// Initializes the state, which will be passed to the functions in this
+    /// module. I&#39;ll explain more about the state later on.
+    pub new: extern &#34;C&#34; fn() -&gt; State,
+
+    /// Calculates the minimum between two integers. This is the last defined
+    /// field for the current version. If we try to load fields after this, all
+    /// of them will be an `Option`.
+    #[sabi(last_prefix_field)]
+    pub min: extern &#34;C&#34; fn(&amp;mut State, i32, i32) -&gt; i32,
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Most of the loading functionality is already handled by <code>abi_stable</code>. The module
+we’re exporting implements the <code>RootModule</code> trait, which includes functions to
+load the plugin, such as
+<a href="https://docs.rs/abi_stable/latest/abi_stable/library/trait.RootModule.html#method.load_from_file"><code>RootModule::load_from_file</code></a>
+or
+<a href="https://docs.rs/abi_stable/latest/abi_stable/library/trait.RootModule.html#method.load_from_directory"><code>RootModule::load_from_directory</code></a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// Marking `MinMod` as the main module in this plugin. Note that `MinMod_Ref` is
+// a pointer to the prefix of `MinMod`.
+impl RootModule for MinMod_Ref {
+    // The name of the dynamic library
+    const BASE_NAME: &amp;&#39;static str = &#34;min&#34;;
+    // The name of the library for logging and similars
+    const NAME: &amp;&#39;static str = &#34;min&#34;;
+    // The version of this plugin&#39;s crate
+    const VERSION_STRINGS: VersionStrings = package_version_strings!();
+
+    // Implements the `RootModule::root_module_statics` function, which is the
+    // only required implementation for the `RootModule` trait.
+    declare_root_module_statics!{MinMod_Ref}
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When loading directories, it makes the following decisions by default (though we
+could change them if we wanted to):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It does so non-recursively, i.e., only checking the immediate files in the
+given directory.</p>
+</li>
+<li>
+<p>The name of the library must be the <code>RootModule::BASE_NAME</code> in lowercase,
+according to the <a href="https://doc.rust-lang.org/std/env/consts/index.html">Operating
+System’s defaults</a>. For example, in Linux our plugin would be <code>libmin.so</code>, and
+on Windows it’d be <code>min.dll</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This means that we should add the following parameter to the plugin’s
+<code>Cargo.toml</code> file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-toml" data-lang="toml">[lib]
+# This way, the shared object will be saved as `abi_stable` prefers, for example
+# `libmin.so`.
+name = &#34;min&#34;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally, this is what the runtime may look like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub fn run_plugin(path: &amp;str) -&gt; Result&lt;()&gt; {
+    let plugin = MinMod_Ref::load_from_directory(path.as_ref())?;
+    println!(&#34;Loading plugin {}&#34;, MinMod_Ref::NAME);
+
+    // First we obtain the function pointer. This is not an `Option` because
+    // `new` is defined before `min`, the last prefix field.
+    let new_fn = plugin.new();
+
+    // We initialize the plugin, obtaining a state.
+    let mut state = new_fn();
+
+    // Same for the `min` function
+    let min_fn = plugin.min();
+
+    println!(&#34;initial state: {:?}&#34;, state);
+    println!(&#34;  min(1, 2): {}&#34;, min_fn(&amp;mut state, 1, 2));
+    println!(&#34;  min(-10, 10): {}&#34;, min_fn(&amp;mut state, -10, 10));
+    println!(&#34;  min(2000, 2000): {}&#34;, min_fn(&amp;mut state, 2000, 2000));
+    println!(&#34;final state: {:?}&#34;, state);
+
+    Ok(())
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Executing the <code>plugin-sample</code> implementation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-sample
+Loading plugin min
+initial state: State { counter: 0 }
+  min(1, 2): 1
+  min(-10, 10): -10
+  min(2000, 2000): 2000
+final state: State { counter: 3 }</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_handling_state">5. Handling state</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_regular_rust">5.1. Regular Rust</h3>
+<div class="paragraph">
+<p>As we saw in the previous example, we need some kind of generic <code>State</code> type
+that each plugin can implement with their own data. In regular Rust, we’d do as
+follows:</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/generics/regular-rust">See the full code here</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">trait State: Debug {}
+
+// Remember that we can&#39;t use generics, so we need `dyn`, either by itself as a
+// reference, or in a box.
+type StateBox = Box&lt;dyn State&gt;;
+
+fn usage(state: &amp;mut StateBox) {
+    println!(&#34;state debug: {:?}&#34;, state);
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_interface_types">5.2. Interface types</h3>
+<div class="paragraph">
+<p>Unfortunately, we already know that regular <code>dyn</code> is not FFI-safe. I covered how
+it’s possible to work around it with pointers, but here we can resort to
+<code>abi_stable</code>&#39;s safer and more convenient alternatives. Here’s one of them:</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/generics/interface-types">See the full code here</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[repr(C)]
+#[derive(StableAbi)]
+// An `InterfaceType` describes which traits are required when constructing
+// `StateBox` and are then usable afterwards.
+#[sabi(impl_InterfaceType(Debug, PartialEq))]
+struct State;
+
+// A trait object for `State`
+type StateBox = DynTrait&lt;&#39;static, RBox&lt;()&gt;, State&gt;;
+
+// It can then be used easily like this
+fn usage(state: &amp;mut StateBox) {
+    println!(&#34;state debug: {:?}&#34;, state);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here we first declare a <code>State</code>
+<a href="https://docs.rs/abi_stable/latest/abi_stable/trait.InterfaceType.html"><em>interface
+type</em></a>. Note that even though it’s defined as a <code>struct</code>, this is a translation
+of the previous snippet of code, so it acts as the empty “trait”. But all it
+does is establish <code>Debug</code> and <code>PartialEq</code> as its supertraits and give access to
+them; you can’t really add custom methods to the trait.</p>
+</div>
+<div class="paragraph">
+<p>Unlike <code>dyn</code>, this even works with supertraits that aren’t object-safe. Thus, we
+can use something like <code>PartialEq</code>. Its main disadvantage is that it’s limited
+to a set of 21 hardcoded traits, so it might not be enough for us.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="sabi_trait">5.3. Trait objects</h3>
+<div class="paragraph">
+<p>If we want something more akin to traits on Rust, we can use
+<a href="https://docs.rs/abi_stable/latest/abi_stable/attr.sabi_trait.html"><code>#[sabi_trait]</code></a>.
+The trait has to be object-safe, and by default there’s no support for
+<code>PartialEq</code> in the list of supertraits, so I’ll remove it.</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/generics/sabi-trait">See the full code here</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[sabi_trait]
+pub trait State: Debug {
+    fn counter(&amp;self) -&gt; i32;
+}
+
+// A trait object for the `State` Trait Object
+pub type StateBox = State_TO&lt;&#39;static, RBox&lt;()&gt;&gt;;
+
+// It can then be used easily like this
+pub fn usage(state: &amp;mut StateBox) {
+    println!(&#34;state debug: {:?}&#34;, state);
+    println!(&#34;state counter: {:?}&#34;, state.counter());
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As its documentation explains, this still has a limited number of possible
+supertraits, but at least it lets us require functions as usual, and it even
+works with default implementations.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_error_handling">6. Error handling</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>abi_stable</code> is just a wrapper over <a href="https://crates.io/crates/libloading"><code>libloading</code></a>
+ after all. It
+doesn’t include a sandbox, so if the plugin developer was a malicious actor,
+they’d have full access to the computer the runtime is being executed on. Other
+popular plugin systems such as
+<a href="https://www.nginx.com/resources/wiki/extending/">nginx’s</a> or
+<a href="http://httpd.apache.org/docs/2.4/dso.html">apache’s</a> suffer from the same issues,
+for reference.</p>
+</div>
+<div class="paragraph">
+<p>However, I think it’s not so bad to assume that no bad actors will be involved
+here. A sandbox would be mandatory if we were working on something like
+<a href="https://solana.com/">Solana</a> (one of the main users of eBPF in Rust), which
+basically executes random code from the internet. But with Tremor we can assume
+that the plugins come from trusted sources because they’re installed and
+configured manually by the user.</p>
+</div>
+<div class="paragraph">
+<p>There are some additional security measures that could be implemented in the
+future, like checking the integrity of the plugins and verifying they come from
+a trusted source before loading them. Of course, if we could afford to have a
+sandbox it’d definitely be the best way to do it, but we’ve already seen in this
+series that it’s currently not really viable for this use-case.</p>
+</div>
+<div class="paragraph">
+<p>Still, we trust that the plugin developer has good intentions, but not
+necessarily that they know what they’re doing. We should make fatal errors as
+hard as possible to happen so that Tremor isn’t constantly crashing. The fewer
+pitfalls, the better.</p>
+</div>
+<div class="paragraph">
+<p>The full source for the example that’s supported to work is
+<a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/abi-stable-simple/plugin-sample">here</a>.
+Let’s see a few ways in which the plugin could go wrong:</p>
+</div>
+<div class="sect2">
+<h3 id="_version_mismatch">6.1. Version mismatch</h3>
+<div class="paragraph">
+<p>The versions of the <code>common</code> library are checked automatically. In case there’s
+a mismatch in those considered incompatible (changes in <code>x.0.0</code> or <code>0.x.0</code>),
+this is what will show up:</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/abi-stable-simple/plugin-versionmismatch">See the full code here</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-versionmismatch
+Error when running the plugin:
+
+(...)
+
+Error:incompatible package versions
+Expected:
+    0.2.0
+Found:
+    0.1.0</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can absolutely catch this error gracefully and continue with the execution of
+the runtime, just like with raw dynamic loading. It’s even easier because it
+works out of the box.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_missing_fields_and_wrong_types">6.2. Missing fields and wrong types</h3>
+<div class="paragraph">
+<p>The layout of every type is recursively checked before trying to use them to
+make sure they are compatible. Unlike raw dynamic loading, these errors can be
+caught gracefully, which is a huge plus (it used to segfault):</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/abi-stable-simple/plugin-wrongtype">See the full code here</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-wrongtype
+Error when running the plugin:
+Compared &lt;this&gt;:
+    --- Type Layout ---
+    type:PrefixRef&lt;&#39;a, MinMod&gt;
+    (...)
+To &lt;other&gt;:
+    --- Type Layout ---
+    type:PrefixRef&lt;&#39;a, MinMod&gt;
+    (...)
+
+0 error(s).
+
+0 error(s)inside:
+    &lt;other&gt;
+
+    (...)
+
+Layout of expected type:
+    --- Type Layout ---
+    type:MinMod
+    (...)
+
+Layout of found type:
+    --- Type Layout ---
+    type:MinMod
+    (...)
+
+(...)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The error message is way too long to show here, but it basically shows the
+entire layout tree of the types that don’t match for each of its versions
+(runtime vs plugin). For this example, I changed the <code>State</code> trait to use a
+boolean instead of an integer counter, and the message describes it perfectly:
+their sizes, alignments, and types differ in the trait’s methods.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_panicking">6.3. Panicking</h3>
+<div class="paragraph">
+<p>Panicking trough the FFI boundary is <em>undefined behaviour</em>; we aren’t guaranteed
+that the plugin will abort. It may just continue its execution in a completely
+invalid state, which is scary. But turns out <code>abi_stable</code> properly handles this
+for us! It will use what it calls an <code>AbortBomb</code> to even print out the line and
+file where it happened. This is publicly available through the macro
+<a href="https://docs.rs/abi_stable/latest/abi_stable/macro.extern_fn_panic_handling.html"><code>extern_fn_panic_handling</code></a>.</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/abi-stable-simple/plugin-panic">See the full code here</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-panic
+Loading plugin min
+initial state: State { counter: 0 }
+thread &#39;&lt;unnamed&gt;&#39; panicked at &#39;This will crash everything&#39;, src/lib.rs:26:5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+file:src/lib.rs
+line:24
+Attempted to panic across the ffi boundary.
+Aborting to handle the panic...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we panic in the plugin it won’t be undefined behaviour anymore because
+<code>abi_stable</code> already makes sure the panic doesn’t reach the FFI boundary.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_panicking_and_ffi">7. Panicking and FFI</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As we’ve already seen, plugins cannot panic across the FFI boundary under any
+circumstance <a href="#panic-ffi">[2]</a>. If we aren’t using something like <code>abi_stable</code>,
+every single function we export in the plugin should wrap its contents in
+<a href="https://doc.rust-lang.org/std/panic/fn.catch_unwind.html"><code>catch_unwind</code></a> in
+order to be able to panic.</p>
+</div>
+<div class="paragraph">
+<p><em>Unwinding</em> is a process in which all local objects are destroyed, properly
+calling the destructors in the thread in order to continue execution safely
+<a href="#panic-book">[3]</a> <a href="#unwinding">[4]</a>. Knowing this is something taken for granted when
+taking a look at documentation about exceptions in Rust, but it wasn’t so clear
+to me at the beginning.</p>
+</div>
+<div class="paragraph">
+<p>For example, the following snippet will panic after creating the vector. If
+panics were configured to abort, the contents of the vector wouldn’t be freed at
+all; the program would just end abruptly, and the cleaning up would be left to
+the Operating System. But if it <em>unwinds</em>, Rust will call <code>Vec</code>&#39;s destructor,
+freeing its allocated memory properly, making it possible to continue the
+execution of the program.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">{
+    let data = vec![1, 2, 3];
+    panic!(&#34;oh no!&#34;);
+    println!(&#34;My data: {:?}&#34;, data); // Unreachable
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In a typical usage of Rust, a panic usually means that your program writes some
+scary message to stdout and then ends. This is because unwinding is propagated
+and it may end up finishing the execution of the program if it’s not stopped.
+But that’s exacty what <code>catch_unwind</code> is for:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">let result = panic::catch_unwind(|| {
+    let data = vec![1, 2, 3];
+    panic!(&#34;oh no!&#34;);
+    println!(&#34;My data: {:?}&#34;, data); // Unreachable
+});
+
+// This will run just fine and print out `true`
+println!(&#34;Did it panic? {}&#34;, result.is_err());</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Rust makes it very clear that <code>catch_unwind</code> is not intended for regular error
+handling (you have <code>Result</code> for that). But in our case we are almost forced to
+use it in order to not invoke undefined behaviour when panicking through the FFI
+boundary. Every single function in the FFI interface that has a possibility of
+panicking should use it so that the panic doesn’t try to propagate. And this is
+quite tricky because even things like addition may cause a panic (overflow in
+debug mode).</p>
+</div>
+<div class="paragraph">
+<p>Let’s see what else can we do about panicking:</p>
+</div>
+<div class="sect2">
+<h3 id="_aborting">7.1. Aborting</h3>
+<div class="paragraph">
+<p>The simplest way to do it would be to just configure plugins to abort on panic
+instead of unwinding. This is possible with the <code>panic = &#34;abort&#34;</code> option in the
+plugin’s <code>Cargo.toml</code>. It will still show the panic message, but the execution
+will be completely stopped by an abort:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ cargo r -q
+thread &#39;main&#39; panicked at &#39;Oh no!&#39;, src/main.rs:2:5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+zsh: abort (core dumped)  cargo r -q</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is sound because the entire program’s execution ends before reaching the
+FFI boundary. The problem is that cleaning up will never happen, and that
+although there’s
+<a href="https://stackoverflow.com/questions/51860663/is-it-possible-to-check-if-panic-is-set-to-abort-while-a-library-is-compilin">a
+hack you can use in your <code>common</code> library</a> to make sure the plugin is compiled
+with <code>panic = &#34;abort&#34;</code>, it’s only available on nightly until this is merged:</p>
+</div>
+<div class="paragraph align-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<p class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rust-lang/rust/issues/32837" style="text-decoration: none;">Pluggable panic implementations (tracking issue for RFC 1513)
+    <span class="gh-number">rust-lang/rust#32837</span></a>
+
+</p>
+
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="_c_unwind">7.2. <code>C-unwind</code></h3>
+<div class="paragraph">
+<p>This problem is something the Rust devs are aware of, and that they’re trying to
+fix. It has been proposed under the <code>&#34;C-unwind&#34;</code> ABI string. Just like how you
+currently use <code>extern &#34;C&#34;</code>, if we used <code>extern &#34;C-unwind&#34;</code>, we’d get more
+guarantees about what happens when a thread panics.</p>
+</div>
+<div class="ulist">
+<div class="title">More information here</div>
+<ul>
+<li>
+<p><a href="https://doc.rust-lang.org/nomicon/ffi.html?highlight=panic#ffi-and-panics">Current
+reference to FFI and panics</a></p>
+</li>
+<li>
+<p><a href="https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html">RFC</a></p>
+</li>
+<li>
+<p><a href="https://github.com/rust-lang/rust/pull/76570">Pull Request</a></p>
+</li>
+<li>
+<p><a href="https://github.com/rust-lang/project-ffi-unwind">Project Group</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The most relevant things this feature offers us is:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Support for unwinding through the FFI boundary.</p>
+</li>
+<li>
+<p>A guarantee that even with <code>extern &#34;C&#34;</code>, panicking is not undefined behavior,
+it’ll just abort (except for some very specific cases). Switching between
+<code>&#34;abort&#34;</code> and <code>&#34;unwind&#34;</code> for the <code>panic</code> option in <code>Cargo.toml</code> is always
+sound.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Unfortunately, it’s moving somewhat slowly, and I’m not quite sure when this
+will be ready. In the meanwhile, we’ll need to use something else to ensure no
+undefined behaviour occurs in our plugin system.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_abortbomb">7.3. <code>AbortBomb</code></h3>
+<div class="paragraph">
+<p><code>abi_stable</code> does this in a pretty clever way: it creates an <code>AbortBomb</code> struct
+at the beginning of the function, which contains its filename and line of code.
+If something panics and unwraps, <code>AbortBomb</code>&#39;s destructor will be called,
+which aborts the program. Otherwise, <code>mem::forget</code> is called for the <code>AbortBomb</code>
+at the end of the function, which will avoid calling its destructor and the
+function will be able to end successfully.</p>
+</div>
+<div class="paragraph">
+<p>Note that even though <code>mem::forget</code> is called, no memory is actually being
+leaked, because the filename is a <code>&#39;static str</code> — which lives for the entirety
+of the program — and the line number is an integer, which will be in the stack
+and doesn’t need fancy destructors.</p>
+</div>
+<div class="paragraph">
+<p>This approach is completely fine and works great, but it aborts the whole plugin
+system, so you can’t recover from it at all. In the case of Tremor, if a plugin
+panics, from a logical standpoint it doesn’t make much sense to continue the
+execution because there’s a piece missing in the pipeline. It couldn’t continue
+anyway…​ Right? Well, we could actually load the plugin that panicked again and
+use that instead for the remainder of the program. But since our plugin system
+doesn’t support unloading, we’d be leaking memory, and if the plugin keeps
+panicking it’d eventually crash.</p>
+</div>
+<div class="paragraph">
+<p>Recovering from a plugin panicking is definitely viable, and it might be an
+interesting feature for the future. Unfortunately, it’s a lot of work to make
+sure it works properly, and it’s not really an objective for the first
+implementation, so for now I’ll just use <code>abi_stable</code>&#39;s solution.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_recovering_with_catch_unwind">7.4. Recovering with <code>catch_unwind</code></h3>
+<div class="paragraph">
+<p>As I explained in the beginning, <code>catch_unwind</code> can be used to detect and stop
+unwinding panics. One way to notify the runtime that a plugin has panicked so
+that it can act accordingly would be to use an enum equivalent to <code>Option&lt;T&gt;</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[repr(C)]
+#[derive(Debug, StableAbi)]
+pub enum MayPanic&lt;T&gt; {
+    Panic,
+    NoPanic(T)
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>MayPanic</code> is a type that only returns the original value if the function
+finished without panicking. Since the contents returned by <code>catch_unwind</code> are
+just <code>dyn Any</code> and don’t provide much value for us, they’re discarded and the
+<code>Panic</code> variant is empty. The panicking information will be printed
+automatically as output anyway (or whatever is configured with
+<a href="https://doc.rust-lang.org/std/panic/fn.set_hook.html">the panic hook</a>). We will
+use it in FFI contexts, so it also implements <code>StableAbi</code> and it’s <code>#[repr(C)]</code>.</p>
+</div>
+<div class="paragraph">
+<p>I didn’t want to use <code>Result</code> for this because panic errors should be treated
+differently from a regular error. Apart from the fact that <code>panic::catch_unwind</code>
+returns a <code>Box&lt;dyn Any&gt;</code>, which doesn’t implement <code>Error</code>, panics happen when
+the plugin reaches an unrecoverable state and cannot continue. We really have to
+make sure this is handled differently from a regular error, so having the type
+safety of a different type can help.</p>
+</div>
+<div class="paragraph">
+<p>It implements <code>From&lt;thread::Result&lt;T&gt;&gt;</code>, so it can simply be used like
+this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">fn plugin_stuff() -&gt; MayPanic&lt;Whatever&gt; {
+    panic::catch_unwind(|| {
+        // Code goes here
+    })
+    .into()
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ideally, <code>MayPanic</code> could be accompanied by a <code>#[may_panic]</code> procedural macro
+that adds this boilerplate automatically to the function it’s attached to.
+Additionally, it could come with a <code>#[may_not_panic]</code> variant that attaches the
+<code>#[no_panic]</code> macro from the <a href="https://crates.io/crates/no-panic"><code>no-panic</code></a>
+ crate to make sure the
+statement is true at compile time. However, <code>no-panic</code> isn’t too reliable, so
+perhaps it could be opt-in with something like <code>#[may_not_panic(enforce)]</code>.</p>
+</div>
+<div class="paragraph">
+<p>Something that complicates this whole thing considerably is the concept of
+<em>exception safety</em>. Unfortunately, <code>catch_unwind</code> isn’t as easy to use as just
+slapping your code into its closure/function, as there are some types that
+aren’t considered unwind safe. You can read more about that
+<a href="https://doc.rust-lang.org/stable/std/panic/trait.UnwindSafe.html">here</a>, but I
+won’t get into more details because we aren’t going to use <code>MayPanic</code> in our own
+plugin system anyway.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_type_conversions">8. Type conversions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It’s important to know the complexity of conversions from and to <code>abi_stable</code>
+types. If <code>std::Vec</code> → <code>abi_stable::RVec</code> wasn’t \(O(n)\) it might be worth
+avoiding it altogether.</p>
+</div>
+<div class="paragraph">
+<p>This means that I should spend at least a bit of my time on understanding how
+the <code>abi_stable</code> types are implemented and making sure this isn’t the case. In
+<code>std</code>, the definition of <code>Vec</code> is actually quite simple if we remove most of the
+noise:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// A non-null pointer to `T` that indicates ownership.
+pub struct Unique&lt;T: ?Sized&gt; {
+    pointer: *const T, // The data itself
+    _marker: PhantomData&lt;T&gt;, // Indicating that we own a `T`
+}
+
+// Low level type related to allocation
+pub struct RawVec&lt;T&gt; {
+    ptr: Unique&lt;T&gt;,
+    cap: usize,
+}
+
+pub struct Vec&lt;T&gt; {
+    buf: RawVec&lt;T&gt;,
+    len: usize,
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It’s mostly self-explanatory; a <code>Vec&lt;T&gt;</code> is a pointer to <code>T</code> with a set capacity
+and length. What about <code>abi_stable</code>&#39;s implementation?</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[repr(C)] // Notice this, so that it&#39;s FFI-safe
+#[derive(StableAbi)] // This trait marks `RVec` as FFI-safe, with info about its layout
+pub struct RVec&lt;T&gt; {
+    pub(super) buffer: *mut T,
+    pub(super) length: usize,
+    capacity: usize,
+    vtable: VecVTable_Ref&lt;T&gt;,
+    _marker: PhantomData&lt;T&gt;,
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Yup, basically the same, but packed inside a single struct. The single
+difference is that we have a field with the vtable. The conversion between these
+types is written with a macro, but if expanded, it looks like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">impl&lt;T&gt; From&lt;Vec&lt;T&gt;&gt; for RVec&lt;T&gt; {
+    fn from(this: Vec&lt;T&gt;) -&gt; RVec&lt;T&gt; {
+        let mut this = std::mem::ManuallyDrop::new(this);
+        RVec {
+            vtable: VTableGetter::&lt;T&gt;::LIB_VTABLE,
+            buffer: this.as_mut_ptr(),
+            length: this.len(),
+            capacity: this.capacity(),
+            _marker: PhantomData,
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The only “weird” part is the usage of <code>std::mem::ManuallyDrop</code>, which is
+simply a wrapper that indicates Rust to not call the destructor of its contents
+automatically. In this case it’s basically a less error-prone
+<code>std::mem::forget</code>, as
+<a href="https://doc.rust-lang.org/stable/std/mem/fn.forget.html#relationship-with-manuallydrop">its
+docs explain</a>. Thanks to it, the memory from the <code>Vec</code> won’t be dropped when
+this function ends, and its pointer ownership can be safely moved into <code>RVec</code>,
+with no copying.</p>
+</div>
+<div class="paragraph">
+<p>This happens for every type I checked in <code>abi_stable</code>, including <code>RSlice&lt;T&gt;</code>,
+which contains a reference to a slice, <code>RStr</code>, which is just a <code>RSlice&lt;u8&gt;</code>, and
+<code>RString</code>, which is just a <code>RVec</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_thread_safety">9. Thread safety</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>abi_stable</code> uses <code>libloading</code>, whose error-handling is not fully thread-safe on
+some platforms, such as <code>dlerror</code> on FreeBSD <a href="#libloading-th">[5]</a> <a href="#dlerror-th">[6]</a>.
+It’s fully thread-safe on Linux <a href="#linux-th">[7]</a>, macOS <a href="#macos-th">[8]</a>, and Windows
+<a href="#windows-th">[9]</a>, so for Tremor specifically we don’t have to worry about this.
+But if your programs supports other Operating Systems, you might want to check
+their manuals one by one in order to make sure.</p>
+</div>
+<div class="paragraph">
+<p>However, for the first version of our PDK this won’t be a problem at all. For
+simplicity’s sake, loading plugins after the startup will not be implemented
+yet, and we’ll do it sequentially. But it’s good to know it for the future.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_performance">10. Performance</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I first tried to write these benchmarks with
+<a href="https://doc.rust-lang.org/nightly/cargo/commands/cargo-bench.html?highlight=feature">cargo
+nightly’s implementation</a>. However, since it’s so basic, not updated regularly,
+and requires nightly, I moved to <a href="https://crates.io/crates/criterion"><code>criterion</code></a>
+, which I quite liked
+after using it for <a href="https://nullderef.com/blog/web-api-client/">another post</a>.</p>
+</div>
+<div class="paragraph">
+<p>First, we can take a look at already implemented plugin systems in order to have
+an idea of the performance hit we’ll experience in Tremor. This is what we
+should expect once our PDK is polished and ready for deployment:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>nginx reports 20% slower startup times and up to a 5% slowdown in their
+execution times <a href="#nginx-perf">[10]</a>.</p>
+</li>
+<li>
+<p><a href="https://www.technovelty.org/linux/plt-and-got-the-key-to-code-sharing-and-dynamic-libraries.html">This
+article</a> explains that the only performance difference is saving the
+<a href="https://en.wikipedia.org/wiki/Position-independent_code">resolved address</a> of
+the symbol in a table the first time, and then it’s just a couple more
+instructions to access it. Also, obviously, the fact that the compiler can’t
+optimize parts of the code (e.g., inline function calls).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These are the results of the benchmarks I wrote, on my not-so-fast laptop:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">dynamic setup           time:   [652.53 ns 654.72 ns 657.34 ns]
+Found 7 outliers among 100 measurements (7.00%)
+  3 (3.00%) high mild
+  4 (4.00%) high severe
+
+abi_stable setup        time:   [30.386 ns 30.477 ns 30.575 ns]
+Found 9 outliers among 100 measurements (9.00%)
+  7 (7.00%) high mild
+  2 (2.00%) high severe
+
+dynamic runtime         time:   [1.8814 ns 1.8878 ns 1.8947 ns]
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+  2 (2.00%) high severe
+
+abi_stable runtime      time:   [3.2155 ns 3.2325 ns 3.2494 ns]
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+
+native runtime          time:   [817.39 ps 819.33 ps 821.38 ps]
+Found 6 outliers among 100 measurements (6.00%)
+  3 (3.00%) high mild
+  3 (3.00%) high severe</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that the benchmarks still don’t represent a real usage of Tremor; it’s just
+using the plugin I described in this post with the <code>min</code> function. But we can
+more or less analyze the performance differences between <code>abi_stable</code> and raw
+dynamic loading — I doubt it’s worth implementing the final version with both
+methods just to run some benchmarks.</p>
+</div>
+<div class="paragraph">
+<p>The loading times aren’t so important for performance because they only happen
+once at the beginning of the program. But <code>abi_stable</code>&#39;s way of recursively
+checking the types in the plugins is not free; the difference with raw dynamic
+loading should be quite noticeable. But somehow, in my benchmarks <code>abi_stable</code>
+was <em>way</em> faster. What??</p>
+</div>
+<div class="paragraph">
+<p>It turns out that <code>abi_stable</code> just leaks the library when it’s loaded to
+prevent a user-after-free. And since it won’t be unloaded anyway, it’s not much
+of a problem in terms of leaking memory. The library will be saved into a static
+variable (of type
+<a href="https://docs.rs/abi_stable/latest/abi_stable/sabi_types/struct.LateStaticRef.html"><code>LateStaticRef</code></a>),
+and the next times it’s loaded the initial value will be reused. So in my
+bencharks for <code>abi_stable</code>, loading only actually happens once, and for dynamic
+loading it happens for every iteration.</p>
+</div>
+<div class="paragraph">
+<p>Once the library is loaded, it seems that using dynamic loading versus static
+linking is quite bad, being more than twice as slow. This is understandable; the
+problem with the native benchmark was, and most likely still is, that the Rust
+compiler is too smart. If I called <code>min</code> with fixed parameters — say
+<code>10.min(3)</code> — it was optimized away, so I had to write a more intricate example
+that was different for each loop. Furthermore, using tools like <code>sabi_trait</code>
+instead of a <code>void*</code> almost doubles the execution time again.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">11. Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We’ve learned a lot about <code>abi_stable</code> and the overall state of dynamic loading
+in Rust. We’ll definitely avoid a lot of work thanks to these dependencies. It’s
+not as bad as I thought; there’s plenty of tools for each use-case, though most
+are admittedly only in early stages.</p>
+</div>
+<div class="paragraph">
+<p>Hopefully the performance degradations we’ve found won’t be as noticeable in the
+final version of the PDK. We’ll use <code>sabi_trait</code> only when loading the library
+instead of for each call. And having a more complex use-case will probably avoid
+such incredible optimizations in the native code. You can find the full
+statistical reports in the
+<a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/criterion-reports"><code>criterion-reports</code></a>
+directory of the
+<a href="https://github.com/marioortizmanero/pdk-experiments/">repository</a>.</p>
+</div>
+<div class="paragraph">
+<p>In the next article, I’ll cover the different caveats I’m finding as I try to
+actually implement the plugin system on Tremor, and the different ways in which
+they can be approached.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="ulist bibliography">
+<ul class="bibliography">
+<li>
+<p><a id="cglue-vs-sabi"></a>[1] 
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/h33p/cglue/issues/3" style="text-decoration: none;">A few questions about the library
+    <span class="gh-number">h33p/cglue#3</span></a>
+
+</span>
+
+</p>
+</li>
+<li>
+<p><a id="panic-ffi"></a>[2]
+<a href="https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics">FFI and panics — Rustonomicon</a></p>
+</li>
+<li>
+<p><a id="panic-book"></a>[3]
+<a href="https://doc.rust-lang.org/book/ch09-01-unrecoverable-errors-with-panic.html">Unrecoverable
+Errors with <code>panic!</code> — The Rust Programming Language</a></p>
+</li>
+<li>
+<p><a id="unwinding"></a>[4]
+<a href="https://doc.rust-lang.org/nomicon/unwinding.html">Unwinding — Rustonomicon</a></p>
+</li>
+<li>
+<p><a id="libloading-th"></a>[5]
+<a href="https://docs.rs/libloading/0.7.1/libloading/struct.Library.html#thread-safety">Thread-safety — Libloading v0.7.1</a></p>
+</li>
+<li>
+<p><a id="dlerror-th"></a>[6]
+<a href="https://pubs.opengroup.org/onlinepubs/009604499/functions/dlerror.html"><code>dlerror</code> — The Open Group Base Specifications</a></p>
+</li>
+<li>
+<p><a id="linux-th"></a>[7]
+<a href="https://man7.org/linux/man-pages/man3/dlerror.3.html#ATTRIBUTES"><code>dlerror</code>
+attributes — Linux Manual Page</a></p>
+</li>
+<li>
+<p><a id="macos-th"></a>[8]
+<a href="https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/dlerror.3.html"><code>dlerror</code> — Mac OS X Man Pages</a></p>
+</li>
+<li>
+<p><a id="windows-th"></a>[9]
+<a href="https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-setthreaderrormode"><code>SetThreadErrorMode</code> — Microsoft Documentation</a></p>
+</li>
+<li>
+<p><a id="nginx-perf"></a>[10]
+<a href="http://httpd.apache.org/docs/2.4/dso.html#advantages">Advantages and
+Disadvantages — Dynamic Shared Object (DSO) Support</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+]]></content:encoded>
+    </item>
+    
+    <item>
+      <title>Plugins in Rust: Diving into Dynamic Loading</title>
+      <link>https://nullderef.com/blog/plugin-dynload/</link>
+      <pubDate>Tue, 05 Oct 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/blog/plugin-dynload/</guid>
+      <description>A closer look at dynamic loading in Rust</description>
+      <content:encoded><![CDATA[<div class="paragraph">
+<p>In the <a href="https://nullderef.com/blog/plugin-start/">last part</a> of this
+<a href="https://nullderef.com/series/rust-plugins/">series</a> I wrote some simple
+experiments of plugins both with WebAssembly and dynamic loading. After
+discarding Wasm for this specific PDK, I wanted to try to get a more realistic
+example with dynamic loading and work towards the final implementation.</p>
+</div>
+<div class="paragraph">
+<p>Since the Tremor team suggested that I began by implementing connectors, we’ll
+first have to learn more about them. Matthias ran me through their current state
+in a meeting, which I’ll try to summarize. We won’t need to know much for this
+specific article, though.</p>
+</div>
+<div class="sect1">
+<h2 id="_learning_more_about_connectors">1. Learning more about connectors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>First of all, <a href="https://www.tremor.rs/">Tremor</a> is an event processing system for
+unstructured data. One of its many usages may be to:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Receive logs from different applications in your business.</p>
+</li>
+<li>
+<p>Filter, transform, and mix them up following the same structure.</p>
+</li>
+<li>
+<p>Send all the now structured logs to your database.</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="example.png" alt="example" width="100%"/>
+</div>
+</div>
+<div class="paragraph">
+<p>This currently works with
+<a href="https://www.tremor.rs/docs/artefacts/onramps/">onramps/sources</a>,
+<a href="https://www.tremor.rs/docs/artefacts/offramps/">offramps/sinks</a> and pipelines:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An onramp specifies how Tremor connects to the outside world (or pipeline) in
+order to <em>receive</em> from external systems, such as
+<a href="https://www.tremor.rs/docs/artefacts/onramps/#tcp">TCP</a>,
+<a href="https://www.tremor.rs/docs/artefacts/onramps/#metronome">periodically</a> or
+<a href="https://www.tremor.rs/docs/artefacts/onramps/#postgresql">PostgreSQL</a>.</p>
+</li>
+<li>
+<p>An offramp specifies how Tremor connects to the outside world (or pipeline) in
+order to <em>publish</em> to external systems, such as
+<a href="https://www.tremor.rs/docs/artefacts/offramps/#stdout">stdout</a>,
+<a href="https://www.tremor.rs/docs/artefacts/offramps/#kafka">Kafka</a> or
+<a href="https://www.tremor.rs/docs/artefacts/offramps/#elastic">ElasticSearch</a>.</p>
+</li>
+<li>
+<p>A pipeline is a set of operations (transformation, aggregation, dropping, etc)
+through which events can be routed.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The thing is that some onramps may not only want to receive from external
+systems, but also respond to them directly, acting like an offramp, and
+vice-versa. This is currently implemented with what’s called
+<a href="https://www.tremor.rs/docs/operations/linked-transports/">“linked transports”</a>,
+and it’s specifically useful for some onramps and offramps like REST and
+websocket, where the protocol already provides facility for responding to events
+with a single connection, for example with an ACK.</p>
+</div>
+<div class="paragraph">
+<p>Basically,
+<a href="https://github.com/tremor-rs/tremor-rfcs/blob/connectors-n-streams/text/0000-connectors-streams.md">connectors</a>
+are just a way to abstract over both onramps and offramps under the same
+concept, including linked transports. As the time of writing this article
+they’re still being implemented by Matthias in the
+<a href="https://github.com/tremor-rs/tremor-runtime/tree/connectors"><code>connectors</code> branch</a>
+of <a href="https://github.com/tremor-rs/tremor-runtime">tremor-rs/tremor-runtime</a>, but
+their interface, defined with the
+<a href="https://github.com/tremor-rs/tremor-runtime/blob/883f13e29b4c6ec7b6703f2487aac321c738e7c8/src/connectors.rs#L739"><code>Connector</code>
+trait</a>, is somewhat stable.</p>
+</div>
+<div class="paragraph">
+<p>It’s important to keep the plugin interface as simple as possible. The
+communication details should be left to the runtime, so that the plugin can be
+simplified to just exporting a number of synchronous functions. With this we can
+avoid passing some complex types (<code>async</code>, channels, etc) between the runtime
+and plugin, which can be impossible if you have to maintain ABI stability (<a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+ doesn’t even support <code>async</code>).</p>
+</div>
+<div class="paragraph">
+<p>Once this lean plugin interface is defined, we can create some kind of wrapper
+in the runtime (a <em>manager</em>, in Tremor terms) that handles communication and
+other similar tasks. This exact same thing is done by other crates such as <a href="https://crates.io/crates/rdkafka"><code>rdkafka</code></a>
+, which is based on the C library <a href="https://crates.io/crates/rdkafka-sys"><code>rdkafka-sys</code></a>
+,
+and implements a higher-level asynchronous interface on top of it.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_about_tremor">2. About Tremor</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As always, these articles include a first section with content specific to
+Tremor that you might <a href="#actual_start">want to skip</a>. Unfortunately, with time
+this series will become more and more specific to Tremor; after all I’m just
+reporting my progress on their PDK. Still, having a step-by-step walkthrough for
+a real-life Plugin System will surely be helpful to those attempting to do the
+same.</p>
+</div>
+<div class="sect2">
+<h3 id="_my_next_steps">2.1. My next steps</h3>
+<div class="paragraph">
+<p>In the first meeting we discussed the work I had exposed in my last update.
+Despite the complications (being forced to use <code>#[repr(C)]</code>), the team liked where
+the PDK was going.</p>
+</div>
+<div class="paragraph">
+<p>They suggested me to start with connectors for the real-life example, even
+though they were incomplete because Matthias was still working on them. The best
+way to do this would be to copy the bare minimum from
+<a href="https://github.com/tremor-rs/tremor-runtime">Tremor’s repository</a> and try to get
+the simplest Proof of Concept working.</p>
+</div>
+<div class="paragraph">
+<p>In previous meetings we had discussed the possibility of having generics in the
+interface, but that turned out to not be necessary at all. The <code>Connector</code>
+trait had a workaround to avoid generics with <code>SinkManagerBuilder</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_on_software_engineering">2.2. On software engineering</h3>
+<div class="paragraph">
+<p>At the end of the first meeting, Darach gave some very interesting advice for my
+software engineering career, so I took note of it and reflected for a bit:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>As you get more experience in the field, you talk more and code less. The
+positions you’re in become more about team management than programming. It’s
+good to remember that software engineering isn’t just coding. Also that with
+time, your personality changes, and you have to keep adapting.</p>
+</li>
+<li>
+<p>Team building isn’t about getting a group of people to carry the exact same
+tasks in the same way. Everyone is different; you’ll have to discover the
+strengths and weaknesses of each member and figure out how to mix them up. The
+best teams are often very heterogeneous, and it’s pretty clear to me that this
+is the case with Tremor as well.</p>
+</li>
+<li>
+<p>Don’t care about what others say about you (the <em>don’t worry</em> rule). Don’t let
+“You’ll never end up being X”, “You’re bad at Y” and similars ever affect
+you.</p>
+</li>
+<li>
+<p>Coding is mentally exhausting and burnout is a very common thing. Take good
+rest, breathe, and have fun. Taking a break from programming is a good idea
+from time to time.</p>
+<div class="paragraph">
+<p>I’ve personally experienced burnout myself, so I know this first hand. You may
+immerse yourself too much in computers or coding (specially under a pandemic
+that restricts how much you can go out). Finding a hobby outside that is
+incredibly helpful.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_how_tremor_works">2.3. How Tremor works</h3>
+<div class="paragraph">
+<p>After starting to write the PDK example for connectors and failing because I
+didn’t know what I was doing, I decided to step back and try to understand in
+detail how Tremor works. Once I had that covered, I could try to simplify the
+PDK as much as possible in order to keep my sanity.</p>
+</div>
+<div class="paragraph">
+<p>I jumped into the codebase of
+<a href="https://github.com/tremor-rs/tremor-runtime"><code>tremor/tremor-runtime</code></a> and tried
+to figure out how it was structured, also with the help of the team later on.
+Tremor is loosely based on the actor model. Quoting Wikipedia:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>[The actor model treats the] actor as the universal primitive of concurrent
+computation. In response to a message it receives, an actor can: make local
+decisions, create more actors, send more messages, and determine how to respond
+to the next message received. Actors may modify their own private state, but can
+only affect each other indirectly through messaging (removing the need for
+lock-based synchronization).</p>
+</div>
+</blockquote>
+<div class="attribution">
+— <a href="https://en.wikipedia.org/wiki/Actor_model">Actor model, Wikipedia</a>
+</div>
+</div>
+<div class="paragraph">
+<p>It doesn’t use a language (e.g., Erlang) or framework (e.g., <a href="https://crates.io/crates/bastion"><code>bastion</code></a>
+, maybe in the future) that strictly follows the actor model, but it often
+re-implements the same patterns manually. Tremor is currently implemented with
+<a href="https://en.wikipedia.org/wiki/Asynchrony_(computer_programming)">asynchronous
+programming</a>, which means that instead of threads we’ll be working with <em>tasks</em>,
+a higher level concept. From the <a href="https://crates.io/crates/async-std"><code>async-std</code></a>
+ documentation:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>An executing asynchronous Rust program consists of a collection of native OS
+threads, on top of which multiple stackless coroutines are multiplexed. We refer
+to these as “tasks”. Tasks can be named, and provide some built-in support for
+synchronization.</p>
+</div>
+</blockquote>
+<div class="attribution">
+— <a href="https://docs.rs/async-std/1.10.0/async_std/task/index.html"><code>async_std::task</code></a>, docs.rs
+</div>
+</div>
+<div class="paragraph">
+<p>We could summarize this with the sentence “Tremor is based on actors running in
+separate tasks which communicate asynchronously via channels”. The main actor
+is called the <code>World</code>. It contains the state of the program, such as the
+available artifacts (<em>repositories</em>) and the running ones (<em>registries</em>), and
+it’s used to initialize and control the program.</p>
+</div>
+<div class="paragraph">
+<p>I’ll try to follow what Tremor does in order to get a connector running with the
+help of a few diagrams. The following diagram showcases what happens when a
+<code>World</code> is created. This introduces the concept of <em>Managers</em>, which simply are
+actors in the system that wrap up some functionality.</p>
+</div>
+<div class="paragraph">
+<p>Managers help decouple the communication and the implementation of the
+underlying functionality. They are also useful to remove some boilerplate when
+initializing the components, such as creating the communication channel or
+spawning the component in a separate task.</p>
+</div>
+<div class="paragraph">
+<p>Generally, there’s one manager per artefact type, which helps with their
+initialization process, and then there’s one manager per running instance,
+handling their communication details.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="registering.png" alt="registering" width="100%"/>
+</div>
+</div>
+<div class="paragraph">
+<p>Once all the managers are initialized, Tremor currently registers all the
+built-in artifacts in a “hardcoded” way with <code>register_builtin_types</code>. But
+after the PDK is implemented, this will happen dynamically, i.e., Tremor will
+automatically look for DLL/SO files in its configured directory and try to
+register all the plugins it can find. The user may additionally request a
+specific plugin to be loaded while Tremor is running.</p>
+</div>
+<div class="paragraph">
+<p>Note that the initialization of the connectors is done in two steps: first
+they’re <em>registered</em>, which just means that the connector is now available for
+loading (they’re added to the <em>repository</em>). The connector doesn’t actually
+start running until a binding is created with it, for example with
+<code>launch_binding</code>, which will remove it from the repository and add it to the
+<em>registry</em>, with the currently running artifacts.</p>
+</div>
+<div class="paragraph">
+<p><code>connectors::Manager</code> contains all the connectors running in Tremor, which we’ll
+now try to understand:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="initializing.png" alt="initializing" width="100%"/>
+</div>
+</div>
+<div class="paragraph">
+<p>Since it’s a multistep process (it’s actually more complicated than registration
++ creation), the first part of it already provides the tools to initialize the
+connector (mainly the builder). When the connector needs to start running
+because it’s been added to a binding in the pipeline, the builder helps to
+construct it generically with the previously provided configuration details.
+Finally, it’s moved into a task of its own, so that it may communicate with
+other parts of Tremor.</p>
+</div>
+<div class="paragraph">
+<p>Now that we have a connector running, let’s see how it’s split up into the
+source and sink parts. In a very similar way, a builder is used to initialize
+the underlying source, sink, or both, and then a new task is spawned for them.</p>
+</div>
+<div class="paragraph">
+<p>A manager is also created for each instance of source/sink, which will handle
+the communication with other actors. This way, the source and sink interfaces
+can be kept as simple as possible. These managers will receive connection
+requests from the pipeline and then redirect or read from it.</p>
+</div>
+<div class="paragraph">
+<p>The main difference between sinks and sources currently is that the former can
+also reply to messages within the same connection. This is useful to acknowledge
+the package (“Ack”) or to notify something has failed in the sink (“Fail”
+for a specific event, “CircuitBreaker” to completely stop data from being
+sent).</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="setting-up.png" alt="setting up" width="100%"/>
+</div>
+</div>
+<div class="paragraph">
+<p>Some connectors are based on <em>streams</em>. They are equivalent for example to TCP
+streams, which help to group up messages and avoid mixing them up. They are
+manually started and ended via messages, and the manager saves their state in a
+field called <code>states</code> (since for instance preprocessors may need to keep a
+state). If a connector doesn’t need this, such as the <code>metronome</code>, it may simply
+specify <code>DEFAULT_STREAM_ID</code> as the stream ID always.</p>
+</div>
+<div class="paragraph">
+<p>Codecs and preprocessors are involved here both at the source and sink levels.
+In the source part, the data is transformed or split up through a chain of
+preprocessors and then the codec is applied. For the sinks, the inverse process
+is followed: the data is first encoded into bytes with the codec, and then a
+series of post-processors are applied to the raw binary data.</p>
+</div>
+<div class="paragraph">
+<p>After the full interface of connectors is done, I could implement the two
+following connector plugins:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/tremor-rs/tremor-runtime/blob/main/src/sink/blackhole.rs">Blackhole</a>
+is used for benchmarking. It takes measurements of the end to end times of each
+event traversing the pipeline and at the end prints an HDR (High Dynamic
+Range) <a href="http://hdrhistogram.org/">histogram</a>.</p>
+</li>
+<li>
+<p><a href="https://github.com/tremor-rs/tremor-runtime/blob/main/src/source/blaster.rs">Blaster</a>
+replays a series of events specified in a file, which is specially useful for
+performance testing.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Both of these are relatively simple and will be helpful to benchmark the PDK
+later on. But that isn’t really important right now; I first need to get the PDK
+working, and then I can care about performance.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="actual_start">3. Taking a look at eBPF first</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the previous articles I mostly considered using either WebAssembly or Dynamic
+Loading. What I didn’t even know about is <a href="https://ebpf.io/">eBPF</a>, “a
+revolutionary technology with origins in the Linux kernel that can run sandboxed
+programs in an operating system kernel”. However, similarly to WebAssembly, its
+usage has been expanded to user-space applications. eBPF defines a set of
+bytecode instructions that may be ran by a virtual machine anywhere, similarly
+to how Wasm works.</p>
+</div>
+<div class="paragraph">
+<p>There are multiple active crates for eBPF in Rust. <a href="https://crates.io/crates/libbpf_rs"><code>libbpf_rs</code></a>
+, <a href="https://crates.io/crates/redbpf"><code>redbpf</code></a>
+ and <a href="https://crates.io/crates/aya"><code>aya</code></a>
+ are specific to the Linux Kernel. <a href="https://crates.io/crates/solana_rbpf"><code>solana_rbpf</code></a>
+ is a virtual machine, so it only works for user-space. The
+maintainers of the latter use it to <a href="https://solana.com/">safely run apps on the
+blockchain</a>, and their crate seems to be a fork of the now abandoned (?) <a href="https://crates.io/crates/rbpf"><code>rbpf</code></a>
+. <a href="https://www.youtube.com/watch?v=xj0PBFjLm1U&amp;t=8701s">This recent
+talk at LPC 2021</a> explains the situation of eBPF in Rust quite well (mainly for
+Aya, so it’s mostly related to the Linux Kernel).</p>
+</div>
+<div class="paragraph">
+<p>Unlike WebAssembly, you don’t necessarily need to serialize or write to an
+intermediate memory. Since you fully control how the virtual machine works, the
+runtime could implement a custom sandbox that simply checks for the read/written
+addresses in the plugins to make sure they aren’t out of bounds, while still
+sharing the same memory space. So in terms of performance, Tremor itself <em>could</em>
+use it — though there’s still the penalty of interpreting plugins instead of
+running them natively.</p>
+</div>
+<div class="paragraph">
+<p>The problem in this case is that, for what I’ve found, Rust support leaves to be
+desired. Most people seem to use C for eBPF and I think it shows; the number of
+tutorials/guides/articles about eBPF on Rust is incredibly small. There’s no
+official target to compile Rust to eBPF, and the only user-space runtime we can
+use is <code>rbpf</code> and its derivatives. Looking for information about this topic was
+somewhat frustrating, specially because the search results are mixed up with
+kernel-only BPF, which is not relevant to us.</p>
+</div>
+<div class="paragraph">
+<p>It doesn’t really seem like the best choice right now, in my opinion. We would
+have to write almost everything about the plugin system from scratch, including
+the sandbox itself (allowing only different sets of syscalls, bounds checking,
+etc). It would be considerably more cumbersome than using something like
+<code>abi_stable</code>. Maybe in the future it’d be worth considering it in detail and
+running some benchmarks, but for now I think dynamic loading is still the clear
+winner for Tremor. Still, I’m surprised by how flexible eBPF seems to be, and
+how it’s possible to avoid the memory barrier problem found in Wasm.</p>
+</div>
+<div class="paragraph">
+<p>Cheers to Dr. Florentin Rochet for letting me know about this technology — though he’s considering switching to WebAssembly for his project. He’s currently
+using it to research <em>pluggable</em> anonymous protocols like Tor, which would allow
+patches to their code to happen at runtime <a href="#florentin-1">[1]</a> <a href="#florentin-2">[2]</a>
+<a href="#florentin-3">[3]</a> <a href="#florentin-4">[4]</a>. This makes it faster to fix vulnerabilities
+until it’s properly updated upstream, among other things. Pretty cool :)</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_getting_deeper_into_dynamic_linking">4. Getting deeper into dynamic linking</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now that we definitely know how to approach the PDK, we have two choices: using
+raw dynamic linking with the C ABI and <code>libloading</code>, or trying out the
+<code>abi_stable</code> crate. I suggest we do both. We’ll most likely end up using the
+latter because it should be easier and safer, but it’s still a very good idea to
+know how <code>abi_stable</code> works under the hood.</p>
+</div>
+<div class="paragraph">
+<p>In the previous article I created a <code>dynamic-simple</code> experiment in examples to
+<a href="https://github.com/marioortizmanero/pdk-experiments">the pdk-experiments
+repository</a>. In this one we’ll try to get an implementation that’s closer to
+what we need for connectors, so I’ll call the new experiment
+<a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors"><code>dynamic-connectors</code></a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_versioning">5. Versioning</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In order to get more advanced things running, we should figure out how to
+properly embed metadata in the plugin. In order to export any type, we already
+know that it must be FFI-safe. But there’s something else of great importance:
+versioning. In order to safely load the plugin, one must ensure that the
+versions of the <code>common</code> crate match — or at least that they’re compatible — for both the runtime and the plugin. Here’s an example of how this could go
+wrong if we don’t save information about versioning:</p>
+</div>
+<div class="listingblock">
+<div class="title">Plugin implementation</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub mod common {
+    // This is the declaration for the plugin data in version 0.1
+    #[repr(C)]
+    pub struct PluginData {
+        pub name: &amp;&#39;static [u8],
+        pub new: unsafe extern &#34;C&#34; fn() -&gt; State,
+    }
+}
+
+#[no_mangle]
+pub static PLUGIN_DATA: common::PluginData = common::PluginData {
+    name: b&#34;test&#34;,
+    new
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Runtime implementation</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub mod common {
+    // And this is the same type, but in version 0.2
+    #[repr(C)]
+    pub struct PluginData {
+        pub name: &amp;[u8],
+        pub new: unsafe extern &#34;C&#34; fn() -&gt; State,
+        // NOTE: this field is new here!
+        pub connect: unsafe extern &#34;C&#34; fn(&amp;mut State) -&gt; bool
+    }
+}
+
+fn main() -&gt; Result&lt;(), anyhow::Error&gt; {
+    unsafe {
+        let library = Library::new(path)?;
+
+        let data = library
+            .get::&lt;*const common::PluginData&gt;(b&#34;PLUGIN_DATA&#34;)?
+            .read(); // !!! UNDEFINED BEHAVIOUR !!! What will `data.connect` be?
+    }
+
+    Ok(())
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the code above, we can see that, even though both versions of <code>PluginData</code>
+are FFI-safe, their layouts aren’t the same, because the last one has a new
+field. When trying to read <code>PLUGIN_DATA</code>, undefined behaviour will occur (most
+likely accessing to an invalid memory address).</p>
+</div>
+<div class="paragraph">
+<p>Every plugin should at least export the version of <code>common</code> it uses, and the
+runtime should check it before anything else.</p>
+</div>
+<div class="paragraph">
+<p>Specifically, the type used to export the version has to be:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>FFI-safe</strong>, so <code>&amp;str</code> or <code>CStr</code> are discarded (the latter is a Rust wrapper and
+not <code>#[repr(C)]</code>).</p>
+</li>
+<li>
+<p><strong>Stable</strong>. <code>abi_stable::Rstr</code> won’t work either because the versions for
+<code>abi_stable</code> might mismatch, since we’re reading the symbol before knowing
+that. Its layout must be <em>always</em> the same.</p>
+</li>
+<li>
+<p><strong>Thread-safe</strong> (implement <code>Sync</code>). If we wanted to use something like <code>*const
+c_char</code>, the compiler would throw the following error, because it’s a pointer:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">error[E0277]: `*const i8` cannot be shared between threads safely
+ --&gt; src/lib.rs:4:1
+  |
+4 | pub static VERSION: *const c_char = b&#34;0.1.0\0&#34;.as_ptr() as _;
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `*const i8` cannot be shared between threads safely
+  |
+  = help: the trait `Sync` is not implemented for `*const i8`
+  = note: shared static variables must have a type that implements `Sync`</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Instead, we can use a function that returns the string:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[no_mangle]
+pub extern &#34;C&#34; fn get_version() -&gt; *const c_char {
+    b&#34;0.1.0\0&#34;.as_ptr() as _
+}</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Finally, there are multiple ways to handle versioning within the runtime,
+depending on how fine-grained (but also more error-prone) it should be:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The simplest way possible: both version strings must be strictly the same.</p>
+</li>
+<li>
+<p>The plugin system could take advantage of <a href="https://semver.org/">semantic
+versioning</a>. Only differences in the major version (X.0.0) would be
+incompatible. The problem in this case is that this is kept track of manually,
+and it’s possible that a breaking change is introduced by mistake.</p>
+</li>
+<li>
+<p>Since there are actually many kinds of plugins (connectors, codecs, etc),
+rather than checking the version for the entire <code>common</code> crate, there could be
+a version <em>per type of plugin</em>. If a change in the <code>common</code> crate only
+modifies structures for codec plugins, the rest of the plugins would still
+work.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_loading_plugins">6. Loading plugins</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Another complicated topic is plugin distribution and management. In order to
+make it easier for the user, plugins should be found and loaded automatically.
+But how exactly should this work? I’ll explain a few ideas.</p>
+</div>
+<div class="paragraph">
+<p>Firstly, the plugins can be found automatically by searching one or more
+user-configurable directories. For instance, in Tremor’s case we could use the
+environment variable
+<a href="https://www.tremor.rs/docs/tremor-query/modules#defaults"><code>TREMOR_PATH</code></a>. Once we
+have a list of directories where we should look for plugins there are two ways
+to do it:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Only checking the immediate files in the directory</p>
+</li>
+<li>
+<p>Recursively, which is more convenient but might cause issues if the node is
+too deep. If the user specified <code>/</code> as a directory, the runtime would most
+likely crash unless we used something efficient like
+<a href="https://github.com/sharkdp/fd"><code>fd</code></a> or added a depth limit (which is probably
+the most sensible choice here).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Once we’re traversing a directory, we have to figure out which files are plugins
+and which aren’t. The easiest way to do it is with file extensions, but this
+introduces the problem of cross-compatibility. Dynamic libraries usually have a
+different extension name for each Operating System: Windows uses <code>.dll</code>, Linux
+and FreeBSD use <code>.so</code>, and macOS uses <code>.dylib</code>, as specified by
+<a href="https://doc.rust-lang.org/std/env/consts/constant.DLL_EXTENSION.html"><code>std::env::consts::DLL_EXTENSION</code></a>.
+It would make sense that our runtime only tried to load plugins with their
+respective extensions.</p>
+</div>
+<div class="paragraph">
+<p>However, these extensions are just conventions; we could just enforce a single
+extension name, as
+<a href="https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#tips"><code>libloading</code>
+suggests</a>. It might be easier if we just used <code>.module</code> for everything, for
+example. In order to make them even more convenient, it’d be nice if they also
+worked for all of these Operating Systems within a single file. Apparently, this
+is called a <a href="https://en.wikipedia.org/wiki/Fat_binary">“Fat binary”</a> and it was
+used in the past, but it’d be extremely complicated to get working now
+<a href="#fat-binaries">[5]</a>, so we’ll just forget about it.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, the Tremor plugin system requires that plugins can be loaded <em>both
+at initialization time and at runtime</em>. There is a decision to be made in here
+about how the latter should work:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Manually: after adding the new plugin to the configured directories (or
+specifying its full path), the user would input in some way that it should be
+loaded (for example with the CLI tool).</p>
+</li>
+<li>
+<p>Automatically: the runtime could detect whenever a new plugin is added to the
+list with a crate like <a href="https://crates.io/crates/notify"><code>notify</code></a>
+. Most Operating Systems have some
+way to get a notification whenever a file or directory changes. In case a new
+file was added to any of the configured directories, the runtime could try to
+load it. This way, it’d work with no user interaction, other than adding the
+file to one of the directories.</p>
+</li>
+<li>
+<p>A combination of both: if the directories configured to look for plugins can’t
+be changed at runtime it might be interesting to also let the user manually
+load plugins in specific paths.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_handling_state">7. Handling state</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Most plugins will want to keep some kind of state between calls to its
+interface. For example, the TCP connector will need to keep its socket after its
+initialization in order to send or receive messages. This means that most of
+them will follow the following pattern:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">let state = plugin.new();
+plugin.something(&amp;mut state);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The state is first created with a <code>new</code> function that initializes everything as
+needed, and then a mutable reference is passed to its functions. The main
+problem here is, if each plugin is going to have its own type of state, what’s
+the function signature of <code>Plugin::something</code>, defined in <code>common</code>?</p>
+</div>
+<div class="sect2">
+<h3 id="_generics_in_plugins">7.1. Generics in plugins?</h3>
+<div class="paragraph">
+<p>In a regular Rust project we’d just make <code>Plugin::something</code> generic over a
+common trait that all states should implement. Unfortunately, generics in
+plugins are fundamentally impossible. In Rust, monomorphization turns generic
+code into specific code by filling in the concrete types that are used when
+<strong>compiled</strong> <a href="#generics">[6]</a>. Plugins are loaded at runtime, so they may want to use
+types the compiler didn’t generate code for.</p>
+</div>
+<div class="paragraph">
+<p>It’s really easy to prove in Rust with the following example. We’ll try to
+<em>load</em> an external function with generics:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">extern &#34;C&#34; {
+    fn foo&lt;T&gt;(_: T);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This results in the following error:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">error[E0044]: foreign items may not have type parameters
+ --&gt; src/lib.rs:2:5
+  |
+2 |     fn foo&lt;T&gt;(_: T);
+  |     ^^^^^^^^^^^^^^^^ can&#39;t have type parameters
+  |
+  = help: replace the type parameters with concrete types like `u32`
+
+error: aborting due to previous error
+
+For more information about this error, try `rustc --explain E0044`.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Interestingly enough, the compiler lets you export generic functions declared
+<em>in Rust</em>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">extern fn foo&lt;T&gt;(_: T) {}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This confused me in the beginning; it made me think generic functions through
+FFI were somehow be possible. But as described in
+<a href="https://github.com/rust-lang/rust/pull/15831">the original issue that allowed
+them</a>, they’re only supported to pass callbacks to C functions.</p>
+</div>
+<div class="paragraph">
+<p>Note that generics in plugins do work for lifetimes. This will compile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">extern &#34;C&#34; {
+    fn foo&lt;&#39;a&gt;(_: &amp;&#39;a str) -&gt; &amp;&#39;a str;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Even though lifetimes and generics share the same syntax, in the case of
+lifetimes they are only annotations for the Rust compiler; monomorphization is
+not applied.</p>
+</div>
+<div class="paragraph">
+<p>If you want to know more about this topic, I’d suggest watching
+<a href="https://www.youtube.com/watch?v=xcygqF5LVmM">this video by Jon Gjengset</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_dyn_in_plugins">7.2. <code>dyn</code> in plugins?</h3>
+<div class="paragraph">
+<p>The alternative to generics is often using trait object types with <code>dyn</code>. Again,
+will that work for plugins? Let’s try:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub trait PluginState {}
+pub extern fn foo&lt;T&gt;(_: &amp;dyn PluginState) {}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Compiling…​</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">warning: `extern` fn uses type `dyn PluginState`, which is not FFI-safe
+ --&gt; src/lib.rs:2:25
+  |
+2 | pub extern fn foo&lt;T&gt;(_: &amp;dyn PluginState) {}
+  |                         ^^^^^^^^^^^^^^^^ not FFI-safe
+  |
+  = note: `#[warn(improper_ctypes_definitions)]` on by default
+  = note: trait objects have no C equivalent</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Nope. <code>dyn</code> is strictly part of the Rust ABI, so it’s not stable for our plugin
+system.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_c_way">7.3. The C way</h3>
+<div class="paragraph">
+<p>There are two popular ways to approach this in C:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Globals, but they are hard to deal with in concurrent programs</p>
+</li>
+<li>
+<p><code>void*</code>, which is a pointer with no associated type <a href="#void-ptr">[7]</a></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>For safety’s sake, let’s see how the second one works. This pattern is used for
+example in PulseAudio <a href="#pulseaudio-ptr">[8]</a>, in which callbacks pass a <code>void*</code>
+parameter for user data. Here’s a simpler program:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+// The state of the plugin
+typedef struct {
+    int counter;
+} plugin_state_t;
+
+// Exported by the plugin, initializes the state
+void* new() {
+    plugin_state_t* plugin_state = malloc(sizeof(plugin_state_t));
+    plugin_state-&gt;counter = 0;
+    return (void*) plugin_state;
+}
+
+// Exported by the plugin, which takes a pointer to its state
+void something(void* state) {
+    // We know the runtime used `new` to initialize the state, so we can cast it
+    // back to its original type.
+    plugin_state_t* plugin_state = (plugin_state_t*) state;
+
+    printf(&#34;Current state: { counter = %d }\n&#34;, plugin_state-&gt;counter);
+    plugin_state-&gt;counter++;
+    printf(&#34;Final state: { counter = %d }\n&#34;, plugin_state-&gt;counter);
+}
+
+int main() {
+    // We initialize the plugin, which returns its state
+    void* state = new();
+    // When calling anything from the plugin we pass its state
+    something(state);
+    // Don&#39;t forget!
+    free(state);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This does work perfectly, and we could port it to Rust as a straightforward
+solution. However, it has the following inconvenients:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It’s very <code>unsafe</code>. We’d need to add some kind of wrapper/macro for the plugin
+developers to avoid invoking undefined behaviour.</p>
+</li>
+<li>
+<p>We know nothing about the state. A <code>void*</code> can’t enforce <code>Debug</code> being
+implemented, nor any base other method or trait that might be of interest to
+us.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Based on how this works, we can try to extend it by implementing
+intheritance-based polymorphism manually.
+<a href="https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/">This
+blog post by Michael
+F. Bryan’s</a> covers the topic extremely well.</p>
+</div>
+<div class="paragraph">
+<p>Here’s how our previous example would look like, which could be translated to
+Rust with no problems whatsoever:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+// The base plugin type
+typedef struct base_state_t {
+    void (*print)(struct base_state_t *);
+} base_state_t;
+
+// The state of the plugin, child of the above type
+typedef struct {
+    base_state_t base;
+    int counter;
+} plugin_state_t;
+
+// The implementation of `print` for the `plugin_state_t` child
+void print(base_state_t* state) {
+    plugin_state_t* plugin_state = (plugin_state_t*) state;
+    printf(&#34;Current state: { counter = %d }\n&#34;, plugin_state-&gt;counter);
+}
+
+// Exported by the plugin, initializes the state
+base_state_t* new() {
+    base_state_t base = {print};
+
+    plugin_state_t* plugin_state = malloc(sizeof(plugin_state_t));
+    plugin_state-&gt;base = base;
+    plugin_state-&gt;counter = 0;
+    return (base_state_t*) plugin_state;
+}
+
+// Exported by the plugin, which takes a pointer to its state
+void something(void* state) {
+    // We know the runtime used `new` to initialize the state, so we can cast it
+    // back to its original type.
+    plugin_state_t* plugin_state = (plugin_state_t*) state;
+    plugin_state-&gt;counter++;
+}
+
+int main() {
+    // We initialize the plugin, which returns its state
+    base_state_t* state = new();
+    // When calling anything from the plugin we pass its state
+    state-&gt;print(state);
+    something((void*) state);
+    state-&gt;print(state);
+    // Don&#39;t forget!
+    free(state);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The main difference in the code is the new base class <code>plugin_base_t</code>. It
+defines a single function <code>print</code> that should be implemented by its children,
+and it could also include other fields that would be inherited. Casting between
+<code>base_state_t</code> and <code>plugin_base_t</code> is explicitly allowed by the C standard as
+long as the base class is the first member in the struct, so this is sound.</p>
+</div>
+<div class="paragraph">
+<p>This covers all of our necessities. The only remaining problem is that it’s
+still quite unsafe to use. Thankfully, we can avoid most user errors by using
+the crate <a href="https://crates.io/crates/thin_trait_object"><code>thin_trait_object</code></a>
+, which provides a very flexible
+procedural macro to automatically write all the necessary boilerplate in Rust.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="error_handling">8. Error Handling</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I’ve created a few more plugins to see how this approach reacts to some common
+errors. Since in the end we aren’t using a sandbox, I wonder what kind of errors
+we <em>can’t</em> recover from.</p>
+</div>
+<div class="paragraph">
+<p>The full source for the example that’s supported to work is
+<a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-metronome">here</a>.
+Let’s see a few ways in which the plugin could go wrong:</p>
+</div>
+<div class="sect2">
+<h3 id="_missing_fields">8.1. Missing fields</h3>
+<div class="paragraph">
+<p>The <code>plugin-missing</code> directory contains an empty plugin. It doesn’t export any
+fields at all, like the name or the version. This one is already handled by
+<code>libloading</code>, actually. When using <code>library.get(&#34;name&#34;)</code>, if <code>&#34;name&#34;</code> is not
+exported by the shared object, the following error will show up:</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-missing">See the full code here</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-missing
+Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.so: undefined symbol: get_name</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_mismatch">8.2. Version mismatch</h3>
+<div class="paragraph">
+<p>After implementing the versioning system, we can see how these kinds of errors
+can be caught safely:</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-versionmismatch">See the full code here</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-versionmismatch
+Initializing plugin versionmismatch
+Version mismatch. Aborting.
+Error when setting up the plugin: version mismatch: 0.0.0 incompatible with 0.1.0</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_wrong_type">8.3. Wrong type</h3>
+<div class="paragraph">
+<p>Libloading assumes the type that’s being loaded is correct. If for example the
+plugin exported the <code>get_name</code> function, but it returned an integer instead of a
+string, we’d be in undefined-behaviour-land:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>Users of this API must specify the correct type of the function or variable
+loaded. Using a <code>Symbol</code> with a wrong type is undefined.</p>
+</div>
+</blockquote>
+<div class="attribution">
+— <a href="https://docs.rs/libloading/latest/libloading/struct.Library.html#safety-1" class="bare">https://docs.rs/libloading/latest/libloading/struct.Library.html#safety-1</a>
+</div>
+</div>
+<div class="paragraph">
+<p>Ignoring this will cause an unavoidable segfault:</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongtype">See the full code here</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-wrongtype
+Segmentation fault (core dumped)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_wrong_address">8.4. Wrong address</h3>
+<div class="paragraph">
+<p>Unfortunately, there’s not much we can do about out of bounds pointers. If the
+plugin exports, e.g., the name with a null pointer, we’ll just get a
+segmentation fault:</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongaddress">See the full code here</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-wrongaddress
+Segmentation fault (core dumped)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In order to avoid this, the runtime could manually check that the pointer isn’t
+zero, the usual value for null. But the same would still happen if the pointer’s
+value was 1 instead of 0. And even if it was within bounds, it could just point
+to garbage anyway.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_panicking">8.5. Panicking</h3>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+This seems to be Work in Progress, and panicking through the FFI boundary
+will be allowed after
+<a href="https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html"><code>#![feature(c_unwind)</code></a>]
+is implemented.
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>Panicking is not supported in the C ABI; it’s considered undefined behaviour
+<a href="#panic-ffi">[9]</a>. If a plugin panics, the entire program will most likely abort.
+Plugin developers should wrap every single exported function in
+<a href="https://doc.rust-lang.org/std/panic/fn.catch_unwind.html"><code>catch_unwind</code></a> in
+order to not crash the entire runtime when something goes wrong:</p>
+</div>
+<div class="listingblock">
+<div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-panic">See the full code here</a></div>
+<div class="content">
+<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-panic
+Segmentation fault (core dumped)</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_full_implementation">9. Full implementation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The example at
+<a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors"><code>dynamic-connectors</code></a>
+approaches the topics covered in this section in the simplest of ways, while
+still implementing a working plugin system. More specifically:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Versioning requires an exact match between the version of <code>common</code> in the
+plugin and the runtime.</p>
+</li>
+<li>
+<p>The plugins are manually loaded given a directory.</p>
+</li>
+<li>
+<p>The runtime looks for plugins in the immediate files of the directory, i.e.,
+non-recursively.</p>
+</li>
+<li>
+<p>The state is passed as a void pointer, rather than trying to use inheritance.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Most of these are just decisions to be made by the designer of the system. I
+chose to go for the easiest options so that we can focus on <code>abi_stable</code> sooner.</p>
+</div>
+<div class="paragraph">
+<p>I did implement a declarative macro to make plugin-writing easier and less
+error-prone, just to see how it’d work. It takes care of most of the
+boilerplate, which basically consists on creating functions for the name, kind,
+and version returning <code>*const c_char</code>, and exporting the plugin data struct. For
+the curious, it’s defined in the <code>common</code> directory.</p>
+</div>
+<div class="listingblock">
+<div class="title">Sample usage of the macro</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">define_connector_plugin! {
+    name: &#34;metronome&#34;,
+    data: ConnectorPlugin {
+        new,
+        something,
+        is_sink: false,
+        is_source: true
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The plugin system supports multiple types of plugins (connectors, codecs, etc),
+so there’s actually a specific macro and data structure for each of them.</p>
+</div>
+<div class="paragraph">
+<p>Apart from the examples listed in the <a href="#error_handling">Error Handling</a> section, I’ve created a
+proper plugin that is supposed to work, with the name <code>plugin-metronome</code>. It was
+supposed to implement the
+<a href="https://www.tremor.rs/docs/artefacts/onramps#metronome"><code>metronome</code> connector</a>,
+but I’ve decided to just leave that for the next post. I’d rather spend my time
+writing the real-life example with the <code>abi_stable</code> version, because it’s what
+we’ll end up using.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">10. Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This article has covered a lot of questions that one may encounter when trying
+to use dynamic loading for a plugin system. It’s definitely a complicated task
+with lots of decisions to make, and plenty of pitfalls. This is why I’d love to
+try <code>abi_stable</code> in detail, which would let us do the same things but without a
+line of <code>unsafe</code>.</p>
+</div>
+<div class="paragraph">
+<p>In my opinion, although <code>abi_stable</code> is a very large crate and somewhat hard to
+learn, most of the problems this post exposes are greatly simplified thanks to
+it. In the next article I’ll see the differences between both approaches.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="ulist bibliography">
+<ul class="bibliography">
+<li>
+<p><a id="florentin-1"></a>[1] <a href="https://pluginized-protocols.org/">Pluginized
+Protocols</a></p>
+</li>
+<li>
+<p><a id="florentin-2"></a>[2] <a href="https://pquic.org/">Pluginized QUIC</a></p>
+</li>
+<li>
+<p><a id="florentin-3"></a>[3]
+<a href="https://petsymposium.org/2019/files/hotpets/proposals/rochet-fan.pdf">Flexible
+Anonymous Network (paper)</a></p>
+</li>
+<li>
+<p><a id="florentin-4"></a>[4]
+<a href="https://petsymposium.org/2019/files/hotpets/slides/rochet-fan-slides.pdf">Flexible
+Anonymous Network (slides)</a></p>
+</li>
+<li>
+<p><a id="fat-binaries"></a>[5] <a href="https://stackoverflow.com/a/63346857/11488352">(C/C++)
+How to generate executable file that can run on both Windows and Linux? — StackOverflow</a></p>
+</li>
+<li>
+<p><a id="generics"></a>[6]
+<a href="https://doc.rust-lang.org/book/ch10-01-syntax.html#performance-of-code-using-generics">Performance
+of Code Using Generics — The Rust Programming Language</a></p>
+</li>
+<li>
+<p><a id="void-ptr"></a>[7]
+<a href="https://www.learncpp.com/cpp-tutorial/void-pointers/">Void pointers — Learn
+C++</a></p>
+</li>
+<li>
+<p><a id="pulseaudio-ptr"></a>[8]
+<a href="https://freedesktop.org/software/pulseaudio/doxygen/stream_8h.html#a2dcc985c65964da290a0c2e1bf103175"><code>pa_stream_set_write_callback</code> — PulseAudio docs</a></p>
+</li>
+<li>
+<p><a id="panic-ffi"></a>[9]
+<a href="https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics">FFI and panics — Rustonomicon</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+]]></content:encoded>
+    </item>
+    
+  </channel>
+</rss>
