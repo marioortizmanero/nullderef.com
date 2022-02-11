@@ -374,7 +374,7 @@ let value = Value::Array(RVec::new());
 ----
 
 It gets a bit more complicated when the old types are exposed in methods,
-because you have to decide whether to expand the FFI barrier from the
+because you have to decide whether to expand the FFI boundary from the
 _internals_ of `Value` to the _users_ of `Value`. For instance, the
 `Value::Object` variant holds a `RHashMap` now, but the method
 `Value::as_object` used to return a reference to a `HashMap`. You'll get another
@@ -421,7 +421,7 @@ I https://nullderef.com/blog/plugin-abi-stable/#_type_conversions[already
 investigated in the past], and the good news is that converting between types in
 `std` and `abi_stable` is stem:[O(1)]. Most of the times it's equivalent to a
 pointer cast or a match. So here's when the {work} approach is useful: we'll
-just keep the FFI barrier minimal and add conversions as early as possible.
+just keep the FFI boundary minimal and add conversions as early as possible.
 After we're done, we'll see if there are any performance issues, and then work
 on them.
 
@@ -563,7 +563,7 @@ We don't need to write any additional methods for the new `PdkValue`, only its
 conversions to and from the regular `Value`. This would be equivalent to,
 instead of passing a `Vec` to the PDK, replacing it with a `*const u8` for the
 data and a `u32` for the length. We're just simplifying the types at the FFI
-barrier, and then maybe converting them back for access to the full
+boundary, and then maybe converting them back for access to the full
 functionality.
 
 The problem in my case is that these conversions are now stem:[O(n)] instead of
