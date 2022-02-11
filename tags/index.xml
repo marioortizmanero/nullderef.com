@@ -11,11 +11,11 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Mon, 08 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 11 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>abi</title>
       <link>https://nullderef.com/tags/abi/</link>
-      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/tags/abi/</guid>
       <description></description>
@@ -25,7 +25,7 @@
     <item>
       <title>dynamic-loading</title>
       <link>https://nullderef.com/tags/dynamic-loading/</link>
-      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/tags/dynamic-loading/</guid>
       <description></description>
@@ -35,7 +35,7 @@
     <item>
       <title>ffi</title>
       <link>https://nullderef.com/tags/ffi/</link>
-      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/tags/ffi/</guid>
       <description></description>
@@ -45,7 +45,7 @@
     <item>
       <title>plugin</title>
       <link>https://nullderef.com/tags/plugin/</link>
-      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/tags/plugin/</guid>
       <description></description>
@@ -53,9 +53,19 @@
     </item>
     
     <item>
+      <title>prototyping</title>
+      <link>https://nullderef.com/tags/prototyping/</link>
+      <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/tags/prototyping/</guid>
+      <description></description>
+      <content:encoded><![CDATA[]]></content:encoded>
+    </item>
+    
+    <item>
       <title>rust</title>
       <link>https://nullderef.com/tags/rust/</link>
-      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/tags/rust/</guid>
       <description></description>
@@ -65,7 +75,7 @@
     <item>
       <title>rustlang</title>
       <link>https://nullderef.com/tags/rustlang/</link>
-      <pubDate>Mon, 08 Nov 2021 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/tags/rustlang/</guid>
       <description></description>
