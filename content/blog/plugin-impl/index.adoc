@@ -5,7 +5,7 @@ author: "Mario Ortiz Manero"
 images: ["/blog/plugin-impl/dirty.jpg"]
 tags: ["rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "prototyping"]
 series: ["rust-plugins"]
-date: 2022-01-28
+date: 2022-02-11
 GHissueID: 10
 ---
 
