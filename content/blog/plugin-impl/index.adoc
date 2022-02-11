@@ -770,7 +770,7 @@ pub fn run() {
     for id in 0..NUM_THREADS {
         handles.push(thread::spawn(move || {
             let ctx = ConnectorContext { id, callback };
-            plugin_fn(&ctx);
+            plugin_fn(ctx);
         }))
     }
 
@@ -787,7 +787,10 @@ pub fn run() {
 ----
 // This only invokes the callback with its own ID.
 pub extern "C" fn plugin_fn(ctx: &ConnectorContext) {
-    (ctx.callback)(ctx.id);
+    // Asynchronous communication!
+    thread::spawn(move || {
+        (ctx.callback)(ctx.id);
+    });
 }
 ----
 
@@ -873,7 +876,7 @@ pub extern "C" fn plugin(sender: BoxedSender) {
     // Asynchronous communication!
     task::spawn(async move {
         sender.send(Reply::Fail).await.unwrap()
-    })
+    });
 }
 ----
 
