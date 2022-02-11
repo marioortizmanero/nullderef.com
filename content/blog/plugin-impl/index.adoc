@@ -943,8 +943,8 @@ This is essential in order to actually improve compilation times, which is one
 of the main objectives of our plugin system. There are two ways to look at
 compilation times:
 
-. For runtime development
-. For plugin development
+. For *runtime* development
+. For *plugin* development
 
 In both cases, we want to compile _only_ either component. If we're developing a
 plugin, it makes no sense to be forced to compile the runtime as well, because
@@ -970,19 +970,37 @@ suboptimal, but it works. Moving so much stuff into a separate `common` crate
 would mean a _ton_ of conflicts, so I would rather leave it for whenever my
 first iteration of the PDK is merged.
 
-.The {work} interface for the plugin system
+.The {work} structure for the plugin system
 image::separation-temporary.png[align=center, width=30%]
 
 == Getting closer to deployment
 
 Preparing the release for the plugin system has always sounded like a quite
 complicated task. I've never wanted to introduce too many changes at once
-because otherwise it will become very hard to review and publish. This is why I
-decided to make some step-by-step plans for the PDK release:
+because otherwise it will become very hard to review and merge into the main
+branch. This is why I decided to plan the PDK release in four separate
+iterations:
 
-. *Release the first version of the PDK*
-. *Separate the runtime from the interface*
-. *Actually make the plugins external*
+. *Define the new interface and use it internally*: the plugin system should be
+  as minimal as possible. The program can be converted to support plugins, but
+  while keeping them in the same binary, for simplicity. The plugin loading
+  functionality can be left as a proof-of-concept for now. Still, this release
+  could maybe include a couple external plugins for testing purposes.
+. *Separate the runtime from the interface*: what I talked about in the previous
+  section can actually be done now. Plugins should be able to depend _only_ on
+  the `common` crate, rather than on the runtime. We may also run into many Git
+  conflicts while doing this, but it should be a much faster process, since the
+  crate separation is all we have to worry about now.
+. *Actually make the plugins external*: since the in-tree plugins are
+  implemented with the new interface, making them actually external should be
+  trivial. It'll just require re-organizing the repository with the new crates,
+  fixing the build system, and similars.
+. *Polishing for deployment*: last improvements before the release, extensive
+  documentation, evaluating the final results, etc.
+
+Step 2 and 3 can be interchanged as desired, but I thought that the sooner we
+separate the crates, the better. Plugin development should be much faster after
+that step for everyone else.
 
 == Conclusion
 
