@@ -645,8 +645,8 @@ Surprisingly easy to get working! Two problems, though:
   could be worse, but it can get annoying when you have many ``Value``s in your
   runtime and have to pass them to the plugins.
 +
-This is actually trivial enough to simplify with a macro, perferrably
-procedural, at the cost of introducing more complexity. We're currently
+This is actually trivial enough to simplify with a macro -- perferrably
+procedural -- at the cost of introducing more complexity. We're currently
 following {work} so we'll leave that for the future.
 * *Performance*: passing the value to the plugin and converting it back in there
   means we're iterating the data twice. With experiments that I'll include in
@@ -712,7 +712,7 @@ juggling. I will confirm this in the next post with some benchmarks, though.
 
 === Channels
 
-Tremor also needs some channels for asynchronous communication. For example, a
+Tremor also needs channels for asynchronous communication. For example, a
 connector may need to indicate the runtime that the connection has been lost at
 any point of its execution. We can't delay that until the next synchronous call
 from the runtime because we don't know when that might happen, and we want to
@@ -743,7 +743,7 @@ a bit] with them and it's a good alternative if you:
   it's a function and not a closure, so you'd need globals, and that can get
   nasty real quick.
 
-.In the shared crate, the type definition
+.In the shared crate: the type definition
 [source, rust]
 ----
 #[repr(C)]
@@ -753,7 +753,7 @@ pub struct ConnectorContext {
 }
 ----
 
-.In the runtime, the callback definition and the plugin loading
+.In the runtime: the callback definition and the plugin loading
 [source, rust]
 ----
 // This will run a few plugins concurrently.
@@ -782,7 +782,7 @@ pub fn run() {
 }
 ----
 
-.In the plugin, the functionality implementation
+.In the plugin: the functionality implementation
 [source, rust]
 ----
 // This only invokes the callback with its own ID.
@@ -823,7 +823,7 @@ We can resort to opaque types for anything we can't remove or simplify. This is
 what I did in order to have asynchronous channels available on the plugins.
 Using `abi_stable` it's quite easy:
 
-.In the shared crate, the interface
+.In the shared crate: the interface
 [source, rust]
 ----
 #[abi_stable::sabi_trait]
@@ -836,7 +836,7 @@ pub trait SenderOpaque: Send {
 pub type BoxedSender = SenderOpaque_TO<'static, RBox<()>>;
 ----
 
-.In the runtime, the plugin loading
+.In the runtime: the plugin loading
 [source, rust]
 ----
 impl SenderOpaque for async_std::channel::Sender<Reply> {
@@ -866,7 +866,7 @@ fn runtime() {
 }
 ----
 
-.In the plugin, the functionality implementation
+.In the plugin: the functionality implementation
 [source, rust]
 ----
 pub extern "C" fn plugin(sender: BoxedSender) {
