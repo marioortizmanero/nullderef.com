@@ -480,7 +480,7 @@ replacement for the ones in <code>std</code>:</p>
 </div>
 <div class="paragraph">
 <p>It gets a bit more complicated when the old types are exposed in methods,
-because you have to decide whether to expand the FFI barrier from the
+because you have to decide whether to expand the FFI boundary from the
 <em>internals</em> of <code>Value</code> to the <em>users</em> of <code>Value</code>. For instance, the
 <code>Value::Object</code> variant holds a <code>RHashMap</code> now, but the method
 <code>Value::as_object</code> used to return a reference to a <code>HashMap</code>. You’ll get another
@@ -536,7 +536,7 @@ hot loop, you may notice a considerable performance degradation.</p>
 investigated in the past</a>, and the good news is that converting between types in
 <code>std</code> and <code>abi_stable</code> is \(O(1)\). Most of the times it’s equivalent to a
 pointer cast or a match. So here’s when the “just make it work” approach is useful: we’ll
-just keep the FFI barrier minimal and add conversions as early as possible.
+just keep the FFI boundary minimal and add conversions as early as possible.
 After we’re done, we’ll see if there are any performance issues, and then work
 on them.</p>
 </div>
@@ -844,7 +844,7 @@ pub enum PdkValue {
 conversions to and from the regular <code>Value</code>. This would be equivalent to,
 instead of passing a <code>Vec</code> to the PDK, replacing it with a <code>*const u8</code> for the
 data and a <code>u32</code> for the length. We’re just simplifying the types at the FFI
-barrier, and then maybe converting them back for access to the full
+boundary, and then maybe converting them back for access to the full
 functionality.</p>
 </div>
 <div class="paragraph">
