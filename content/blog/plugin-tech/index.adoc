@@ -12,11 +12,24 @@ GHissueID: 9
 :stem: latexmath
 :sectnums:
 
-In this first article I will further analyze how a Plugin Development Kit (PDK)
-could be implemented in Rust. Note that I'm no expert in the topic; my objective
-is to merely collect all the information I've found so far and present it as a
-summary, with enough resources for the reader to learn more on their own and
-make their own decisions.
+////
+TODO: properly introduce the series, explain its objectives and results.
+////
+
+Welcome to the https://nullderef.com/series/rust-plugins/["`Plugins in Rust`"
+series]! During the next months I'll be involved in an
+https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff[LFX
+Mentorship] with https://www.tremor.rs/[Tremor], for which I need to implement a
+Plugin System (a.k.a. Plugin Development Kit or PDK). The goal is to maximize
+modularity and reduce Rust’s wild compilation times. The implementation will end
+up being done with dynamic loading, but I will cover all the alternatives first
+to make sure it's the best approach for my use-case.
+
+In this first article I will analyze the different ways in which our plugin
+system may be implemented in Rust. Note that I'm no expert in the topic; my
+objective is to merely collect all the information I've found so far and present
+it as a summary, with enough resources for the reader to learn more on their own
+and make their own decisions.
 
 [[requirements]]
 == The Problem

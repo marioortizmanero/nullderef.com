@@ -4,7 +4,6 @@ description: "My proposal for 2021's GSoC"
 author: "Mario Ortiz Manero"
 images: ["/blog/gsoc-proposal/logo.png"]
 tags: ["rust", "rustlang", "dynamic-loading"]
-series: ["rust-plugins"]
 date: 2021-04-13
 GHissueID: 8
 ---
