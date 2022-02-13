@@ -7139,11 +7139,21 @@ reminder! If you have any suggestions please leave them in the section below :)<
       <guid>https://nullderef.com/blog/plugin-tech/</guid>
       <description>A more in-depth look at Rust PDKs</description>
       <content:encoded><![CDATA[<div class="paragraph">
-<p>In this first article I will further analyze how a Plugin Development Kit (PDK)
-could be implemented in Rust. Note that I’m no expert in the topic; my objective
-is to merely collect all the information I’ve found so far and present it as a
-summary, with enough resources for the reader to learn more on their own and
-make their own decisions.</p>
+<p>Welcome to the <a href="https://nullderef.com/series/rust-plugins/">“Plugins in Rust”
+series</a>! During the next months I’ll be involved in an
+<a href="https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff">LFX
+Mentorship</a> with <a href="https://www.tremor.rs/">Tremor</a>, for which I need to implement a
+Plugin System (a.k.a. Plugin Development Kit or PDK). The goal is to maximize
+modularity and reduce Rust’s wild compilation times. The implementation will end
+up being done with dynamic loading, but I will cover all the alternatives first
+to make sure it’s the best approach for my use-case.</p>
+</div>
+<div class="paragraph">
+<p>In this first article I will analyze the different ways in which our plugin
+system may be implemented in Rust. Note that I’m no expert in the topic; my
+objective is to merely collect all the information I’ve found so far and present
+it as a summary, with enough resources for the reader to learn more on their own
+and make their own decisions.</p>
 </div>
 <div class="sect1">
 <h2 id="requirements">1. The Problem</h2>
