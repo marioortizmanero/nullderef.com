@@ -14,7 +14,7 @@ enableEmoji: true
 googleAnalytics: G-MVVGNX70LX
 disqusShortname: nullderef-com
 
-paginate: 5
+paginate: 50
 
 security:
   exec:
