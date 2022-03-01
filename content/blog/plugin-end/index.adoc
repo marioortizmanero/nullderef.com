@@ -34,15 +34,11 @@ Important:
 * Make sure everything heavy is closed: discord, firefox, neovim + lsp, etc
 * Histograms: https://hdrhistogram.github.io/HdrHistogram/plotFiles.html
 
-.benchmark setup
 [source]
 ----
 cd tremor-cli/tests/bench/passthrough
 export TREMOR_PATH=../../../../tremor-script/lib:../../lib/
-----
 
-[source]
-----
 dir=~/Programming/nullderef.com/content/blog/plugin-end/results/
 for name in connectors pdk pdk-singlevalue; do
     bin="../../../../target/release/tremor-$name"
