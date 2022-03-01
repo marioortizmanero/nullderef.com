@@ -34,19 +34,25 @@ Important:
 * Make sure everything heavy is closed: discord, firefox, neovim + lsp, etc
 * Histograms: https://hdrhistogram.github.io/HdrHistogram/plotFiles.html
 
-.benchmark
+.benchmark setup
 [source]
 ----
 cd tremor-cli/tests/bench/passthrough
 export TREMOR_PATH=../../../../tremor-script/lib:../../lib/
-../../../../target/release/tremor test bench . >
-~/Programming/nullderef.com/content/blog/plugin-end/results/NAME.hgrm
 ----
 
-.or for flamegraph
 [source]
 ----
-flamegraph ../../../../target/release/tremor test bench . > ~/Programming/nullderef.com/content/blog/plugin-end/results/NAME.hgrm
+dir=~/Programming/nullderef.com/content/blog/plugin-end/results/
+for name in connectors pdk pdk-singlevalue; do
+    bin="../../../../target/release/tremor-$name"
+
+    "$bin" test bench . > "$dir/${name}1.hgrm"
+    "$bin" test bench . > "$dir/${name}2.hgrm"
+
+    flamegraph "$bin" test bench . > "$dir/${name}-flamegraph.hgrm"
+    mv flamegraph.svg "$dir/$name-flamegraph.svg"
+done
 ----
 
 == Results
