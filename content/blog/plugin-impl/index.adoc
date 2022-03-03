@@ -450,6 +450,9 @@ you can just copy-paste the implementation from `std` into {{< crate abi_stable
 [.text-center]
 {{< gh pr "rodrimati1992/abi_stable_crates" 70 "Implement RVec::append" "paragraph" >}}
 
+[.text-center]
+{{< gh pr "rodrimati1992/abi_stable_crates" 82 "Implement `ROption::{ok_or,ok_or_else}`" >}}
+
 However, this stops being as "`easy`" when you have to convert from _an external
 library_ to {{< crate abi_stable >}}. I lied at the beginning of the article:
 the <<value_decl,declaration of `Value`>> was an oversimplification. For
