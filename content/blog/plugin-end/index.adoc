@@ -53,6 +53,11 @@ done
 
 == Results
 
+Comparison:
+
+* connectors vs pdk vs pdk-singlevalue vs pdk-singlevalue-final
+* pdk-box vs pdk-nobox
+
 * Throughput was reduced 35% initially
 * Latency had also been affected considerably at every percentile (TODO insert
   histogram here)
