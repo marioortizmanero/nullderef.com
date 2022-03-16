@@ -36,26 +36,15 @@ Important:
 
 [source]
 ----
-cd tremor-cli/tests/bench/passthrough
-export TREMOR_PATH=../../../../tremor-script/lib:../../lib/
-
-dir=~/Programming/nullderef.com/content/blog/plugin-end/results/
-for name in connectors pdk pdk-singlevalue; do
-    bin="../../../../target/release/tremor-$name"
-
-    "$bin" test bench . > "$dir/${name}1.hgrm"
-    "$bin" test bench . > "$dir/${name}2.hgrm"
-
-    flamegraph "$bin" test bench . > "$dir/${name}-flamegraph.hgrm"
-    mv flamegraph.svg "$dir/$name-flamegraph.svg"
-done
+# TODO: mention `bench.sh` script
+$ sudo env "PATH=$PATH" ./bench.sh
 ----
 
 == Results
 
 Comparison:
 
-* connectors vs pdk vs pdk-singlevalue vs pdk-singlevalue-final
+* connectors vs pdk vs pdk-singlevalue
 * pdk-box vs pdk-nobox
 * pdk-hashbrown vs pdk-halfbrown
 
