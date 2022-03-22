@@ -105,6 +105,7 @@ Pull Requests:
 * https://github.com/rodrimati1992/abi_stable_crates/pull/76
 * https://github.com/rodrimati1992/abi_stable_crates/pull/77
 * https://github.com/rodrimati1992/abi_stable_crates/pull/82
+* https://github.com/rodrimati1992/abi_stable_crates/pull/83
 * https://github.com/simd-lite/simd-json-derive/pull/9
 * https://github.com/simd-lite/value-trait/pull/14
 * https://github.com/simd-lite/value-trait/pull/16
@@ -112,6 +113,10 @@ Pull Requests:
 * https://github.com/nagisa/rust_libloading/pull/94
 * https://github.com/tremor-rs/tremor-www/pull/72
 * https://github.com/szymonwieloch/rust-dlopen/pull/40
+* https://github.com/Licenser/halfbrown/pull/13
+* https://github.com/Licenser/halfbrown/pull/14
+* https://github.com/Licenser/halfbrown/pull/16
+* https://github.com/Licenser/halfbrown/pull/17 
 
 Issues:
 
