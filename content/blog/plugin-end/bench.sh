@@ -20,6 +20,12 @@ get_bin() {
 
 # Validation step to avoid waiting for the benchmarks only for one of them to be
 # incorrectly configured.
+for bin in flamegraph; do
+    if ! command -v "$bin" > /dev/null; then
+        echo "ERROR: Binary $bin not available"
+        exit 1
+    fi
+done
 for name in $VALUES; do
     get_bin "$name"
 

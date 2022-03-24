@@ -101,3 +101,17 @@ blockquote, blockquote p {
   background: var(--primary);
   color: var(--theme);
 }
+
+/* Fix block margins */
+.highlight {
+  margin-bottom: var(--content-gap) !important;
+}
+
+/* Re-adding the example block */
+.exampleblock {
+  margin: 10px 0 var(--content-gap) 0;
+  background: var(--code-bg);
+  border: 3px solid var(--tertiary);
+  border-radius: 10px;
+  padding: 15px;
+}

@@ -15,24 +15,58 @@ GHissueID: TODO
 :repr-c: pass:quotes[`#[repr\(C)]`]
 :work: pass:quotes["`just make it work`"]
 
-////
-I even hit a bug in the compiler, which made me feel oddly proud:
-
-(include image)
-
-It's seemingly related to incremental compilation and already reported:
-
-https://github.com/rust-lang/rust/issues/90608
-////
+This final article will focus mostly on getting our plugin system ready for
+deployment. This means verifying the behaviour is what we expect, and
+benchmarking thoroughly to ensure the performance demands are met.
 
 == Benchmarking process
 
-Benchmarking procedure
+Before running any benchmarks, we should ensure our process is appropiate so
+that we will get precise results.
 
-Important:
+=== Measuring performance
 
-* Make sure everything heavy is closed: discord, firefox, neovim + lsp, etc
-* Histograms: https://hdrhistogram.github.io/HdrHistogram/plotFiles.html
+* Flamegraph
+* `perf.data`
+* Raw metrics: throughput, maximum and minimum latency, standard deviation, etc.
+* https://hdrhistogram.github.io/HdrHistogram/plotFiles.html[Visual histograms]
+
+=== Hardware availability
+
+My first issue was that the only machine that I currently have available for
+free is a laptop. It's not too bad, but it's not the best thing for
+benchmarking. I had to close all the programs that were open before running
+anything, and it often throttled.
+
+The Tremor team ended up helping me out by adding me to the dedicated
+benchmarking server they have. This made the process much easier, and more
+accurate.
+
+One great way to ensure the result variance is too high is to run the exact same
+benchmark twice after all the initial setup:
+
+.Ran on the laptop
+image::/blog/plugin-end/histogram_variance_laptop.png[]
+
+.Ran on the benchmarking server
+image::/blog/plugin-end/histogram_variance_server.png[]
+
+=== Running the benchmarks
+
+I started with just a few command line instructions and ended up with a
+decently-sized bash script:
+
+* It validated the configuration (the chosen benchmarks and binaries) before
+  running anything. This way I avoided waiting for half an hour for the
+  benchmarks to finish, only to find an error in one of them and have to start
+  from scratch.
+* It performed a few warmup rounds before the actual benchmarks. This was
+  specially important when I used my laptop at the beginning; the first few runs
+  were the fastest, but as the device started to overhead, its performance
+  degraded considerably.
+
+.Variance when ran on the laptop without warming up
+image::/blog/plugin-end/histogram_variance_laptop.png[]
 
 [source]
 ----
@@ -42,17 +76,93 @@ $ sudo env "PATH=$PATH" ./bench.sh
 
 == Results
 
-Comparison:
+These were performed iteratively. The speed should improve as more and more
+experiments are done.
+
+=== Experiments
+
+==== Conversions
+
+.Converting ``Value``s
+image::/blog/plugin-end/with_value_conv.png[]
+
+.Not converting ``Value``s
+image::/blog/plugin-end/without_value_conv.png[]
+
+.Half the execution time of `on_event` was `Value` conversions
+image::/blog/plugin-end/perf_event_conv.png[]
+
+.Percentage of cycles wasted on `Value` conversions
+image::/blog/plugin-end/cycles_into_value.png[]
+
+.Percentage of cycles wasted on `ValueAndMeta` conversions
+image::/blog/plugin-end/cycles_into_valueandmeta.png[]
+
+According to the flamegraph 7% of the execution time was just conversions
+between regular and PDK types (TODO insert screenshot with search)
+
+==== `abi_stable`
+
+.Using `abi_stable`
+image::/blog/plugin-end/with_abi_stable.png[]
+
+.Not using `abi_stable`
+image::/blog/plugin-end/without_abi_stable.png[]
+
+.Specifically, ``abi_stable``'s complex destructors
+image::/blog/plugin-end/with_destructor.png[]
+
+.Specifically, ``abi_stable``'s complex destructors, globally
+image::/blog/plugin-end/with_destructor_globally.png[]
+
+==== Change of HashMap
+
+.Using `RHashMap`
+image::/blog/plugin-end/with_rhashmap.png[]
+
+.Using `RHashMap`, globally
+image::/blog/plugin-end/with_rhashmap_globally.png[]
+
+.Not using `RHashMap`
+image::/blog/plugin-end/without_rhashmap.png[]
+
+.Not using `RHashMap`, globally
+image::/blog/plugin-end/without_rhashmap_globally.png[]
+
+=== Initial PDK impact
 
 * connectors vs pdk vs pdk-singlevalue
-* pdk-box vs pdk-nobox
-* pdk-hashbrown vs pdk-halfbrown
 
-* Throughput was reduced 35% initially
+.Ran on the laptop
+image::/blog/plugin-end/histogram_pdk.png[]
+
+=== Double box impact
+
+* pdk-box vs pdk-nobox
+
+.Ran on the benchmarking server
+image::/blog/plugin-end/histogram_box.png[]
+
+=== Hashmap optimization impact
+
+* pdk-hashbrown vs pdk-halfbrown
+* knownkey vs noknownkey
+
+// TODO:
+.Ran on the benchmarking server
+image::/blog/plugin-end/histogram_halfbrown.png[]
+
+.Ran on the benchmarking server
+image::/blog/plugin-end/histogram_knownkey.png[]
+
+== Conclusion
+
+* Throughput degraded by 35% initially
 * Latency had also been affected considerably at every percentile (TODO insert
   histogram here)
-* According to the flamegraph 7% of the execution time was just conversions
-  between regular and PDK types (TODO insert screenshot with search)
+* After X iterations, throughput was degraded only by Y%.
+
+== Thanks
 
 // TODO: Link to Annex I
 Lastly, I've found it especially rewarding to do all of this in an open source
@@ -138,3 +248,13 @@ Here are the pull requests or issues in Tremor related to the PDK:
 * https://github.com/marioortizmanero/tremor-runtime/pull/1 (second attempt)
 * https://github.com/tremor-rs/tremor-runtime/pull/1303 (second attempt)
 * https://github.com/tremor-rs/tremor-runtime/pull/1287 (first attempt)
+
+I also managed to break the compiler while working on this plugin system. It may
+not be as rare as one would think, but for some reason I felt oddly proud to
+achieve it, so I'll share it here :)
+
+image::/blog/plugin-end/rustc_crash.png[width=80%, align=center]
+
+It's seemingly related to incremental compilation and
+https://github.com/rust-lang/rust/issues/90608[already reported on their GitHub
+repo].
