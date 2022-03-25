@@ -6,8 +6,8 @@ set -e
 # work when ran as root.
 TREMOR_DIR=/home/mario/Programming/tremor-runtime
 OUTPUT_DIR=/home/mario/Programming/nullderef.com/content/blog/plugin-end/results
-WARMUP_ROUNDS=6
-BINARIES="tremor-connectors-laptop tremor-connectors-copy-laptop tremor-pdk tremor-pdk-singlevalue"
+WARMUP_ROUNDS=0
+BINARIES="tremor-connectors-laptopnowarmup tremor-connectors-copy-laptopnowarmup"
 BENCHMARKS="passthrough"
 
 # Working with paths easily
