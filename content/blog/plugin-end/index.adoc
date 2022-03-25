@@ -66,7 +66,7 @@ decently-sized bash script:
   degraded considerably.
 
 .Variance when ran on the laptop without warming up
-image::/blog/plugin-end/histogram_variance_laptop.png[]
+image::/blog/plugin-end/histogram_variance_laptopnowarmup.png[]
 
 [source]
 ----
