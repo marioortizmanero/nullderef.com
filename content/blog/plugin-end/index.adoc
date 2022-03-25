@@ -15,6 +15,13 @@ GHissueID: TODO
 :repr-c: pass:quotes[`#[repr\(C)]`]
 :work: pass:quotes["`just make it work`"]
 
+////
+TODO: use appropiate benchmarks for each case, and indicate where the
+improvements may occur in specific. Indicate assumptions and known bias as well.
+
+real world: throughput-logging-json
+////
+
 This final article will focus mostly on getting our plugin system ready for
 deployment. This means verifying the behaviour is what we expect, and
 benchmarking thoroughly to ensure the performance demands are met.
@@ -27,7 +34,10 @@ that we will get precise results.
 === Measuring performance
 
 * Flamegraph
-* `perf.data`
+* `perf.data`: `perf report --no-children`: reduced `memmove` doesn't mean
+  there's more move necessarily, just that something else got slower. Tip: take
+  a screenshot and draw lines.
+  TODO: look into what kernel.kallsyms is
 * Raw metrics: throughput, maximum and minimum latency, standard deviation, etc.
 * https://hdrhistogram.github.io/HdrHistogram/plotFiles.html[Visual histograms]
 
@@ -45,11 +55,9 @@ accurate.
 One great way to ensure the result variance is too high is to run the exact same
 benchmark twice after all the initial setup:
 
-.Ran on the laptop
-image::/blog/plugin-end/histogram_variance_laptop.png[]
+// TODO: make names shorter
 
-.Ran on the benchmarking server
-image::/blog/plugin-end/histogram_variance_server.png[]
+image::/blog/plugin-end/histogram_variance.png[]
 
 === Running the benchmarks
 
@@ -133,6 +141,8 @@ image::/blog/plugin-end/without_rhashmap_globally.png[]
 
 * connectors vs pdk vs pdk-singlevalue
 
+// TODO: steps may have to do with allocations: erased types with boxes??
+
 .Ran on the laptop
 image::/blog/plugin-end/histogram_pdk.png[]
 
@@ -147,6 +157,9 @@ image::/blog/plugin-end/histogram_box.png[]
 
 * pdk-hashbrown vs pdk-halfbrown
 * knownkey vs noknownkey
+
+// TODO: mention how the passthrough benchmark isn't enough; passthrough:
+// optimal case.
 
 // TODO:
 .Ran on the benchmarking server
