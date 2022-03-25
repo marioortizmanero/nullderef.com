@@ -34,10 +34,10 @@ that we will get precise results.
 === Measuring performance
 
 * Flamegraph
-* `perf.data`: `perf report --no-children`: reduced `memmove` doesn't mean
-  there's more move necessarily, just that something else got slower. Tip: take
-  a screenshot and draw lines.
-  TODO: look into what kernel.kallsyms is
+* `perf.data`: `perf report --no-children -i FILE`: reduced `memmove` doesn't
+  mean there's more move necessarily, just that something else got slower. Tip:
+  take a screenshot and draw lines. TODO: look into what kernel.kallsyms and
+  similars are.
 * Raw metrics: throughput, maximum and minimum latency, standard deviation, etc.
 * https://hdrhistogram.github.io/HdrHistogram/plotFiles.html[Visual histograms]
 
