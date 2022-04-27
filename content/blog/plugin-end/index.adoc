@@ -229,6 +229,7 @@ Pull Requests:
 * https://github.com/rodrimati1992/abi_stable_crates/pull/77
 * https://github.com/rodrimati1992/abi_stable_crates/pull/82
 * https://github.com/rodrimati1992/abi_stable_crates/pull/83
+* https://github.com/rodrimati1992/abi_stable_crates/pull/85
 * https://github.com/simd-lite/simd-json-derive/pull/9
 * https://github.com/simd-lite/value-trait/pull/14
 * https://github.com/simd-lite/value-trait/pull/16
