@@ -1,0 +1,51 @@
+---
+title: "My experience at KubeCon and CloudNativeCon"
+description: "TODO"
+author: "Mario Ortiz Manero"
+images: ["/blog/plugin-dynload/TODO.png"]
+tags: ["TODO"]
+series: []
+date: 2022-17-05
+GHissueID: TODO
+---
+
+TODO: ask for permission to mention specific people
+
+TODO: design article style for these posts that cover day-to-day experiences?
+
+First couple of days were quite calm.
+
+Sunday:
+
+* Arriving in Valencia from Ireland
+* Went by bike around the city
+* Beach time!
+
+Monday:
+
+* First day, chatted with some stands. Double Mint Challenge Winner from SysDig.
+* Learned about Wasm & Rust!
+* Met someone from Google & TUM
+* Went around the city center
+
+Tuesday:
+
+* 
+
+Wednesday:
+
+* 
+
+Thursday:
+
+* Had paella with Ramona
+
+Friday:
+
+* 
+
+[bibliography]
+== References
+
+- [[[florentin-1,     1]]] https://pluginized-protocols.org/[Pluginized
+  Protocols]
