@@ -288,18 +288,18 @@ sent).
 
 image::setting-up.png[width = 100%]
 
+Codecs and preprocessors are involved here both at the source and sink levels.
+In the source part, the data is transformed or split up through a chain of
+preprocessors and then the codec is applied. For the sinks, the inverse process
+is followed: the data is first encoded into bytes with the codec, and then a
+series of post-processors are applied to the raw binary data.
+
 Some connectors are based on _streams_. They are equivalent for example to TCP
 streams, which help to group up messages and avoid mixing them up. They are
 manually started and ended via messages, and the manager saves their state in a
 field called `states` (since for instance preprocessors may need to keep a
 state). If a connector doesn't need this, such as the `metronome`, it may simply
 specify `DEFAULT_STREAM_ID` as the stream ID always.
-
-Codecs and preprocessors are involved here both at the source and sink levels.
-In the source part, the data is transformed or split up through a chain of
-preprocessors and then the codec is applied. For the sinks, the inverse process
-is followed: the data is first encoded into bytes with the codec, and then a
-series of post-processors are applied to the raw binary data.
 
 After the full interface of connectors is done, I could implement the two
 following connector plugins:

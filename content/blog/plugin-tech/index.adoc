@@ -17,13 +17,12 @@ TODO: properly introduce the series, explain its objectives and results.
 ////
 
 Welcome to the https://nullderef.com/series/rust-plugins/["`Plugins in Rust`"
-series]! During the next months I'll be involved in an
-https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff[LFX
-Mentorship] with https://www.tremor.rs/[Tremor], for which I need to implement a
-Plugin System (a.k.a. Plugin Development Kit or PDK). The goal is to maximize
-modularity and reduce Rust’s wild compilation times. The implementation will end
-up being done with dynamic loading, but I will cover all the alternatives first
-to make sure it's the best approach for my use-case.
+series]! During the next months I'll be involved in a project with
+https://www.tremor.rs/[Tremor], for which I need to implement a Plugin System
+(a.k.a. Plugin Development Kit or PDK). The goal is to maximize modularity and
+reduce Rust’s wild compilation times. The implementation will end up being done
+with dynamic loading, but I will cover all the alternatives first to make sure
+it's the best approach for my use-case.
 
 In this first article I will analyze the different ways in which our plugin
 system may be implemented in Rust. Note that I'm no expert in the topic; my
@@ -147,16 +146,10 @@ Apache Kafka plugin, which may have sensitive logs you don't want anyone to see.
 [[back-comp]]
 == Backward Compatibility
 
-As I discovered in the last post, backward compatibility is complicated for
-plugin systems in Rust with the typical approach, FFI. Since it doesn't
-currently offer a stable ABI -- and probably never will -- the slightest
-difference between the version used to compile a plugin and the core of the
-program will break it.
-
-Apart from the instability issues incoming from the Rust compiler, the core
-itself may change with frequency as well. And this isn't limited to dynamic
-libraries. If the plugin receives a struct from the core, but the struct had one
-of its members removed in a new version, it's all broken again.
+There needs to be some kind of version handling within this project. The core of
+Tremor may change with frequency, which will break plugins based on previous
+versions. If the plugin receives a struct from the core, but the struct had one
+of its members removed in a new version, it will result in undefiend behaviour.
 
 === Possible Solutions
 
@@ -175,23 +168,15 @@ Other more involved methods for binary representations include <<swift-abi>>:
 * Giving the struct a pointer to its "`version 2`" data (opaque in "`version
   1`").
 
-As to breakage due to compiler version mismatches, there are a couple ways this
-can be fixed that I'll investigate in later sections. Some technologies other
-than <<ffi,FFI>> don't have this problem by nature, like <<ipc,IPC>> or
-<<scripting-langs,scripting languages>>, and we have some unofficial fixes from
-the community available, like `abi_stable`.
-
 === Avoiding Breakage
 
 There are times when breakage is inevitable. Tremor may want to rewrite part of
-its core or finally remove a deprecated feature without being afraid of breaking
-all the plugins previously developed.
+its interface or finally remove a deprecated feature without being afraid of
+breaking all the plugins previously developed.
 
 For that, the plugins must embed a bit of metadata about the different versions
-of rustc/core/etc it was developed for, so that when it's loaded by Tremor, it
-may check if they're compatible, rather than breaking in mysterious ways.
-https://nullderef.com/blog/gsoc-proposal/#_defining_an_interface[I already
-talked about this in the past], so I won't get into the details.
+of rustc/interface/etc it was developed for. Then, when it's loaded by Tremor,
+it may check if they're compatible, rather than breaking in mysterious ways.
 
 == Possible Approaches
 
@@ -214,14 +199,14 @@ runtime, like Python, Ruby, Perl, Bash, or JavaScript. Most notably, Vim created
 its own scripting language, Vimscript, in order to be fully customizable, and
 NeoVim is now pushing http://www.lua.org/[Lua] as a first-class language for
 configuration. Even Tremor itself has the interpreted query language
-https://docs.tremor.rs/tremor-query/[`tremor-query`] for configuration.
+https://www.tremor.rs/docs/language/[Troy] for configuration.
 
 Lua is seen in game development; it's a quite simple language with a very
 performant JIT implementation, which in any case I think would be the best
-option here. It could be embedded into the main program's core (it's only 247 kB
-compiled! <<lua-wiki>>) and used to load plugins at either start-time or
-run-time. And knowing it's used in games, which are _obsessed_ with performance,
-it might not be that much of a big deal in that regard.
+option here. It could be embedded into our runtime (it's only 281 kB compiled!
+<<lua-wiki>>) and used to load plugins at either start-time or run-time. And
+knowing it's used in games, which are _obsessed_ with performance, it might not
+be that much of a big deal in that regard.
 
 NOTE: There are https://arewegameyet.rs/ecosystem/scripting/[languages
 specifically designed to extend Rust's capabilities], which you might be
@@ -679,8 +664,7 @@ if you have any additional suggestions or comments, or leave a comment below.
 - [[[swift-abi,           3]]] https://gankra.github.io/blah/swift-abi/[How
   Swift Achieved Dynamic Linking Where Rust Couldn't -- Alexis Beingessner]
 - [[[lua-wiki,            4]]]
-  https://en.wikipedia.org/wiki/Lua_(programming_language)[Lua (programming
-  language) -- Wikipedia]
+  https://www.lua.org/about.html#why[About Lua -- lua.org]
 - [[[lua-sandbox,         5]]] http://lua-users.org/wiki/SandBoxes[Sand Boxes --
   lua-users]
 - [[[ipc-wisc,            6]]]
