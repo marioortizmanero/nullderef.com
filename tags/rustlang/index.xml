@@ -4979,19 +4979,19 @@ sent).</p>
 </div>
 </div>
 <div class="paragraph">
+<p>Codecs and preprocessors are involved here both at the source and sink levels.
+In the source part, the data is transformed or split up through a chain of
+preprocessors and then the codec is applied. For the sinks, the inverse process
+is followed: the data is first encoded into bytes with the codec, and then a
+series of post-processors are applied to the raw binary data.</p>
+</div>
+<div class="paragraph">
 <p>Some connectors are based on <em>streams</em>. They are equivalent for example to TCP
 streams, which help to group up messages and avoid mixing them up. They are
 manually started and ended via messages, and the manager saves their state in a
 field called <code>states</code> (since for instance preprocessors may need to keep a
 state). If a connector doesn’t need this, such as the <code>metronome</code>, it may simply
 specify <code>DEFAULT_STREAM_ID</code> as the stream ID always.</p>
-</div>
-<div class="paragraph">
-<p>Codecs and preprocessors are involved here both at the source and sink levels.
-In the source part, the data is transformed or split up through a chain of
-preprocessors and then the codec is applied. For the sinks, the inverse process
-is followed: the data is first encoded into bytes with the codec, and then a
-series of post-processors are applied to the raw binary data.</p>
 </div>
 <div class="paragraph">
 <p>After the full interface of connectors is done, I could implement the two
@@ -6825,7 +6825,8 @@ the build environment — Github rust-lang/miri</a></p>
 </li>
 <li>
 <p><a id="witx"></a>[8]
-<a href="https://github.com/WebAssembly/WASI/blob/main/docs/witx.md">Know your <code>witx</code> — Github WebAssembly/WASI</a></p>
+<a href="https://github.com/WebAssembly/WASI/blob/main/tools/witx-docs.md">Know your
+<code>witx</code> — GitHub WebAssembly/WASI</a></p>
 </li>
 <li>
 <p><a id="witx-example"></a>[9]
@@ -7140,13 +7141,12 @@ reminder! If you have any suggestions please leave them in the section below :)<
       <description>A more in-depth look at Rust PDKs</description>
       <content:encoded><![CDATA[<div class="paragraph">
 <p>Welcome to the <a href="https://nullderef.com/series/rust-plugins/">“Plugins in Rust”
-series</a>! During the next months I’ll be involved in an
-<a href="https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff">LFX
-Mentorship</a> with <a href="https://www.tremor.rs/">Tremor</a>, for which I need to implement a
-Plugin System (a.k.a. Plugin Development Kit or PDK). The goal is to maximize
-modularity and reduce Rust’s wild compilation times. The implementation will end
-up being done with dynamic loading, but I will cover all the alternatives first
-to make sure it’s the best approach for my use-case.</p>
+series</a>! During the next months I’ll be involved in a project with
+<a href="https://www.tremor.rs/">Tremor</a>, for which I need to implement a Plugin System
+(a.k.a. Plugin Development Kit or PDK). The goal is to maximize modularity and
+reduce Rust’s wild compilation times. The implementation will end up being done
+with dynamic loading, but I will cover all the alternatives first to make sure
+it’s the best approach for my use-case.</p>
 </div>
 <div class="paragraph">
 <p>In this first article I will analyze the different ways in which our plugin
@@ -7330,17 +7330,10 @@ Apache Kafka plugin, which may have sensitive logs you don’t want anyone to se
 <h2 id="back-comp">3. Backward Compatibility</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>As I discovered in the last post, backward compatibility is complicated for
-plugin systems in Rust with the typical approach, FFI. Since it doesn’t
-currently offer a stable ABI — and probably never will — the slightest
-difference between the version used to compile a plugin and the core of the
-program will break it.</p>
-</div>
-<div class="paragraph">
-<p>Apart from the instability issues incoming from the Rust compiler, the core
-itself may change with frequency as well. And this isn’t limited to dynamic
-libraries. If the plugin receives a struct from the core, but the struct had one
-of its members removed in a new version, it’s all broken again.</p>
+<p>There needs to be some kind of version handling within this project. The core of
+Tremor may change with frequency, which will break plugins based on previous
+versions. If the plugin receives a struct from the core, but the struct had one
+of its members removed in a new version, it will result in undefiend behaviour.</p>
 </div>
 <div class="sect2">
 <h3 id="_possible_solutions">3.1. Possible Solutions</h3>
@@ -7370,27 +7363,18 @@ interested in.</p>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>As to breakage due to compiler version mismatches, there are a couple ways this
-can be fixed that I’ll investigate in later sections. Some technologies other
-than <a href="#ffi">FFI</a> don’t have this problem by nature, like <a href="#ipc">IPC</a> or
-<a href="#scripting-langs">scripting languages</a>, and we have some unofficial fixes from
-the community available, like <code>abi_stable</code>.</p>
-</div>
 </div>
 <div class="sect2">
 <h3 id="_avoiding_breakage">3.2. Avoiding Breakage</h3>
 <div class="paragraph">
 <p>There are times when breakage is inevitable. Tremor may want to rewrite part of
-its core or finally remove a deprecated feature without being afraid of breaking
-all the plugins previously developed.</p>
+its interface or finally remove a deprecated feature without being afraid of
+breaking all the plugins previously developed.</p>
 </div>
 <div class="paragraph">
 <p>For that, the plugins must embed a bit of metadata about the different versions
-of rustc/core/etc it was developed for, so that when it’s loaded by Tremor, it
-may check if they’re compatible, rather than breaking in mysterious ways.
-<a href="https://nullderef.com/blog/gsoc-proposal/#_defining_an_interface">I already
-talked about this in the past</a>, so I won’t get into the details.</p>
+of rustc/interface/etc it was developed for. Then, when it’s loaded by Tremor,
+it may check if they’re compatible, rather than breaking in mysterious ways.</p>
 </div>
 </div>
 </div>
@@ -7414,15 +7398,15 @@ runtime, like Python, Ruby, Perl, Bash, or JavaScript. Most notably, Vim created
 its own scripting language, Vimscript, in order to be fully customizable, and
 NeoVim is now pushing <a href="http://www.lua.org/">Lua</a> as a first-class language for
 configuration. Even Tremor itself has the interpreted query language
-<a href="https://docs.tremor.rs/tremor-query/"><code>tremor-query</code></a> for configuration.</p>
+<a href="https://www.tremor.rs/docs/language/">Troy</a> for configuration.</p>
 </div>
 <div class="paragraph">
 <p>Lua is seen in game development; it’s a quite simple language with a very
 performant JIT implementation, which in any case I think would be the best
-option here. It could be embedded into the main program’s core (it’s only 247 kB
-compiled! <a href="#lua-wiki">[4]</a>) and used to load plugins at either start-time or
-run-time. And knowing it’s used in games, which are <em>obsessed</em> with performance,
-it might not be that much of a big deal in that regard.</p>
+option here. It could be embedded into our runtime (it’s only 281 kB compiled!
+<a href="#lua-wiki">[4]</a>) and used to load plugins at either start-time or run-time. And
+knowing it’s used in games, which are <em>obsessed</em> with performance, it might not
+be that much of a big deal in that regard.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -8108,8 +8092,7 @@ Swift Achieved Dynamic Linking Where Rust Couldn’t — Alexis Beingessner<
 </li>
 <li>
 <p><a id="lua-wiki"></a>[4]
-<a href="https://en.wikipedia.org/wiki/Lua_(programming_language)">Lua (programming
-language) — Wikipedia</a></p>
+<a href="https://www.lua.org/about.html#why">About Lua — lua.org</a></p>
 </li>
 <li>
 <p><a id="lua-sandbox"></a>[5] <a href="http://lua-users.org/wiki/SandBoxes">Sand Boxes — lua-users</a></p>
