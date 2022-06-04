@@ -2595,8 +2595,8 @@ plugin system anyway.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>It’s important to know the complexity of conversions from and to <code>abi_stable</code>
-types. If <code>std::Vec</code> → <code>abi_stable::RVec</code> wasn’t \(O(n)\) it might be worth
-avoiding it altogether.</p>
+types. If <code>Vec&lt;T&gt;</code> → <code>RVec&lt;T&gt;</code> wasn’t \(O(n)\) it might be worth avoiding it
+altogether.</p>
 </div>
 <div class="paragraph">
 <p>This means that I should spend at least a bit of my time on understanding how

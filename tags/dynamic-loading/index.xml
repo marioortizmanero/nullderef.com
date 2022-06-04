@@ -2595,8 +2595,8 @@ plugin system anyway.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>It’s important to know the complexity of conversions from and to <code>abi_stable</code>
-types. If <code>std::Vec</code> → <code>abi_stable::RVec</code> wasn’t \(O(n)\) it might be worth
-avoiding it altogether.</p>
+types. If <code>Vec&lt;T&gt;</code> → <code>RVec&lt;T&gt;</code> wasn’t \(O(n)\) it might be worth avoiding it
+altogether.</p>
 </div>
 <div class="paragraph">
 <p>This means that I should spend at least a bit of my time on understanding how
@@ -5039,29 +5039,29 @@ the build environment — Github rust-lang/miri</a></p>
 <li>
 <p><a id="wasmtime-inttyp"></a>[7]
 
-
-
-
-
-
-
-
-  
-
-
-
-<span class="gh-reference">
-
   
   
-    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
   
-
-  <a class="gh-title" href="https://github.com/bytecodealliance/wasmtime/issues/677" style="text-decoration: none;">Support for Interface Types in wasmtime API
-    <span class="gh-number">bytecodealliance/wasmtime#677</span></a>
-
-</span>
-
+  
+  
+  
+  
+    
+  
+  
+  
+  <span class="gh-reference">
+  
+    
+    
+      <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+    
+  
+    <a class="gh-title" href="https://github.com/bytecodealliance/wasmtime/issues/677" style="text-decoration: none;">Support for Interface Types in wasmtime API
+      <span class="gh-number">bytecodealliance/wasmtime#677</span></a>
+  
+  </span>
+  
 </p>
 </li>
 <li>
