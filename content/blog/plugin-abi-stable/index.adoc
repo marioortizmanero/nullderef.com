@@ -839,8 +839,8 @@ plugin system anyway.
 == Type conversions
 
 It's important to know the complexity of conversions from and to `abi_stable`
-types. If `std::Vec` -> `abi_stable::RVec` wasn't stem:[O(n)] it might be worth
-avoiding it altogether.
+types. If `Vec<T>` -> `RVec<T>` wasn't stem:[O(n)] it might be worth avoiding it
+altogether.
 
 This means that I should spend at least a bit of my time on understanding how
 the `abi_stable` types are implemented and making sure this isn't the case. In
