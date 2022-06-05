@@ -240,6 +240,7 @@ Pull Requests:
 * https://github.com/Licenser/halfbrown/pull/14
 * https://github.com/Licenser/halfbrown/pull/16
 * https://github.com/Licenser/halfbrown/pull/17 
+* https://github.com/Licenser/halfbrown/pull/18
 
 Issues:
 
