@@ -199,11 +199,9 @@ curiosity. Some of them are more important than others, but it's still a decent
 metric for the results of the mentorship, in my opinion. This skips the issues
 or pull requests that:
 
-* Contributed nothing (e.g., asking questions).
+* Contributed nothing (e.g., asking questions or discarded ideas).
 * Were repetitive (e.g., I made a few identical PRs in Tremor when I was fixing
   problems with Git).
-* Issues or Pull Requests with ideas that were closed and I consider didn't
-  contribute anything.
 
 ////
 TODO: Maybe remove typo fixing as well, or list separately?
@@ -268,7 +266,7 @@ I also managed to break the compiler while working on this plugin system. It may
 not be as rare as one would think, but for some reason I felt oddly proud to
 achieve it, so I'll share it here :)
 
-image::/blog/plugin-end/rustc_crash.png[width=80%, align=center]
+image::/blog/plugin-end/rustc_crash.png[width=100%, align=center]
 
 It's seemingly related to incremental compilation and
 https://github.com/rust-lang/rust/issues/90608[already reported on their GitHub
