@@ -31,9 +31,9 @@
 </header>
 
 <ul class="terms-tags">
-    {{- range $name, $taxonomy := .Site.Taxonomies.tags }}
+    {{- range $name, $taxonomy := site.Taxonomies.tags }}
     {{- $count := .Count }}
-    {{- with $.Site.GetPage (printf "/tags/%s" $name) }}
+    {{- with site.GetPage (printf "/tags/%s" $name) }}
     <li>
         <a href="{{ .Permalink }}">{{ $name }} <sup><strong><sup>{{ $count }}</sup></strong></sup> </a>
     </li>
