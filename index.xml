@@ -9082,29 +9082,30 @@ errors or things that could be improved about the Rust code.</p>
 &lt;/div&gt;
 </description>
       <content:encoded><![CDATA[<div class="paragraph">
-<p>Hi there! I’m Mario. Welcome to my personal site. I mostly use it as a blog to
-write about stuff I enjoy or lessons I’ve learned. I’m currently studying
-Computer Science at University of Zaragoza, so most of the posts are about
-topics related to that.</p>
-</div>
-<div class="paragraph">
-<p>You can check out the projects I’m involved in on my
-<a href="https://github.com/marioortizmanero">GitHub profile</a>. The biggest ones I’ve
-worked on are, so far:</p>
+<p>Hi there! I’m Mario. This is my personal blog, where I write about stuff I enjoy
+or lessons I’ve learned, mostly about Computer Science. You can check out the
+projects I’m involved in on my <a href="https://github.com/marioortizmanero">GitHub
+profile</a>. The most notable ones I have worked on are:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://vidify.org/"><strong>Vidify</strong></a>: with it, you can automatically reproduce music
-videos of what’s playing on your computer on any device.</p>
+<p><a href="https://www.tremor.rs/"><strong>Tremor</strong></a>: an awesome open-source event processing
+system written in Rust. My task was to implement a plugin system for it, and I
+have <a href="https://nullderef.com/series/rust-plugins/">a whole series about it</a>.</p>
 </li>
 <li>
-<p><a href="https://github.com/ramsayleung/rspotify"><strong>Rspotify</strong></a>: a wrapper for the
-<a href="https://developer.spotify.com/documentation/web-api/">Spotify Web API</a> in Rust.</p>
+<p><a href="https://github.com/ramsayleung/rspotify"><strong>Rspotify</strong></a>: a wrapper for the Spotify
+Web API in Rust. <a href="https://nullderef.com/blog/web-api-client/">Check out its
+article here</a>.</p>
 </li>
 <li>
-<p><a href="https://github.com/marioortizmanero/nullderef.com"><strong>nullderef.com itself!</strong></a> You
-already know about it. It’s open source and made with Hugo, go check it out :)</p>
+<p><a href="https://vidify.org/"><strong>Vidify</strong></a>: automatically reproduce music videos anywhere
+of what’s playing on your computer.</p>
+</li>
+<li>
+<p><a href="https://github.com/marioortizmanero/nullderef.com"><strong>NullDeref itself!</strong></a> It’s
+open source and made with <a href="https://gohugo.io/">Hugo</a>, go take a look :)</p>
 </li>
 </ul>
 </div>
@@ -9127,12 +9128,12 @@ already know about it. It’s open source and made with Hugo, go check it out :)
 a very fun way.</p>
 </li>
 <li>
-<p><a href="https://adventures.michaelfbryan.com/"><strong>Michael-F-Bryan</strong></a>: interesting Rust
-articles with lots of examples and diagrams.</p>
+<p><a href="https://adventures.michaelfbryan.com/"><strong>Michael-F-Bryan</strong></a>: varied Rust articles
+with lots of examples and diagrams.</p>
 </li>
 <li>
-<p><a href="https://robertheaton.com/"><strong>Robert Heaton</strong></a>: very unique style of narration,
-often about pentesting.</p>
+<p><a href="https://robertheaton.com/"><strong>Robert Heaton</strong></a>: unique style of narration, often
+about pentesting.</p>
 </li>
 <li>
 <p><a href="https://matklad.github.io/"><strong>matklad</strong></a>: technical blog posts from the
