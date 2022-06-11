@@ -22,7 +22,7 @@ profile]. The most notable ones I have worked on are:
   open source and made with https://gohugo.io/[Hugo], go take a look :)
 
 If you want to contact me you can send me a message via
-https://www.linkedin.com/in/mario-ortiz-manero-3b0472186/[LinkedIn] or just an
+https://www.linkedin.com/in/marioortizmanero/[LinkedIn] or just an
 mailto:marioortizmanero@gmail.com[e-mail]. Also, my public PGP key is
 https://nullderef.com/pgp_keys.asc[here].
 
