@@ -9078,78 +9078,10 @@ errors or things that could be improved about the Rust code.</p>
       
       <guid>https://nullderef.com/about/</guid>
       <description>&lt;div class=&#34;paragraph&#34;&gt;
-&lt;p&gt;Introducing myself and some additional info&lt;/p&gt;
+&lt;p&gt;Introducing myself&lt;/p&gt;
 &lt;/div&gt;
 </description>
-      <content:encoded><![CDATA[<div class="paragraph">
-<p>Hi there! I’m Mario. This is my personal blog, where I write about stuff I enjoy
-or lessons I’ve learned, mostly about Computer Science. You can check out the
-projects I’m involved in on my <a href="https://github.com/marioortizmanero">GitHub
-profile</a>. The most notable ones I have worked on are:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://www.tremor.rs/"><strong>Tremor</strong></a>: an awesome open-source event processing
-system written in Rust. My task was to implement a plugin system for it, and I
-have <a href="https://nullderef.com/series/rust-plugins/">a whole series about it</a>.</p>
-</li>
-<li>
-<p><a href="https://github.com/ramsayleung/rspotify"><strong>Rspotify</strong></a>: a wrapper for the Spotify
-Web API in Rust. <a href="https://nullderef.com/blog/web-api-client/">Check out its
-article here</a>.</p>
-</li>
-<li>
-<p><a href="https://vidify.org/"><strong>Vidify</strong></a>: automatically reproduce music videos anywhere
-of what’s playing on your computer.</p>
-</li>
-<li>
-<p><a href="https://github.com/marioortizmanero/nullderef.com"><strong>NullDeref itself!</strong></a> It’s
-open source and made with <a href="https://gohugo.io/">Hugo</a>, go take a look :)</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>If you want to contact me you can send me a message via
-<a href="https://www.linkedin.com/in/marioortizmanero/">LinkedIn</a> or just an
-<a href="mailto:marioortizmanero@gmail.com">e-mail</a>. Also, my public PGP key is
-<a href="https://nullderef.com/pgp_keys.asc">here</a>.</p>
-</div>
-<div class="sect1">
-<h2 id="_other_cool_blogs">Other Cool Blogs</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Here are some interesting blogs from friends or that I just enjoy reading:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://fasterthanli.me/"><strong>fasterthanlime</strong></a>: thorough posts about computers in
-a very fun way.</p>
-</li>
-<li>
-<p><a href="https://adventures.michaelfbryan.com/"><strong>Michael-F-Bryan</strong></a>: varied Rust articles
-with lots of examples and diagrams.</p>
-</li>
-<li>
-<p><a href="https://robertheaton.com/"><strong>Robert Heaton</strong></a>: unique style of narration, often
-about pentesting.</p>
-</li>
-<li>
-<p><a href="https://matklad.github.io/"><strong>matklad</strong></a>: technical blog posts from the
-development leader of <a href="https://github.com/rust-analyzer/rust-analyzer">Rust
-Analyzer</a>.</p>
-</li>
-<li>
-<p><a href="https://0x709394.me/index"><strong>Ramsay’s Eden</strong></a>: my friend
-<a href="https://github.com/ramsayleung">Ramsay’s</a> site about Rust and distributed
-systems.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-]]></content:encoded>
+      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     
     
