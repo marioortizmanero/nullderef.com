@@ -22,21 +22,31 @@ list:
         url: https://github.com/ramsayleung/rspotify
       - name: NullDeref's Article
         url: https://nullderef.com/blog/web-api-client/
-  - name: Vidify
-    position: Founder
-    logo: /projects/vidify.png
-    description: Automatically reproduce music videos of what's playing
-      on your computer. Works on Desktop, Android, and Android TV.
-    date: Jul 2019 -- Present
-    urls:
-      - name: Website
-        url: https://vidify.org/
   - name: NullDeref
     position: Founder
     logo: /logo-small.png
     description: This site itself! It's open source and made with
-      [Hugo](https://gohugo.io/).
+      [Hugo](https://gohugo.io/). You don't truly understand something unless
+      you can explain it to others :)
     date: Apr 2021 -- Present
     urls:
       - name: GitHub
         url: https://github.com/marioortizmanero/nullderef.com
+  - name: Vidify
+    position: Founder
+    logo: /projects/vidify.png
+    description: Reproduces music videos for the music that's playing on your
+      computer, in real time. Supports Desktop, and Android phones and TVs.
+    date: Jul 2019 -- Present
+    urls:
+      - name: Website
+        url: https://vidify.org/
+  - name: Meme Stickers for WhatsApp
+    position: Founder
+    logo: /projects/stickers.png
+    description: A very silly Android app that has reached 5 million downloads.
+      I wrote the first version, but I don't own it anymore.
+    date: Sep 2018 -- Mar 2019
+    urls:
+      - name: Play Store
+        url: https://play.google.com/store/apps/details?id=com.glowapps.memestickerswhatsapp&hl=es&gl=US
