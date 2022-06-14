@@ -1,0 +1,42 @@
+list:
+  - name: Tremor
+    position: Mentee
+    logo: /projects/tremor.png
+    description: An open-source event processing system written in Rust.
+      My task was to implement a plugin system for it, and I have a whole series
+      about it here.
+    date: Aug 2021 -- Present
+    urls:
+      - name: Website
+        url: https://www.tremor.rs/
+      - name: NullDeref's Series
+        url: https://nullderef.com/series/rust-plugins/
+  - name: RSpotify
+    position: Maintainer
+    logo: /projects/rust.png
+    description: The most popular wrapper for the Spotify Web API in Rust. I
+      help improve its ergnonomics and safety.
+    date: Jul 2020 -- Present
+    urls:
+      - name: GitHub
+        url: https://github.com/ramsayleung/rspotify
+      - name: NullDeref's Article
+        url: https://nullderef.com/blog/web-api-client/
+  - name: Vidify
+    position: Founder
+    logo: /projects/vidify.png
+    description: Automatically reproduce music videos of what's playing
+      on your computer. Works on Desktop, Android, and Android TV.
+    date: Jul 2019 -- Present
+    urls:
+      - name: Website
+        url: https://vidify.org/
+  - name: NullDeref
+    position: Founder
+    logo: /logo-small.png
+    description: This site itself! It's open source and made with
+      [Hugo](https://gohugo.io/).
+    date: Apr 2021 -- Present
+    urls:
+      - name: GitHub
+        url: https://github.com/marioortizmanero/nullderef.com

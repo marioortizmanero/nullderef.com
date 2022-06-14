@@ -2,43 +2,5 @@
 title: "About"
 layout: "about"
 url: "/about"
-summary: "Introducing myself and some additional info"
+summary: "Introducing myself"
 ---
-
-Hi there! I'm Mario. This is my personal blog, where I write about stuff I enjoy
-or lessons I've learned, mostly about Computer Science. You can check out the
-projects I'm involved in on my https://github.com/marioortizmanero[GitHub
-profile]. The most notable ones I have worked on are:
-
-* https://www.tremor.rs/[*Tremor*]: an awesome open-source event processing
-  system written in Rust. My task was to implement a plugin system for it, and I
-  have https://nullderef.com/series/rust-plugins/[a whole series about it].
-* https://github.com/ramsayleung/rspotify[*Rspotify*]: a wrapper for the Spotify
-  Web API in Rust. https://nullderef.com/blog/web-api-client/[Check out its
-  article here].
-* https://vidify.org/[*Vidify*]: automatically reproduce music videos anywhere
-  of what's playing on your computer.
-* https://github.com/marioortizmanero/nullderef.com[*NullDeref itself!*] It's
-  open source and made with https://gohugo.io/[Hugo], go take a look :)
-
-If you want to contact me you can send me a message via
-https://www.linkedin.com/in/marioortizmanero/[LinkedIn] or just an
-mailto:marioortizmanero@gmail.com[e-mail]. Also, my public PGP key is
-https://nullderef.com/pgp_keys.asc[here].
-
-== Other Cool Blogs
-
-Here are some interesting blogs from friends or that I just enjoy reading:
-
-* https://fasterthanli.me/[*fasterthanlime*]: thorough posts about computers in
-  a very fun way.
-* https://adventures.michaelfbryan.com/[*Michael-F-Bryan*]: varied Rust articles
-  with lots of examples and diagrams.
-* https://robertheaton.com/[*Robert Heaton*]: unique style of narration, often
-  about pentesting.
-* https://matklad.github.io/[*matklad*]: technical blog posts from the
-  development leader of https://github.com/rust-analyzer/rust-analyzer[Rust
-  Analyzer].
-* https://0x709394.me/index[*Ramsay's Eden*]: my friend
-  https://github.com/ramsayleung[Ramsay's] site about Rust and distributed
-  systems.

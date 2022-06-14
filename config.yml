@@ -67,16 +67,20 @@ params:
     Content: >
       My personal blog, where I write about software development and the projects I'm working on. \
 
-      _-- Mario Ortiz Manero_
+      _-- **Mario Ortiz Manero**_
 
   socialIcons:
-    - name: github
+    - name: GitHub
       url: "https://github.com/marioortizmanero/"
-    - name: linkedin
+      # Personal means it will be included in the 'About' page
+      personal: true
+    - name: LinkedIn
       url: "https://www.linkedin.com/in/marioortizmanero/"
-    - name: twitter
+      personal: true
+    - name: Twitter
       url: "https://twitter.com/null_deref"
-    - name: rss
+      personal: true
+    - name: RSS
       url: "https://nullderef.com/index.xml"
 
 social:

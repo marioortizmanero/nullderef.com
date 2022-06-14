@@ -1,0 +1,55 @@
+.projects {
+  display: flex;
+  width: 100%;
+  overflow: auto;
+  margin-bottom: var(--content-gap);
+}
+
+.project-entry {
+  flex: 0 0 40%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  text-align: center;
+  margin: 5px;
+  padding: 10px;
+  background: var(--entry);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+
+}
+
+/* Previews are annoying in small screens */
+@media only screen and (max-width: 500px) {
+  .project-entry {
+    flex: 0 0 70%;
+  }
+}
+
+.project-entry .project-header h3 {
+  margin-bottom: 0;
+  margin-top: 5px;
+}
+
+.project-entry .project-header p {
+  font-style: italic;
+  color: var(--secondary);
+  font-size: 15px;
+}
+
+.project-entry .project-logo {
+  width: 50%;
+  margin: 0 auto var(--content-gap) auto;
+}
+
+.project-entry .project-links {
+  margin-bottom: var(--content-gap);
+}
+
+.project-entry .project-footer {
+  font-style: italic;
+  color: var(--secondary);
+  font-size: 13px;
+}
