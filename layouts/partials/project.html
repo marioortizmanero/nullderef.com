@@ -1,0 +1,24 @@
+<div class="project-entry">
+  <header class="project-header">
+    <h3>{{ .name }}</h3>
+    {{ with .position }}<p>({{ . | markdownify }})</p>{{ end }}
+  </header>
+
+  <img class="project-logo" loading="lazy" src="{{ .logo }}" alt="{{ .name }}">
+
+  <div class="project-content">
+    <p>{{ .description | markdownify }}</p>
+  </div>
+
+  <div class="project-links">
+    {{ range .urls }}
+      <div>
+        <a href="{{ .url }}" target="_blank" rel="noopener noreferrer me">{{ .name }}</a>
+      </div>
+    {{ end }}
+  </div>
+
+  <footer class="project-footer">
+    <span>{{ .date | markdownify }}</span>
+  </footer>
+</div>

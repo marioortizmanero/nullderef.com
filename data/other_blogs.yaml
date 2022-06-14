@@ -1,0 +1,20 @@
+list: 
+  - name: fasterthanlime
+    url: https://fasterthanli.me/
+    description: thorough posts about computers in a very fun way.
+  - name: Michael-F-Bryan
+    url: https://adventures.michaelfbryan.com/
+    description: varied Rust articles with lots of examples and diagrams.
+  - name: Robert Heaton
+    url: https://robertheaton.com/
+    description: unique style of narration, often about pentesting.
+  - name: matklad
+    url: https://matklad.github.io/
+    description: >
+      technical blog posts from the development leader of [Rust
+      Analyzer](https://github.com/rust-analyzer/rust-analyzer)
+  - name: Ramsay's Eden
+    url: https://0x709394.me/index
+    description: >
+      my friend [Ramsay's](https://github.com/ramsayleung) site about Rust and
+      distributed systems.

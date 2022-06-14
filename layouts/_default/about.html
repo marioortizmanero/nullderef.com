@@ -5,7 +5,47 @@
     <h1 class="post-title">{{ .Title }}</h1>
   </header>
 
-  <div class="post-content">{{ .Content }}</div>
+  <div class="post-content">
+    <p>
+    I'm Mario. I love building new things, even more if they're open source!
+    I've recently graduated from University of Zaragoza, Spain. My favorite
+    topics are distributed systems and overall systems programming, for which I
+    mostly use Rust, C++, and Python. The most notable projects I have worked on
+    are:
+    </p>
+
+
+    <div class="projects">
+      {{ range $.Site.Data.projects.list }}
+        {{ partial "project.html" . }}
+      {{ end }}
+    </div>
+
+    <p>
+    If you want to contact me, feel free to use any of the links listed below:
+    </p>
+
+    <p class="text-center">
+    {{ $social := where $.Site.Params.socialIcons "personal" "==" true }}
+    {{ $social = $social | append (dict "name" "Mail" "url" "mailto:marioortizmanero@gmail.com") }}
+    {{ $social = $social | append (dict "name" "PGP keys" "url" "https://nullderef.com/pgp_keys.asc") }}
+    {{ $last := sub (len $social) 1 }}
+    {{ range $i, $data := $social }}
+      <a href="{{ $data.url }}" target="_blank" rel="noopener noreferrer me">{{ $data.name }}</a>{{ if ne $i $last }} · {{ end }}
+    {{ end }}
+    </p>
+
+    <h2>Other Cool Blogs</h2>
+
+    <p>Here are some interesting blogs from friends or that I just enjoy reading:</p>
+
+    <ul>
+      {{ range $.Site.Data.other_blogs.list }}
+        {{ partial "other_blogs.html" . }}
+      {{ end }}
+    </ul>
+  </div>
+
 </article>
 
 {{- end }}{{/* end main */}}

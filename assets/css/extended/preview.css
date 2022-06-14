@@ -15,7 +15,7 @@
 }
 
 /* Previews are annoying in small screens */
- @media only screen and (max-width: 500px) {
+@media only screen and (max-width: 500px) {
   .entry-preview {
     display: none;
   }
