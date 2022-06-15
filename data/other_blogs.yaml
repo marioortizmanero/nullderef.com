@@ -13,7 +13,7 @@ list:
     description: >
       technical blog posts from the development leader of [Rust
       Analyzer](https://github.com/rust-analyzer/rust-analyzer)
-  - name: Ramsay's Eden
+  - name: In Pursuit of Hubris
     url: https://ramsayleung.github.io/
     description: >
       my friend [Ramsay's](https://github.com/ramsayleung) site about Rust and
