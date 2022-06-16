@@ -34,12 +34,12 @@ the same, just easier in some aspects.
 == Some prototyping advice
 
 Before anything else, I'd like to give out some suggestions regarding
-refactoring with Rust, based on my experience. You'll be introducing a good
-amount of changes, so it would be wise to do some brief planning beforehand --
-otherwise it'll take forever with a complex enough codebase. Maybe this will all
-be obvious to you, or you may prefer taking a different approach. But it
-certainly worked for me, so it's worth a shot. I'm personally very satisfied
-about how much I've learned about the process.
+refactoring with Rust, based on my experience. You'll be introducing a lot of
+changes, so it would be wise to do some brief planning beforehand -- otherwise
+it'll take forever with a complex enough codebase. Maybe this will all be
+obvious to you, or you may prefer taking a different approach. But it certainly
+worked for me, so it's worth a shot. I'm personally very satisfied with how much
+I've learned about the process.
 
 === The {work} approach
 
