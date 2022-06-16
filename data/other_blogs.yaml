@@ -12,7 +12,7 @@ list:
     url: https://matklad.github.io/
     description: >
       technical blog posts from the development leader of [Rust
-      Analyzer](https://github.com/rust-analyzer/rust-analyzer)
+      Analyzer](https://github.com/rust-analyzer/rust-analyzer).
   - name: In Pursuit of Hubris
     url: https://ramsayleung.github.io/
     description: >
