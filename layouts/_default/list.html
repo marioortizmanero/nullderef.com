@@ -9,7 +9,7 @@
   {{- partial "breadcrumbs.html" . }}
   <h1>{{ .Title }}</h1>
   {{- if .Description }}
-  <div class="post-description">
+  <div class="post-description post-content">
     {{ .Description | markdownify }}
   </div>
   {{- end }}
