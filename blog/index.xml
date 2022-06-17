@@ -3542,13 +3542,13 @@ using generics. Either of these options are fine, really, so it’s up to you.</
 <div class="sect2">
 <h3 id="_optional_parameters">Optional parameters</h3>
 <div class="paragraph">
-<p>Similarly, if the functions your library frequently include optional parameters
-(i.e., of type <code>Option&lt;T&gt;</code>), you might want to consider other ways to handle
-them. In our case, we were using generics with <code>Into&lt;Option&lt;T&gt;&gt;</code> in order to not
-have to wrap the parameters in <code>Some</code> when passing them to the function, but it
-wasn’t consistent. We finally agreed that using plain <code>Option&lt;T&gt;</code> was good
-enough because it simplifies the function definition in the docs and it’s less
-magic <a href="#gh-optional-params">[14]</a>. But the important part is that we made it
+<p>Similarly, if the functions in your library frequently include optional
+parameters (i.e., of type <code>Option&lt;T&gt;</code>), you might want to consider other ways to
+handle them. In our case, we were using generics with <code>Into&lt;Option&lt;T&gt;&gt;</code> in order
+to not have to wrap the parameters in <code>Some</code> when passing them to the function,
+but it wasn’t consistent. We finally agreed that using plain <code>Option&lt;T&gt;</code> was
+good enough because it simplifies the function definition in the docs and it’s
+less magic <a href="#gh-optional-params">[14]</a>. But the important part is that we made it
 <em>consistent</em>; the decision itself between <code>Into&lt;Option&lt;T&gt;&gt;</code> or <code>Option&lt;T&gt;</code>
 wasn’t that important. After doing research about this topic, I wrote up an
 article with more details <a href="https://nullderef.com/blog/rust-parameters/">here</a>, in
@@ -4221,9 +4221,9 @@ features I listed here, read and reviewed <em>every single one of my issues and
 pull requests</em>. I’ve learned how important it is to have a second opinon, and
 someone else who proofreads everything before you merge dumb stuff into
 <code>master</code>. Note that I <em>did</em> proofread my own ideas and pull requests, but there
-are some things that you just don’t realize on time, as much as you try to. This
+are some things that you just don’t notice on time, as much as you try to. This
 is a problem that I think is particularly relevant in open source. I personally
-had worked on projects alone most of the times, and the difference is huge. I
+had worked on projects alone most of the time, and the difference is huge. I
 would suggest everyone to try to join forces with at least one more person when
 working in side projects.</p>
 </div>
