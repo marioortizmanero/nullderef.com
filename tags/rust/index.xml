@@ -2902,15 +2902,15 @@ Disadvantages — Dynamic Shared Object (DSO) Support</a></p>
     </item>
     
     <item>
-      <title>Designing an API Client in Rust: New Rspotify Version a Year Later</title>
+      <title>Designing an API Client in Rust: New RSpotify Version a Year Later</title>
       <link>https://nullderef.com/blog/web-api-client/</link>
       <pubDate>Wed, 13 Oct 2021 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/blog/web-api-client/</guid>
-      <description>Inspired by the Rspotify rewrite, a few tips on how to make a solid wrapper for most web API wrappers.</description>
+      <description>Inspired by the RSpotify rewrite, a few tips on how to make a solid wrapper for most web API wrappers.</description>
       <content:encoded><![CDATA[<div class="paragraph">
 <p>This article describes my journey of basically rewriting the entirety of
-<a href="https://github.com/ramsayleung/rspotify">Rspotify</a>; around 13 months of work (in
+<a href="https://github.com/ramsayleung/rspotify">RSpotify</a>; around 13 months of work (in
 my free time), starting at September 2020, up until October 2021. I think this
 has given me enough experience for an article regarding API design on Rust, and
 perhaps those who attempt the same in the future can take some ideas and save
@@ -2921,15 +2921,15 @@ time. Specially considering how much I’ve gone in circles and how much time I�
 <h2 id="_the_story">The story</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>If you don’t care about Rspotify’s specific story, you can jump to the
-<a href="#actual_start">Making the API HTTP-client agnostic</a> section, but I think knowing a bit the motives for this
+<p>If you don’t care about RSpotify’s specific story, you can jump to the
+``<a href="#actual_start">Making the API HTTP-client agnostic</a>&#39;&#39; section, but I think knowing a bit the motives for this
 rewrite is interesting for other open source maintainers in the same situation
 as me. This all started when I wanted to use a Rust Spotify API wrapper for one
 of my projects at that time, <a href="https://vidify.org/">Vidify</a>. I went to
 <a href="https://crates.io/">crates.io</a> and looked for &#34;Spotify&#34;, and all I found was <a href="https://crates.io/crates/rspotify"><code>rspotify</code></a>
- (the most popular one at that time), <a href="https://crates.io/crates/aspotify"><code>aspotify</code></a>
-
-(an asynchronous-only alternative), and a bunch of other outdated or incomplete
+ (the most popular one), <a href="https://crates.io/crates/aspotify"><code>aspotify</code></a>
+ (an
+asynchronous-only alternative), and a bunch of other outdated or incomplete
 libraries.</p>
 </div>
 <div class="paragraph">
@@ -2937,7 +2937,7 @@ libraries.</p>
 he commented in its release, “[rspotify’s] API in general I found hard to use
 and confusing” <a href="#aspotify-release">[1]</a>. Honestly, depending on the state of the
 original library this is the easiest choice because you don’t have to worry
-about backwards compatibility, old code, etc.</p>
+about backwards compatibility or old code.</p>
 </div>
 <div class="paragraph">
 <p>A year back I had also helped with the first steps of
@@ -2949,31 +2949,31 @@ push to upgrade from Python 2 and improve the overall interface and
 user-friendliness, which had become pretty poor.</p>
 </div>
 <div class="paragraph">
-<p><a href="https://github.com/felix-hilden">Felix</a> and a few more devs tried to start from
-scratch. Felix was the most dedicated one and eventually got permissions from
-Paul to upload new spotipy releases, meaning that he could rewrite the entire
-thing and upload it to PyPi (Python’s official third-party repositories) if he
-wanted to. The difference in this case was that spotipy had a good amount of
-users at that point, and a couple of them ended up stopping Felix from
-completely breaking backward compatibility, so he made it into a brand new
+<p>A few devs, including <a href="https://github.com/felix-hilden">Felix</a>, tried to start
+from scratch. Felix was the most dedicated, and Paul eventually granted him
+permissions to upload new spotipy releases, meaning that he could rewrite the
+entire thing under the same name, and upload it to PyPi (Python’s official
+third-party repositories) if he wanted to. The problem was that spotipy had a
+good amount of users by that point. A couple of them ended up stopping Felix
+from completely breaking backward compatibility, so he made it into a brand-new
 library instead and left the maintainance tasks to the new devs in charge.
 Tekore still is, in my very biased opinion and at the time of this writing, a
-much nicer to use library than spotipy, but it has taken a lot of time to get a
+much nicer to use library than spotipy. But it has taken a lot of time to get a
 user base starting from scratch, and it’s still not as popular as spotipy by
 far.</p>
 </div>
 <div class="paragraph">
 <p>Having gone through this, I also wanted to see if it would be possible to give
-Rspotify a face wash without anyone complaining. Rspotify was still in beta — version 0.10 — so you can’t expect to have a stable API, but that’s far from a
+RSpotify a face wash without anyone complaining. RSpotify was still in beta — version 0.10 — so you can’t expect to have a stable API, but that’s far from a
 full rewrite. At the very least I wanted to talk with Ramsay, the original
-Rspotify developer, and see what his thoughts were. I proposed some big changes
+RSpotify developer, and see what his thoughts were. I proposed some big changes
 like rewriting the <code>blocking</code> module <a href="#gh-block-cleanup">[3]</a> and
 <a href="https://github.com/Kestrer">Kestrer</a> wrote up an issue with ~80 issues he had
 found when using the library <a href="#gh-meta">[4]</a>.</p>
 </div>
 <div class="paragraph">
-<p>I think it’s fair to release the new version 0.11 as such rather than as a new
-library because of the following reasons:</p>
+<p>I think it’s fair to release the new version 0.11 as such, rather than as a new
+library, for the following reasons:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2988,7 +2988,7 @@ user-friendly feature-full library for the Spotify API.</p>
 <p>It was considered a necessary evil. In my opinion, the library was doomed
 without a big rewrite. Otherwise, it’d eventually become really hard to
 maintain and work with. I admit that said breaking changes could’ve been
-smaller, but I thought that while I’m at it I might as well make it as close
+smaller, but I thought that, while I’m at it, I might as well make it as close
 as possible to a perfect Rust interface.</p>
 </li>
 </ul>
@@ -2997,7 +2997,7 @@ as possible to a perfect Rust interface.</p>
 <p>Also, note that I am in no way associated with Spotify (though open to offers
 :P). I’m just a Computer Science student whose sole goal was to use Rust for a
 non-trivial case, from start to finish. I was somewhat experienced with the
-Spotify API, so I decided Rspotify was a good choice.</p>
+Spotify API, so I decided RSpotify was a good choice.</p>
 </div>
 <div class="paragraph">
 <p>Now that most of the stuff I talk about in this article is finished, you can
@@ -3012,7 +3012,7 @@ Design, and some tips for those writing one in Rust.</p>
 <h2 id="actual_start">Making the API HTTP-client agnostic</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Rspotify is now HTTP-client agnostic, which means that it can work with
+<p>RSpotify is now HTTP-client agnostic, which means that it can work with
 whichever HTTP library the user configures without adding much overhead. For
 now, we support <a href="https://crates.io/crates/ureq"><code>ureq</code></a>
  and <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a>
@@ -3038,12 +3038,12 @@ must be strictly additive, and <code>maybe_async</code>&#39;s feature is a <em>t
 can’t have both a sync and an async client at the same time.</p>
 </div>
 <div class="paragraph">
-<p>Since we don’t follow that rule, those who depend on Rspotify with both async
+<p>Since we don’t follow that rule, those who depend on RSpotify with both async
 and sync (directly or indirectly) won’t be able to compile their project. I
 won’t get into much detail because I’m writing an entire separate post dedicated
 for this issue that I’ll publish once this whole ordeal is fixed. We’re keeping
 track of it in <a href="https://github.com/ramsayleung/rspotify/issues/221">#221</a> for now,
-for those who want to lean more.</p>
+for those who want to learn more.</p>
 </div>
 <div class="paragraph">
 <p>For now, I’ll just explain how it works for clients of the same type: either
@@ -3127,7 +3127,7 @@ impl&lt;Http: HttpClient&gt; Spotify&lt;Http&gt; {
 <div class="paragraph">
 <p>Beware that this introduces a good amount of additional complexity which is
 probably unnecessary for your own API wrapper. But this was definitely something
-interesting for Rspotify: some crates that already depend on us like
+interesting for RSpotify: some crates that already depend on us like
 <a href="https://github.com/hrkfdn/ncspot"><code>ncspot</code></a> or
 <a href="https://github.com/Spotifyd/spotifyd"><code>spotifyd</code></a> are blocking, and others like
 <a href="https://github.com/Rigellute/spotify-tui"><code>spotify-tui</code></a> use async. I thought I
@@ -3148,7 +3148,7 @@ become easier to implement in the future (and first of all work properly).</p>
 <h2 id="_finding_a_more_robust_architecture">Finding a more robust architecture</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Another key refactor I worked on for Rspotify was its architecture. The Spotify
+<p>Another key refactor I worked on for RSpotify was its architecture. The Spotify
 API in particular has
 <a href="https://developer.spotify.com/documentation/general/guides/authorization-guide/">multiple
 authorization methods</a> that give you access to a different set of endpoints. For
@@ -3245,10 +3245,10 @@ spotify.seek_track(25000, None).unwrap();</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Using the regular initialization pattern is more than enough for this case
-because we don’t even need validation. If we did, we could always just add a few
-setters or checks before its usage and we’re done. Ask yourself: do you really
-need the builder pattern? In this case we certainly didn’t.</p>
+<p>It’s sufficient to use the regular initialization pattern for this case because
+we don’t even need validation. If we did, we could always just add a few setters
+or checks before its usage and we’re done. Ask yourself: do you really need the
+builder pattern? In this case we certainly didn’t.</p>
 </div>
 <div class="paragraph">
 <p>The most complicated part of the refactor is having a client for each
@@ -3342,7 +3342,7 @@ impl AuthCodeSpotify {
 </div>
 </div>
 <div class="paragraph">
-<p>However, you might personally think using just <code>spotify.endpoint1()</code> instead of
+<p>However, you might think using just <code>spotify.endpoint1()</code> instead of
 <code>spotify.base().endpoint1()</code> is more suitable for your particular API client.
 The only way to do that would be to delegate every single endpoint manually into
 the main client. Some people use <code>Deref</code> and <code>DerefMut</code> in order to
@@ -3350,7 +3350,7 @@ automatically do it, but that’s a common anti-pattern <a href="#deref-antipatt
 </div>
 <div class="paragraph">
 <p>I tried different approaches, and my favorite ended up being a trait-based
-interface. All you need is a couple traits with the endpoint implementations
+interface. All you need is a couple traits with the endpoint implementations,
 which require a getter to the HTTP client or similars:</p>
 </div>
 <div class="listingblock">
@@ -3416,7 +3416,7 @@ documentation.</p>
 <div class="paragraph">
 <p>So yeah, there are no <em>perfect</em> solutions, but these are two of the best ones I
 could find. The choice is up to the designer of the library and their needs.
-Having multiple clients let us implement PKCE Authentication for Rspotify quite
+Having multiple clients let us implement PKCE Authentication for RSpotify quite
 easily <a href="#gh-pkce">[11]</a>, so it’s worth it in the end anyway. Our final architecture
 looks like this:</p>
 </div>
@@ -3482,7 +3482,7 @@ actually think about optimizing it.</p>
 <p>One correct usage would be our new <code>cli</code> feature. We have some utilities for
 command-line programs, such as prompting for the user’s credentials. However,
 not everyone needs these, such as servers, and it introduced the <a href="https://crates.io/crates/webbrowser"><code>webbrowser</code></a>
- dependency and a few unecessary functions. So we decided to move
+ dependency and a few unnecessary functions. So we decided to move
 this into a separate feature for those interested, which is disabled by default.</p>
 </div>
 </div>
@@ -3559,7 +3559,7 @@ case you want to learn more.</p>
 <h3 id="_splitting_up_into_multiple_crates">Splitting up into multiple crates</h3>
 <div class="paragraph">
 <p>Another cool idea that promotes flexibility is separating the wrapper into
-multiple crates. In Rspotify, we now have a total of four of them:</p>
+multiple crates. In RSpotify, we now have a total of four of them:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -3572,7 +3572,7 @@ more generic and moving into a separate crate for everyone to use
 <p><code>rspotify-macros</code>: a small crate with macros</p>
 </li>
 <li>
-<p><code>rspotify-model</code>: the full model for the Rspotify crate</p>
+<p><code>rspotify-model</code>: the full model for the RSpotify crate</p>
 </li>
 <li>
 <p><code>rspotify</code>: the implementation of the clients</p>
@@ -3588,7 +3588,7 @@ more generic and moving into a separate crate for everyone to use
 <div class="paragraph">
 <p>The most important one here is splitting up the wrapper into the model and the
 clients. The model is generic enough that it can be used by any client, even
-outside Rspotify. Some users have to implement their own custom clients for
+outside RSpotify. Some users have to implement their own custom clients for
 different reasons, and pulling our model helps to avoid lots of complexity and
 maintainance work <a href="#model-separation">[16]</a>. It can also be shared with other public
 crates, such as <code>aspotify</code>, and join forces in keeping the model up to date
@@ -3620,7 +3620,7 @@ the crate and what they do.</p>
 </li>
 <li>
 <p>Add some notes about the architecture of your crate. This is specially useul
-to those who want to contribute. For Rspotify, Ramsay created the diagrams
+to those who want to contribute. For RSpotify, Ramsay created the diagrams
 included in this article, and added more details in the
 <a href="https://github.com/ramsayleung/rspotify/blob/master/README.md">README</a>.</p>
 </li>
@@ -3649,7 +3649,7 @@ feel like less of a waste of time to the user.</p>
 <li>
 <p>Include a
 <a href="https://github.com/ramsayleung/rspotify/blob/master/CHANGELOG.md">changelog</a>,
-either as an indepent file, or in the release notes. In Rspotify, we make
+either as an indepent file, or in the release notes. In RSpotify, we make
 habit of adding a new line to the changelog for every release that includes a
 new feature or breaking changes. To be honest, in our case it’s turned out
 quite messy because we had <em>so many changes</em>, but in a regular update it
@@ -3772,7 +3772,7 @@ well <a href="#hashmap-new">[19]</a>:</p>
 <h2 id="_other_goodies">Other goodies</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Some new features we added to Rspotify that might be of interest specifically
+<p>Some new features we added to RSpotify that might be of interest specifically
 for other web API wrappers:</p>
 </div>
 <div class="sect2">
@@ -4018,7 +4018,7 @@ by now it didn’t work correctly.</p>
 <div class="sect2">
 <h3 id="_statistics">Statistics</h3>
 <div class="paragraph">
-<p>Some parts of Rspotify can be analyzed statically, such as the lines of code
+<p>Some parts of RSpotify can be analyzed statically, such as the lines of code
 that will need to be maintained, or its number of dependencies:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
@@ -4386,7 +4386,7 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
 <li>
 <p><a id="reddit-auth"></a>[7]
 <a href="https://www.reddit.com/r/rust/comments/lkdw6o/designing_a_new_architecture_for_rspotify_based/">Designing
-a new architecture for Rspotify based on trait inheritance, need opinions -
+a new architecture for RSpotify based on trait inheritance, need opinions -
 Reddit</a></p>
 </li>
 <li>
@@ -4614,7 +4614,7 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
   
 
-  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/202" style="text-decoration: none;">Remove Rspotify default parameters and add parameter macros
+  <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/202" style="text-decoration: none;">Remove RSpotify default parameters and add parameter macros
     <span class="gh-number">ramsayleung/rspotify#202</span></a>
 
 </span>
