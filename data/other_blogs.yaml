@@ -13,6 +13,9 @@ list:
     description: >
       technical blog posts from the development leader of [Rust
       Analyzer](https://github.com/rust-analyzer/rust-analyzer).
+  - name: Baby Steps
+    url: https://smallcultfollowing.com/babysteps/
+    description: Niko Matsakis's blog, one of Rust's best known developers.
   - name: In Pursuit of Hubris
     url: https://ramsayleung.github.io/
     description: >
