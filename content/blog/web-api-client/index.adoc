@@ -562,13 +562,13 @@ using generics. Either of these options are fine, really, so it's up to you.
 
 === Optional parameters
 
-Similarly, if the functions your library frequently include optional parameters
-(i.e., of type `Option<T>`), you might want to consider other ways to handle
-them. In our case, we were using generics with `Into<Option<T>>` in order to not
-have to wrap the parameters in `Some` when passing them to the function, but it
-wasn't consistent. We finally agreed that using plain `Option<T>` was good
-enough because it simplifies the function definition in the docs and it's less
-magic <<gh-optional-params>>. But the important part is that we made it
+Similarly, if the functions in your library frequently include optional
+parameters (i.e., of type `Option<T>`), you might want to consider other ways to
+handle them. In our case, we were using generics with `Into<Option<T>>` in order
+to not have to wrap the parameters in `Some` when passing them to the function,
+but it wasn't consistent. We finally agreed that using plain `Option<T>` was
+good enough because it simplifies the function definition in the docs and it's
+less magic <<gh-optional-params>>. But the important part is that we made it
 _consistent_; the decision itself between `Into<Option<T>>` or `Option<T>`
 wasn't that important. After doing research about this topic, I wrote up an
 article with more details https://nullderef.com/blog/rust-parameters/[here], in
@@ -922,9 +922,9 @@ features I listed here, read and reviewed _every single one of my issues and
 pull requests_. I've learned how important it is to have a second opinon, and
 someone else who proofreads everything before you merge dumb stuff into
 `master`. Note that I _did_ proofread my own ideas and pull requests, but there
-are some things that you just don't realize on time, as much as you try to. This
+are some things that you just don't notice on time, as much as you try to. This
 is a problem that I think is particularly relevant in open source. I personally
-had worked on projects alone most of the times, and the difference is huge. I
+had worked on projects alone most of the time, and the difference is huge. I
 would suggest everyone to try to join forces with at least one more person when
 working in side projects.
 

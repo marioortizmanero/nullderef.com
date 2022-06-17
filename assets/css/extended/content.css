@@ -1,6 +1,6 @@
 /* Fixes for asciidoc-generated content */
 
-.post-content .imageblock > .content {
+.post-content .imageblock {
   margin-bottom: var(--content-gap);
 }
 
