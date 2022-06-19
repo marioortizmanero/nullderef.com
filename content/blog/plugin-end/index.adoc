@@ -212,6 +212,42 @@ TODO: Maybe remove typo fixing as well, or list separately?
 * dlopen#40
 ////
 
+////
+NOTE: dirty & quick script for parsing URLs to macros, requires PyGithub:
+
+import re
+import fileinput
+from github import Github
+
+URL_REGEX = r'https?://github\.com/([\w_-]+/[\w_-]+)/(\w+)/(\d+)'
+AUTH = 'TODO'
+
+
+def get_kind(base: str, state: str) -> str:
+    if base == 'pull':
+        return 'pr'
+    else:
+        return 'issue'
+
+
+g = Github(AUTH)
+
+for url in fileinput.input():
+    matches = re.search(URL_REGEX, url)
+    if matches is None:
+        print(f"`{url}` isn't an URL, skipping...")
+        continue
+
+    repo_name = matches.group(1)
+    kind_base = matches.group(2)
+    number = int(matches.group(3))
+
+    repo = g.get_repo(repo_name)
+    issue = repo.get_issue(number=number)
+    kind = get_kind(kind_base, issue.state)
+    print(f"{{{{< gh {kind} \"{repo_name}\" {number} \"{issue.title}\" >}}}}")
+////
+
 Pull Requests:
 
 * {{< gh pr "oxalica/async-ffi" 10 "Support for `abi_stable`" >}}
@@ -254,7 +290,6 @@ Issues:
 * {{< gh issue "wasmerio/wasmer" 2539 "Add deprecation notice to the crate `wasmer-runtime`" >}}
 
 Here are the pull requests or issues in Tremor related to the PDK:
-
 
 * {{< gh pr "tremor-rs/tremor-runtime" 1434 "PDK support" >}}
 * {{< gh pr "marioortizmanero/tremor-runtime" 11 "PDK with a single value" >}}
