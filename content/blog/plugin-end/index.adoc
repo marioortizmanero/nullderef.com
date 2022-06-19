@@ -214,54 +214,55 @@ TODO: Maybe remove typo fixing as well, or list separately?
 
 Pull Requests:
 
-* https://github.com/oxalica/async-ffi/pull/10
-* https://github.com/oxalica/async-ffi/pull/11
-* https://github.com/rodrimati1992/abi_stable_crates/pull/55
-* https://github.com/rodrimati1992/abi_stable_crates/pull/57
-* https://github.com/rodrimati1992/abi_stable_crates/pull/58
-* https://github.com/rodrimati1992/abi_stable_crates/pull/59
-* https://github.com/rodrimati1992/abi_stable_crates/pull/61
-* https://github.com/rodrimati1992/abi_stable_crates/pull/68
-* https://github.com/rodrimati1992/abi_stable_crates/pull/70
-* https://github.com/rodrimati1992/abi_stable_crates/pull/76
-* https://github.com/rodrimati1992/abi_stable_crates/pull/77
-* https://github.com/rodrimati1992/abi_stable_crates/pull/82
-* https://github.com/rodrimati1992/abi_stable_crates/pull/83
-* https://github.com/rodrimati1992/abi_stable_crates/pull/85
-* https://github.com/rodrimati1992/abi_stable_crates/pull/88
-* https://github.com/simd-lite/simd-json-derive/pull/9
-* https://github.com/simd-lite/value-trait/pull/14
-* https://github.com/simd-lite/value-trait/pull/16
-* https://github.com/simd-lite/value-trait/pull/18
-* https://github.com/nagisa/rust_libloading/pull/94
-* https://github.com/tremor-rs/tremor-www/pull/72
-* https://github.com/szymonwieloch/rust-dlopen/pull/40
-* https://github.com/Licenser/halfbrown/pull/13
-* https://github.com/Licenser/halfbrown/pull/14
-* https://github.com/Licenser/halfbrown/pull/16
-* https://github.com/Licenser/halfbrown/pull/17 
-* https://github.com/Licenser/halfbrown/pull/18
+* {{< gh pr "oxalica/async-ffi" 10 "Support for `abi_stable`" >}}
+* {{< gh pr "oxalica/async-ffi" 11 "Cbindgen support" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 55 "Fix 'carte' typo" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 57 "Fix some more typos" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 58 "Add support for .keys() and .values() in RHashMap" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 59 "Implement `Index` for slices and vectors" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 61 "Support for `f32` and `f64`" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 68 "Implement `ROption::as_deref`" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 70 "Implement `RVec::append`" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 76 "Fix `R*` lifetimes" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 77 "Fix inconsistencies with `RVec` in respect to `Vec`" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 82 "Implement `ROption::{ok_or,ok_or_else}`" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 83 "`RHashMap::raw_entry[_mut]` support" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 85 "Fix hasher" >}}
+* {{< gh pr "rodrimati1992/abi_stable_crates" 88 "Only implement `Default` once" >}}
+* {{< gh pr "simd-lite/simd-json-derive" 9 "Support for `abi_stable`" >}}
+* {{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" >}}
+* {{< gh pr "simd-lite/value-trait" 16 "User friendliness for the win! (close #15)" >}}
+* {{< gh pr "simd-lite/value-trait" 18 "Update abi_stable after upstreamed changes" >}}
+* {{< gh pr "nagisa/rust_libloading" 94 "Small typo" >}}
+* {{< gh pr "tremor-rs/tremor-www" 72 "Fix wrong links in getting started" >}}
+* {{< gh pr "szymonwieloch/rust-dlopen" 40 "Fix typo" >}}
+* {{< gh pr "Licenser/halfbrown" 13 "Implement `remove_entry`" >}}
+* {{< gh pr "Licenser/halfbrown" 14 "Implement `Clone` and `Debug` for `Iter`" >}}
+* {{< gh pr "Licenser/halfbrown" 16 "Relax constraints" >}}
+* {{< gh pr "Licenser/halfbrown" 17 "Same `Default` constraints" >}}
+* {{< gh pr "Licenser/halfbrown" 18 "Fix `Clone` requirements for `Iter`" >}}
 
 Issues:
 
-* https://github.com/oxalica/async-ffi/issues/12
-* https://github.com/rodrimati1992/abi_stable_crates/issues/52
-* https://github.com/rodrimati1992/abi_stable_crates/issues/60
-* https://github.com/rust-lang/nomicon/issues/338
-* https://github.com/szymonwieloch/rust-dlopen/issues/42
-* https://github.com/tremor-rs/tremor-runtime/issues/1353
-* https://github.com/tremor-rs/tremor-www/issues/73
-* https://github.com/wasmerio/wasmer/issues/2539
+* {{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" >}}
+* {{< gh issue "rodrimati1992/abi_stable_crates" 52 "Generating C bindings" >}}
+* {{< gh issue "rodrimati1992/abi_stable_crates" 60 "Stable ABI for floating point numbers" >}}
+* {{< gh issue "rust-lang/nomicon" 338 "Subtyping and Variance - Trait variance not covered" >}}
+* {{< gh issue "szymonwieloch/rust-dlopen" 42 "`dlerror` *is* thread-safe on some platforms" >}}
+* {{< gh issue "tremor-rs/tremor-runtime" 1353 "`deny` statemements in `lib.rs` should be enforced in the CI rather than in the code" >}}
+* {{< gh issue "tremor-rs/tremor-www" 73 "Redirect `docs.tremor.rs` to `www.tremor.rs/docs`" >}}
+* {{< gh issue "wasmerio/wasmer" 2539 "Add deprecation notice to the crate `wasmer-runtime`" >}}
 
 Here are the pull requests or issues in Tremor related to the PDK:
 
-* https://github.com/tremor-rs/tremor-runtime/pull/1434
-* https://github.com/marioortizmanero/tremor-runtime/pull/11
-* https://github.com/tremor-rs/tremor-runtime/pull/1447
-* https://github.com/marioortizmanero/tremor-runtime/pull/2 (second attempt)
-* https://github.com/marioortizmanero/tremor-runtime/pull/1 (second attempt)
-* https://github.com/tremor-rs/tremor-runtime/pull/1303 (second attempt)
-* https://github.com/tremor-rs/tremor-runtime/pull/1287 (first attempt)
+
+* {{< gh pr "tremor-rs/tremor-runtime" 1434 "PDK support" >}}
+* {{< gh pr "marioortizmanero/tremor-runtime" 11 "PDK with a single value" >}}
+* {{< gh pr "tremor-rs/tremor-runtime" 1447 "Fix `makefile bench`" >}}
+* {{< gh pr "marioortizmanero/tremor-runtime" 2 "Adding `abi_stable` support for `tremor-script`" >}} (second attempt)
+* {{< gh pr "marioortizmanero/tremor-runtime" 1 "Adding `abi_stable` support for `tremor-runtime`" >}} (second attempt)
+* {{< gh pr "tremor-rs/tremor-runtime" 1303 "Adding `abi_stable` support for `tremor-value`" >}} (second attempt)
+* {{< gh pr "tremor-rs/tremor-runtime" 1287 "Plugin Development Kit: Connectors" >}} (first attempt)
 
 I also managed to break the compiler while working on this plugin system. It may
 not be as rare as one would think, but for some reason I felt oddly proud to
