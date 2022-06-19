@@ -248,10 +248,16 @@ for url in fileinput.input():
     print(f"{{{{< gh {kind} \"{repo_name}\" {number} \"{issue.title}\" >}}}}")
 ////
 
-Pull Requests:
+External:
 
+* {{< gh issue "rust-lang/nomicon" 338 "Subtyping and Variance - Trait variance not covered" >}}
+* {{< gh issue "szymonwieloch/rust-dlopen" 42 "`dlerror` *is* thread-safe on some platforms" >}}
+* {{< gh issue "wasmerio/wasmer" 2539 "Add deprecation notice to the crate `wasmer-runtime`" >}}
 * {{< gh pr "oxalica/async-ffi" 10 "Support for `abi_stable`" >}}
 * {{< gh pr "oxalica/async-ffi" 11 "Cbindgen support" >}}
+* {{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" >}}
+* {{< gh issue "rodrimati1992/abi_stable_crates" 52 "Generating C bindings" >}}
+* {{< gh issue "rodrimati1992/abi_stable_crates" 60 "Stable ABI for floating point numbers" >}}
 * {{< gh pr "rodrimati1992/abi_stable_crates" 55 "Fix 'carte' typo" >}}
 * {{< gh pr "rodrimati1992/abi_stable_crates" 57 "Fix some more typos" >}}
 * {{< gh pr "rodrimati1992/abi_stable_crates" 58 "Add support for .keys() and .values() in RHashMap" >}}
@@ -270,7 +276,6 @@ Pull Requests:
 * {{< gh pr "simd-lite/value-trait" 16 "User friendliness for the win! (close #15)" >}}
 * {{< gh pr "simd-lite/value-trait" 18 "Update abi_stable after upstreamed changes" >}}
 * {{< gh pr "nagisa/rust_libloading" 94 "Small typo" >}}
-* {{< gh pr "tremor-rs/tremor-www" 72 "Fix wrong links in getting started" >}}
 * {{< gh pr "szymonwieloch/rust-dlopen" 40 "Fix typo" >}}
 * {{< gh pr "Licenser/halfbrown" 13 "Implement `remove_entry`" >}}
 * {{< gh pr "Licenser/halfbrown" 14 "Implement `Clone` and `Debug` for `Iter`" >}}
@@ -278,18 +283,7 @@ Pull Requests:
 * {{< gh pr "Licenser/halfbrown" 17 "Same `Default` constraints" >}}
 * {{< gh pr "Licenser/halfbrown" 18 "Fix `Clone` requirements for `Iter`" >}}
 
-Issues:
-
-* {{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" >}}
-* {{< gh issue "rodrimati1992/abi_stable_crates" 52 "Generating C bindings" >}}
-* {{< gh issue "rodrimati1992/abi_stable_crates" 60 "Stable ABI for floating point numbers" >}}
-* {{< gh issue "rust-lang/nomicon" 338 "Subtyping and Variance - Trait variance not covered" >}}
-* {{< gh issue "szymonwieloch/rust-dlopen" 42 "`dlerror` *is* thread-safe on some platforms" >}}
-* {{< gh issue "tremor-rs/tremor-runtime" 1353 "`deny` statemements in `lib.rs` should be enforced in the CI rather than in the code" >}}
-* {{< gh issue "tremor-rs/tremor-www" 73 "Redirect `docs.tremor.rs` to `www.tremor.rs/docs`" >}}
-* {{< gh issue "wasmerio/wasmer" 2539 "Add deprecation notice to the crate `wasmer-runtime`" >}}
-
-Here are the pull requests or issues in Tremor related to the PDK:
+Internal:
 
 * {{< gh pr "tremor-rs/tremor-runtime" 1434 "PDK support" >}}
 * {{< gh pr "marioortizmanero/tremor-runtime" 11 "PDK with a single value" >}}
@@ -298,6 +292,12 @@ Here are the pull requests or issues in Tremor related to the PDK:
 * {{< gh pr "marioortizmanero/tremor-runtime" 1 "Adding `abi_stable` support for `tremor-runtime`" >}} (second attempt)
 * {{< gh pr "tremor-rs/tremor-runtime" 1303 "Adding `abi_stable` support for `tremor-value`" >}} (second attempt)
 * {{< gh pr "tremor-rs/tremor-runtime" 1287 "Plugin Development Kit: Connectors" >}} (first attempt)
+* {{< gh issue "tremor-rs/tremor-runtime" 1353 "`deny` statemements in `lib.rs` should be enforced in the CI rather than in the code" >}}
+* {{< gh pr "tremor-rs/tremor-www" 72 "Fix wrong links in getting started" >}}
+* {{< gh issue "tremor-rs/tremor-www" 73 "Redirect `docs.tremor.rs` to `www.tremor.rs/docs`" >}}
+* {{< gh pr "tremor-rs/tremor-www" 186 "Links pinned to 0.12 don't work" >}}
+* {{< gh pr "tremor-rs/tremor-www" 187 "Small fix in code snippet" >}}
+* {{< gh issue "tremor-rs/tremor-www" 195 "No margins in benchmark page" >}}
 
 I also managed to break the compiler while working on this plugin system. It may
 not be as rare as one would think, but for some reason I felt oddly proud to
