@@ -272,6 +272,7 @@ External:
 * {{< gh pr "rodrimati1992/abi_stable_crates" 85 "Fix hasher" >}}
 * {{< gh pr "rodrimati1992/abi_stable_crates" 88 "Only implement `Default` once" >}}
 * {{< gh pr "simd-lite/simd-json-derive" 9 "Support for `abi_stable`" >}}
+* {{< gh issue "simd-lite/simd-json-derive" 10 "No docs for v0.3.0" >}}
 * {{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" >}}
 * {{< gh pr "simd-lite/value-trait" 16 "User friendliness for the win! (close #15)" >}}
 * {{< gh pr "simd-lite/value-trait" 18 "Update abi_stable after upstreamed changes" >}}
