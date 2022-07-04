@@ -214,6 +214,7 @@ TODO: Maybe remove typo fixing as well, or list separately?
 
 ////
 NOTE: dirty & quick script for parsing URLs to macros, requires PyGithub:
+{{%/*
 
 import re
 import fileinput
@@ -246,6 +247,8 @@ for url in fileinput.input():
     issue = repo.get_issue(number=number)
     kind = get_kind(kind_base, issue.state)
     print(f"{{{{< gh {kind} \"{repo_name}\" {number} \"{issue.title}\" >}}}}")
+
+*/%}}
 ////
 
 External:
