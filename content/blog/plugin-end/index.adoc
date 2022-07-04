@@ -302,6 +302,7 @@ Internal:
 * {{< gh pr "tremor-rs/tremor-www" 186 "Links pinned to 0.12 don't work" >}}
 * {{< gh pr "tremor-rs/tremor-www" 187 "Small fix in code snippet" >}}
 * {{< gh issue "tremor-rs/tremor-www" 195 "No margins in benchmark page" >}}
+* {{< gh issue "tremor-rs/tremor-www" 219 "Fix typos in benchmarks page" >}}
 
 I also managed to break the compiler while working on this plugin system. It may
 not be as rare as one would think, but for some reason I felt oddly proud to
