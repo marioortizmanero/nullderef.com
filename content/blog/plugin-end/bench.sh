@@ -34,8 +34,8 @@ for name in $VALUES; do
         exit 1
     fi
 done
-for name in $BENCHMARKS; do
-    get_dir "$name"
+for bench in $BENCHMARKS; do
+    get_dir "$bench"
 
     if ! [ -d "$dir" ]; then
         echo "ERROR: Benchmark $dir doesn't exist"
@@ -52,7 +52,7 @@ export TREMOR_PATH=../../../../tremor-script/lib:../../lib/
 for bench in $BENCHMARKS; do
     # Benchmarks only work if you're in the same directory, and then always use
     # relative paths.
-    get_dir "$name"
+    get_dir "$bench"
     cd "$dir"
 
     # Warmup round, ran alternately for accuracy
@@ -65,8 +65,10 @@ for bench in $BENCHMARKS; do
         done
     done
 
-    for name in $BINARIES; do
-        get_bin "$name"
+    # Finally, the tests
+    for bin_name in $BINARIES; do
+        get_bin "$bin_name"
+        name="${bin_name}-$bench"
 
         echo ">> Benchmarking $name"
         "$bin" test bench . > "$OUTPUT_DIR/${name}.hgrm"
