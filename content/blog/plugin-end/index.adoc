@@ -22,16 +22,18 @@ improvements may occur in specific. Indicate assumptions and known bias as well.
 real world: throughput-logging-json
 ////
 
-This final article will focus mostly on getting our plugin system ready for
-deployment. This means verifying the behaviour is what we expect, and
-benchmarking thoroughly to ensure the performance demands are met.
+Welcome to the final article of this series! I'll focus on getting our plugin
+system ready for deployment. This means verifying the behaviour is what we
+expect, and benchmarking thoroughly to ensure the performance demands are met.
 
-== Benchmarking process
+== Benchmarking
 
 Before running any benchmarks, we should ensure our process is appropiate so
 that we will get precise results.
 
 === Measuring performance
+
+Here are some methods I used for benchmarking:
 
 * Flamegraph
 * `perf.data`: `perf report --no-children -i FILE`: reduced `memmove` doesn't
@@ -39,7 +41,9 @@ that we will get precise results.
   take a screenshot and draw lines. TODO: look into what kernel.kallsyms and
   similars are.
 * Raw metrics: throughput, maximum and minimum latency, standard deviation, etc.
-* https://hdrhistogram.github.io/HdrHistogram/plotFiles.html[Visual histograms]
+* https://hdrhistogram.github.io/HdrHistogram/plotFiles.html[High Dynamic Range
+  (HDR) histograms]: Tremor's benchmarks generate a log with latency
+  percentiles, which can later be turned into a more visual graph.
 
 === Hardware availability
 
