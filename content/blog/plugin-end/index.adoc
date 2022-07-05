@@ -19,7 +19,7 @@ GHissueID: TODO
 TODO: use appropiate benchmarks for each case, and indicate where the
 improvements may occur in specific. Indicate assumptions and known bias as well.
 
-real world: throughput-logging-json
+NOTE: histogram units are nanoseconds
 ////
 
 Welcome to the final article of this series! I'll focus on getting our plugin
@@ -33,58 +33,66 @@ that we will get precise results.
 
 === Measuring performance
 
-Here are some methods I used for benchmarking:
+Here are the main methods I used for benchmarking:
 
-* Flamegraph
-* `perf.data`: `perf report --no-children -i FILE`: reduced `memmove` doesn't
+* Raw metrics: I also have access to the throughput, latency ranges, or standard
+  deviation, which may be easier to compare against eachother.
+* https://www.brendangregg.com/flamegraphs.html[Flamegraphs]: they help
+  visualize the stack traces hierarchically
+* `perf.data`: reduced `memmove` doesn't
   mean there's more move necessarily, just that something else got slower. Tip:
-  take a screenshot and draw lines. TODO: look into what kernel.kallsyms and
-  similars are.
-* Raw metrics: throughput, maximum and minimum latency, standard deviation, etc.
+  take a screenshot and draw lines.
++
+I was specifically using the command `perf report --no-children -i FILE`.
 * https://hdrhistogram.github.io/HdrHistogram/plotFiles.html[High Dynamic Range
   (HDR) histograms]: Tremor's benchmarks generate a log with latency
   percentiles, which can later be turned into a more visual graph.
 
-=== Hardware availability
+=== Methodology
 
-My first issue was that the only machine that I currently have available for
-free is a laptop. It's not too bad, but it's not the best thing for
-benchmarking. I had to close all the programs that were open before running
-anything, and it often throttled.
+My first issue was only having my laptop available for the benchmarks. It's a
+decent machine, but caused greater variance due to the processes running on the
+background, the battery status, or overheating. I was able to fix these issues
+more or less, but it was quite slow and annoying to work like this. The Tremor
+team helped me out by granting me access to their dedicated benchmarking server:
 
-The Tremor team ended up helping me out by adding me to the dedicated
-benchmarking server they have. This made the process much easier, and more
-accurate.
+.Full specs of both machines
+|===
+|Machine |CPU |RAM |Disk |OS
 
-One great way to ensure the result variance is too high is to run the exact same
-benchmark twice after all the initial setup:
+|*Laptop (Dell Vostro 5481)*
+|Intel i5-8265U
+|16 GB @ 2667 MHz
+|SSD
+|Arch Linux, 5.18 kernel, 64 bits
+
+|*Benchmarking Machine*
+|Intel Xeon E-2278G
+|32 GB @ 2667 MHz
+|SSD
+|Ubuntu 20.04, 5.4 kernel, 64 bits
+|===
+
+I ended up developing https://nullderef.com/blog/plugin-end/bench.sh[this
+script] to run all the tests properly:
+
+* It validates the configuration, which includes the chosen benchmarks and
+  Tremor binaries, before running anything. It was quite annoying to run into a
+  typo 2 hours into the benchmarks...
+* It performes a few warmup rounds before the actual benchmarks. This was
+  specially important when I used my laptop at the beginning; the device started
+  to overheat after the first few rounds, and its performance started to
+  degrade.
+image::/blog/plugin-end/histogram_variance_laptopnowarmup.png[]
+
+One great way to ensure the variance isn't too high is to run the exact same
+benchmark twice:
+
+.Variance when ran on the laptop without warming up. Unexpectedly, 
 
 // TODO: make names shorter
 
 image::/blog/plugin-end/histogram_variance.png[]
-
-=== Running the benchmarks
-
-I started with just a few command line instructions and ended up with a
-decently-sized bash script:
-
-* It validated the configuration (the chosen benchmarks and binaries) before
-  running anything. This way I avoided waiting for half an hour for the
-  benchmarks to finish, only to find an error in one of them and have to start
-  from scratch.
-* It performed a few warmup rounds before the actual benchmarks. This was
-  specially important when I used my laptop at the beginning; the first few runs
-  were the fastest, but as the device started to overhead, its performance
-  degraded considerably.
-
-.Variance when ran on the laptop without warming up
-image::/blog/plugin-end/histogram_variance_laptopnowarmup.png[]
-
-[source]
-----
-# TODO: mention `bench.sh` script
-$ sudo env "PATH=$PATH" ./bench.sh
-----
 
 == Results
 
