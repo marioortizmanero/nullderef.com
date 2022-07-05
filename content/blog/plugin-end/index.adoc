@@ -13,6 +13,7 @@ GHissueID: TODO
 :stem: latexmath
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
+:repr-rust: pass:quotes[`#[repr(Rust)]`]
 :work: pass:quotes["`just make it work`"]
 
 ////
@@ -26,12 +27,7 @@ Welcome to the final article of this series! I'll focus on getting our plugin
 system ready for deployment. This means verifying the behaviour is what we
 expect, and benchmarking thoroughly to ensure the performance demands are met.
 
-== Benchmarking
-
-Before running any benchmarks, we should ensure our process is appropiate so
-that we will get precise results.
-
-=== Measuring performance
+== Tooling
 
 Here are the main methods I used for benchmarking:
 
@@ -48,7 +44,7 @@ I was specifically using the command `perf report --no-children -i FILE`.
   (HDR) histograms]: Tremor's benchmarks generate a log with latency
   percentiles, which can later be turned into a more visual graph.
 
-=== Methodology
+== Methodology
 
 My first issue was only having my laptop available for the benchmarks. It's a
 decent machine, but caused greater variance due to the processes running on the
@@ -83,51 +79,41 @@ script] to run all the tests properly:
   specially important when I used my laptop at the beginning; the device started
   to overheat after the first few rounds, and its performance started to
   degrade.
-image::/blog/plugin-end/histogram_variance_laptopnowarmup.png[]
 
 One great way to ensure the variance isn't too high is to run the exact same
 benchmark twice:
 
-.Variance when ran on the laptop without warming up. Unexpectedly, 
-
-// TODO: make names shorter
-
+.Variance comparison with the entire setup. Unexpectedly, the server ended up being worse in that regard for this run, but it was good enough to continue.
 image::/blog/plugin-end/histogram_variance.png[]
 
-== Results
+== Experiments
 
-These were performed iteratively. The speed should improve as more and more
-experiments are done.
+=== Type conversions
 
-=== Experiments
+One of my main performance concerns with the first version of the PDK had to do
+with https://nullderef.com/blog/plugin-impl/#_reaching_reprc_blockers[the issues
+I had found when trying to convert external types to the C ABI]. I needed to
+modify `Value` to an FFI-compatible type in order to use it in the plugin
+system. However, it was also used throughout the entire codebase, and this
+would've required a large amount of changes for just the first version of the
+PDK. Thus, I created the copy `PdkValue` and converted to `Value` and back when
+going through the FFI boundary.
 
-==== Conversions
+I was able to prove its performance effect with some flamegraphs and call
+stacks:
 
-.Converting ``Value``s
+.Flamegraph with two ``Value``s. Highlighted in pink are the occurrences of `From`, `Into`, and `FromIterator`, which add up to 9.4% of all the calls in the execution.
 image::/blog/plugin-end/with_value_conv.png[]
 
-.Not converting ``Value``s
+.Flamegraph with a single `Value`. The conversion calls add up to 5.2% now.
 image::/blog/plugin-end/without_value_conv.png[]
 
-.Half the execution time of `on_event` was `Value` conversions
-image::/blog/plugin-end/perf_event_conv.png[]
+Our program will now spend 4.2% less of its execution time converting between
+`Value` types.
 
-.Percentage of cycles wasted on `Value` conversions
-image::/blog/plugin-end/cycles_into_value.png[]
+=== `abi_stable`
 
-.Percentage of cycles wasted on `ValueAndMeta` conversions
-image::/blog/plugin-end/cycles_into_valueandmeta.png[]
-
-According to the flamegraph 7% of the execution time was just conversions
-between regular and PDK types (TODO insert screenshot with search)
-
-==== `abi_stable`
-
-.Using `abi_stable`
-image::/blog/plugin-end/with_abi_stable.png[]
-
-.Not using `abi_stable`
-image::/blog/plugin-end/without_abi_stable.png[]
+Another performance issue I found with `abi_stable` was its destructors.
 
 .Specifically, ``abi_stable``'s complex destructors
 image::/blog/plugin-end/with_destructor.png[]
@@ -135,7 +121,7 @@ image::/blog/plugin-end/with_destructor.png[]
 .Specifically, ``abi_stable``'s complex destructors, globally
 image::/blog/plugin-end/with_destructor_globally.png[]
 
-==== Change of HashMap
+=== Change of HashMap
 
 .Using `RHashMap`
 image::/blog/plugin-end/with_rhashmap.png[]
