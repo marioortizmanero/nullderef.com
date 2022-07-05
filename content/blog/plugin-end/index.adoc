@@ -162,8 +162,7 @@ image::/blog/plugin-end/histogram_box.png[]
 * pdk-hashbrown vs pdk-halfbrown
 * knownkey vs noknownkey
 
-// TODO: mention how the passthrough benchmark isn't enough; passthrough:
-// optimal case.
+Over main branch:
 
 // TODO:
 .Ran on the benchmarking server
@@ -171,6 +170,58 @@ image::/blog/plugin-end/histogram_halfbrown.png[]
 
 .Ran on the benchmarking server
 image::/blog/plugin-end/histogram_knownkey.png[]
+
+Second version:
+
+image::/blog/plugin-end/histogram_pdk_v2_passthrough.png[]
+
+image::/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png[]
+
+image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png[]
+
+image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png[]
+
+
+|===
+|Benchmark |Main (%) |Hashbrown (%) |Halfbrown (%)
+
+|*Passthrough*
+// |1,189
+// |854
+// |844
+|100
+|71.8
+|70.9
+
+|*Passthrough Two Inputs*
+// |949
+// |618
+// |575
+|100
+|65.1
+|60.5
+
+|*Throughput Logging JSON*
+// |558
+// |389
+// |347
+|100
+|69.7
+|62.2
+
+|*Throughput Logging MsgPack*
+// |590
+// |425
+// |378
+|100
+|72.0
+|64.0
+
+|*Average*
+|100
+|69.6
+|64.4
+|===
 
 == Conclusion
 
