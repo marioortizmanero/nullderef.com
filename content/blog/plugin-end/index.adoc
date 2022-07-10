@@ -5,7 +5,7 @@ released in Tremor's new version"
 author: "Mario Ortiz Manero"
 tags: ["rust", "rustlang", "plugin", "benchmarking", "testing", "deployment"]
 series: ["rust-plugins"]
-date: 2021-11-09
+date: 2022-07-09
 GHissueID: TODO
 ---
 
@@ -23,28 +23,44 @@ improvements may occur in specific. Indicate assumptions and known bias as well.
 NOTE: histogram units are nanoseconds
 ////
 
-Welcome to the final article of this series! I'll focus on getting our plugin
-system ready for deployment. This means verifying the behaviour is what we
-expect, and benchmarking thoroughly to ensure the performance demands are met.
+Welcome to the final article of this
+https://nullderef.com/series/rust-plugins/[series]! Here I'll implement some
+late-stage cleanups and optimizations so that our plugin system is ready for
+deployment. These may require performing benchmarks to ensure that the changes
+are actually worth it.
 
-== Tooling
+== Benchmarking
 
-Here are the main methods I used for benchmarking:
+=== Tooling
 
-* Raw metrics: I also have access to the throughput, latency ranges, or standard
-  deviation, which may be easier to compare against eachother.
-* https://www.brendangregg.com/flamegraphs.html[Flamegraphs]: they help
-  visualize the stack traces hierarchically
-* `perf.data`: reduced `memmove` doesn't
-  mean there's more move necessarily, just that something else got slower. Tip:
-  take a screenshot and draw lines.
-+
-I was specifically using the command `perf report --no-children -i FILE`.
-* https://hdrhistogram.github.io/HdrHistogram/plotFiles.html[High Dynamic Range
-  (HDR) histograms]: Tremor's benchmarks generate a log with latency
-  percentiles, which can later be turned into a more visual graph.
+There are all kinds of ways to measure the performance of a system, and it's
+important to take as many of them as possible into account. Here are the ones I
+used myself:
 
-== Methodology
+* *Raw metrics*: Tremor is able to measure its own raw throughput, latency
+  ranges, or standard deviation. They serve as an overall score and are very
+  easy to compare against eachother.
+* *`perf.data`*: the command
+  https://perf.wiki.kernel.org/index.php/Main_Page[`perf`] measures performance
+  at runtime thanks to monitoring capabilities in the Linux kernel. It generates
+  a file with the full execution trace, which can be visualized in multiple
+  ways:
+** https://www.brendangregg.com/flamegraphs.html[Flamegraphs]: they help
+   visualize the stack traces hierarchically.
+** Display the results with the integrated CLI, `perf report` (I personally used
+   the `--no-children` flag as well).
+* *High Dynamic Range (HDR) histograms*: Tremor also outputs its latency
+  percentiles, which can later be turned into a more visual graph with
+  https://hdrhistogram.github.io/HdrHistogram/plotFiles.html[this site].
+
+There are many other methods and techniques available for benchmarking, though.
+I wasn't able to get into finer details, such as checking cache misses or lower
+level performance indicators. Thanks to this part of the project I've discovered
+how hard it is to benchmark a program reliably; I would suggest checking out
+other dedicated learning sources on the topic. It also heavily depends on the
+specific program, as performance may be reported in different ways.
+
+=== Methodology
 
 My first issue was only having my laptop available for the benchmarks. It's a
 decent machine, but caused greater variance due to the processes running on the
@@ -72,9 +88,9 @@ team helped me out by granting me access to their dedicated benchmarking server:
 I ended up developing https://nullderef.com/blog/plugin-end/bench.sh[this
 script] to run all the tests properly:
 
-* It validates the configuration, which includes the chosen benchmarks and
-  Tremor binaries, before running anything. It was quite annoying to run into a
-  typo 2 hours into the benchmarks...
+* It first validates the configuration, including what benchmarks to run and
+  what binaries to compare. It was quite annoying to run into a typo 2 hours
+  into the benchmarks...
 * It performes a few warmup rounds before the actual benchmarks. This was
   specially important when I used my laptop at the beginning; the device started
   to overheat after the first few rounds, and its performance started to
@@ -83,59 +99,50 @@ script] to run all the tests properly:
 One great way to ensure the variance isn't too high is to run the exact same
 benchmark twice:
 
-.Variance comparison with the entire setup. Unexpectedly, the server ended up being worse in that regard for this run, but it was good enough to continue.
+.Variance comparison with the entire setup. Unexpectedly, the server ended up being worse in that regard here, but it was good enough to continue anyway.
 image::/blog/plugin-end/histogram_variance.png[]
+
+I would strongly recommend anyone to get a separate machine to run benchmarks.
+Not only will they be more reliable, but also you will be able to continue
+working while the benchmarks run.
 
 == Experiments
 
+There were two kinds of experiments:
+
+* Those that were always a good idea to implement. They may also clean up the
+  code or make it more robust, so the experiment just checks the impact after
+  implementing it.
+* Those performed to come up with new optimizaton ideas.
+
 === Type conversions
 
-One of my main performance concerns with the first version of the PDK had to do
-with https://nullderef.com/blog/plugin-impl/#_reaching_reprc_blockers[the issues
-I had found when trying to convert external types to the C ABI]. I needed to
-modify `Value` to an FFI-compatible type in order to use it in the plugin
-system. However, it was also used throughout the entire codebase, and this
-would've required a large amount of changes for just the first version of the
-PDK. Thus, I created the copy `PdkValue` and converted to `Value` and back when
-going through the FFI boundary.
+One of my main performance concerns in the first PDK version had to do with
+https://nullderef.com/blog/plugin-impl/#_reaching_reprc_blockers[the issues I
+had found when trying to convert external types to the C ABI]. I had a
+relatively complex type `Value` and needed to make it FFI-compatible for the
+plugin system. However, it was used throughout the entire codebase, and
+modifying it would've required a large amount of changes for just the initial
+version. Thus, I created the copy `PdkValue` and converted to `Value` and back
+when going through the FFI boundary. `PdkValue` was only used in the plugin
+system context, so it required no unnecesary changes.
 
-I was able to prove its performance effect with some flamegraphs and call
-stacks:
+I was able to prove the performance impact of these conversions with some
+flamegraphs:
 
 .Flamegraph with two ``Value``s. Highlighted in pink are the occurrences of `From`, `Into`, and `FromIterator`, which add up to 9.4% of all the calls in the execution.
 image::/blog/plugin-end/with_value_conv.png[]
 
-.Flamegraph with a single `Value`. The conversion calls add up to 5.2% now.
+.Flamegraph with a single `Value`. The conversion calls add up to 5.2% now, and the highlighted parts are much harder to notice.
 image::/blog/plugin-end/without_value_conv.png[]
 
-Our program will now spend 4.2% less of its execution time converting between
-`Value` types.
+The program was spending 4.2% more of its execution time just converting between
+`Value` and `PdkValue`. Thus, an obvious optimization was to fix it properly and
+have a single `Value` type.
 
-=== `abi_stable`
-
-Another performance issue I found with `abi_stable` was its destructors.
-
-.Specifically, ``abi_stable``'s complex destructors
-image::/blog/plugin-end/with_destructor.png[]
-
-.Specifically, ``abi_stable``'s complex destructors, globally
-image::/blog/plugin-end/with_destructor_globally.png[]
-
-=== Change of HashMap
-
-.Using `RHashMap`
-image::/blog/plugin-end/with_rhashmap.png[]
-
-.Using `RHashMap`, globally
-image::/blog/plugin-end/with_rhashmap_globally.png[]
-
-.Not using `RHashMap`
-image::/blog/plugin-end/without_rhashmap.png[]
-
-.Not using `RHashMap`, globally
-image::/blog/plugin-end/without_rhashmap_globally.png[]
-
-=== Initial PDK impact
+However, this also showcases one of my failures in the benchmarking process.
+Initially, I was only using the `passthrough` benchmarking setup. 
+TODO
 
 * connectors vs pdk vs pdk-singlevalue
 
@@ -144,17 +151,38 @@ image::/blog/plugin-end/without_rhashmap_globally.png[]
 .Ran on the laptop
 image::/blog/plugin-end/histogram_pdk.png[]
 
-=== Double box impact
+[align=center, width="100%"]
+|===
+|Original |With `PdkValue` |Single `Value`
+
+// |817.6k
+// |545.1k
+// |521.2k
+|100
+|66.67
+|63.74
+|===
+
+=== Double `Box`
 
 * pdk-box vs pdk-nobox
 
 .Ran on the benchmarking server
 image::/blog/plugin-end/histogram_box.png[]
 
-=== Hashmap optimization impact
+// TODO: how to center this??
 
-* pdk-hashbrown vs pdk-halfbrown
-* knownkey vs noknownkey
+[align=center, width="100%"]
+|===
+|Double `Box` (%) |Single `Box` (%)
+
+// |1085.1k
+// |1094.0k
+|100
+|100.82
+|===
+
+=== Hashmap optimization
 
 Over main branch:
 
@@ -176,46 +204,125 @@ image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png[]
 image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png[]
 
 
+.Relative performance for number of events processed per second
 |===
-|Benchmark |Main (%) |Hashbrown (%) |Halfbrown (%)
+|Benchmark |Main (%) |No Known Key (%) |Hashbrown (%) |Halfbrown (%)
 
 |*Passthrough*
-// |1,189
-// |854
-// |844
+// |1189.5
+// |920.6
+// |842.9
+// |908.0
 |100
-|71.8
-|70.9
+|77.39
+|70.86
+|76.33
 
 |*Passthrough Two Inputs*
-// |949
-// |618
-// |575
+// |938.2
+// |660.0
+// |645.2
+// |654.7
 |100
-|65.1
-|60.5
+|70.34
+|68.76
+|69.78
 
 |*Throughput Logging JSON*
-// |558
-// |389
-// |347
+// |556.8
+// |365.1
+// |385.4
+// |364.6
 |100
-|69.7
-|62.2
+|65.57
+|69.21
+|64.48
 
 |*Throughput Logging MsgPack*
-// |590
-// |425
-// |378
+// |600.2
+// |400.2
+// |424.3
+// |393.3
 |100
-|72.0
-|64.0
+|66.66
+|70.69
+|65.52
 
 |*Average*
 |100
-|69.6
-|64.4
+|69.99
+|69.88
+|69.02
 |===
+
+=== `abi_stable`
+
+I also tried to figure out what bottlenecks had been introduced by `abi_stable`
+specifically. Apart from the type validation step before loading a plugin, it
+included many other overheads, including more complex destructors. The `Drop`
+implementation had to access a vtable and, in cases like `RBox`, deal with
+additional logic.
+
+.``abi_stable``'s complex destructors, shown in pink.
+image::/blog/plugin-end/with_destructor.png[]
+
+I thought these were going to be more relevant than they were. Once I zoomed
+out, there was almost no trace of destructors:
+
+.``abi_stable``'s complex destructors, globally.
+image::/blog/plugin-end/with_destructor_globally.png[]
+
+This was one of my many attempts that ended up not being worth continuing to
+look into, or at least for now. There are many other ways to measure
+``abi_stable``'s performance impact, but I wasn't able to look into it more.
+
+== Other ideas
+
+Unfortunately, I'm unable to continue this investigation, as I've already been
+involved with Tremor for almost a year. I will soon start working somewhere
+else and face a completely different set of problems. Here are some ideas I had
+to improve the plugin system:
+
+=== Dive deeper into benchmark results
+
+=== Investigate wrappers overhead
+
+=== Improve error handling and reporting
+
+=== Use `TD_Opaque` instead of `TD_CanDowncast`
+
+This one is specific to `abi_stable` users.
+
+=== Create a dedicated crate for the plugin system interface
+
+=== Merge and simplify opaque types
+
+=== Simplify the interface further
+
+=== Benchmark `async_ffi`
+
+=== Investigate async runtime conflicts
+
+Check what happens when plugin uses different async runtime from the main
+  executable
+
+=== Improve cross-platform support
+
+=== Performance impact of panic handling
+
+`abi_stable` has to track all panic occurrences so that they didn't pass through
+the FFI boundary. Otherwise, as we discussed previously, we would be invoking
+undefined behaviour.
+
+
+=== Use `-Zrandomize-layout` to find FFI bugs
+
+=== Optimize backward compatibility
+
+Add `last_prefix_field` for backward compatibility
+
+
+=== Extend the plugin system to more components
 
 == Conclusion
 
@@ -223,6 +330,11 @@ image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png[]
 * Latency had also been affected considerably at every percentile (TODO insert
   histogram here)
 * After X iterations, throughput was degraded only by Y%.
+
+I won't be able and work on most of these ideas myself before releasing the
+plugin system into its first version in production. If everything goes well, the
+Tremor team will take care of it. I look forward to seeing how the plugin system
+continues to evolve with the program!
 
 == Thanks
 
