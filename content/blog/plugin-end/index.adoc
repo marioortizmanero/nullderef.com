@@ -1,5 +1,5 @@
 ---
-title: "Plugins in Rust: TODO"
+title: "Plugins in Rust: Wrapping Up"
 description: "The last finishing touches to the plugin system so that it can be
 released in Tremor's new version"
 author: "Mario Ortiz Manero"
@@ -24,10 +24,9 @@ NOTE: histogram units are nanoseconds
 ////
 
 Welcome to the final article of this
-https://nullderef.com/series/rust-plugins/[series]! Here I'll implement some
-late-stage cleanups and optimizations so that our plugin system is ready for
-deployment. These may require performing benchmarks to ensure that the changes
-are actually worth it.
+https://nullderef.com/series/rust-plugins/[series]! Here I'll clean up and
+optimize our plugin system so that it's ready for deployment. These may require
+performing benchmarks to ensure that the changes are actually worth it.
 
 == Benchmarking
 
@@ -44,33 +43,34 @@ used myself:
   https://perf.wiki.kernel.org/index.php/Main_Page[`perf`] measures performance
   at runtime thanks to monitoring capabilities in the Linux kernel. It generates
   a file with the full execution trace, which can be visualized in multiple
-  ways:
-** https://www.brendangregg.com/flamegraphs.html[Flamegraphs]: they help
-   visualize the stack traces hierarchically.
-** Display the results with the integrated CLI, `perf report` (I personally used
-   the `--no-children` flag as well).
-* *High Dynamic Range (HDR) histograms*: Tremor also outputs its latency
-  percentiles, which can later be turned into a more visual graph with
+  ways, including:
+** https://www.brendangregg.com/flamegraphs.html[Flamegraphs]: hierarchical and
+   simple graphs.
+** `perf report`: the integrated CLI, which is more detailed but harder to
+   understand.
+* *High Dynamic Range (HDR) histograms*: Tremor's latency percentiles can be
+  turned into a graph with
   https://hdrhistogram.github.io/HdrHistogram/plotFiles.html[this site].
 
-There are many other methods and techniques available for benchmarking, though.
-I wasn't able to get into finer details, such as checking cache misses or lower
-level performance indicators. Thanks to this part of the project I've discovered
-how hard it is to benchmark a program reliably; I would suggest checking out
-other dedicated learning sources on the topic. It also heavily depends on the
-specific program, as performance may be reported in different ways.
+There are many other techniques available for benchmarking, though. I wasn't
+able to get into lower level performance indicators like cache misses.
+
+This part of the project has helped me realize how hard it is to benchmark a
+program reliably; I would suggest checking out other dedicated learning sources
+on the topic. You should also tune the process according to your use-case, since
+it may vary heavily between programs.
 
 === Methodology
 
 My first issue was only having my laptop available for the benchmarks. It's a
-decent machine, but caused greater variance due to the processes running on the
-background, the battery status, or overheating. I was able to fix these issues
-more or less, but it was quite slow and annoying to work like this. The Tremor
-team helped me out by granting me access to their dedicated benchmarking server:
+decent machine, but it caused greater variance in the results, and it wasn't
+very productive, since I had to stop everything I was doing to exclusively run
+them. The Tremor team helped me out by granting me access to their dedicated
+benchmarking server:
 
-.Full specs of both machines
+.Full specs of both machines, for reference
 |===
-|Machine |CPU |RAM |Disk |OS
+|Machine |CPU |RAM |Disk |Operating System
 
 |*Laptop (Dell Vostro 5481)*
 |Intel i5-8265U
@@ -85,21 +85,20 @@ team helped me out by granting me access to their dedicated benchmarking server:
 |Ubuntu 20.04, 5.4 kernel, 64 bits
 |===
 
-I ended up developing https://nullderef.com/blog/plugin-end/bench.sh[this
+I ended up developing https://nullderef.com/blog/plugin-end/bench.sh[a custom
 script] to run all the tests properly:
 
 * It first validates the configuration, including what benchmarks to run and
   what binaries to compare. It was quite annoying to run into a typo 2 hours
   into the benchmarks...
-* It performes a few warmup rounds before the actual benchmarks. This was
-  specially important when I used my laptop at the beginning; the device started
-  to overheat after the first few rounds, and its performance started to
-  degrade.
+* It performs a few warmup rounds before the actual benchmarks. This was
+  specially important when using my laptop, since it started to overheat after
+  the first few rounds, degrading its performance.
 
-One great way to ensure the variance isn't too high is to run the exact same
-benchmark twice:
+One way to ensure the variance isn't too high is to run the exact same benchmark
+twice:
 
-.Variance comparison with the entire setup. Unexpectedly, the server ended up being worse in that regard here, but it was good enough to continue anyway.
+.Histogram for both machines. Unexpectedly, the server ended up having greater variance with this test, but it was good enough to continue anyway.
 image::/blog/plugin-end/histogram_variance.png[]
 
 I would strongly recommend anyone to get a separate machine to run benchmarks.
@@ -108,52 +107,67 @@ working while the benchmarks run.
 
 == Experiments
 
-There were two kinds of experiments:
+We can divide that experiments in two categories:
 
-* Those that were always a good idea to implement. They may also clean up the
-  code or make it more robust, so the experiment just checks the impact after
-  implementing it.
-* Those performed to come up with new optimizaton ideas.
+. _For tracking_: this change is always going to be a good idea, because it may
+  also clean up the code or make it more robust. We just measure its performance
+  impact to report the results and avoid surprises.
+. _For investigation_: the change increases the complexity to explicitly improve
+  performance, so we need to make sure it's worth our time. This improvement may
+  occur directly with the change, or indirectly, by helping to come up with
+  other optimizations.
+
+Benchmarking is only essential in the latter, but I thought it would be a great
+idea in both cases to fully understand the impact of the change. It also makes
+it possible to write up a report like this article, explaining the improvements
+I worked on.
 
 === Type conversions
 
-One of my main performance concerns in the first PDK version had to do with
+The most important performance concern in the first PDK version had to do with
 https://nullderef.com/blog/plugin-impl/#_reaching_reprc_blockers[the issues I
-had found when trying to convert external types to the C ABI]. I had a
+had found when trying to convert external types to the C ABI]. In short, I had a
 relatively complex type `Value` and needed to make it FFI-compatible for the
 plugin system. However, it was used throughout the entire codebase, and
 modifying it would've required a large amount of changes for just the initial
 version. Thus, I created the copy `PdkValue` and converted to `Value` and back
-when going through the FFI boundary. `PdkValue` was only used in the plugin
-system context, so it required no unnecesary changes.
+when going through the FFI boundary. `PdkValue` was only used for the plugin
+system, making it quite easy to implement in contrast.
 
-I was able to prove the performance impact of these conversions with some
-flamegraphs:
+An obvious experiment was to fix this problem properly by making `Value`
+FFI-compatible and removing `PdkValue`. Unless the performance degraded
+considerably, this was always going to be a great change because it simplifies
+the code.
 
-.Flamegraph with two ``Value``s. Highlighted in pink are the occurrences of `From`, `Into`, and `FromIterator`, which add up to 9.4% of all the calls in the execution.
+After the fix, I was able to investigate about the impact of these conversions
+with some flamegraphs:
+
+.With both `Value` and `PdkValue`. Highlighted in pink are the occurrences of `From`, `Into`, and `FromIterator`, which add up to 9.4% of all the calls in the execution.
 image::/blog/plugin-end/with_value_conv.png[]
 
-.Flamegraph with a single `Value`. The conversion calls add up to 5.2% now, and the highlighted parts are much harder to notice.
+.With a single `Value`. The conversion calls add up to 5.2% now, and the highlighted parts are much harder to notice.
 image::/blog/plugin-end/without_value_conv.png[]
 
-The program was spending 4.2% more of its execution time just converting between
-`Value` and `PdkValue`. Thus, an obvious optimization was to fix it properly and
-have a single `Value` type.
+The flamegraphs pointed out that Tremor was spending roughly 4.2% more of its
+execution time just converting between `Value` and `PdkValue`. This metric is
+tricky, though. Spending less time on type conversions doesn't mean that the
+overall program is faster. The percentages are relative to the specific
+execution, and it's possible that the rest of the program just got slower in the
+case of a single `Value`.
 
-However, this also showcases one of my failures in the benchmarking process.
-Initially, I was only using the `passthrough` benchmarking setup. 
-TODO
+By checking other metrics we discover that this is more or less the case. The
+histogram shows that a single `Value` improves the latency, but the overall
+throughput actually decreases:
 
-* connectors vs pdk vs pdk-singlevalue
-
-// TODO: steps may have to do with allocations: erased types with boxes??
-
-.Ran on the laptop
+.Histogram without the PDK (`connectors` branch) vs. first version vs. single `Value`.
 image::/blog/plugin-end/histogram_pdk.png[]
 
+// TODO: how to center this table?
+
+.Relative throughput comparison
 [align=center, width="100%"]
 |===
-|Original |With `PdkValue` |Single `Value`
+|No PDK (%) |With `PdkValue` (%) |Single `Value` (%)
 
 // |817.6k
 // |545.1k
@@ -163,11 +177,23 @@ image::/blog/plugin-end/histogram_pdk.png[]
 |63.74
 |===
 
+However, this showcases one of my initial mistakes. My comparison only used the
+`passthrough` benchmark, which simply forwards all input events to the output.
+For a more realistic use-case, I should've tried with other configurations,
+which may include different payloads or event processing logic.
+
+Anyway, the results make sense to some degree. Converting `Value` to an
+FFI-compatible type requires using, e.g., `RHashMap` instead of `HashMap`
+internally. Tremor's `HashMap` was taken from the {{< crate halfbrown >}} crate,
+which was more performant than the standard library version, and much more than
+``abi_stable``'s. Converting between types might actually be faster than using
+less performant types internally.
+
 === Double `Box`
 
 * pdk-box vs pdk-nobox
 
-.Ran on the benchmarking server
+.Note that this test was run on the benchmarking server, while the previous one used my laptop. These tests aren't meant to be compared between different sections.
 image::/blog/plugin-end/histogram_box.png[]
 
 // TODO: how to center this??
@@ -206,7 +232,7 @@ image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png[]
 
 .Relative performance for number of events processed per second
 |===
-|Benchmark |Main (%) |No Known Key (%) |Hashbrown (%) |Halfbrown (%)
+|Benchmark |No PDK (%) |No Known Key (%) |Hashbrown (%) |Halfbrown (%)
 
 |*Passthrough*
 // |1189.5
