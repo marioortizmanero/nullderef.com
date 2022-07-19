@@ -15,6 +15,17 @@ li > .paragraph {
   margin-top: 7px;
 }
 
+/* Fixing tables */
+table {
+  display: table;
+}
+.halign-center {
+  text-align: center !important;
+}
+table p {
+  margin-bottom: 0 !important;
+}
+
 /* Fixing alignment */
 .post-content .text-left {
   text-align: left;

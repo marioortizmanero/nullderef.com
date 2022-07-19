@@ -165,7 +165,7 @@ image::/blog/plugin-end/histogram_pdk.png[]
 // TODO: how to center this table?
 
 .Relative throughput comparison
-[align=center, width="100%"]
+[cols="^,^,^"]
 |===
 |No PDK (%) |With `PdkValue` (%) |Single `Value` (%)
 
@@ -180,27 +180,54 @@ image::/blog/plugin-end/histogram_pdk.png[]
 However, this showcases one of my initial mistakes. My comparison only used the
 `passthrough` benchmark, which simply forwards all input events to the output.
 For a more realistic use-case, I should've tried with other configurations,
-which may include different payloads or event processing logic.
+which may include different payloads or event processing logic. That's why, in
+retrospect, these results should be taken with a grain of salt.
 
 Anyway, the results make sense to some degree. Converting `Value` to an
 FFI-compatible type requires using, e.g., `RHashMap` instead of `HashMap`
-internally. Tremor's `HashMap` was taken from the {{< crate halfbrown >}} crate,
-which was more performant than the standard library version, and much more than
-``abi_stable``'s. Converting between types might actually be faster than using
-less performant types internally.
+internally. Tremor's original `HashMap` was taken from the {{< crate halfbrown
+>}} crate, which was more performant than the standard library version, and much
+more than ``abi_stable``'s. Converting between types might actually be faster
+than using less performant types internally.
 
 === Double `Box`
 
-* pdk-box vs pdk-nobox
+I later came up with an improvement over the previous experiment. The `HashMap`
+within `Value` was stored inside a `Box` to reduce the overall size of the enum.
+In the new type, I just converted it to a `RBox` and called it a day:
 
-.Note that this test was run on the benchmarking server, while the previous one used my laptop. These tests aren't meant to be compared between different sections.
+[source, diff]
+----
+ enum Value {
+     // ...
+-    Object(Box<HashMap<String, Value>>),
++    Object(RBox<RHashMap<RString, Value>>),
+     // ...
+ }
+----
+
+However, turns out that unlike `RString` or `RCow`, `RHashMap` isn't a
+re-implementation of the underlying type. Writing a hash map from scratch is too
+complex, so the author just made it an opaque type that wraps the standard
+library version.
+
+Since `RHashMap` is an opaque type, it was already on the heap internally thanks
+to another `RBox`. `Value` basically had a doubly boxed type, which is
+unnecessary, since the size of `RHashMap` is already minimal. Having to allocate
+every hash map twice was probably quite costly, and fixing this counted as a
+clean-up, so it was a no-brainer.
+
+The subsequent benchmarks showed a slight improvement in performance, so it was
+a great idea. I still was only using a single benchmark at this point, but the
+results made sense:
+
+.Histogram of a double box vs. a single box. Note that this test was run on the benchmarking server, while the previous one used my laptop. These tests aren't meant to be compared between different sections.
 image::/blog/plugin-end/histogram_box.png[]
 
-// TODO: how to center this??
-
-[align=center, width="100%"]
+.Relative throughput comparison
+[cols="^,^"]
 |===
-|Double `Box` (%) |Single `Box` (%)
+|Double `RBox` (%) |Single `RBox` (%)
 
 // |1085.1k
 // |1094.0k
@@ -231,6 +258,7 @@ image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png[]
 
 
 .Relative performance for number of events processed per second
+[cols="<,^,^,^,^"]
 |===
 |Benchmark |No PDK (%) |No Known Key (%) |Hashbrown (%) |Halfbrown (%)
 
