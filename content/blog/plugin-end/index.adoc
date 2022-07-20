@@ -482,8 +482,22 @@ Use `TD_Opaque` instead of `TD_CanDowncast`
 
 === Investigate async runtime conflicts
 
-Check what happens when plugin uses different async runtime from the main
-executable
+As far as I understand, the runtime and the plugins don't share the same async
+runtime state. Every binary has its own thread pool and works independently. It
+would be best to share everything between runtime and plugins, though it sounds
+quite complicated, and it would most likely require contributions to the async
+runtimes themselves.
+
+I also wonder what happens when the runtime and the plugin use different async
+runtimes, even when they are independent in the binaries. Tremor's core is
+implemented with {{< crate async_std >}}, but an external plugin could freely
+use {{< crate tokio >}}, for example. I've heard that this could break in many
+ways, since async runtimes heavily rely on global state.
+
+Testing different async runtimes should be easy, so it should at least be done
+before reaching production just to know about it. What I'm not so sure about is
+how to avoid it, in case it was problematic. The fix would probably be quite
+hacky, as this is a somewhat obscure problem.
 
 === Improve cross-platform support
 
@@ -573,7 +587,8 @@ please try to contribute upstream instead of forking or patching. Try to be nice
 to those who are saving you so much work, and submit a PR or an issue:
 
 Please let me know in the comments at the bottom in case you have any questions
-or suggestions.
+or suggestions. Also, if you investigate about any of the ideas I mentioned,
+leave a comment as well so that I can add a link for future readers!
 
 [bibliography]
 == References
