@@ -487,6 +487,33 @@ executable
 
 === Improve cross-platform support
 
+As I mentioned in earlier articles, our PDK will only work on Windows, macOS,
+and Linux <<thread-safe>>. It will still compile on other platforms, but
+possibly with data races in the dynamic linking internals.
+
+Specifically, {{< crate libloading >}}, which is used by `abi_stable`, states
+that its error handling isn't fully thread-safe on some platforms
+<<libloading-threadsafe>>, such as `dlerror` on FreeBSD. Its only consequence
+should be garbage error messages, but I still wouldn't risk it. There are two
+ways to approach this:
+
+. *Quick fix*: add a compile-time error for any platform that isn't explicitly
+  supported. Before supporting a new platform, we will have to  manually ensure
+  that its dynamic loading error handling is thread-safe.
++
+[source, rust]
+----
+// Ideally, there should be a comment here with references that state the
+// thread-safety of the supported platforms.
+#[cfg(not(any(unix, windows, target_os = "macos")))]
+compile_error!(
+    "This platform isn't currently supported. Please open a ticket on GitHub."
+);
+----
+. *Proper fix*: fix the data races upstream with an internal mutex. This is what
+  the alternative {{< crate dlopen >}} does, though in their case they _always_
+  have the mutex, which is unnecessary in some platforms <<dlopen-mutex>>.
+
 === Performance impact of panic handling
 
 `abi_stable` has to track all panic occurrences so that they didn't pass through
@@ -568,7 +595,15 @@ or suggestions.
 - [[[try-trait,               5]]]
   https://rust-lang.github.io/rfcs/3058-try-trait-v2.html[Try trait v2 -- The
   Rust RFC Book]
-- [[[abi-instability,         6]]]
+- [[[thread-safe,             6]]]
+  https://nullderef.com/blog/plugin-abi-stable/#_thread_safety[Thread safety --
+  Plugins in Rust: Reducing the Pain with Dependencies, NullDeref]
+- [[[libloading-threadsafe,   7]]]
+  https://docs.rs/libloading/0.7.3/libloading/struct.Library.html#thread-safety[Thread-safety
+  -- `libloading` v0.7.3 docs]
+- [[[dlopen-mutex,            8]]]
+  {{< gh issue "szymonwieloch/rust-dlopen" 42 "`dlerror` *is* thread-safe on some platforms" >}}
+- [[[abi-instability,         9]]]
   https://nullderef.com/blog/plugin-start/#_abi_unstability_its_much_worse_than_it_seems[ABI
   unstability, it’s much worse than it seems -- Plugins in Rust: Getting
   Started, NullDeref]

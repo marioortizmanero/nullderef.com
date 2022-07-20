@@ -450,7 +450,7 @@ Specifically, the type used to export the version has to be:
 
 * *FFI-safe*, so `&str` or `CStr` are discarded (the latter is a Rust wrapper and
   not {repr-c}).
-* *Stable*. `abi_stable::Rstr` won't work either because the versions for
+* *Stable*. `abi_stable::RStr` won't work either because the versions for
   `abi_stable` might mismatch, since we're reading the symbol before knowing
   that. Its layout must be _always_ the same.
 * *Thread-safe* (implement `Sync`). If we wanted to use something like `*const
