@@ -6,7 +6,7 @@ author: "Mario Ortiz Manero"
 tags: ["rust", "rustlang", "plugin", "benchmarking", "testing", "deployment"]
 series: ["rust-plugins"]
 date: 2022-07-09
-GHissueID: TODO
+GHissueID: 11
 ---
 
 :sectnums:
@@ -382,7 +382,7 @@ plugin system, and optimize it so that it's ready for deployment.
 
 Here are some ideas worth considering that I haven't been able to carry out:
 
-=== Dive deeper into benchmark results
+=== More detailed benchmarking
 
 `perf` can track much more information than just the call stack. For example,
 `perf stat` provides statistics like cache or branch misses <<perf-stat>>. Other
@@ -396,14 +396,13 @@ Book] is a good read for more resources and ideas.
 === Investigate wrapper overhead
 
 The communication between runtime and plugins is handled through the C ABI at a
-very low level. To improve the ergonomics internally, I also implemented a
-wrapper that converts all the types to the original ones.
+lower level. To improve the ergonomics internally, the interface is accompanied
+by a set of wrappers, which convert the types to the standard library.
 
-Instead of returning a `Result`, the following raw function uses the less
-ergonomic `RResult`, which doesn't even work with `?` for error handling. This
+Instead of returning a `Result`, the following raw function uses the FFI-safe
+alternative `RResult`, which doesn't even work with `?` for error handling. This
 example is quite specific to `abi_stable`, but what's important is that we just
-wrap the low-level types and transform them to higher level ones inside the
-wrapper:
+wrap the base function `connect` and transform it to an easier to use one:
 
 .Low-level interface to communicate between binaries.
 [source, rust]
@@ -415,8 +414,6 @@ pub trait RawConnector: Send {
         ctx: &'a ConnectorContext,
         attempt: &'a Attempt,
     ) -> BorrowingFfiFuture<'a, RResult<bool>>;
-
-    // ... (other methods)
 }
 
 /// Alias for the FFI-safe dynamic connector type
@@ -436,39 +433,20 @@ impl Connector {
             .map_err(Into::into) // RBoxError -> Error::PluginError
             .into() // RResult -> Result
     }
-
-    // ... (other methods)
 }
 ----
 
 Here we just convert the return types, but we can also do that for the
-parameters or whatever boilerplate is needed for that function. This wrapper
-only needs to be available in the runtime crate. 
+parameters or whatever boilerplate is needed for that function. Note that this
+wrapper only needs to be available in the runtime crate; the plugin is only
+meant to implement `RawConnector`.
 
 The problem is that, even though wrappers avoid quite a bit of boilerplate, they
 might also affect performance-critical parts considerably. `connect` is only
 called at the beginning of the program, but `on_event` is invoked for every
 single event, making it our _hot loop_. Any small operation, like a type
-conversion, will have a much greater impact in there. For this experiment, we
-can just remove the wrappers for these functions, and compare the results.
-
-=== Improve error reporting
-
-For simplicity, error handling in the plugin system is just passed via a
-`SendRBoxError`, which is basically a `Box<dyn Error>`. It's really the only way
-to do it because a plugin could have any kind of error.
-
-=== Improve error handling
-
-Furthermore, in an FFI context we have to use a different type from `Result` for
-error handling, like ``abi_stable``'s `RResult`. Unfortunately, the `Try` trait
-isn't stable yet <<try-trait>>, so we can't use the `?` operator in these cases.
-
-`abi_stable` exports the
-https://docs.rs/abi_stable/0.10.4/abi_stable/macro.rtry.html[`rtry` macro] as a
-substitute for `?`, but in my experience it introduces noise in the code
-
-=== Simplify the interface further
+conversion, will have a much greater impact in there. This experiment consists
+on iteratively removing wrappers and looking for performance improvements.
 
 === Investigate async runtime conflicts
 
@@ -479,15 +457,15 @@ quite complicated, and it would most likely require contributions to the async
 runtimes themselves.
 
 I also wonder what happens when the runtime and the plugin use different async
-runtimes, even when they are independent in the binaries. Tremor's core is
+runtimes, even if they are independent in the binaries. Tremor's core is
 implemented with {{< crate async_std >}}, but an external plugin could freely
 use {{< crate tokio >}}, for example. I've heard that this could break in many
 ways, since async runtimes heavily rely on global state.
 
 Testing different async runtimes should be easy, so it should at least be done
-before reaching production just to know about it. What I'm not so sure about is
-how to avoid it, in case it was problematic. The fix would probably be quite
-hacky, as this is a somewhat obscure problem.
+before reaching production just to document the behavior. What I'm not so sure
+about is how to avoid the conflict, in case it was problematic. The fix would
+probably be quite hacky, as this is a somewhat obscure problem.
 
 === Benchmark `async_ffi`
 
@@ -498,7 +476,111 @@ implement opaque wrappers for the async-related types. But this is done so often
 
 I'm sure that if `async_ffi` ended up being an issue, it could be optimized
 internally in various ways. We could also use `async` only when strictly
-necessary.
+necessary to reduce the overhead.
+
+=== Improve error reporting
+
+For simplicity, errors in our interface are indicated via ``abi_stable``'s
+https://docs.rs/abi_stable/0.10.4/abi_stable/std_types/type.SendRBoxError.html[`SendRBoxError`],
+which is basically a `Box<dyn Error + Send>`. It's really the only way to do it,
+because a plugin could have any kind of error, and we can't know them at
+compile-time.
+
+Using `Box<dyn Error>` instead of a concrete type makes it really hard to
+identify errors in order to handle them. We could implement our own `Error`
+subtrait that provides more plugin-related information. An easier option is to
+define a more organized data structure with common kinds of errors:
+
+.Example of a more organized error type, even if it still uses `Box<dyn Error>`
+[source, rust]
+----
+pub struct PluginError {
+    err: SendRBoxError,
+    kind: PluginErrorKind
+}
+
+pub enum PluginErrorKind {
+    Internal, // Implementation-defined errors we can't handle
+    ConnectionFailed, // Edge cases in `connect`
+    // ...
+}
+----
+
+=== Reduce error handling boilerplate
+
+Furthermore, in FFI contexts we have to use an FFI-safe type like `RResult`
+instead of `Result`. Since the `Try` trait isn't stable <<try-trait>>, we can't
+use the `?` operator yet. `abi_stable` exports the
+https://docs.rs/abi_stable/0.10.4/abi_stable/macro.rtry.html[`rtry` macro] as a
+substitute for `?`, but in my experience it introduces noise in the code, making
+it uglier and harder to maintain.
+
+Depending on how much `Try` is going to take to stabilize, creating a procedural
+macro might be worth our time. It would just replace `?` with `rtry` or whatever
+is configred, which should be somewhat simple to write. I'm surprised I couldn't
+find an existing crate for that yet.
+
+.Readibility would improve in longer functions with lots of error handling
+[source, diff]
+----
++#[try_with(rtry)]
+ fn fallible() -> RResult<()> {
+-    if rtry!(fallible_op_1()) && rtry!(fallible_op_2()) {
+-        rtry!(fallible_op_3());
++    if fallible_op_1()? && fallible_op_2()? {
++        fallible_op_3()?;
+     }
+ 
+     ROk(())
+ }
+----
+
+Admittedly, the example above is an oversimplification. In reality, a single
+function may mix both `Result` and `RResult`, or require type conversions. The
+proc macro would probably be a bit more complex, but it might be worth
+considering regardless.
+
+=== Reduce async boilerplate
+
+`async_ffi` would really benefit with a procedural macro as well. It always
+requires using `async move { /* ... */ }.into_ffi()`, which is quite a bit of
+boilerplate and increases the indentation level by one.
+
+.Without the procedural macro
+[source, rust]
+----
+use async_ffi::{FfiFuture, FutureExt};
+
+#[no_mangle]
+pub extern "C" fn work(arg: u32) -> FfiFuture<u32> {
+    async move {
+        let ret = do_some_io(arg).await;
+        do_some_sleep(42).await;
+        ret
+    }
+    .into_ffi()
+}
+----
+
+.With the procedural macro
+[source, rust]
+----
+use async_ffi::async_ffi;
+
+#[no_mangle]
+#[async_ffi]
+pub async extern "C" fn work(arg: u32) -> u32 {
+    let ret = do_some_io(arg).await;
+    do_some_sleep(42).await;
+    ret
+}
+----
+
+I already opened an issue about this with more details for whoever wants to give
+it a try:
+
+[.text-center]
+{{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" >}} 
 
 === Improve cross-platform support
 
@@ -577,11 +659,18 @@ Tremor's Continuous Integration tests could be run with `-Z randomize-layout` to
 ensure that no opaque types export Rust types, even if `abi_stable` prevents
 most cases within the PDK.
 
-=== Increase backward compatibility
+=== Try raw dynamic loading
 
-Add `last_prefix_field` for backward compatibility
+What I didn't know at the beginning of this journey is that the hardest part
+would be making everything {repr-c}. Using `abi_stable` is certainly very useful
+for types like `RVec` and to create custom types, but at times I find the
+library too much.
 
-=== Create a dedicated crate for the plugin system interface
+I think it would be best to have separate libraries for all the utilities
+`abi_stable` provides, rather than having everything bundled in there. If it
+became modularized, making it the "`community standard`" would be easier.
+
+=== Simplify the interface further
 
 === Extend the plugin system to more components
 
@@ -605,9 +694,9 @@ environment. Even if you're working for a company with propietary software,
 please try to contribute upstream instead of forking or patching. Try to be nice
 to those who are saving you so much work, and submit a PR or an issue:
 
-Please let me know in the comments at the bottom in case you have any questions
-or suggestions. Also, if you investigate about any of the ideas I mentioned,
-leave a comment as well so that I can add a link for future readers!
+Please <<comments,leave a comment at the bottom>> in case you have any questions
+or suggestions. Also let me know if you have any updates on any of the ideas
+above, so that I can add a link for future readers!
 
 [bibliography]
 == References

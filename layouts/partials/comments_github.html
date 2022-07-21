@@ -45,6 +45,7 @@ if (id) {
     let comments = xhr.response;
 
     let mainHeader = document.createElement("h2");
+    mainHeader.id = "comments";
     mainHeader.innerHTML = "Comments: ".concat(comments.length);
     commentsDiv.appendChild(mainHeader);
 
