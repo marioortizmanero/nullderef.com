@@ -3,6 +3,7 @@ title: "Plugins in Rust: Wrapping Up"
 description: "The last finishing touches to the plugin system so that it can be
 released in Tremor's new version"
 author: "Mario Ortiz Manero"
+images: ["/blog/plugin-end/wrap.jpg"]
 tags: ["rust", "rustlang", "plugin", "benchmarking", "testing", "deployment"]
 series: ["rust-plugins"]
 date: 2022-07-09
@@ -99,7 +100,7 @@ One way to ensure the variance isn't too high is to run the exact same benchmark
 twice:
 
 .Histogram for both machines. Unexpectedly, the server ended up having greater variance with this test, but it was good enough to continue anyway.
-image::/blog/plugin-end/histogram_variance.png[]
+image::/blog/plugin-end/histogram_variance.png[link="/blog/plugin-end/histogram_variance.png"]
 
 I would strongly recommend anyone to get a separate machine to run benchmarks.
 Not only will they be more reliable, but also you will be able to continue
@@ -142,10 +143,10 @@ After the fix, I was able to investigate about the impact of these conversions
 with some flamegraphs:
 
 .With both `Value` and `PdkValue`. Highlighted in pink are the occurrences of `From`, `Into`, and `FromIterator`, which add up to 9.4% of all the calls in the execution.
-image::/blog/plugin-end/with_value_conv.png[]
+image::/blog/plugin-end/with_value_conv.png[link="/blog/plugin-end/with_value_conv.png"]
 
 .With a single `Value`. The conversion calls add up to 5.2% now, and the highlighted parts are much harder to notice.
-image::/blog/plugin-end/without_value_conv.png[]
+image::/blog/plugin-end/without_value_conv.png[link="/blog/plugin-end/without_value_conv.png"]
 
 The flamegraphs pointed out that Tremor was spending roughly 4.2% more of its
 execution time just converting between `Value` and `PdkValue`. This metric is
@@ -159,7 +160,7 @@ histogram shows that a single `Value` improves the latency, but the overall
 throughput actually decreases:
 
 .Histogram without the PDK (`connectors` branch) vs. first version vs. single `Value`.
-image::/blog/plugin-end/histogram_pdk.png[]
+image::/blog/plugin-end/histogram_pdk.png[link="/blog/plugin-end/histogram_pdk.png"]
 
 // TODO: how to center this table?
 
@@ -222,7 +223,7 @@ change because it didn't make much sense to leave the doubly boxed hash table,
 and it improved the readability of the code a bit.
 
 .Histogram of a double box vs. a single box. Note that this test was run on the benchmarking server, while the previous one used my laptop. These tests aren't meant to be compared between different sections.
-image::/blog/plugin-end/histogram_box.png[]
+image::/blog/plugin-end/histogram_box.png[link="/blog/plugin-end/histogram_box.png"]
 
 .Relative throughput comparison (higher is better)
 [cols="^,^"]
@@ -282,13 +283,13 @@ image::/blog/plugin-end/histogram_knownkey.png[]
 This time I did it right since the beginning, and tried with multiple kinds of
 benchmark. The results are richer.
 
-image::/blog/plugin-end/histogram_pdk_v2_passthrough.png[]
+image::/blog/plugin-end/histogram_pdk_v2_passthrough.png[link="/blog/plugin-end/histogram_pdk_v2_passthrough.png"]
 
-image::/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png[]
+image::/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png[link="/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png"]
 
-image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png[]
+image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png[link="/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png"]
 
-image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png[]
+image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png[link="/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png"]
 
 
 .Relative performance for number of events processed per second (higher is better)
@@ -356,14 +357,14 @@ After zooming into specific sections, we can see this overhead by ourselves in
 the call stack:
 
 .Flamegraph with ``abi_stable``'s complex destructors, shown in pink and zoomed.
-image::/blog/plugin-end/with_destructor.png[]
+image::/blog/plugin-end/with_destructor.png[link="blog/plugin-end/with_destructor.png"]
 
 However, I overestimated the importance of this problem. Taking a look at the
 global picture, it's obvious that optimizing ``RBox``'s implementation of `Drop`
 would be premature at the moment:
 
 .Flamegraph with ``abi_stable``'s complex destructors, shown in pink, and without zooming in.
-image::/blog/plugin-end/with_destructor_globally.png[]
+image::/blog/plugin-end/with_destructor_globally.png[link="/blog/plugin-end/with_destructor_globally.png"]
 
 I'm definitely taking note of this idea in order to investigate about it in the
 future for further performance squeezing. But I currently have lots of other
@@ -671,8 +672,6 @@ I think it would be best to have separate libraries for all the utilities
 became modularized, making it the "`community standard`" would be easier.
 
 === Simplify the interface further
-
-=== Extend the plugin system to more components
 
 == Conclusion
 
