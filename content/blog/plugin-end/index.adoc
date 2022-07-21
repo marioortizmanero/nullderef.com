@@ -468,17 +468,7 @@ isn't stable yet <<try-trait>>, so we can't use the `?` operator in these cases.
 https://docs.rs/abi_stable/0.10.4/abi_stable/macro.rtry.html[`rtry` macro] as a
 substitute for `?`, but in my experience it introduces noise in the code
 
-=== Avoid downcasting opaque types
-
-This one is specific to `abi_stable` users.
-
-Use `TD_Opaque` instead of `TD_CanDowncast`
-
-=== Merge and simplify opaque types
-
 === Simplify the interface further
-
-=== Benchmark `async_ffi`
 
 === Investigate async runtime conflicts
 
@@ -498,6 +488,17 @@ Testing different async runtimes should be easy, so it should at least be done
 before reaching production just to know about it. What I'm not so sure about is
 how to avoid it, in case it was problematic. The fix would probably be quite
 hacky, as this is a somewhat obscure problem.
+
+=== Benchmark `async_ffi`
+
+Checking how much of a performance impact {{< crate async_ffi >}} causes sounds
+like a good idea. It's actually a quite simple library; all it really does is
+implement opaque wrappers for the async-related types. But this is done so often
+(once per call), that it may end up being noticeable.
+
+I'm sure that if `async_ffi` ended up being an issue, it could be optimized
+internally in various ways. We could also use `async` only when strictly
+necessary.
 
 === Improve cross-platform support
 
@@ -530,9 +531,27 @@ compile_error!(
 
 === Performance impact of panic handling
 
-`abi_stable` has to track all panic occurrences so that they didn't pass through
-the FFI boundary. Otherwise, as we discussed previously, we would be invoking
-undefined behaviour.
+`abi_stable` has to track all panic occurrences so that they don't propagate
+through the FFI boundary. Otherwise, as discussed in other articles <<panic-1>>
+<<panic-2>>, we would be invoking undefined behaviour. `async_ffi` also has
+special handling for panicking, which overcomplicates the crate a bit.
+
+There are two interesting experiments to be tried:
+
+1. Comparing the performance of `panic = "abort"` and `panic = "unwind"`.
+   Technically, aborting should optimize away most of the extra code
+   <<panic-abort>>, but it should only be used for research, as it would make it
+   incredibly hard to debug errors in production.
+2. Preparing `abi_stable` and `async_ffi` for the stable release of
+   https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html[`extern "C-unwind"`],
+   thanks to which all the additional panic handling could be removed. Unlike
+   aborting, we would still be able to debug errors just fine.
++
+For now, it's only available on nightly without a certain release date, but it
+will surely be useful in the future, and we could measure how much panic
+handling costs. Testing new features like that also speeds up their release,
+since we could share feedback with the
+https://github.com/rust-lang/project-ffi-unwind[project group].
 
 === Use `-Z randomize-layout` to find FFI bugs
 
@@ -558,7 +577,7 @@ Tremor's Continuous Integration tests could be run with `-Z randomize-layout` to
 ensure that no opaque types export Rust types, even if `abi_stable` prevents
 most cases within the PDK.
 
-=== Optimize backward compatibility
+=== Increase backward compatibility
 
 Add `last_prefix_field` for backward compatibility
 
@@ -618,7 +637,16 @@ leave a comment as well so that I can add a link for future readers!
   -- `libloading` v0.7.3 docs]
 - [[[dlopen-mutex,            8]]]
   {{< gh issue "szymonwieloch/rust-dlopen" 42 "`dlerror` *is* thread-safe on some platforms" >}}
-- [[[abi-instability,         9]]]
+- [[[panic-1,                 9]]]
+  https://nullderef.com/blog/plugin-abi-stable/#_panicking[Panicking -- Plugins
+  in Rust: Reducing the Pain with Dependencies, NullDeref]
+- [[[panic-2,                 9]]]
+  https://nullderef.com/blog/plugin-dynload/#_panicking[Panicking -- Plugins in
+  Rust: Diving into Dynamic Loading, NullDeref]
+- [[[panic-abort,             9]]]
+  https://doc.rust-lang.org/book/ch09-01-unrecoverable-errors-with-panic.html#unwinding-the-stack-or-aborting-in-response-to-a-panic[Unwinding
+  the Stack or Aborting in Response to a Panic -- The Rust Programming Language]
+- [[[abi-instability,        10]]]
   https://nullderef.com/blog/plugin-start/#_abi_unstability_its_much_worse_than_it_seems[ABI
   unstability, it’s much worse than it seems -- Plugins in Rust: Getting
   Started, NullDeref]
