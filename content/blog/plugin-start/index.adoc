@@ -13,11 +13,13 @@ GHissueID: 5
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
-Welcome to my second article about Plugins in Rust! Here I will try to actually
-write some simple code of what a PDK (_Plugin Development Kit_) might look like,
-and also do some research about questions that arise while doing so. Please note
-that this is a series of posts, so you might be interested in reading
-https://nullderef.com/series/rust-plugins/[the previous ones for context].
+Welcome to my second article about
+https://nullderef.com/series/rust-plugins/[Plugins in Rust]! Here I will try to
+actually write some simple code of what a PDK (_Plugin Development Kit_) might
+look like, and also do some research about questions that arise while doing so.
+Please note that this is a series of posts, so you might be interested in
+reading https://nullderef.com/series/rust-plugins/[the previous ones for
+context].
 
 Some probably weren't expecting me to continue the series, as in the
 https://nullderef.com/blog/plugin-tech/[last article] I wrote that Google didn't
@@ -523,14 +525,15 @@ The WebAssembly specification only defines integers and floating point as its
 supported types <<wasmer-types>>. There are a few ways to handle non-trivial
 types like structs or enums:
 
-* Via the https://github.com/webassembly/interface-types[*Interface Types
-  Proposal* for WebAssembly]. It defines the binary format for encoding and
-  decoding the newly supported types, and specifies a set of instructions to
-  transform the data between WebAssembly and the outside world. Note that this
-  proposal is not meant to define a fixed representation of e.g., a string in
-  Wasm, it attempts to allow representation-agnostic high-level value types.
-+
---
+==== The Interface Types Proposal
+
+https://github.com/webassembly/interface-types[This proposal for WebAssembly]
+defines the binary format for encoding and decoding the newly supported types,
+and specifies a set of instructions to transform the data between WebAssembly
+and the outside world. Note that this proposal is not meant to define a fixed
+representation of e.g., a string in Wasm, it attempts to allow
+representation-agnostic high-level value types.
+
 These new _high-level value types_ are called *interface types*. The current
 proposal defines them as:
 
@@ -590,17 +593,18 @@ It's still actively being worked on, and its specification is far from stable.
 
 In the end I wasn't able to get Interface Types working, nor I considered them
 worth my time, as it's still too early.
---
-* The hacky-but-working way, via *pointers and a shared
-  https://docs.wasmer.io/integrations/examples/memory[memory]*. The user has to
-  first construct and serialize the complex types, and then save them into
-  Wasm's memory, which can be accessed directly by the runtime or the plugin
-  with https://docs.wasmer.io/integrations/examples/memory-pointers[pointers].
-  This is what https://github.com/feather-rs/feather/tree/main/quill[Feather] or
-  https://book.veloren.net/contributors/developers/codebase-structure.html#plugins[Veloren]
-  do, in case you want more details.
-+
---
+
+==== The hacky-but-working way
+
+Via pointers and a shared
+https://docs.wasmer.io/integrations/examples/memory[memory]. The user has to
+first construct and serialize the complex types, and then save them into Wasm's
+memory, which can be accessed directly by the runtime or the plugin with
+https://docs.wasmer.io/integrations/examples/memory-pointers[pointers]. This is
+what https://github.com/feather-rs/feather/tree/main/quill[Feather] or
+https://book.veloren.net/contributors/developers/codebase-structure.html#plugins[Veloren]
+do, in case you want more details.
+
 Not only does this require a serialization and deserialization step and
 writing/reading all the data from memory, but also it's very cumbersome to use
 and easy to mess up. It's somewhat trivial though, so a procedural macro like
@@ -611,14 +615,18 @@ I did try this and got it working by following
 https://freemasen.com/blog/wasmer-plugin-pt-1/[Free Masen's guide], but it
 wasn't worth exploring in depth because it requires a [de]serialization step
 Tremor can't afford.
---
-* Another way I've seen to work around this is by using Wasm as an executable
-  instead of a library. https://github.com/zellij-org/zellij[Zellij] does this,
-  and communicates with the plugins via the standard input and standard output
-  streams.
-+
+
+==== Separate executables
+
+Another way I've seen to work around this is by using Wasm as an executable
+instead of a library. https://github.com/zellij-org/zellij[Zellij] does this,
+and communicates with the plugins via the standard input and standard output
+streams.
+
 Unfortunately, this also requires [de]serializing and has the overhead of
 writing/reading all the data from stdin and stdout.
+
+==== Conclusion
 
 Ultimately, this has forced me to discard WebAssembly for Tremor's Plugin
 Development Kit. Performance is really important in this specific case, and Wasm
