@@ -24,8 +24,8 @@ If you don't care about RSpotify's specific story, you can jump to the
 rewrite is interesting for other open source maintainers in the same situation
 as me. This all started when I wanted to use a Rust Spotify API wrapper for one
 of my projects at that time, https://vidify.org/[Vidify]. I went to
-https://crates.io/[crates.io] and looked for "Spotify", and all I found was {{<
-crate rspotify >}} (the most popular one), {{< crate aspotify >}} (an
+https://crates.io/[crates.io] and looked for "`Spotify`", and all I found was
+{{< crate rspotify >}} (the most popular one), {{< crate aspotify >}} (an
 asynchronous-only alternative), and a bunch of other outdated or incomplete
 libraries.
 

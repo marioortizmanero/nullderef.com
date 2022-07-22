@@ -34,16 +34,13 @@ languages:
         - name: Series
           url: series/
           weight: 2
-        - name: Archive
-          url: archive/
-          weight: 3
         - name: Search
           url: search/
-          weight: 4
+          weight: 3
 
 params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
-  description: "My personal blog, where I write about software development and the projects I'm working on."
+  description: "My personal blog, where I write about software development and what I'm working on."
   author: Mario Ortiz Manero
   keywords: ["rust", "rustlang", "guides", "open-source", "programming", "software"]
   images: ["/logo-banner.png"]
@@ -65,7 +62,7 @@ params:
     LogoLight: /logo-light-theme.png
     LogoDark: /logo-dark-theme.png
     Content: >
-      My personal blog, where I write about software development and the projects I'm working on. \
+      My personal blog, where I write about software development and what I'm working on. \
 
       _-- **Mario Ortiz Manero**_
 

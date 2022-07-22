@@ -1,0 +1,8 @@
+/* Custom classes for the content in articles */
+
+.txt-round {
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+.txt-margin-right { margin-right: 5px; }
+.txt-margin-left { margin-left: 5px; }

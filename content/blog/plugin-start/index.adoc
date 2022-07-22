@@ -1,8 +1,8 @@
 ---
 title: "Plugins in Rust: Getting Started"
-description: "My first steps trying to implement the PDK"
+description: "My first steps trying to implement the plugin system"
 author: "Mario Ortiz Manero"
-images: ["/blog/plugin-start/connectors.png"]
+images: ["/blog/plugin-start/thinking.jpg"]
 tags: ["rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi"]
 series: ["rust-plugins"]
 date: 2021-09-05
@@ -13,24 +13,15 @@ GHissueID: 5
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
-Welcome to my second article about Plugins in Rust! Here I will try to actually
-write some simple code of what a PDK (_Plugin Development Kit_) might look like,
-and also do some research about questions that arise while doing so. Please note
-that this is a series of posts, so you might be interested in reading
-https://nullderef.com/series/rust-plugins/[the previous ones for context].
+Welcome to the second article of my
+https://nullderef.com/series/rust-plugins/["`Plugins in Rust`" series]! Here I
+will try to actually write some simple code of what a plugin system might look
+like, and try to answer any questions that may arise while doing so.
 
-Some probably weren't expecting me to continue the series, as in the
-https://nullderef.com/blog/plugin-tech/[last article] I wrote that Google didn't
-end up allocating a slot for my project (as this was initially going to be for
-the https://summerofcode.withgoogle.com/[Google Summer of Code]). But the Tremor
-team ended up talking with me and arranging the same thing via the
-https://lfx.linuxfoundation.org/tools/mentorship/[The Linux Foundation
-Mentorships], so I will be able to work on the PDK in the end!
-
-Even though this project is specific to Tremor, I try to keep it relatively
-generic so that it's useful to future rustaceans interested in plugins. If you
-don't really care about Tremor's specific case, you can skip to the
-<<actual_start,next section>>.
+Even though the project is specific to https://www.tremor.rs/[Tremor], I try to
+keep it relatively generic so that it's useful to future rustaceans interested
+in plugin systems. So if you don't really care about Tremor's specific case, you
+can skip to the <<actual_start,next section>>.
 
 == About Tremor
 
@@ -43,8 +34,8 @@ still surprised by their welcomingness and how refreshing their dynamics were.
 
 Starting to work on Tremor for the first time with such a large task at first
 sounds daunting. I was somewhat overwhelmed by that and felt quite some pressure
-on me. But their words helped me de-stress about it; finishing the PDK would of
-course be hard, but no need to worry about things you can't control yet.
+on me. But their words helped me de-stress about it; finishing the project would
+of course be hard, but no need to worry about things you can't control yet.
 
 I particularly liked the three "`rules`" of their workflow:
 
@@ -66,8 +57,8 @@ ____
 
 Also note that while writing this post I quite literally broke my leg (tibia &
 fibula). The team was very supportive, and I took some rest until I went through
-surgery (I'm still recovering). Which is another reason as to why this article
-has taken me longer than usual to release. Thanks a lot to all of them ❤️.
+surgery. Which is another reason as to why this article has taken me longer than
+usual to release. Thanks a lot to all of them ❤️.
 
 === Getting to know other mentees
 
@@ -81,25 +72,25 @@ project, and he explained me his progress in detail. In summary, he was starting
 to add gRPC support to Tremor, and wasn't sure how to approach it so that new
 interfaces could be added outside the compilation time. He had multiple ideas on
 how to implement this, but the one that interested me the most was via Wasm or
-dynamic linking, which was exactly what I was trying to do as well for the PDK.
-This meant I'd probably spend more time with him, as our projects were more
-interconnected than I thought.
+dynamic linking, which was exactly what I was trying to do as well for the
+system. This meant I'd probably spend more time with him, as our projects were
+more interconnected than I thought.
 
 === Learning about the internals of Tremor
 
-I've always known that the original intent for the PDK was the typical
+I've always known that the original intent for the system was the typical
 architecture via dynamic linking, but I wanted to explore the viability of Wasm
 or other alternatives before ruling it out. Would this idea be destroyed by
 someone in the end, or does it stand a chance? In order to know that I'd first
 need to find more specific requisites by defining the basic interfaces of the
-PDK. Which is very hard at first because you need to know more about the
+system. Which is very hard at first because you need to know more about the
 internals of Tremor and how it works.
 
 Luckily, Matthias spent the second meeting explaining to me how Tremor works,
 with the help of some drawings, taking a look at the code, and running it. He
 also taught me the novel concept of a _connector_, which is just an abstraction
 over both sources and sinks. The thing was that connectors were still Work In
-Progress, and Matthias needed to know how the PDK would work to modify the
+Progress, and Matthias needed to know how the system would work to modify the
 `Connector` interface. Mainly how to combine plugins and generics, which is what
 I'll try to figure out in this article.
 
@@ -114,15 +105,15 @@ might not be compatible with dynamic loading.
 
 Up until now I had mostly investigated about the
 https://nullderef.com/blog/plugin-tech/[technologies] that could be used for the
-PDK, but I was suggested that I should first take a look at how the interfaces
+system, but I was suggested that I should first take a look at how the interfaces
 would actually look like. That way it would be easier to take the final decision
-for the PDK's technology, according to the requirements for these interfaces. In
+for the system's technology, according to the requirements for these interfaces. In
 summary, the following questions arose:
 
-* What's the performance hit of the PDK?
+* What's the performance hit of the system?
 * Can we avoid serialization?
-* Is it possible to use generics in the PDK?
-* Otherwise, is it possible to use `dyn` in the PDK?
+* Is it possible to use generics in the system?
+* Otherwise, is it possible to use `dyn` in the system?
 * If all else fails, what can be done to represent a "`generic`" trait object in
   the interface Tremor exports for plugins?
 
@@ -188,7 +179,7 @@ anyway.
 
 I've created the
 https://github.com/marioortizmanero/pdk-experiments[pdk-experiments] repository,
-where I'll write various examples of how the PDK might work. The first
+where I'll write various examples of how the plugin system might work. The first
 experiment is in the
 https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-simple[`dynamic-simple`
 directory], with a small example of how to dynamically load plugins with Rust.
@@ -523,14 +514,15 @@ The WebAssembly specification only defines integers and floating point as its
 supported types <<wasmer-types>>. There are a few ways to handle non-trivial
 types like structs or enums:
 
-* Via the https://github.com/webassembly/interface-types[*Interface Types
-  Proposal* for WebAssembly]. It defines the binary format for encoding and
-  decoding the newly supported types, and specifies a set of instructions to
-  transform the data between WebAssembly and the outside world. Note that this
-  proposal is not meant to define a fixed representation of e.g., a string in
-  Wasm, it attempts to allow representation-agnostic high-level value types.
-+
---
+==== The Interface Types Proposal
+
+https://github.com/webassembly/interface-types[This proposal for WebAssembly]
+defines the binary format for encoding and decoding the newly supported types,
+and specifies a set of instructions to transform the data between WebAssembly
+and the outside world. Note that this proposal is not meant to define a fixed
+representation of e.g., a string in Wasm, it attempts to allow
+representation-agnostic high-level value types.
+
 These new _high-level value types_ are called *interface types*. The current
 proposal defines them as:
 
@@ -590,17 +582,18 @@ It's still actively being worked on, and its specification is far from stable.
 
 In the end I wasn't able to get Interface Types working, nor I considered them
 worth my time, as it's still too early.
---
-* The hacky-but-working way, via *pointers and a shared
-  https://docs.wasmer.io/integrations/examples/memory[memory]*. The user has to
-  first construct and serialize the complex types, and then save them into
-  Wasm's memory, which can be accessed directly by the runtime or the plugin
-  with https://docs.wasmer.io/integrations/examples/memory-pointers[pointers].
-  This is what https://github.com/feather-rs/feather/tree/main/quill[Feather] or
-  https://book.veloren.net/contributors/developers/codebase-structure.html#plugins[Veloren]
-  do, in case you want more details.
-+
---
+
+==== The hacky-but-working way
+
+Via pointers and a shared
+https://docs.wasmer.io/integrations/examples/memory[memory]. The user has to
+first construct and serialize the complex types, and then save them into Wasm's
+memory, which can be accessed directly by the runtime or the plugin with
+https://docs.wasmer.io/integrations/examples/memory-pointers[pointers]. This is
+what https://github.com/feather-rs/feather/tree/main/quill[Feather] or
+https://book.veloren.net/contributors/developers/codebase-structure.html#plugins[Veloren]
+do, in case you want more details.
+
 Not only does this require a serialization and deserialization step and
 writing/reading all the data from memory, but also it's very cumbersome to use
 and easy to mess up. It's somewhat trivial though, so a procedural macro like
@@ -611,14 +604,18 @@ I did try this and got it working by following
 https://freemasen.com/blog/wasmer-plugin-pt-1/[Free Masen's guide], but it
 wasn't worth exploring in depth because it requires a [de]serialization step
 Tremor can't afford.
---
-* Another way I've seen to work around this is by using Wasm as an executable
-  instead of a library. https://github.com/zellij-org/zellij[Zellij] does this,
-  and communicates with the plugins via the standard input and standard output
-  streams.
-+
+
+==== Separate executables
+
+Another way I've seen to work around this is by using Wasm as an executable
+instead of a library. https://github.com/zellij-org/zellij[Zellij] does this,
+and communicates with the plugins via the standard input and standard output
+streams.
+
 Unfortunately, this also requires [de]serializing and has the overhead of
 writing/reading all the data from stdin and stdout.
+
+==== Conclusion
 
 Ultimately, this has forced me to discard WebAssembly for Tremor's Plugin
 Development Kit. Performance is really important in this specific case, and Wasm
@@ -630,17 +627,17 @@ want to go.
 == Wrapping up
 
 Today we've learned a lot of things both about dynamic loading and WebAssembly.
-Unfortunately, I've had to discard the latter for Tremor's PDK, but it may be of
-interest to projects that aren't so focused on performance. Or maybe by the time
-you, the reader, have finished this article, Interface Types are already
+Unfortunately, I've had to discard the latter for Tremor's case, but it may be
+of interest to projects that aren't so focused on performance. Or maybe by the
+time you, the reader, have finished this article, the issues I found are already
 stabilized and broadly used, which would make Wasm an even more appealing
 choice.
 
-In the next post, I will try to get a more advanced example of a PDK with
-dynamic loading. The goal is to simulate the end-product by writing it as close
-as possible to how it would be used in real life. This way, we will also be able
-to benchmark it against a statically linked implementation and analyze the
-performance overhead we'll end up getting.
+In the next post, I will try to get a more advanced example of a plugin system
+with dynamic loading. The goal is to simulate the end-product by writing it as
+close as possible to how it would be used in real life. This way, we will also
+be able to benchmark it against a statically linked implementation and analyze
+the performance overhead we'll end up getting.
 
 I did write a few benchmarks for the examples provided in this article, but they
 aren't fair at all nor representative of a real-life situation. They simply load

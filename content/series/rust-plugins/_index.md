@@ -6,5 +6,7 @@ with [Tremor](https://www.tremor.rs/), in which I implement a Plugin System to
 maximize modularity and reduce Rust's wild compilation times. This is done with
 [dynamic loading](https://en.wikipedia.org/wiki/Dynamic_loading), but its
 alternatives are also covered in detail in the first articles."
+numbered: true
+reverseOrder: true
 tags: ["rust", "rustlang", "dynamic loading", "plugins", "plugin system", "pdk"]
 ---
