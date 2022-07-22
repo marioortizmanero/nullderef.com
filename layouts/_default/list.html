@@ -37,7 +37,11 @@
 {{- end }}
 
 {{- $term := .Data.Term }}
-{{- range $index, $page := $paginator.Pages }}
+{{- $pages := $paginator.Pages }}
+{{- if .Params.reverseOrder }}
+  {{- $pages = $pages.Reverse }}
+{{- end }}
+{{- range $index, $page := $pages }}
 
 {{- $class := "post-entry" }}
 
@@ -58,6 +62,8 @@
   <div class="entry-group">
     <header class="entry-header">
       <h2>
+
+        {{ if $.Params.numbered }}<span class="entry-number">{{ add $index 1 }}.&nbsp;</span>{{- end }}
         {{- .Title }}
         {{- if .Draft }}<sup><span class="entry-isdraft">&nbsp;&nbsp;[draft]</span></sup>{{- end }}
       </h2>
