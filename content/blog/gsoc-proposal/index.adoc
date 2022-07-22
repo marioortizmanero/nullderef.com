@@ -4,7 +4,7 @@ description: "My proposal for 2021's GSoC"
 author: "Mario Ortiz Manero"
 images: ["/blog/gsoc-proposal/logo.png"]
 tags: ["rust", "rustlang", "dynamic-loading"]
-draft: true
+hidden: true
 date: 2021-04-13
 GHissueID: 8
 ---
@@ -134,15 +134,15 @@ it finds. It should also be possible to load new plugins on demand, so the
 repository could be given the path of a library to include at runtime, for
 example with the `tremor` CLI tool.
 
-It's important to make the PDK as easy to use as possible, and to avoid breaking
-already existing installations of Tremor. For this, the default Tremor
-configuration should include the current libraries in the default dynamic
+It's important to make the plugin system as easy to use as possible, and to
+avoid breaking already existing installations of Tremor. For this, the default
+Tremor configuration should include the current libraries in the default dynamic
 library location.
 
 [[impls]]
 === Implementations
 
-The PDK issue establishes the following components of Tremor as the main
+The proposal establishes the following components of Tremor as the main
 deliverables:
 
 . Pipeline Operators
@@ -151,8 +151,8 @@ deliverables:
 . Postprocessors
 . Modules/Functions
 
-After defining its interfaces and implementing the PDK architecture, these
-features would be turned into plugins, which would allow them to be developed
+After defining its interfaces and implementing the architecture, these features
+would be turned into plugins, which would allow them to be developed
 independently, and thus wouldn't have to be in the main
 https://github.com/tremor-rs/tremor-runtime[tremor-runtime] repository. For
 simplicity, though, it might be best to keep them there. Or at least group them
@@ -164,17 +164,17 @@ after all.
 
 === Enhancements
 
-The PDK proposal also lists a few optional targets, which can be implemented if
+The requirements also list a few optional targets, which can be implemented if
 there's remaining time after the main goals are fully finished:
 
-. Implement connectors RFC ( pre-requirement for connector plugins )
-. Contribute to and finalize tremor-rs/tremor-rfcs#32
-. Add source, sink, and peering connectors to pluggable artefacts
-. Add a PDK TCK ( test compatibility kit ) that asserts plugin invariants and
-  provides testing mechanisms for plugin developers
+. Implement connectors RFC (pre-requirement for connector plugins).
+. Contribute to and finalize {{< gh pr "tremor-rs/tremor-rfcs" 32 "Connectors and Streams" >}}.
+. Add source, sink, and peering connectors to pluggable artefacts.
+. Add a TCK (test compatibility kit) that asserts plugin invariants and provides
+  testing mechanisms for plugin developers.
 . Consider plugin documentation generation and another tooling for better
-  developer convenience and usability
-. Make trickle sub-graphs a first-class modular and pluggable artefact
+  developer convenience and usability.
+. Make trickle sub-graphs a first-class modular and pluggable artefact.
 
 The most likely to be implemented of these is the fifth, as documentation is
 important for this new breaking feature. It also looks like the easiest one, or
@@ -183,11 +183,11 @@ much extra time after the main goals, if any.
 
 The "`development tooling`" part would also be inevitably developed as the
 project progresses, since I'll need them anyway to move the existing <<impls>>
-to the PDK. Said resources could be contained in a separate `tremor_plugin`
-crate, with all kinds of utilities to make plugin development easier, including
-traits or even procedural macros if necessary, which are a very interesting part
-of Rust, and I'm looking forward to on working on as well, and
-https://github.com/vidify/structconf[I've already done in the past].
+to the plugin system. Said resources could be contained in a separate
+`tremor_plugin` crate, with all kinds of utilities to make plugin development
+easier, including traits or even procedural macros if necessary, which are a
+very interesting part of Rust, and I'm looking forward to on working on as well,
+and https://github.com/vidify/structconf[I've already done in the past].
 
 == Proposal Timeline
 
@@ -223,8 +223,9 @@ possibly smaller ones after finishing the more important goals of the project.
 
 === 17th May to 7th June: Community Bonding
 
-* Here I will try to get smaller prototypes of PDKs working, which can later be
-  extended for Tremor, and with which I could discuss with the Tremor team.
+* Here I will try to get smaller prototypes of plugin systems working, which can
+  later be extended for Tremor, and with which I could discuss with the Tremor
+  team.
 * Plan how the development will work in detail and structure my research and
   ideas in a single place -- perhaps a blog post.
 
@@ -241,7 +242,8 @@ distributed in 9 weeks. Some will take more effort to implement, so here's an
 estimate:
 
 * *Implementing the plugin-loading architecture into Tremor*: _weeks 1 to 2_.
-* *Configuration of the PDK in Tremor's repositories/registry*: _week 3_.
+* *Configuration of the plugin system in Tremor's repositories/registry*: _week
+  3_.
 * *Defining the main component interfaces*: _weeks 4 to 5_.
 * *Implementing all of Tremor's components as plugins* (pipeline operators,
   codecs, preprocessors, postprocessors and modules/functions): _weeks 6 to 9_.

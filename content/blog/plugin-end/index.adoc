@@ -125,7 +125,8 @@ I worked on.
 
 === Type conversions
 
-The most important performance concern in the first PDK version had to do with
+The most important performance concern in the first version of the plugin system
+had to do with
 https://nullderef.com/blog/plugin-impl/#_reaching_reprc_blockers[the issues I
 had found when trying to convert external types to the C ABI]. In short, I had a
 relatively complex type `Value` and needed to make it FFI-safe for the plugin
@@ -159,7 +160,7 @@ By checking other metrics we discover that this is more or less the case. The
 histogram shows that a single `Value` improves the latency, but the overall
 throughput actually decreases:
 
-.Histogram without the PDK (`connectors` branch) vs. first version vs. single `Value`.
+.Histogram without the plugin system (`connectors` branch) vs. first version vs. single `Value`.
 image::/blog/plugin-end/histogram_pdk.png[link="/blog/plugin-end/histogram_pdk.png"]
 
 // TODO: how to center this table?
@@ -167,7 +168,7 @@ image::/blog/plugin-end/histogram_pdk.png[link="/blog/plugin-end/histogram_pdk.p
 .Relative throughput comparison (higher is better)
 [cols="^,^,^"]
 |===
-|No PDK (%) |With `PdkValue` (%) |Single `Value` (%)
+|No plugin system (%) |With `PdkValue` (%) |Single `Value` (%)
 
 // |817.6k
 // |545.1k
@@ -260,8 +261,8 @@ NOTE: skipped this because it only used passthrough as well.
 
 The wrapper will still have a small overhead over the original type, but it
 should still be a noticeable change that's worth trying. The first step is to
-take a look at the difference on the main branch, without the PDK. It's possible
-that `halfbrown` has stopped being worth it with time.
+take a look at the difference on the main branch, without the plugin system.
+It's possible that `halfbrown` has stopped being worth it with time.
 
 .Histogram comparing the `raw_entry` optimizations disabled vs. enabled. Both use the `halfbrown` hash table, though.
 image::/blog/plugin-end/histogram_knownkey.png[]
@@ -295,7 +296,7 @@ image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png[link="/b
 .Relative performance for number of events processed per second (higher is better)
 [cols="<,^,^,^,^"]
 |===
-|Benchmark |No PDK (%) |Halfbrown, No Known Key (%) |Halfbrown (%) |Hashbrown (%)
+|Benchmark |No plugin system (%) |Halfbrown, No Known Key (%) |Halfbrown (%) |Hashbrown (%)
 
 |*Passthrough*
 // |1189.5
@@ -585,8 +586,8 @@ it a try:
 
 === Improve cross-platform support
 
-As I mentioned in earlier articles, our PDK will only work on Windows, macOS,
-and Linux <<thread-safe>>. It will still compile on other platforms, but
+As I mentioned in earlier articles, our plugin system will only work on Windows,
+macOS, and Linux <<thread-safe>>. It will still compile on other platforms, but
 possibly with data races in the dynamic linking internals.
 
 Specifically, {{< crate libloading >}}, which is used by `abi_stable`, states
@@ -652,13 +653,13 @@ the program would crash in random and unexpected ways, pointing out that there's
 something wrong. It certainly won't be a super nice debugging experience, but
 it's better than having it happen in production.
 
-This may even catch other bugs unrelated to the PDK. Tremor implements
+This may even catch other bugs unrelated to the project. Tremor implements
 self-referential types and other optimizations, and it's possible that some of
 them incorrectly rely on the Rust ABI.
 
 Tremor's Continuous Integration tests could be run with `-Z randomize-layout` to
 ensure that no opaque types export Rust types, even if `abi_stable` prevents
-most cases within the PDK.
+most cases within the plugin system.
 
 === Try raw dynamic loading
 
@@ -792,7 +793,7 @@ These include repositories not directly related to Tremor:
 === Internal Contributions
 
 Here are the issues and pull requests created within Tremor's repositories,
-including those for the PDK and other unrelated improvements:
+including those for the plugin system and other unrelated improvements:
 
 . {{< gh pr "tremor-rs/tremor-runtime" 1434 "PDK support" >}}
 . {{< gh pr "marioortizmanero/tremor-runtime" 11 "PDK with a single value" >}}

@@ -27,8 +27,8 @@ and for all.
 I will personally use the crate {{< crate abi_stable >}}, but the concepts
 should be roughly the same for any dynamic loading method. Similarly, some of my
 advice is related to modifying an already existing project of large size. If
-you're starting from scratch with a plugin system (PDK) in mind, it should be
-the same, just easier in some aspects.
+you're starting from scratch with a plugin system in mind, it should be the
+same, just easier in some aspects.
 
 [[advice]]
 == Some prototyping advice
@@ -117,7 +117,7 @@ that we haven't cleaned up yet, which are usually harmless.
 
 One month later, I was able to finally compile
 https://github.com/tremor-rs/tremor-runtime[`tremor-runtime`] with the initial
-PDK prototype. This screenshot made my day, as simple as it may seem:
+prototype. This screenshot made my day, as simple as it may seem:
 
 image::compilation.png[width=80%, align=center]
 
@@ -134,8 +134,8 @@ so it was updated quite often. All of this resulted into frequent conflicts, and
 having to painfully resolve them many times until I got the hang of it.
 
 Say, you have a number of `use` statements at the top of your file. After adding
-some changes related to the PDK, you now need to import `PdkValue` as well.
-You'd usually do:
+some changes related to the plugin system, you now need to import `PdkValue` as
+well. You'd usually do:
 
 [source, diff]
 ----
@@ -406,7 +406,7 @@ impl Value {
 +
 This can be messy because in order to avoid conversions, your plugin system will
 _infect_ the entire codebase. You may quickly find yourself propagating the
-usage of `RHashMap` everywhere, even when the PDK isn't that important. For
+usage of `RHashMap` everywhere, even when the system isn't that important. For
 example, `Value` also appeared in
 https://www.tremor.rs/docs/tremor-script/index[Trickle]'s implementation, the
 scripting language used to configure Tremor's pipelines. Having to use
@@ -564,8 +564,8 @@ pub enum PdkValue {
 
 We don't need to write any additional methods for the new `PdkValue`, only its
 conversions to and from the regular `Value`. This would be equivalent to,
-instead of passing a `Vec` to the PDK, replacing it with a `*const u8` for the
-data and a `u32` for the length. We're just simplifying the types at the FFI
+instead of passing a `Vec` to the interface, replacing it with a `*const u8` for
+the data and a `u32` for the length. We're just simplifying the types at the FFI
 boundary, and then maybe converting them back for access to the full
 functionality.
 
@@ -974,8 +974,8 @@ to me with Tremor as well.
 For now, I just have the runtime and the interface in the same crate. External
 plugins then have the entire runtime as a dependency. Which, as I said, is
 suboptimal, but it works. Moving so much stuff into a separate `common` crate
-would mean a _ton_ of conflicts, so I would rather leave it for whenever my
-first iteration of the PDK is merged.
+would mean a _ton_ of conflicts, so I would rather leave it for whenever the
+first iteration is merged.
 
 .The {work} structure for the plugin system
 image::separation-temporary.png[align=center, width=30%]
@@ -986,7 +986,7 @@ image::separation-temporary.png[align=center, width=30%]
 Preparing the release for the plugin system has always sounded like a quite
 complicated task. I've never wanted to introduce too many changes at once
 because otherwise it will become very hard to review and merge into the main
-branch. This is why I decided to schedule the PDK release in four separate
+branch. This is why I decided to schedule the release in four separate
 iterations:
 
 . *Define the new interface and use it internally*: the plugin system should be

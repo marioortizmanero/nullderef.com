@@ -16,8 +16,9 @@ GHissueID: 3
 In the https://nullderef.com/blog/plugin-start/[last part] of this
 https://nullderef.com/series/rust-plugins/[series] I wrote some simple
 experiments of plugins both with WebAssembly and dynamic loading. After
-discarding Wasm for this specific PDK, I wanted to try to get a more realistic
-example with dynamic loading and work towards the final implementation.
+discarding Wasm for this specific plugin system, I wanted to try to get a more
+realistic example with dynamic loading and work towards the final
+implementation.
 
 Since the Tremor team suggested that I began by implementing connectors, we'll
 first have to learn more about them. Matthias ran me through their current state
@@ -108,15 +109,15 @@ and implements a higher-level asynchronous interface on top of it.
 As always, these articles include a first section with content specific to
 Tremor that you might <<actual_start,want to skip>>. Unfortunately, with time
 this series will become more and more specific to Tremor; after all I'm just
-reporting my progress on their PDK. Still, having a step-by-step walkthrough for
-a real-life Plugin System will surely be helpful to those attempting to do the
-same.
+reporting my progress on their project. Still, having a step-by-step walkthrough
+for a real-life Plugin System will surely be helpful to those attempting to do
+the same.
 
 === My next steps
 
 In the first meeting we discussed the work I had exposed in my last update.
 Despite the complications (being forced to use {repr-c}), the team liked where
-the PDK was going.
+the plugin system was going.
 
 They suggested me to start with connectors for the real-life example, even
 though they were incomplete because Matthias was still working on them. The best
@@ -187,10 +188,10 @@ incredibly helpful.
 
 === How Tremor works
 
-After starting to write the PDK example for connectors and failing because I
+After starting to write a first prototype for connectors and failing because I
 didn't know what I was doing, I decided to step back and try to understand in
 detail how Tremor works. Once I had that covered, I could try to simplify the
-PDK as much as possible in order to keep my sanity.
+plugin system as much as possible in order to keep my sanity.
 
 I jumped into the codebase of
 https://github.com/tremor-rs/tremor-runtime[`tremor/tremor-runtime`] and tried
@@ -246,9 +247,9 @@ image::registering.png[width = 100%]
 
 Once all the managers are initialized, Tremor currently registers all the
 built-in artifacts in a "`hardcoded`" way with `register_builtin_types`. But
-after the PDK is implemented, this will happen dynamically, i.e., Tremor will
-automatically look for DLL/SO files in its configured directory and try to
-register all the plugins it can find. The user may additionally request a
+after the plugin system is implemented, this will happen dynamically, i.e.,
+Tremor will automatically look for DLL/SO files in its configured directory and
+try to register all the plugins it can find. The user may additionally request a
 specific plugin to be loaded while Tremor is running.
 
 Note that the initialization of the connectors is done in two steps: first
@@ -312,9 +313,9 @@ following connector plugins:
   replays a series of events specified in a file, which is specially useful for
   performance testing.
 
-Both of these are relatively simple and will be helpful to benchmark the PDK
-later on. But that isn't really important right now; I first need to get the PDK
-working, and then I can care about performance.
+Both of these are relatively simple and will be helpful to benchmark the plugin
+system later on. But that isn't really important right now; I first need to get
+it working, and then I can care about performance.
 
 [[actual_start]]
 == Taking a look at eBPF first
@@ -370,11 +371,11 @@ until it's properly updated upstream, among other things. Pretty cool :)
 
 == Getting deeper into dynamic linking
 
-Now that we definitely know how to approach the PDK, we have two choices: using
-raw dynamic linking with the C ABI and `libloading`, or trying out the
-`abi_stable` crate. I suggest we do both. We'll most likely end up using the
-latter because it should be easier and safer, but it's still a very good idea to
-know how `abi_stable` works under the hood.
+Now that we definitely know how to approach the plugin system, we have two
+choices: using raw dynamic linking with the C ABI and `libloading`, or trying
+out the `abi_stable` crate. I suggest we do both. We'll most likely end up using
+the latter because it should be easier and safer, but it's still a very good
+idea to know how `abi_stable` works under the hood.
 
 In the previous article I created a `dynamic-simple` experiment in examples to
 https://github.com/marioortizmanero/pdk-experiments[the pdk-experiments

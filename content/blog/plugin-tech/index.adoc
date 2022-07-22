@@ -1,6 +1,6 @@
 ---
 title: "Plugins in Rust: The Technologies"
-description: "A more in-depth look at Rust PDKs"
+description: "A more in-depth look at Rust plugin systems"
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-tech/triangle.png"]
 images: ["/blog/plugin-tech/technologies.jpg"]
@@ -19,11 +19,10 @@ TODO: properly introduce the series, explain its objectives and results.
 
 Welcome to the https://nullderef.com/series/rust-plugins/["`Plugins in Rust`"
 series]! During the next months I'll be involved in a project with
-https://www.tremor.rs/[Tremor], for which I need to implement a Plugin System
-(a.k.a. Plugin Development Kit or PDK). The goal is to maximize modularity and
-reduce Rust’s wild compilation times. The implementation will end up being done
-with dynamic loading, but I will cover all the alternatives first to make sure
-it's the best approach for my use-case.
+https://www.tremor.rs/[Tremor], for which I need to implement a Plugin System.
+The goal is to maximize modularity and reduce Rust’s wild compilation times. The
+implementation will end up being done with dynamic loading, but I will cover all
+the alternatives first to make sure it's the best approach for my use-case.
 
 In this first article I will analyze the different ways in which our plugin
 system may be implemented in Rust. Note that I'm no expert in the topic; my
@@ -34,13 +33,14 @@ and make their own decisions.
 [[requirements]]
 == The Problem
 
-This is actually part of my Google Summer of Code project for
-https://www.tremor.rs/[Tremor]. My first article about a Plugin System in Rust
-was in the https://nullderef.com/blog/gsoc-proposal/[proposal], which serves as
-a brief introduction and might be interesting as well. While this will
-specifically cover Tremor's use case, I'm sure many other applications in the
-future will have similar requirements for their own program. And considering the
-few articles I found about plugins in Rust, this
+This is actually part of my https://summerofcode.withgoogle.com/[Google Summer
+of Code] project for https://www.tremor.rs/[Tremor]. My first article about a
+Plugin System in Rust was in the
+https://nullderef.com/blog/gsoc-proposal/[proposal], which serves as a brief
+introduction and might be interesting as well. While this will specifically
+cover Tremor's use case, I'm sure many other applications in the future will
+have similar requirements for their own program. And considering the few
+articles I found about plugins in Rust, this
 https://nullderef.com/series/rust-plugins/[series] may be helpful to the
 community.
 
@@ -69,8 +69,8 @@ Besides that, the rest of the main points to consider remain the same:
 [[safety]]
 == Safety Concerns
 
-I've been wanting to take a look at the possible safety concerns a PDK could
-bring to Tremor since the initial proposal.
+I've been wanting to take a look at the possible safety concerns a plugin system
+could bring to Tremor since the initial proposal.
 
 NOTE: Depending on the approach that is taken for the Plugin System,
 implementing solutions to some of the points I make below can be really complex,
@@ -182,8 +182,8 @@ it may check if they're compatible, rather than breaking in mysterious ways.
 == Possible Approaches
 
 The following are the most viable technologies that could be used as the base of
-a PDK. Some of them won't match the requirements I mentioned earlier at first
-glance, but it's a good idea to at least _consider_ all of them. I haven't
+the system. Some of them won't match the requirements I mentioned earlier at
+first glance, but it's a good idea to at least _consider_ all of them. I haven't
 written a line of code yet, so if an approach were to catch someone's eye we
 could investigate more about it. I will rate each of the alternatives in a scale
 from 1 to 5 (approximately) in order to easen the decision-taking.
@@ -282,9 +282,9 @@ core and its plugins should be as easy as `\#[derive(Serialize)]` for sending
 and `#[derive(Deserialize)]` for receiving.
 
 As to safety, separate processes imply that malfunctioning plugins don't affect
-Tremor directly, and the PDK basically consists on implementing servers, which
-require no `unsafe` at all and has much more popularity and support in Rust.
-It's still hard to properly sandbox the plugins, though.
+Tremor directly, and the system basically consists on implementing servers,
+which require no `unsafe` at all and has much more popularity and support in
+Rust. It's still hard to properly sandbox the plugins, though.
 
 Overall, I consider this a very solid solution, with its main drawback being
 performance. I can't really guess the effect this would have in Tremor's speed,
@@ -607,7 +607,7 @@ via stdin and stdout, serializing and deserializing with
 https://serde.rs/[serde]. `zellij` includes a few plugins by default, like the
 status bar, or a file manager. Very neat architecture!
 +
-Other WebAssmbly-based PDKs:
+Other WebAssmbly-based plugin systems:
 https://book.veloren.net/contributors/developers/codebase-structure.html#plugins[Veloren],
 https://github.com/feather-rs/feather/tree/main/quill[Feather].
 * https://github.com/xi-editor/xi-editor[`xi`]: a now abandoned modern text
