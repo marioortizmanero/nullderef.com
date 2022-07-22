@@ -13,7 +13,7 @@ GHissueID: 3
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
-In the https://nullderef.com/blog/plugin-start/[last part] of this
+In the https://nullderef.com/blog/plugin-start/[last article] of this
 https://nullderef.com/series/rust-plugins/[series] I wrote some simple
 experiments of plugins both with WebAssembly and dynamic loading. After
 discarding Wasm for this specific plugin system, I wanted to try to get a more

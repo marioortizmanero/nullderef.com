@@ -15,12 +15,12 @@ GHissueID: 1
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
-https://nullderef.com/blog/plugin-dynload/[The last article] of this
-https://nullderef.com/series/rust-plugins/[series] covered how the plugin system
-could be implemented from scratch. This is a lot of work if you're dealing
-with a relatively large codebase and therefore a complex interface in your
-plugin system, so let's see how we can make our lives easier. I've been wanting
-to try {{< crate abi_stable >}} for this since the beginning, which was
+https://nullderef.com/blog/plugin-dynload/[Previously] in this
+https://nullderef.com/series/rust-plugins/[series], I covered how the plugin
+system could be implemented from scratch. This is a lot of work if you're
+dealing with a relatively large codebase and therefore a complex interface in
+your plugin system, so let's see how we can make our lives easier. I've been
+wanting to try {{< crate abi_stable >}} for this since the beginning, which was
 specifically created for plugins. But we aren't really locked to that crate, so
 I'll show other alternatives as well, which can even be combined to your liking.
 

@@ -14,7 +14,7 @@ GHissueID: 5
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
 Welcome to the second article of my
-https://nullderef.com/series/rust-plugins/["Plugins in Rust" series]! Here I
+https://nullderef.com/series/rust-plugins/["`Plugins in Rust`" series]! Here I
 will try to actually write some simple code of what a plugin system might look
 like, and try to answer any questions that may arise while doing so.
 
