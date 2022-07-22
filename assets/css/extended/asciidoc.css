@@ -99,13 +99,12 @@ blockquote, blockquote p {
 .fuchsia-background { background-color: fuchsia; }
 .purple-background { background-color: purple; }
 
-/* Custom classes */
-.txt-round {
-  border-radius: 3px;
-  padding: 2px 6px;
+/* Treat admunition blocks (notes and etc) separately, instead of just
+ * with the table formatting
+ */
+.admonitionblock td {
+    border-top: 1px solid var(--border);
 }
-.txt-margin-right { margin-right: 5px; }
-.txt-margin-left { margin-left: 5px; }
 
 /* Fix selection colors for dark mode */
 ::selection {
