@@ -3,6 +3,7 @@ title: "Plugins in Rust: The Technologies"
 description: "A more in-depth look at Rust PDKs"
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-tech/triangle.png"]
+images: ["/blog/plugin-tech/technologies.jpg"]
 tags: ["rust", "rustlang", "dynamic-loading", "ffi", "plugin", "wasm", "webassembly", "ipc", "scripting"]
 series: ["rust-plugins"]
 date: 2021-05-17
