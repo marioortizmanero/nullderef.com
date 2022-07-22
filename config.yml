@@ -34,12 +34,9 @@ languages:
         - name: Series
           url: series/
           weight: 2
-        - name: Archive
-          url: archive/
-          weight: 3
         - name: Search
           url: search/
-          weight: 4
+          weight: 3
 
 params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.

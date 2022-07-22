@@ -106,12 +106,6 @@ blockquote, blockquote p {
     border-top: 1px solid var(--border);
 }
 
-/* Fix selection colors for dark mode */
-::selection {
-  background: var(--primary);
-  color: var(--theme);
-}
-
 /* Fix block margins */
 .highlight {
   margin-bottom: var(--content-gap) !important;
