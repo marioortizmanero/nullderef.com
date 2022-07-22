@@ -12,3 +12,8 @@
         transform: none;
     }
 }
+
+/* Fixing the color for the "slogan" under the logo */
+.entry-content {
+  color: var(--primary);
+}
