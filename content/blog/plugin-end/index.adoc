@@ -624,7 +624,7 @@ ways to approach this:
 
 . *Quick fix*: add a compile-time error for any platform that isn't explicitly
   supported. Before adding support for a new platform, we will have to manually
-  ensure that its dynamic loading error handling is thread-safe.
+  ensure that its error handling for dynamic loading is thread-safe.
 +
 [source, rust]
 ----
@@ -650,9 +650,9 @@ There are two interesting experiments to try:
 
 1. Comparing the performance of `panic = "abort"` and `panic = "unwind"`.
    Technically, aborting should optimize away most of the extra code
-   <<panic-abort>>, but it should only be used for research, as it would make it
-   incredibly hard to debug errors in production.
-2. Preparing `abi_stable` and `async_ffi` for the stable release of
+   <<panic-abort>>, but it should only be used for research, as it would make
+   debugging in production incredibly hard.
+2. Preparing `abi_stable` and `async_ffi` for the stabilization of
    https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html[`extern "C-unwind"`],
    thanks to which all the additional panic handling could be removed. Unlike
    aborting, we would still be able to debug errors just fine.
@@ -676,8 +676,8 @@ without a tool like this.
 We use {repr-c} for the plugin system, so this flag shouldn't cause any
 issues... unless we're mistakenly interacting with the Rust ABI. In that case,
 the program would crash in random and unexpected ways, pointing out that there's
-something wrong. It certainly won't be a super nice debugging experience, but
-it's better than having it happen in production.
+something wrong. It certainly won't be a pleasant debugging experience, but it's
+better than having it happen in production.
 
 This may even catch other bugs unrelated to the project. Tremor implements
 self-referential types and other optimizations, and it's possible that some of
@@ -710,12 +710,12 @@ work, in my opinion.
 Anyway, the point of this experiment is that `abi_stable` isn't a hard
 requirement for the plugin system. Using it definitely makes its implementation
 easier, but also introduces many overheads. Its main selling points are
-usability, safety, and backward compatibility. But with enough effort and care,
-we could write the plugin system by ourselves from scratch.
+usability, safety, and backward compatibility, though with enough effort and
+care, we could write the plugin system by ourselves just with `libloading`.
 
-It would be super useful to see how much performance could be squeezed out by
-removing `abi_stable`. This doesn't need to be done over the full plugin system;
-we could benchmark smaller prototypes, like the ones I host at
+It would be super useful to measure how much performance could be squeezed out
+by removing `abi_stable`. This doesn't need to be done over the full plugin
+system; we could benchmark smaller prototypes, like the ones I host at
 https://github.com/marioortizmanero/pdk-experiments[marioortizmanero/pdk-experiments].
 
 === Simplify the interface further
@@ -725,11 +725,11 @@ looks like either. For the first version, all I did was change as little as
 possible so that we could have a working prototype. But there are many parts
 that could be simplified with dedicated refactors.
 
-This includes trying to minimize the use of complex communication patterns like
-channels, external types that need to be turned into opaque types. Everything
-could be organized a bit better, especially the plugin initialization and
-repetitive opaque types. These improvements can be worked on iteratively,
-because you will only find out new possibilities with time.
+Everything could be reorganized and cleaned up a bit, especially the plugin
+initialization and the repetitive opaque types. We should continue to minimize
+the use of complex communication patterns like channels. These improvements can
+be worked on iteratively, because you will only come up with new ideas over
+time.
 
 === For the long-term future
 
