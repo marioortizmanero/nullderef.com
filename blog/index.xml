@@ -732,14 +732,14 @@ couldn’t find an existing crate for that.</p>
 <div class="paragraph">
 <p>Admittedly, the example above is an oversimplification. In reality, a single
 function may mix both <code>Result</code> and <code>RResult</code>, or require type conversions. The
-proc macro would probably be a bit more complex, but it might be worth
+macro would probably end up being a bit more complex, but it might be worth
 considering regardless.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_reduce_async_boilerplate">3.7. Reduce async boilerplate</h3>
 <div class="paragraph">
-<p><code>async_ffi</code> would really benefit with a procedural macro as well. It always
+<p><code>async_ffi</code> would really benefit from a procedural macro as well. It always
 requires using <code>async move { /* …​ */ }.into_ffi()</code>, which is quite a bit of
 boilerplate and increases the indentation level by one.</p>
 </div>
