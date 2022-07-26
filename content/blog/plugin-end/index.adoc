@@ -356,9 +356,9 @@ image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png[link="/b
 
 They seem to point out that, with the plugin system, {{< crate hashbrown >}}
 (the standard hash table) might actually be better than `halfbrown`. The JSON
-optimization I mentioned could also be worth removing now. But it's really hard
-to make a decision just out of this set of benchmarks because of the complexity
-of the change. 
+optimization I mentioned could possibly be worth removing now. But it's really
+hard to make a decision just out of this set of benchmarks because of the
+complexity of the change. 
 
 This time, the experiment is only done for investigation. These results must
 only be taken as an indicator of something worth investigating more in depth; it
