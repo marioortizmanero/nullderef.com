@@ -545,10 +545,10 @@ it uglier and harder to maintain.
 
 Depending on how much `Try` is going to take to stabilize, creating a procedural
 macro might be worth our time. It would just replace `?` with `rtry` or whatever
-is configred, which should be somewhat simple to write. I'm surprised I couldn't
-find an existing crate for that yet.
+is configred, which should be somewhat simple to implement. I'm surprised I
+couldn't find an existing crate for that.
 
-.Readibility would improve in longer functions with lots of error handling.
+.Readability would improve in longer functions with lots of error handling.
 [source, diff]
 ----
 +#[try_with(rtry)]
