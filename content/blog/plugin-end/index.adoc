@@ -733,38 +733,37 @@ time.
 
 === For the long-term future
 
-Most of the previous experiments are focused on either usability or performance.
-However, there are plenty of other ways in which our plugin system could evolve
-once we reach our short-term goals:
+Our short-term goals focus on either usability or performance. However, there
+are more ways in which our plugin system could keep evolving afterwards:
 
 * *Supporting more components* in the plugin system. We could keep splitting up
   the executables into even smaller pieces, continuing to improve the overall
   flexibility and compilation times.
 * *Refining the user experience* by making the plugin loading smarter and easier
   to use. In the far future, we could even have a centralized repository with
-  all the plugins, so that it's as easy as possible to import and load them. You
-  can think of https://crates.io/[crates.io] or
+  all the plugins, so that it's as easy as possible to download and add them.
+  You can think of https://crates.io/[crates.io] or
   https://hub.docker.com/[hub.docker.com].
-* *Improving the developer experience* is also very important. Anyone should be
-  able to implement their own plugin, but ours is currently too tied to the
-  internals of Tremor. We could create project templates, properly document
-  everything, write examples, etc.
+* *Improving the developer experience* is also essential. Anyone should be able
+  to implement their own plugin, but ours is currently too tied to the internals
+  of Tremor. We could create project templates, properly document everything,
+  write examples, etc.
 * *Security* is something we sacrificed when we chose dynamic loading as our
   base technology. We don't have a sandbox, which would be essential if a plugin
   repository were to exist.
 * *Restarting or unloading plugins* at runtime. Unloading is almost impossible,
-  considering that `abi_stable` explicitly doesn't support it
+  given that `abi_stable` explicitly doesn't support it
   <<abi-stable-unloading>>. But restarting could work by simply stopping and
   leaking an existing plugin, and then loading it again with the same config. It
   would improve error resilience considerably, as we would be able to restart
-  plugins upon failure (cautiously, as we could run out of memory after leaking
+  plugins upon failure (cautiously, or we could run out of memory after leaking
   too much).
 
 == Conclusion
 
-That was all! In summary, our new interface initially slowed down the program by
-around 36%. In a few iterations, we've reduced that number to around 30%, and
-there are still many ideas left to try.
+That was all! In summary, our new FFI interface initially slowed down the
+program by around 36%. In a few iterations, we've reduced that number to around
+30%, and there are still many ideas left to try.
 
 The complexity of the whole project has turned out to be much greater than we
 predicted at the beginning. I still remember when we were unaware of the ABI
@@ -783,14 +782,14 @@ contribute upstream instead of forking or patching. Try to pay it back to those
 who save you from so much work, and submit a PR or an issue.
 
 This project has been possible thanks to Darach, Heinz, and Matthias, my mentors
-in the Tremor team. Thanks to Wayfair as well for supporting open source, and
+in the Tremor team ❤️. Thanks to Wayfair as well for supporting open source, and
 for funding this project. And one final thanks to the Rust community for
 motivating me to continue with the series, and for providing such splendid
 libraries and tools.
 
 Please <<comments,leave a comment below>> for any questions or suggestions you
-may have. Also let me know of any new advances on any of the ideas above, so
-that I can add a link for future readers. I would love to see your plugin system
+may have. Also let me know of new advances on any of the ideas above, so that I
+can add a link for future readers. I would love to see your plugin system
 creations and results :)
 
 [bibliography]
