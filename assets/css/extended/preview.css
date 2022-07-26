@@ -1,3 +1,5 @@
+/* Better thumbnails for article lists */
+
 .post-entry {
   display: flex;
   flex-flow: row nowrap;

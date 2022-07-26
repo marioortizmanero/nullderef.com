@@ -15,6 +15,17 @@ li > .paragraph {
   margin-top: 7px;
 }
 
+/* Fixing tables */
+table {
+  display: table;
+}
+.halign-center {
+  text-align: center !important;
+}
+table p {
+  margin-bottom: 0 !important;
+}
+
 /* Fixing alignment */
 .post-content .text-left {
   text-align: left;
@@ -88,16 +99,23 @@ blockquote, blockquote p {
 .fuchsia-background { background-color: fuchsia; }
 .purple-background { background-color: purple; }
 
-/* Custom classes */
-.txt-round {
-  border-radius: 3px;
-  padding: 2px 6px;
+/* Treat admunition blocks (notes and etc) separately, instead of just
+ * with the table formatting
+ */
+.admonitionblock td {
+    border-top: 1px solid var(--border);
 }
-.txt-margin-right { margin-right: 5px; }
-.txt-margin-left { margin-left: 5px; }
 
-/* Fix selection colors for dark mode */
-::selection {
-  background: var(--primary);
-  color: var(--theme);
+/* Fix block margins */
+.highlight {
+  margin-bottom: var(--content-gap) !important;
+}
+
+/* Re-adding the example block */
+.exampleblock {
+  margin: 10px 0 var(--content-gap) 0;
+  background: var(--code-bg);
+  border: 3px solid var(--tertiary);
+  border-radius: 10px;
+  padding: 15px;
 }

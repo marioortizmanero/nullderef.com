@@ -15,12 +15,12 @@ GHissueID: 1
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 
-https://nullderef.com/blog/plugin-dynload/[The last article] of this
-https://nullderef.com/series/rust-plugins/[series] covered how the plugin system
-could be implemented from scratch. This is a lot of work if you're dealing
-with a relatively large codebase and therefore a complex interface in your
-plugin system, so let's see how we can make our lives easier. I've been wanting
-to try {{< crate abi_stable >}} for this since the beginning, which was
+https://nullderef.com/blog/plugin-dynload/[Previously] in this
+https://nullderef.com/series/rust-plugins/[series], I covered how the plugin
+system could be implemented from scratch. This is a lot of work if you're
+dealing with a relatively large codebase and therefore a complex interface in
+your plugin system, so let's see how we can make our lives easier. I've been
+wanting to try {{< crate abi_stable >}} for this since the beginning, which was
 specifically created for plugins. But we aren't really locked to that crate, so
 I'll show other alternatives as well, which can even be combined to your liking.
 
@@ -925,7 +925,7 @@ It's fully thread-safe on Linux <<linux-th>>, macOS <<macos-th>>, and Windows
 But if your programs supports other Operating Systems, you might want to check
 their manuals one by one in order to make sure.
 
-However, for the first version of our PDK this won't be a problem at all. For
+However, for the first version of our system this won't be a problem at all. For
 simplicity's sake, loading plugins after the startup will not be implemented
 yet, and we'll do it sequentially. But it's good to know it for the future.
 
@@ -939,7 +939,7 @@ after using it for https://nullderef.com/blog/web-api-client/[another post].
 
 First, we can take a look at already implemented plugin systems in order to have
 an idea of the performance hit we'll experience in Tremor. This is what we
-should expect once our PDK is polished and ready for deployment:
+should expect once our system is polished and ready for deployment:
 
 * nginx reports 20% slower startup times and up to a 5% slowdown in their
   execution times <<nginx-perf>>. 
@@ -1017,11 +1017,11 @@ in Rust. We'll definitely avoid a lot of work thanks to these dependencies. It's
 not as bad as I thought; there's plenty of tools for each use-case, though most
 are admittedly only in early stages.
 
-Hopefully the performance degradations we've found won't be as noticeable in the
-final version of the PDK. We'll use `sabi_trait` only when loading the library
-instead of for each call. And having a more complex use-case will probably avoid
-such incredible optimizations in the native code. You can find the full
-statistical reports in the
+Hopefully, the performance degradations we've found won't be as noticeable in
+the final version of the system. We'll use `sabi_trait` only when loading the
+library instead of for each call. And having a more complex use-case will
+probably avoid such incredible optimizations in the native code. You can find
+the full statistical reports in the
 https://github.com/marioortizmanero/pdk-experiments/tree/master/criterion-reports[`criterion-reports`]
 directory of the
 https://github.com/marioortizmanero/pdk-experiments/[repository].

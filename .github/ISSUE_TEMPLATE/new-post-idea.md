@@ -9,17 +9,15 @@ assignees: ''
 
 TODO list:
 
-- [ ] Create an issue for the comments
-- [ ] Add at least one image for previews when sharing
-- [ ] Make sure it doesn't start with section such as "Introduction" (it'll mess up the post preview)
+- [ ] Make sure it doesn't start with a section such as "Introduction", which messes up the post preview.
 - Add the following metadata fields:
   + [ ] title
   + [ ] description
   + [ ] author
-  + [ ] images
+  + [ ] images (add at least one image for previews when sharing)
   + [ ] tags
   + [ ] series (optionally)
   + [ ] date
-  + [ ] GHissueID
+  + [ ] GHissueID (create an issue for the comments [here](https://github.com/marioortizmanero/nullderef.com-comments))
 - [ ] Clean up bibliography
-- [ ] Share on other platforms (lobste.rs, reddit, hackernews, twitter?)
+- [ ] Share on other platforms (reddit, hackernews, twitter)

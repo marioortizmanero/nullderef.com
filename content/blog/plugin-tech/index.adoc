@@ -1,8 +1,9 @@
 ---
 title: "Plugins in Rust: The Technologies"
-description: "A more in-depth look at Rust PDKs"
+description: "A more in-depth look at Rust plugin systems"
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-tech/triangle.png"]
+images: ["/blog/plugin-tech/technologies.jpg"]
 tags: ["rust", "rustlang", "dynamic-loading", "ffi", "plugin", "wasm", "webassembly", "ipc", "scripting"]
 series: ["rust-plugins"]
 date: 2021-05-17
@@ -18,11 +19,10 @@ TODO: properly introduce the series, explain its objectives and results.
 
 Welcome to the https://nullderef.com/series/rust-plugins/["`Plugins in Rust`"
 series]! During the next months I'll be involved in a project with
-https://www.tremor.rs/[Tremor], for which I need to implement a Plugin System
-(a.k.a. Plugin Development Kit or PDK). The goal is to maximize modularity and
-reduce Rust’s wild compilation times. The implementation will end up being done
-with dynamic loading, but I will cover all the alternatives first to make sure
-it's the best approach for my use-case.
+https://www.tremor.rs/[Tremor], for which I need to implement a Plugin System.
+The goal is to maximize modularity and reduce Rust’s wild compilation times. The
+implementation will end up being done with dynamic loading, but I will cover all
+the alternatives first to make sure it's the best approach for my use-case.
 
 In this first article I will analyze the different ways in which our plugin
 system may be implemented in Rust. Note that I'm no expert in the topic; my
@@ -33,13 +33,14 @@ and make their own decisions.
 [[requirements]]
 == The Problem
 
-This is actually part of my Google Summer of Code project for
-https://www.tremor.rs/[Tremor]. My first article about a Plugin System in Rust
-was in the https://nullderef.com/blog/gsoc-proposal/[proposal], which serves as
-a brief introduction and might be interesting as well. While this will
-specifically cover Tremor's use case, I'm sure many other applications in the
-future will have similar requirements for their own program. And considering the
-few articles I found about plugins in Rust, this
+This is actually part of my https://summerofcode.withgoogle.com/[Google Summer
+of Code] project for https://www.tremor.rs/[Tremor]. My first article about a
+Plugin System in Rust was in the
+https://nullderef.com/blog/gsoc-proposal/[proposal], which serves as a brief
+introduction and might be interesting as well. While this will specifically
+cover Tremor's use case, I'm sure many other applications in the future will
+have similar requirements for their own program. And considering the few
+articles I found about plugins in Rust, this
 https://nullderef.com/series/rust-plugins/[series] may be helpful to the
 community.
 
@@ -68,8 +69,8 @@ Besides that, the rest of the main points to consider remain the same:
 [[safety]]
 == Safety Concerns
 
-I've been wanting to take a look at the possible safety concerns a PDK could
-bring to Tremor since the initial proposal.
+I've been wanting to take a look at the possible safety concerns a plugin system
+could bring to Tremor since the initial proposal.
 
 NOTE: Depending on the approach that is taken for the Plugin System,
 implementing solutions to some of the points I make below can be really complex,
@@ -181,8 +182,8 @@ it may check if they're compatible, rather than breaking in mysterious ways.
 == Possible Approaches
 
 The following are the most viable technologies that could be used as the base of
-a PDK. Some of them won't match the requirements I mentioned earlier at first
-glance, but it's a good idea to at least _consider_ all of them. I haven't
+the system. Some of them won't match the requirements I mentioned earlier at
+first glance, but it's a good idea to at least _consider_ all of them. I haven't
 written a line of code yet, so if an approach were to catch someone's eye we
 could investigate more about it. I will rate each of the alternatives in a scale
 from 1 to 5 (approximately) in order to easen the decision-taking.
@@ -281,9 +282,9 @@ core and its plugins should be as easy as `\#[derive(Serialize)]` for sending
 and `#[derive(Deserialize)]` for receiving.
 
 As to safety, separate processes imply that malfunctioning plugins don't affect
-Tremor directly, and the PDK basically consists on implementing servers, which
-require no `unsafe` at all and has much more popularity and support in Rust.
-It's still hard to properly sandbox the plugins, though.
+Tremor directly, and the system basically consists on implementing servers,
+which require no `unsafe` at all and has much more popularity and support in
+Rust. It's still hard to properly sandbox the plugins, though.
 
 Overall, I consider this a very solid solution, with its main drawback being
 performance. I can't really guess the effect this would have in Tremor's speed,
@@ -356,7 +357,7 @@ doesn't seem to be any better than FFIs overall.
 . [{rank-good}]*5/5* *Ease of porting existing implementations*
 
 [[ffi]]
-=== FFI
+=== Dynamic Loading
 
 This is possibly the _least weird_ way to implement a Plugin Development Kit,
 i.e., it's the most popular method I've seen outside of Rust. A _Foreign
@@ -475,7 +476,7 @@ So, more or less:
 . [{rank-good}]*5/5* *Ease of porting existing implementations*
 
 [[wasm]]
-=== WebAssembly Interface
+=== WebAssembly
 
 Now, this is what I wanted to emphasize in this article! Turns out WebAssembly
 isn't limited to web development anymore; it's slowly evolving into a portable
@@ -512,15 +513,16 @@ The two main points WebAssembly offers are, in a nutshell:
   the host can limit exactly what a program has access to.
 
 WASI is just a standard, so it has multiple runtimes available. The most popular
-ones are coincidentally implemented in Rust as well:
+ones are coincidentally written in Rust:
 https://github.com/bytecodealliance/wasmtime[*wasmtime*] and
 https://github.com/wasmerio/wasmer[*wasmer*]. Both use the
 https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md[Cranelift]
-backend to generate the WebAssembly machine code (although wasmer seems to
-support more backends, like LLVM). Then, the runtime can be used to run the
-generated `.wasm` binary in different ways (say, as a CLI or a library). This
-also means that plugins could be written in any language that compiles to
-WebAssembly.
+backend to generate the WebAssembly machine code, though wasmer seems to also
+support LLVM and others. Then, the runtime can be used to run the generated
+`.wasm` binary as a CLI or a library. This also means that plugins could be
+written in any language that compiles to WebAssembly, though it is frequently
+harder than compiling to native code. Many Rust libraries don't support
+WebAssembly, so it could be tricky depending on the situation.
 
 The differences between the two runtimes aren't that big. You can read
 https://wiki.alopex.li/ActuallyUsingWasm[this wiki article for more details,
@@ -570,7 +572,7 @@ more important.
 . [{rank-good}]*5/5* *Rust availability*
 . [{rank-good}]*5/5* *Safety*
 . [{rank-good}]*4/5* *Backwards compatibility*
-. [{rank-good}]*5/5* *Ease of porting existing implementations*
+. [{rank-meh}]*3/5* *Ease of porting existing implementations*
 
 == Prior Art
 
@@ -605,7 +607,7 @@ via stdin and stdout, serializing and deserializing with
 https://serde.rs/[serde]. `zellij` includes a few plugins by default, like the
 status bar, or a file manager. Very neat architecture!
 +
-Other WebAssmbly-based PDKs:
+Other WebAssmbly-based plugin systems:
 https://book.veloren.net/contributors/developers/codebase-structure.html#plugins[Veloren],
 https://github.com/feather-rs/feather/tree/main/quill[Feather].
 * https://github.com/xi-editor/xi-editor[`xi`]: a now abandoned modern text

@@ -12,7 +12,7 @@ Rust makes it very easy to express conditional compilation, specially thanks to
 its https://doc.rust-lang.org/cargo/reference/features.html["`features`"].
 They're well integrated into the language and are very easy to use. But one
 thing I've learned by maintaining
-https://github.com/ramsayleung/rspotify[Rspotify] (a library for the Spotify
+https://github.com/ramsayleung/rspotify[RSpotify] (a library for the Spotify
 API) is that one shouldn't obsess over them. Conditional compilation should be
 used when it's _the only way_ to solve the problem, for a number of reasons I'll
 explain in this article.
@@ -30,7 +30,7 @@ in Rust, meaning that it's more likely to be misused as well.
 == The Problem
 
 I went through this dilemma when deciding how to configure cached tokens in
-https://github.com/ramsayleung/rspotify[Rspotify]. Said library gives you the
+https://github.com/ramsayleung/rspotify[RSpotify]. Said library gives you the
 possibility of persistently managing the authentication token via a JSON file.
 That way, when the program is launched again the token from the previous session
 can be reused without having to follow the full auth process again -- that is,
@@ -195,7 +195,7 @@ Sometimes you just _have_ to use conditional compilation; there's no way around
 it. You might be dealing with platform-specific code or want to reduce the
 number of dependencies of your crate, in which cases features are super helpful.
 
-But that wasn't Rspotify's case; conditional compilation was definitely not the
+But that wasn't RSpotify's case; conditional compilation was definitely not the
 way to go. When you're about to introduce a new feature to your crate, think to
 yourself, "`Do I really need conditional compilation for this?`".
 

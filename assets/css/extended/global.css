@@ -1,0 +1,19 @@
+/* Fixes for the full website */
+
+/* Fix selection colors for dark mode */
+::selection {
+  background: var(--primary);
+  color: var(--theme);
+}
+
+/* No need to move the scroll to top button to the top when on mobile */
+@media screen and (max-width: 900px) {
+    .list .top-link {
+        transform: none;
+    }
+}
+
+/* Fixing the color for the "slogan" under the logo */
+.entry-content {
+  color: var(--primary);
+}

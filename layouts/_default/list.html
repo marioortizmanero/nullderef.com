@@ -37,7 +37,12 @@
 {{- end }}
 
 {{- $term := .Data.Term }}
-{{- range $index, $page := $paginator.Pages }}
+{{/* CUSTOM: reverse-ordered lists */}}
+{{- $pages := $paginator.Pages }}
+{{- if .Params.reverseOrder }}
+  {{- $pages = $pages.Reverse }}
+{{- end }}
+{{- range $index, $page := $pages }}
 
 {{- $class := "post-entry" }}
 
@@ -48,7 +53,10 @@
 {{- $class = "post-entry tag-entry" }}
 {{- end }}
 
+{{/* CUSTOM: hidden articles */}}
+{{ if not .Params.hidden }}
 <article class="{{ $class }}">
+
   {{/* CUSTOM: this adds post previews */}}
   {{- $isPreviewHidden := (site.Params.cover.hidden | default site.Params.cover.hiddenInList) }}
   {{- partial "preview.html" (dict "cxt" . "IsHome" true "isPreviewHidden" $isPreviewHidden) }}
@@ -58,6 +66,8 @@
   <div class="entry-group">
     <header class="entry-header">
       <h2>
+        {{/* CUSTOM: numbered items */}}
+        {{ if $.Params.numbered }}<span class="entry-number">{{ add $index 1 }}.&nbsp;</span>{{- end }}
         {{- .Title }}
         {{- if .Draft }}<sup><span class="entry-isdraft">&nbsp;&nbsp;[draft]</span></sup>{{- end }}
       </h2>
@@ -75,6 +85,7 @@
     <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
   </div>
 </article>
+{{- end }}
 {{- end }}
 
 {{- if gt $paginator.TotalPages 1 }}
