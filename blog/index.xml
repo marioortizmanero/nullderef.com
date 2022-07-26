@@ -2665,19 +2665,20 @@ again.</p>
 here. This online event made it possible to showcase my work back in January
 with a <a href="https://youtu.be/htLCyqY0kt0?t=3166">quick 15-minute presentation</a>. I
 couldn’t get into many technical details, but I’m sure it will be useful to
-someone else considering a <a href="https://lfx.linuxfoundation.org/tools/mentorship/">LFX
-Mentorship</a> or <a href="https://summerofcode.withgoogle.com/">Google Summer of Code</a>.</p>
+anyone considering participating in a
+<a href="https://lfx.linuxfoundation.org/tools/mentorship/">LFX Mentorship</a> or in
+<a href="https://summerofcode.withgoogle.com/">Google Summer of Code</a>.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="thesis">B.3. My Final Year Project</h3>
 <div class="paragraph">
-<p>Finally, I have recently submitted this as
+<p>I have finally recently submitted this as
 <a href="https://github.com/marioortizmanero/final-year-project">my bachelor’s Final Year
-Project</a>. It takes a more academic approach, and I rigorously reorganized
-everything so that even developers unfamiliar with Rust can understand it. The
-abstract is in English, but unfortunately, the rest is in Spanish due to absurd
-university rules.</p>
+Project</a>. This document takes a more academic approach, and I rigorously
+reorganized everything so that even developers unfamiliar with Rust can
+understand it. The abstract is in English, but unfortunately, the rest is in
+Spanish due to absurd university rules.</p>
 </div>
 </div>
 <div class="sect2">
