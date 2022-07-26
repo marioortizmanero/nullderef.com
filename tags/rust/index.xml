@@ -828,7 +828,7 @@ ways to approach this:</p>
 <li>
 <p><strong>Quick fix</strong>: add a compile-time error for any platform that isn’t explicitly
 supported. Before adding support for a new platform, we will have to manually
-ensure that its dynamic loading error handling is thread-safe.</p>
+ensure that its error handling for dynamic loading is thread-safe.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rust" data-lang="rust">// Ideally, there should be a comment here with references that state the
@@ -865,11 +865,11 @@ special handling for panics, which overcomplicates the crate a bit.</p>
 <li>
 <p>Comparing the performance of <code>panic = &#34;abort&#34;</code> and <code>panic = &#34;unwind&#34;</code>.
 Technically, aborting should optimize away most of the extra code
-<a href="#panic-abort">[11]</a>, but it should only be used for research, as it would make it
-incredibly hard to debug errors in production.</p>
+<a href="#panic-abort">[11]</a>, but it should only be used for research, as it would make
+debugging in production incredibly hard.</p>
 </li>
 <li>
-<p>Preparing <code>abi_stable</code> and <code>async_ffi</code> for the stable release of
+<p>Preparing <code>abi_stable</code> and <code>async_ffi</code> for the stabilization of
 <a href="https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html"><code>extern &#34;C-unwind&#34;</code></a>,
 thanks to which all the additional panic handling could be removed. Unlike
 aborting, we would still be able to debug errors just fine.</p>
@@ -899,8 +899,8 @@ without a tool like this.</p>
 <p>We use <code>#[repr(C)]</code> for the plugin system, so this flag shouldn’t cause any
 issues…​ unless we’re mistakenly interacting with the Rust ABI. In that case,
 the program would crash in random and unexpected ways, pointing out that there’s
-something wrong. It certainly won’t be a super nice debugging experience, but
-it’s better than having it happen in production.</p>
+something wrong. It certainly won’t be a pleasant debugging experience, but it’s
+better than having it happen in production.</p>
 </div>
 <div class="paragraph">
 <p>This may even catch other bugs unrelated to the project. Tremor implements
@@ -941,13 +941,13 @@ work, in my opinion.</p>
 <p>Anyway, the point of this experiment is that <code>abi_stable</code> isn’t a hard
 requirement for the plugin system. Using it definitely makes its implementation
 easier, but also introduces many overheads. Its main selling points are
-usability, safety, and backward compatibility. But with enough effort and care,
-we could write the plugin system by ourselves from scratch.</p>
+usability, safety, and backward compatibility, though with enough effort and
+care, we could write the plugin system by ourselves just with <code>libloading</code>.</p>
 </div>
 <div class="paragraph">
-<p>It would be super useful to see how much performance could be squeezed out by
-removing <code>abi_stable</code>. This doesn’t need to be done over the full plugin system;
-we could benchmark smaller prototypes, like the ones I host at
+<p>It would be super useful to measure how much performance could be squeezed out
+by removing <code>abi_stable</code>. This doesn’t need to be done over the full plugin
+system; we could benchmark smaller prototypes, like the ones I host at
 <a href="https://github.com/marioortizmanero/pdk-experiments">marioortizmanero/pdk-experiments</a>.</p>
 </div>
 </div>
@@ -960,11 +960,11 @@ possible so that we could have a working prototype. But there are many parts
 that could be simplified with dedicated refactors.</p>
 </div>
 <div class="paragraph">
-<p>This includes trying to minimize the use of complex communication patterns like
-channels, external types that need to be turned into opaque types. Everything
-could be organized a bit better, especially the plugin initialization and
-repetitive opaque types. These improvements can be worked on iteratively,
-because you will only find out new possibilities with time.</p>
+<p>Everything could be reorganized and cleaned up a bit, especially the plugin
+initialization and the repetitive opaque types. We should continue to minimize
+the use of complex communication patterns like channels. These improvements can
+be worked on iteratively, because you will only come up with new ideas over
+time.</p>
 </div>
 </div>
 <div class="sect2">
