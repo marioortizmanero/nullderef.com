@@ -390,7 +390,7 @@ I'm definitely taking note of this idea in order to investigate about it in the
 future for further performance squeezing. But I currently have lots of other
 more impactful experiments in mind with a higher priority.
 
-== Other ideas
+== Unimplemented ideas
 
 It's already been a year since I started working with Tremor. I extended the
 mentorship from three months to twelve so that I could use it as my bachelor's
@@ -414,7 +414,7 @@ https://developer.amd.com/amd-uprof/[AMD μProf], or
 https://valgrind.org/[Valgrind] may provide more specialized insights
 <<profiling>>. The whole
 https://nnethercote.github.io/perf-book/title-page.html[The Rust Performance
-Book] is a good read for more resources and ideas.
+Book] is a great read for more resources and ideas.
 
 === Investigate wrapper overhead
 
@@ -459,13 +459,13 @@ impl Connector {
 }
 ----
 
-Here we just convert the return types, but we can also do that for the
-parameters or whatever boilerplate is needed for that function. Note that this
-wrapper only needs to be available in the runtime crate; the plugin is only
-meant to implement `RawConnector`.
+Here we just convert the return types, but we can do the same for the parameters
+or whatever boilerplate is needed for that function. Note that this wrapper only
+needs to be available in the runtime crate; the plugin is only meant to
+implement `RawConnector` and doesn't need access to `Connector`.
 
-The problem is that, even though wrappers avoid quite a bit of boilerplate, they
-might also affect performance-critical parts considerably. `connect` is only
+The problem is that, even though wrappers reduce the much dreaded boilerplate,
+they can also affect performance-critical parts considerably. `connect` is only
 called at the beginning of the program, but `on_event` is invoked for every
 single event, making it our _hot loop_. Any small operation, like a type
 conversion, will have a much greater impact in there. This experiment consists
@@ -476,8 +476,8 @@ on iteratively removing wrappers and looking for performance improvements.
 As far as I understand, the runtime and the plugins don't share the same async
 runtime state. Every binary has its own thread pool and works independently. It
 would be best to share everything between runtime and plugins, though it sounds
-quite complicated, and it would most likely require contributions to the async
-runtimes themselves.
+incredibly complicated, and it would most likely require contributions to the
+async runtimes themselves.
 
 I also wonder what happens when the runtime and the plugin use different async
 runtimes, even if they are independent in the binaries. Tremor's core is
@@ -488,33 +488,34 @@ ways, since async runtimes heavily rely on global state.
 Testing different async runtimes should be easy, so it should at least be done
 before reaching production just to document the behavior. What I'm not so sure
 about is how to avoid the conflict, in case it was problematic. The fix would
-probably be quite hacky, as this is a somewhat obscure problem.
+probably be hacky, as this is a somewhat obscure problem.
 
 === Benchmark `async_ffi`
 
 Checking how much of a performance impact {{< crate async_ffi >}} causes sounds
 like a good idea. It's actually a quite simple library; all it really does is
-implement opaque wrappers for the async-related types. But this is done so often
+implement opaque wrappers for the async-related types. But it's used so often
 (once per call), that it may end up being noticeable.
 
 I'm sure that if `async_ffi` ended up being an issue, it could be optimized
-internally in various ways. We could also use `async` only when strictly
-necessary to reduce the overhead.
+internally in various ways. Furthermore, we currently use `async` very
+liberally. Only using it when strictly necessary could also help reduce the
+overhead.
 
 === Improve error reporting
 
-For simplicity, errors in our interface are indicated via ``abi_stable``'s
+For simplicity, errors in our interface are reported via ``abi_stable``'s
 https://docs.rs/abi_stable/0.10.4/abi_stable/std_types/type.SendRBoxError.html[`SendRBoxError`],
 which is basically a `Box<dyn Error + Send>`. It's really the only way to do it,
 because a plugin could have any kind of error, and we can't know them at
 compile-time.
 
 Using `Box<dyn Error>` instead of a concrete type makes it really hard to
-identify errors in order to handle them. We could implement our own `Error`
-subtrait that provides more plugin-related information. An easier option is to
-define a more organized data structure with common kinds of errors:
+identify and handle specific errors. We could implement our own `Error` subtrait
+that provides more plugin-related information. An easier option is to define a
+more organized data structure with common kinds of errors:
 
-.Example of a more organized error type, even if it still uses `Box<dyn Error>`
+.Example of a more organized error type, even if it still uses `Box<dyn Error>`.
 [source, rust]
 ----
 pub struct PluginError {
@@ -531,9 +532,9 @@ pub enum PluginErrorKind {
 
 === Reduce error handling boilerplate
 
-Furthermore, in FFI contexts we have to use an FFI-safe type like `RResult`
-instead of `Result`. Since the `Try` trait isn't stable <<try-trait>>, we can't
-use the `?` operator yet. `abi_stable` exports the
+In the plugin system we have to use an FFI-safe type like `RResult` instead of
+`Result`. Since the `Try` trait isn't stable <<try-trait>>, we can't use the `?`
+operator yet. `abi_stable` exports the
 https://docs.rs/abi_stable/0.10.4/abi_stable/macro.rtry.html[`rtry` macro] as a
 substitute for `?`, but in my experience it introduces noise in the code, making
 it uglier and harder to maintain.
@@ -543,7 +544,7 @@ macro might be worth our time. It would just replace `?` with `rtry` or whatever
 is configred, which should be somewhat simple to write. I'm surprised I couldn't
 find an existing crate for that yet.
 
-.Readibility would improve in longer functions with lots of error handling
+.Readibility would improve in longer functions with lots of error handling.
 [source, diff]
 ----
 +#[try_with(rtry)]
@@ -569,7 +570,7 @@ considering regardless.
 requires using `async move { /* ... */ }.into_ffi()`, which is quite a bit of
 boilerplate and increases the indentation level by one.
 
-.Without the procedural macro
+.Without the procedural macro.
 [source, rust]
 ----
 use async_ffi::{FfiFuture, FutureExt};
@@ -585,7 +586,7 @@ pub extern "C" fn work(arg: u32) -> FfiFuture<u32> {
 }
 ----
 
-.With the procedural macro
+.With the procedural macro, especially noticeable in more complex functions.
 [source, rust]
 ----
 use async_ffi::async_ffi;
@@ -618,8 +619,8 @@ should be garbage error messages, but I still wouldn't risk it. There are two
 ways to approach this:
 
 . *Quick fix*: add a compile-time error for any platform that isn't explicitly
-  supported. Before supporting a new platform, we will have to  manually ensure
-  that its dynamic loading error handling is thread-safe.
+  supported. Before adding support for a new platform, we will have to manually
+  ensure that its dynamic loading error handling is thread-safe.
 +
 [source, rust]
 ----
@@ -639,9 +640,9 @@ compile_error!(
 `abi_stable` has to track all panic occurrences so that they don't propagate
 through the FFI boundary. Otherwise, as discussed in other articles <<panic-1>>
 <<panic-2>>, we would be invoking undefined behaviour. `async_ffi` also has
-special handling for panicking, which overcomplicates the crate a bit.
+special handling for panics, which overcomplicates the crate a bit.
 
-There are two interesting experiments to be tried:
+There are two interesting experiments to try:
 
 1. Comparing the performance of `panic = "abort"` and `panic = "unwind"`.
    Technically, aborting should optimize away most of the extra code
@@ -662,7 +663,7 @@ https://github.com/rust-lang/project-ffi-unwind[project group].
 
 The unstable compiler flag
 https://github.com/rust-lang/compiler-team/issues/457[`-Z randomize-layout`]
-randomizes the layout of {repr-rust} types. The Rust ABI is unstable, so it
+randomizes the layout of {repr-rust} types. The Rust ABI is unstable: it
 explicitly doesn't specify much about the type layouts, and we must not rely on
 them. However, in practice they're usually consistent, at least within the same
 compiler version <<abi-instability>>, so these errors can be hard to catch
@@ -685,27 +686,84 @@ most cases within the plugin system.
 === Try raw dynamic loading
 
 What I didn't know at the beginning of this journey is that the hardest part
-would be making everything {repr-c}. Using `abi_stable` is certainly very useful
-for types like `RVec` and to create custom types, but at times I find the
-library too much.
+would be making everything {repr-c}. Using {{< crate abi_stable >}} is certainly
+very useful for types like `RVec` and to create custom types, but at times I
+find the library too much.
 
-I think it would be best to have separate libraries for all the utilities
-`abi_stable` provides, rather than having everything bundled in there. If it
-became modularized, making it the "`community standard`" would be easier.
+A few developers, including myself, think that it would be best to have separate
+libraries for all the utilities `abi_stable` provides, rather than bundling
+everything in there. If they became modularized, making it the "`community
+standard`" would be easier, and we could have compatible alternatives for
+different preferences.
+
+It also boils down to just having more support from the community. `abi_stable`
+is an incredibly complex library, and I want to give props to the legend
+https://github.com/rodrimati1992[rodrimati1992] for creating and maintaining it.
+But such complexity makes it a scary crate to contribute to, which I know
+first-hand. Turning it into smaller crates would really help decentralize the
+work, in my opinion.
+
+Anyway, the point of this experiment is that `abi_stable` isn't a hard
+requirement for the plugin system. Using it definitely makes its implementation
+easier, but also introduces many overheads. Its main selling points are
+usability, safety, and backward compatibility. But with enough effort and care,
+we could write the plugin system by ourselves from scratch.
+
+It would be super useful to see how much performance could be squeezed out by
+removing `abi_stable`. This doesn't need to be done over the full plugin system;
+we could benchmark smaller prototypes, like the ones I host at
+https://github.com/marioortizmanero/pdk-experiments[marioortizmanero/pdk-experiments].
 
 === Simplify the interface further
 
+I'm not fully satisfied with what the final interface for the plugin system
+looks like either. For the first version, all I did was change as little as
+possible so that we could have a working prototype. But there are many parts
+that could be simplified with dedicated refactors.
+
+This includes trying to minimize the use of complex communication patterns like
+channels, external types that need to be turned into opaque types. Everything
+could be organized a bit better, especially the plugin initialization and
+repetitive opaque types. These improvements can be worked on iteratively,
+because you will only find out new possibilities with time.
+
+=== For the long-term future
+
+Most of the previous experiments are focused on either usability or performance.
+However, there are plenty of other ways in which our plugin system could evolve:
+
+* *Supporting more components* in the plugin system. We could continue to split
+  up the executables into even smaller pieces, improving the overall flexibility
+  and compilation times.
+* *Refining the user experience* by making the plugin loading smarter and easier
+  to use. In the far future, we could even have a centralized repository with
+  all the plugins, so that it's as easy as possible to import and load them. You
+  can think of https://crates.io/[crates.io] or
+  https://hub.docker.com/[hub.docker.com].
+* *Improving the developer experience* is also very important. Anyone should be
+  able to implement their own plugin, but ours is currently too tied to the
+  internals of Tremor. We could create project templates, properly document
+  everything, write examples, etc.
+* *Security* is something we sacrificed when choosing dynamic loading as our
+  base technology. We don't have a sandbox, which would be essential if a plugin
+  repository were to exist.
+* *Restarting or unloading plugins* at runtime. Unloading is especially
+  complicated, considering `abi_stable` explicitly doesn't support it
+  [REF_MISSING]. But restarting them could work by stopping and leaking existing
+  ones, and then loading the same plugin with the same config. That would
+  improve error resilience considerably, as we would be able to restart plugins
+  upon failure (with limits, as leaking too much could crash everything).
+
 == Conclusion
 
-* Throughput degraded by around 36% initially
-* Latency had also been affected considerably at every percentile (TODO insert
-  histogram here)
-* In the final version, throughput impact was reduced to 30%
+That was all! In summary, we initially slowed down our program by around 36%.
+With a few iterative optimizations, we've reduced that number to around 30%.
+It's a noticeable improvement, but there's still a long way to go until it's
+good enough for production, I would say. There are so many ideas to try out, and
+the ones I listed here are just a fraction.
 
-I won't be able and work on most of these ideas myself before releasing the
-plugin system into its first version in production. If everything goes well, the
-Tremor team will take care of it. I look forward to seeing how the plugin system
-continues to evolve with the program!
+I look forward to seeing how the plugin system continues to evolve with the
+program!
 
 == Thanks
 
@@ -713,7 +771,10 @@ continues to evolve with the program!
 Lastly, I've found it especially rewarding to do all of this in an open source
 environment. Even if you're working for a company with propietary software,
 please try to contribute upstream instead of forking or patching. Try to be nice
-to those who are saving you so much work, and submit a PR or an issue:
+to those who are saving you so much work, and submit a PR or an issue.
+
+This project has been possible thanks to Darach, Heinz, and Matthias, my mentors
+in the Tremor team.
 
 Please <<comments,leave a comment at the bottom>> in case you have any questions
 or suggestions. Also let me know if you have any updates on any of the ideas
