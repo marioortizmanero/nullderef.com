@@ -518,7 +518,7 @@ the call stack:</p>
 <div class="paragraph">
 <p>However, I overestimated the importance of this problem. Taking a look at the
 big picture, it’s obvious that optimizing <code>RBox</code>&#39;s implementation of <code>Drop</code>
-would be premature at the moment:</p>
+isn’t worth it yet:</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -559,8 +559,8 @@ this; hopefully you’ll have enough pointers to continue on your own after this
 <code>perf stat</code> provides statistics like cache or branch misses <a href="#perf-stat">[3]</a>. Other
 profiling tools like <a href="https://valgrind.org/">Valgrind</a>,
 <a href="https://developer.amd.com/amd-uprof/">AMD μProf</a>, or
-<a href="https://valgrind.org/">Valgrind</a> may provide more specialized insights
-<a href="#profiling">[4]</a>. The whole
+<a href="https://github.com/KDE/heaptrack">Heaptrack</a> may provide more specialized
+insights <a href="#profiling">[4]</a>. The whole
 <a href="https://nnethercote.github.io/perf-book/title-page.html">The Rust Performance
 Book</a> is a great read for more resources and ideas.</p>
 </div>
