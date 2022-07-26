@@ -620,9 +620,10 @@ implement <code>RawConnector</code> and doesn’t need access to <code>Connector
 <p>The problem is that, even though wrappers reduce the much dreaded boilerplate,
 they can also affect performance-critical parts considerably. <code>connect</code> is only
 called at the beginning of the program, but <code>on_event</code> is invoked for every
-single event, making it our <em>hot loop</em>. Any small operation, like a type
-conversion, will have a much greater impact in there. This experiment consists
-on iteratively removing wrappers and looking for performance improvements.</p>
+single event in the source, making it our <em>hot loop</em>. Any small operation, like
+a type conversion, will have a much greater impact in there. This experiment
+consists on iteratively removing wrappers and looking for performance
+improvements.</p>
 </div>
 </div>
 <div class="sect2">
