@@ -24,10 +24,11 @@ improvements may occur in specific. Indicate assumptions and known bias as well.
 NOTE: histogram units are nanoseconds
 ////
 
-Welcome to the final article of this
-https://nullderef.com/series/rust-plugins/[series]! Here I'll clean up and
-optimize our plugin system so that it's ready for deployment. These may require
-performing benchmarks to ensure that the changes are actually worth it.
+Welcome to this https://nullderef.com/series/rust-plugins/[series'] final
+article! Here I'll showcase some clean-ups and optimizations I may or may not
+have performed yet, so that our plugin system is closer to production. I will
+also run benchmarks for some of these to ensure that the changes are actually
+worth it.
 
 == Benchmarking
 
@@ -41,10 +42,10 @@ used myself:
   ranges, or standard deviation. They serve as an overall score and are very
   easy to compare against eachother.
 * *`perf.data`*: the command
-  https://perf.wiki.kernel.org/index.php/Main_Page[`perf`] measures performance
-  at runtime thanks to monitoring capabilities in the Linux kernel. It generates
-  a file with the full execution trace, which can be visualized in multiple
-  ways, including:
+  https://perf.wiki.kernel.org/index.php/Main_Page[`perf`] measures the runtime
+  performance thanks to monitoring capabilities in the Linux kernel. It
+  generates a file with the full execution trace, which can be visualized in
+  multiple ways, including:
 ** https://www.brendangregg.com/flamegraphs.html[Flamegraphs]: hierarchical and
    simple graphs.
 ** `perf report`: the integrated CLI, which is more detailed but harder to
@@ -54,12 +55,11 @@ used myself:
   https://hdrhistogram.github.io/HdrHistogram/plotFiles.html[this site].
 
 There are many other techniques available for benchmarking, though. I wasn't
-able to get into lower level performance indicators like cache misses.
-
-This part of the project has helped me realize how hard it is to benchmark a
-program reliably; I would suggest checking out other dedicated learning sources
-on the topic. You should also tune the process according to your use-case, since
-it may vary heavily between programs.
+able to get into lower level performance indicators like cache misses. This part
+of the project has helped me realize how hard it is to benchmark a program
+reliably; I would suggest checking out other dedicated learning sources on the
+topic. You should also tune the process according to your use-case, since it may
+vary heavily between programs. See "`<<more-bench>>`" for more information.
 
 === Methodology
 
@@ -99,7 +99,7 @@ script] to run all the tests properly:
 One way to ensure the variance isn't too high is to run the exact same benchmark
 twice:
 
-.Histogram for both machines. Unexpectedly, the server ended up having greater variance with this test, but it was good enough to continue anyway.
+.Histogram for both machines. Unexpectedly, the server ended up having greater variance with this test, but it was good enough to continue anyway. Note that you can click on these images to zoom in.
 image::/blog/plugin-end/histogram_variance.png[link="/blog/plugin-end/histogram_variance.png"]
 
 I would strongly recommend anyone to get a separate machine to run benchmarks.
@@ -108,20 +108,19 @@ working while the benchmarks run.
 
 == Experiments
 
-We can divide that experiments in two categories:
+We can divide the experiments in two categories:
 
-. _For tracking_: this change is always going to be a good idea, because it may
+. _For tracking_: the change is always going to be a good idea, because it may
   also clean up the code or make it more robust. We just measure its performance
   impact to report the results and avoid surprises.
 . _For investigation_: the change increases the complexity to explicitly improve
   performance, so we need to make sure it's worth our time. This improvement may
   occur directly with the change, or indirectly, by helping to come up with
-  other optimizations.
+  new optimizations.
 
 Benchmarking is only essential in the latter, but I thought it would be a great
-idea in both cases to fully understand the impact of the change. It also makes
-it possible to write up a report like this article, explaining the improvements
-I worked on.
+idea in both cases. That way, I can write up a report like this article,
+explaining the improvements I worked on.
 
 === Type conversions
 
@@ -129,16 +128,16 @@ The most important performance concern in the first version of the plugin system
 had to do with
 https://nullderef.com/blog/plugin-impl/#_reaching_reprc_blockers[the issues I
 had found when trying to convert external types to the C ABI]. In short, I had a
-relatively complex type `Value` and needed to make it FFI-safe for the plugin
-system. However, it was used throughout the entire codebase, and modifying it
-would've required a large amount of changes for just the initial version. Thus,
-I created the copy `PdkValue` and converted to `Value` and back when going
-through the FFI boundary. `PdkValue` was only used for the plugin system, making
-it quite easy to implement in contrast.
+relatively complex type named `Value`, which I needed to make FFI-safe for the
+plugin system. However, it was used throughout the entire codebase, and
+modifying it would've required a large amount of unrelated changes for just an
+initial version. Thus, I created the copy `PdkValue`, and converted to `Value`
+and back when going through the FFI boundary. `PdkValue` was only used for the
+plugin system, making it quite easy to implement in contrast.
 
 An obvious experiment was to fix this problem properly by making `Value`
 FFI-safe and removing `PdkValue`. Unless the performance degraded considerably,
-this was always going to be a great change because it simplifies the code.
+this was always going to be a nice change because it would simplify the code.
 
 After the fix, I was able to investigate about the impact of these conversions
 with some flamegraphs:
@@ -146,7 +145,7 @@ with some flamegraphs:
 .With both `Value` and `PdkValue`. Highlighted in pink are the occurrences of `From`, `Into`, and `FromIterator`, which add up to 9.4% of all the calls in the execution.
 image::/blog/plugin-end/with_value_conv.png[link="/blog/plugin-end/with_value_conv.png"]
 
-.With a single `Value`. The conversion calls add up to 5.2% now, and the highlighted parts are much harder to notice.
+.With a single `Value`. The conversion calls add up to 5.2% now, and the highlighted parts are much more sparse and harder to notice.
 image::/blog/plugin-end/without_value_conv.png[link="/blog/plugin-end/without_value_conv.png"]
 
 The flamegraphs pointed out that Tremor was spending roughly 4.2% more of its
@@ -157,7 +156,7 @@ execution, and it's possible that the rest of the program just got slower in the
 case of a single `Value`.
 
 By checking other metrics we discover that this is more or less the case. The
-histogram shows that a single `Value` improves the latency, but the overall
+histogram shows that while a single `Value` improves the latency, the overall
 throughput actually decreases:
 
 .Histogram without the plugin system (`connectors` branch) vs. first version vs. single `Value`.
@@ -178,24 +177,25 @@ image::/blog/plugin-end/histogram_pdk.png[link="/blog/plugin-end/histogram_pdk.p
 |63.74
 |===
 
-However, this showcases one of my initial mistakes. My comparison only used the
+This showcases one of my initial mistakes. My comparison only used the
 `passthrough` benchmark, which simply forwards all input events to the output.
-For a more realistic use-case, I should've tried with other configurations,
+For a more realistic use-case, I should've also tried with other configurations,
 which may include different payloads or event processing logic. That's why, in
 retrospect, these results should be taken with a grain of salt.
 
-Anyway, the results make sense to some degree. Converting `Value` to an FFI-safe
-type requires using, e.g., `RHashMap` instead of `HashMap` internally. Tremor's
-original `HashMap` was taken from the {{< crate halfbrown >}} crate, which was
-more performant than the standard library version, and much more than
-``abi_stable``'s. Converting between types might actually be faster than using
-less performant types internally.
+Anyway, it all makes sense to some degree. Converting `Value` to an FFI-safe
+type requires using, among others, `RHashMap` instead of `HashMap` internally.
+Tremor's original `HashMap` was taken from the {{< crate halfbrown >}} crate,
+which was more performant than the standard library version, and even more than
+``abi_stable``'s. Converting between types temporarily for the FFI interface
+might actually be faster than using less performant types everywhere.
 
 === Double `Box`
 
-I later came up with an improvement over the previous experiment. The `HashMap`
-within `Value` was stored inside a `Box` to reduce the overall size of the enum.
-In the new type, I just converted it to a `RBox` and called it a day:
+I later came up with an improvement over the previous section. The `HashMap`
+within `Value` was originally stored inside a `Box` to reduce the overall size
+of the enum. In the experiment, I just converted it to a `RBox` and called it a
+day:
 
 [source, diff]
 ----
@@ -213,15 +213,15 @@ too complex, so the author just made it an opaque type that wraps the standard
 library version.
 
 Since `RHashMap` is an opaque type, it was already on the heap internally thanks
-to another `RBox`. `Value` basically had a doubly boxed type, which is
+to another `RBox`. Thus, the `Object` variant was boxed twice, which is
 unnecessary, since the size of `RHashMap` is already minimal. Having to allocate
-every hash table twice was probably quite costly, and fixing this counted as a
-clean-up, so it was a no-brainer.
+every hash table twice was probably costly, and fixing this counted as a
+clean-up, so it was worth trying.
 
 The subsequent benchmarks showed a slight improvement in performance, though I
 was still only using the `passthrough` benchmark at this point. I kept the
 change because it didn't make much sense to leave the doubly boxed hash table,
-and it improved the readability of the code a bit.
+and because it slightly improved the readability of the code.
 
 .Histogram of a double box vs. a single box. Note that this test was run on the benchmarking server, while the previous one used my laptop. These tests aren't meant to be compared between different sections.
 image::/blog/plugin-end/histogram_box.png[link="/blog/plugin-end/histogram_box.png"]
@@ -239,19 +239,20 @@ image::/blog/plugin-end/histogram_box.png[link="/blog/plugin-end/histogram_box.p
 
 === Hash table optimization
 
-Using a single `Value` improved the ergonomics of the code, at the cost of a
-slight performance impact. This regression can be fixed by creating an FFI-safe
-wrapper for the original hash table from {{< crate halfbrown >}}. Tremor used it
-both because it's faster for their usecase, and because it has access to lower
-level functionality. The
+Using a single `Value` improved the ergonomics of the code by sacrificing a bit
+of efficiency. We could try to fix this regression by creating an FFI-safe
+wrapper for the original external hash table implementation.
+
+Tremor used `halfbrown` both because it's faster for their usecase, and because
+it has access to lower level functionality. The
 https://github.com/rust-lang/rust/issues/56167[`raw_entry`] interface is only
 available on nightly Rust, while `halfbrown` exports it in its stable version.
-`raw_entry` makes it possible to memoize hashes, which enables an optimization
-in Tremor's JSON handling.
+`raw_entry` makes it possible to memoize hashes, enabling an optimization in
+Tremor's JSON handling.
 
-NOTE: This may actually be a bad idea in the long term, because `raw_entry` is
-actually not going to make it to stable <<raw-entry-unstable>>. The Rust team is
-working on a different interface, but it will probably be similar enough that
+NOTE: This actually isn't a great idea in the long term, because `raw_entry`
+isn't going to make it to a stable release <<raw-entry-unstable>>. The Rust team
+is working on a different interface, but it will probably be similar enough that
 updating our `raw_entry` usage won't be too complicated.
 
 ////
@@ -281,22 +282,27 @@ image::/blog/plugin-end/histogram_knownkey.png[]
 ==== For the plugin system
 ////
 
-This time I did it right since the beginning, and tried with multiple kinds of
-benchmark. The results are richer.
+This time I did it right since the beginning and tried multiple benchmarks. The
+results are much more varied now, and the efficiency can be analyzed from
+multiple points of view:
 
+.Histogram for `passthrough`, which simply redirects input events from a single source to the output.
 image::/blog/plugin-end/histogram_pdk_v2_passthrough.png[link="/blog/plugin-end/histogram_pdk_v2_passthrough.png"]
 
+.Histogram for `passthrough-two-inputs`, which redirects input events from two different sources to the output.
 image::/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png[link="/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png"]
 
+.Histogram for `throughput-logging-json`, which also implements some event processing logic over JSON data.
 image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png[link="/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png"]
 
+.Histogram for `throughput-logging-msgpack`, which also implements some event processing logic over https://msgpack.org/index.html[MessagePack] data.
 image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png[link="/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png"]
 
 
 .Relative performance for number of events processed per second (higher is better)
 [cols="<,^,^,^,^"]
 |===
-|Benchmark |No plugin system (%) |Halfbrown, No Known Key (%) |Halfbrown (%) |Hashbrown (%)
+|Benchmark |No plugin system (%) |Halfbrown, No JSON Known Key (%) |Halfbrown (%) |Hashbrown (%)
 
 |*Passthrough*
 // |1189.5
@@ -345,26 +351,39 @@ image::/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png[link="/b
 |69.88
 |===
 
+They seem to point out that, with the plugin system, {{< crate hashbrown >}}
+(the standard hash table) might actually be better than `halfbrown`. The JSON
+optimization I mentioned could also be worth removing now. But it's really hard
+to make a decision just out of this set of benchmarks because of the complexity
+of the change. 
+
+This time, the experiment is only done for investigation. These results must
+only be taken as an indicator of something worth investigating more in depth. It
+would be premature to make assumptions so early and remove `halfbrown`. We would
+need to analyze at the impact of using `hashbrown` without the plugin system,
+and understand in detail _why this happens_. Taking a look at the flamegraphs,
+for example, could help in figuring out the underlying reasoning.
+
 === `abi_stable`
 
-We can also look at a case where I decided the experiment wasn't worth pursuing,
-which actually happened many other times. `abi_stable` imposes all kinds of
-overheads, apart from the type validation step before loading a plugin. I wanted
-to learn more about the `Drop` implementations, which require accessing to a
-vtable, and in cases like `RBox`, dealing with additional logic to ensure
-everything is safe <<abi-stable-box-drop>>.
+We can also take a look at the recurring occurrence of an experiment that isn't
+worth pursuing. `abi_stable` imposes all kinds of overheads, apart from the type
+validation step before loading a plugin. I wanted to learn more about the `Drop`
+implementations, which require accessing to a vtable, and in cases like `RBox`,
+dealing with additional logic to ensure everything is safe
+<<abi-stable-box-drop>>.
 
 After zooming into specific sections, we can see this overhead by ourselves in
 the call stack:
 
-.Flamegraph with ``abi_stable``'s complex destructors, shown in pink and zoomed.
+.Flamegraph with ``abi_stable``'s complex destructors, shown in pink and zoomed in.
 image::/blog/plugin-end/with_destructor.png[link="blog/plugin-end/with_destructor.png"]
 
 However, I overestimated the importance of this problem. Taking a look at the
-global picture, it's obvious that optimizing ``RBox``'s implementation of `Drop`
+big picture, it's obvious that optimizing ``RBox``'s implementation of `Drop`
 would be premature at the moment:
 
-.Flamegraph with ``abi_stable``'s complex destructors, shown in pink, and without zooming in.
+.Flamegraph with ``abi_stable``'s complex destructors, shown in pink and without zooming in.
 image::/blog/plugin-end/with_destructor_globally.png[link="/blog/plugin-end/with_destructor_globally.png"]
 
 I'm definitely taking note of this idea in order to investigate about it in the
@@ -373,17 +392,19 @@ more impactful experiments in mind with a higher priority.
 
 == Other ideas
 
-It's already been a year since I started working with Tremor. I've extended the
-mentorship from three months to twelve so that I can use this work as my
-bachelor's thesis (see <<thesis>>).
+It's already been a year since I started working with Tremor. I extended the
+mentorship from three months to twelve so that I could use it as my bachelor's
+thesis (see <<thesis>>).
 
 But now that I have finally graduated and need to find a full-time job, I won't
 be able to continue experimenting with the plugin system. My hope is that with
-the information in this series, the Tremor team can continue to evolve the
-plugin system, and optimize it so that it's ready for deployment.
+the information in this series, the Tremor team can keep improving the plugin
+system so that it's ready for deployment. The same applies to anyone reading
+this; hopefully you'll have enough pointers to continue on your own after this.
 
 Here are some ideas worth considering that I haven't been able to carry out:
 
+[[more-bench]]
 === More detailed benchmarking
 
 `perf` can track much more information than just the call stack. For example,
