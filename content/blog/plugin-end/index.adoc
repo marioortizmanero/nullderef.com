@@ -384,7 +384,7 @@ image::/blog/plugin-end/with_destructor.png[link="blog/plugin-end/with_destructo
 
 However, I overestimated the importance of this problem. Taking a look at the
 big picture, it's obvious that optimizing ``RBox``'s implementation of `Drop`
-would be premature at the moment:
+isn't worth it yet:
 
 .Flamegraph with ``abi_stable``'s complex destructors, shown in pink and without zooming in.
 image::/blog/plugin-end/with_destructor_globally.png[link="/blog/plugin-end/with_destructor_globally.png"]
@@ -414,8 +414,8 @@ Here are some ideas worth considering that I haven't been able to carry out:
 `perf stat` provides statistics like cache or branch misses <<perf-stat>>. Other
 profiling tools like https://valgrind.org/[Valgrind],
 https://developer.amd.com/amd-uprof/[AMD μProf], or
-https://valgrind.org/[Valgrind] may provide more specialized insights
-<<profiling>>. The whole
+https://github.com/KDE/heaptrack[Heaptrack] may provide more specialized
+insights <<profiling>>. The whole
 https://nnethercote.github.io/perf-book/title-page.html[The Rust Performance
 Book] is a great read for more resources and ideas.
 
