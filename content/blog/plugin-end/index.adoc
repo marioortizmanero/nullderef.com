@@ -470,9 +470,10 @@ implement `RawConnector` and doesn't need access to `Connector`.
 The problem is that, even though wrappers reduce the much dreaded boilerplate,
 they can also affect performance-critical parts considerably. `connect` is only
 called at the beginning of the program, but `on_event` is invoked for every
-single event, making it our _hot loop_. Any small operation, like a type
-conversion, will have a much greater impact in there. This experiment consists
-on iteratively removing wrappers and looking for performance improvements.
+single event in the source, making it our _hot loop_. Any small operation, like
+a type conversion, will have a much greater impact in there. This experiment
+consists on iteratively removing wrappers and looking for performance
+improvements.
 
 === Investigate async runtime conflicts
 
