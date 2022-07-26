@@ -106,6 +106,13 @@ I would strongly recommend anyone to get a separate machine to run benchmarks.
 Not only will they be more reliable, but also you will be able to continue
 working while the benchmarks run.
 
+NOTE: The measurements in this article are performed with the new {repr-c}
+interface, but the plugins aren't actually loaded dynamically yet. This is
+because, as the
+https://nullderef.com/blog/plugin-impl/#_separating_runtime_and_interface[planning]
+specifies, we are on a previous step to actually making the plugins external.
+The final performance will actually be slightly worse.
+
 == Experiments
 
 We can divide the experiments in two categories:
@@ -394,7 +401,7 @@ more impactful experiments in mind with a higher priority.
 
 It's already been a year since I started working with Tremor. I extended the
 mentorship from three months to twelve so that I could use it as my bachelor's
-thesis (see <<thesis>>).
+thesis (see "`<<thesis>>`").
 
 But now that I have finally graduated and need to find a full-time job, I won't
 be able to continue experimenting with the plugin system. My hope is that with
@@ -730,11 +737,12 @@ because you will only find out new possibilities with time.
 === For the long-term future
 
 Most of the previous experiments are focused on either usability or performance.
-However, there are plenty of other ways in which our plugin system could evolve:
+However, there are plenty of other ways in which our plugin system could evolve
+once we reach our short-term goals:
 
-* *Supporting more components* in the plugin system. We could continue to split
-  up the executables into even smaller pieces, improving the overall flexibility
-  and compilation times.
+* *Supporting more components* in the plugin system. We could keep splitting up
+  the executables into even smaller pieces, continuing to improve the overall
+  flexibility and compilation times.
 * *Refining the user experience* by making the plugin loading smarter and easier
   to use. In the far future, we could even have a centralized repository with
   all the plugins, so that it's as easy as possible to import and load them. You
@@ -744,41 +752,49 @@ However, there are plenty of other ways in which our plugin system could evolve:
   able to implement their own plugin, but ours is currently too tied to the
   internals of Tremor. We could create project templates, properly document
   everything, write examples, etc.
-* *Security* is something we sacrificed when choosing dynamic loading as our
+* *Security* is something we sacrificed when we chose dynamic loading as our
   base technology. We don't have a sandbox, which would be essential if a plugin
   repository were to exist.
-* *Restarting or unloading plugins* at runtime. Unloading is especially
-  complicated, considering `abi_stable` explicitly doesn't support it
-  [REF_MISSING]. But restarting them could work by stopping and leaking existing
-  ones, and then loading the same plugin with the same config. That would
-  improve error resilience considerably, as we would be able to restart plugins
-  upon failure (with limits, as leaking too much could crash everything).
+* *Restarting or unloading plugins* at runtime. Unloading is almost impossible,
+  considering that `abi_stable` explicitly doesn't support it
+  <<abi-stable-unloading>>. But restarting could work by simply stopping and
+  leaking an existing plugin, and then loading it again with the same config. It
+  would improve error resilience considerably, as we would be able to restart
+  plugins upon failure (cautiously, as we could run out of memory after leaking
+  too much).
 
 == Conclusion
 
-That was all! In summary, we initially slowed down our program by around 36%.
-With a few iterative optimizations, we've reduced that number to around 30%.
-It's a noticeable improvement, but there's still a long way to go until it's
-good enough for production, I would say. There are so many ideas to try out, and
-the ones I listed here are just a fraction.
+That was all! In summary, our new interface initially slowed down the program by
+around 36%. In a few iterations, we've reduced that number to around 30%, and
+there are still many ideas left to try.
 
-I look forward to seeing how the plugin system continues to evolve with the
-program!
+The complexity of the whole project has turned out to be much greater than we
+predicted at the beginning. I still remember when we were unaware of the ABI
+instability and thought we could get away with an interface in pure Rust. Thus,
+I haven't been able to attain some goals specified initially, and there's still
+a bit of work left before reaching production, mainly related to performance.
 
-== Thanks
+However, I'm sure my implementation will serve as a great base for what the
+plugin system may evolve into in the future! And hopefully, this series and my
+contributions (see "`<<os>>`") will make plugin systems more accessible, even
+outside Tremor.
 
-// TODO: Link to Annex I
-Lastly, I've found it especially rewarding to do all of this in an open source
-environment. Even if you're working for a company with propietary software,
-please try to contribute upstream instead of forking or patching. Try to be nice
-to those who are saving you so much work, and submit a PR or an issue.
+Doing all of this in an open source environment has been enormously rewarding.
+Even if you're working for a company with propietary software, please try to
+contribute upstream instead of forking or patching. Try to pay it back to those
+who save you from so much work, and submit a PR or an issue.
 
 This project has been possible thanks to Darach, Heinz, and Matthias, my mentors
-in the Tremor team.
+in the Tremor team. Thanks to Wayfair as well for supporting open source, and
+for funding this project. And one final thanks to the Rust community for
+motivating me to continue with the series, and for providing such splendid
+libraries and tools.
 
-Please <<comments,leave a comment at the bottom>> in case you have any questions
-or suggestions. Also let me know if you have any updates on any of the ideas
-above, so that I can add a link for future readers!
+Please <<comments,leave a comment below>> for any questions or suggestions you
+may have. Also let me know of any new advances on any of the ideas above, so
+that I can add a link for future readers. I would love to see your plugin system
+creations and results :)
 
 [bibliography]
 == References
@@ -788,15 +804,15 @@ above, so that I can add a link for future readers!
 - [[[raw-entry-unstable,      1]]]
   https://github.com/rust-lang/rust/issues/56167#issuecomment-810457405[@Amanieu's
   comment -- Tracking issue for HashMap::raw_entry]
-- [[[perf-stat,               2]]]
-  https://perf.wiki.kernel.org/index.php/Tutorial#Counting_with_perf_stat[Counting
-  with `perf stat` -- Perf Wiki]
-- [[[profiling,               3]]]
-  https://nnethercote.github.io/perf-book/profiling.html[Profilers -- The Rust
-  Performance Book].
-- [[[abi-stable-box-drop,     4]]]
+- [[[abi-stable-box-drop,     2]]]
   https://github.com/rodrimati1992/abi_stable_crates/blob/4514c38829548ef6f4201dac183c1e866bdd2401/abi_stable/src/std_types/boxed.rs#L597[`Drop`
   for `RBox` in `abi_stable/src/std_types/boxed.rs`]
+- [[[perf-stat,               3]]]
+  https://perf.wiki.kernel.org/index.php/Tutorial#Counting_with_perf_stat[Counting
+  with `perf stat` -- Perf Wiki]
+- [[[profiling,               4]]]
+  https://nnethercote.github.io/perf-book/profiling.html[Profilers -- The Rust
+  Performance Book]
 - [[[try-trait,               5]]]
   https://rust-lang.github.io/rfcs/3058-try-trait-v2.html[Try trait v2 -- The
   Rust RFC Book]
@@ -811,18 +827,22 @@ above, so that I can add a link for future readers!
 - [[[panic-1,                 9]]]
   https://nullderef.com/blog/plugin-abi-stable/#_panicking[Panicking -- Plugins
   in Rust: Reducing the Pain with Dependencies, NullDeref]
-- [[[panic-2,                 9]]]
+- [[[panic-2,                10]]]
   https://nullderef.com/blog/plugin-dynload/#_panicking[Panicking -- Plugins in
   Rust: Diving into Dynamic Loading, NullDeref]
-- [[[panic-abort,             9]]]
+- [[[panic-abort,            11]]]
   https://doc.rust-lang.org/book/ch09-01-unrecoverable-errors-with-panic.html#unwinding-the-stack-or-aborting-in-response-to-a-panic[Unwinding
   the Stack or Aborting in Response to a Panic -- The Rust Programming Language]
-- [[[abi-instability,        10]]]
+- [[[abi-instability,        12]]]
   https://nullderef.com/blog/plugin-start/#_abi_unstability_its_much_worse_than_it_seems[ABI
   unstability, it’s much worse than it seems -- Plugins in Rust: Getting
   Started, NullDeref]
+- [[[abi-stable-unloading,   13]]]
+  https://github.com/rodrimati1992/abi_stable_crates/tree/69fd90c97268ac0d8d4fe4e83747250e6ed2f3cf#non-features-extremely-unlikely-to-be-added[Non-features
+  (extremely unlikely to be added) -- GitHub rodrimati1992/abi_stable_crates]
 
 [appendix]
+[[os]]
 == Open Source Contributions
 
 One of my favorite parts of the project has been contributing so much to all
