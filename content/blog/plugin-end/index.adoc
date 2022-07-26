@@ -225,7 +225,7 @@ was still only using the `passthrough` benchmark at this point. I kept the
 change because it didn't make much sense to leave the doubly boxed hash table,
 and because it slightly improved the readability of the code.
 
-.Histogram of a double box vs. a single box. Note that this test was run on the benchmarking server, while the previous one used my laptop. These tests aren't meant to be compared between different sections.
+.Histogram of a double box vs. a single box. Note that this histogram was recorded on the benchmarking server, while the previous one used my laptop. These tests aren't meant to be compared between different sections.
 image::/blog/plugin-end/histogram_box.png[link="/blog/plugin-end/histogram_box.png"]
 
 .Relative throughput comparison (higher is better)
@@ -243,7 +243,8 @@ image::/blog/plugin-end/histogram_box.png[link="/blog/plugin-end/histogram_box.p
 
 Using a single `Value` improved the ergonomics of the code by sacrificing a bit
 of efficiency. We could try to fix this regression by creating an FFI-safe
-wrapper for the original external hash table implementation.
+wrapper for the original external hash table implementation, which
+https://github.com/rodrimati1992/abi_stable_crates/pull/83[is what I did].
 
 Tremor used `halfbrown` both because it's faster for their usecase, and because
 it has access to lower level functionality. The
@@ -255,7 +256,7 @@ Tremor's JSON handling.
 NOTE: This actually isn't a great idea in the long term, because `raw_entry`
 isn't going to make it to a stable release <<raw-entry-unstable>>. The Rust team
 is working on a different interface, but it will probably be similar enough that
-updating our `raw_entry` usage won't be too complicated.
+updating our `raw_entry` usage won't be too much work.
 
 ////
 NOTE: skipped this because it only used passthrough as well.
@@ -360,11 +361,11 @@ to make a decision just out of this set of benchmarks because of the complexity
 of the change. 
 
 This time, the experiment is only done for investigation. These results must
-only be taken as an indicator of something worth investigating more in depth. It
+only be taken as an indicator of something worth investigating more in depth; it
 would be premature to make assumptions so early and remove `halfbrown`. We would
-need to analyze at the impact of using `hashbrown` without the plugin system,
-and understand in detail _why this happens_. Taking a look at the flamegraphs,
-for example, could help in figuring out the underlying reasoning.
+need to also analyze the impact of using `hashbrown` without the plugin system,
+and understand _why this happens_. For example, taking a look at the flamegraphs
+could help in figuring out the underlying reasoning.
 
 === `abi_stable`
 
