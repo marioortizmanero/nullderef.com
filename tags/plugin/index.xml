@@ -482,9 +482,9 @@ multiple points of view:</p>
 <p>They seem to point out that, with the plugin system, <a href="https://crates.io/crates/hashbrown"><code>hashbrown</code></a>
 
 (the standard hash table) might actually be better than <code>halfbrown</code>. The JSON
-optimization I mentioned could also be worth removing now. But it’s really hard
-to make a decision just out of this set of benchmarks because of the complexity
-of the change.</p>
+optimization I mentioned could possibly be worth removing now. But it’s really
+hard to make a decision just out of this set of benchmarks because of the
+complexity of the change.</p>
 </div>
 <div class="paragraph">
 <p>This time, the experiment is only done for investigation. These results must
