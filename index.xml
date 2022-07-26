@@ -711,11 +711,11 @@ it uglier and harder to maintain.</p>
 <div class="paragraph">
 <p>Depending on how much <code>Try</code> is going to take to stabilize, creating a procedural
 macro might be worth our time. It would just replace <code>?</code> with <code>rtry</code> or whatever
-is configred, which should be somewhat simple to write. I’m surprised I couldn’t
-find an existing crate for that yet.</p>
+is configred, which should be somewhat simple to implement. I’m surprised I
+couldn’t find an existing crate for that.</p>
 </div>
 <div class="listingblock">
-<div class="title">Readibility would improve in longer functions with lots of error handling.</div>
+<div class="title">Readability would improve in longer functions with lots of error handling.</div>
 <div class="content">
 <pre class="highlight"><code class="language-diff" data-lang="diff">+#[try_with(rtry)]
  fn fallible() -&gt; RResult&lt;()&gt; {
