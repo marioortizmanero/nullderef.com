@@ -565,12 +565,12 @@ couldn't find an existing crate for that.
 
 Admittedly, the example above is an oversimplification. In reality, a single
 function may mix both `Result` and `RResult`, or require type conversions. The
-proc macro would probably be a bit more complex, but it might be worth
+macro would probably end up being a bit more complex, but it might be worth
 considering regardless.
 
 === Reduce async boilerplate
 
-`async_ffi` would really benefit with a procedural macro as well. It always
+`async_ffi` would really benefit from a procedural macro as well. It always
 requires using `async move { /* ... */ }.into_ffi()`, which is quite a bit of
 boilerplate and increases the indentation level by one.
 
