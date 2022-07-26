@@ -929,18 +929,19 @@ I already shared this in a previous article, but for completeness I'll repeat it
 here. This online event made it possible to showcase my work back in January
 with a https://youtu.be/htLCyqY0kt0?t=3166[quick 15-minute presentation]. I
 couldn't get into many technical details, but I'm sure it will be useful to
-someone else considering a https://lfx.linuxfoundation.org/tools/mentorship/[LFX
-Mentorship] or https://summerofcode.withgoogle.com/[Google Summer of Code].
+anyone considering participating in a
+https://lfx.linuxfoundation.org/tools/mentorship/[LFX Mentorship] or in
+https://summerofcode.withgoogle.com/[Google Summer of Code].
 
 [[thesis]]
 === My Final Year Project
 
-Finally, I have recently submitted this as
+I have finally recently submitted this as
 https://github.com/marioortizmanero/final-year-project[my bachelor's Final Year
-Project]. It takes a more academic approach, and I rigorously reorganized
-everything so that even developers unfamiliar with Rust can understand it. The
-abstract is in English, but unfortunately, the rest is in Spanish due to absurd
-university rules.
+Project]. This document takes a more academic approach, and I rigorously
+reorganized everything so that even developers unfamiliar with Rust can
+understand it. The abstract is in English, but unfortunately, the rest is in
+Spanish due to absurd university rules.
 
 === KubeCon + CloudNativeCon 2022
 
