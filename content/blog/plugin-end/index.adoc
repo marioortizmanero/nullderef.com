@@ -1,12 +1,12 @@
 ---
 title: "Plugins in Rust: Wrapping Up"
-description: "The last finishing touches to the plugin system so that it can be
-released in Tremor's new version"
+description: "The last finishing touches and ideas before our plugin system
+reaches production."
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-end/wrap.jpg"]
 tags: ["rust", "rustlang", "plugin", "benchmarking", "testing", "deployment"]
 series: ["rust-plugins"]
-date: 2022-07-09
+date: 2022-07-26
 GHissueID: 11
 ---
 
@@ -17,18 +17,11 @@ GHissueID: 11
 :repr-rust: pass:quotes[`#[repr(Rust)]`]
 :work: pass:quotes["`just make it work`"]
 
-////
-TODO: use appropiate benchmarks for each case, and indicate where the
-improvements may occur in specific. Indicate assumptions and known bias as well.
-
-NOTE: histogram units are nanoseconds
-////
-
-Welcome to this https://nullderef.com/series/rust-plugins/[series'] final
-article! Here I'll showcase some clean-ups and optimizations I may or may not
-have performed yet, so that our plugin system is closer to production. I will
-also run benchmarks for some of these to ensure that the changes are actually
-worth it.
+Welcome to the final article of this
+https://nullderef.com/series/rust-plugins/[series]! Here I'll showcase some
+clean-ups and optimizations I may or may not have performed yet, so that our
+plugin system can get closer to production. I will also run benchmarks for some of
+these to ensure that the changes are actually worth it.
 
 == Benchmarking
 
@@ -111,7 +104,7 @@ interface, but the plugins aren't actually loaded dynamically yet. This is
 because, as the
 https://nullderef.com/blog/plugin-impl/#_separating_runtime_and_interface[planning]
 specifies, we are on a previous step to actually making the plugins external.
-The final performance will actually be slightly worse.
+The final performance will be slightly worse.
 
 == Experiments
 
@@ -122,8 +115,8 @@ We can divide the experiments in two categories:
   impact to report the results and avoid surprises.
 . _For investigation_: the change increases the complexity to explicitly improve
   performance, so we need to make sure it's worth our time. This improvement may
-  occur directly with the change, or indirectly, by helping to come up with
-  new optimizations.
+  occur directly with the change, or indirectly by helping to come up with new
+  optimizations.
 
 Benchmarking is only essential in the latter, but I thought it would be a great
 idea in both cases. That way, I can write up a report like this article,
@@ -134,13 +127,17 @@ explaining the improvements I worked on.
 The most important performance concern in the first version of the plugin system
 had to do with
 https://nullderef.com/blog/plugin-impl/#_reaching_reprc_blockers[the issues I
-had found when trying to convert external types to the C ABI]. In short, I had a
-relatively complex type named `Value`, which I needed to make FFI-safe for the
+had found when trying to convert external types to the C ABI]. In short, there
+was an existing type named `Value`, which I needed to make FFI-safe for the
 plugin system. However, it was used throughout the entire codebase, and
-modifying it would've required a large amount of unrelated changes for just an
-initial version. Thus, I created the copy `PdkValue`, and converted to `Value`
-and back when going through the FFI boundary. `PdkValue` was only used for the
-plugin system, making it quite easy to implement in contrast.
+modifying its definition would've required a large amount of unrelated changes
+for just the first iteration.
+
+My
+https://nullderef.com/blog/plugin-impl/#_simplifying_the_type_at_the_ffi_boundary[temporary
+fix] was to create the copy `PdkValue`, and convert to `Value` and back when
+going through the FFI boundary. `PdkValue` was only used for the plugin system,
+making it quite easy to implement in contrast.
 
 An obvious experiment was to fix this problem properly by making `Value`
 FFI-safe and removing `PdkValue`. Unless the performance degraded considerably,
@@ -169,8 +166,6 @@ throughput actually decreases:
 .Histogram without the plugin system (`connectors` branch) vs. first version vs. single `Value`.
 image::/blog/plugin-end/histogram_pdk.png[link="/blog/plugin-end/histogram_pdk.png"]
 
-// TODO: how to center this table?
-
 .Relative throughput comparison (higher is better)
 [cols="^,^,^"]
 |===
@@ -187,8 +182,8 @@ image::/blog/plugin-end/histogram_pdk.png[link="/blog/plugin-end/histogram_pdk.p
 This showcases one of my initial mistakes. My comparison only used the
 `passthrough` benchmark, which simply forwards all input events to the output.
 For a more realistic use-case, I should've also tried with other configurations,
-which may include different payloads or event processing logic. That's why, in
-retrospect, these results should be taken with a grain of salt.
+which may include different payloads or event processing logic. In retrospect,
+these results should be taken with a grain of salt.
 
 Anyway, it all makes sense to some degree. Converting `Value` to an FFI-safe
 type requires using, among others, `RHashMap` instead of `HashMap` internally.
@@ -798,8 +793,6 @@ creations and results :)
 
 [bibliography]
 == References
-
-// TODO: add text placeholders
 
 - [[[raw-entry-unstable,      1]]]
   https://github.com/rust-lang/rust/issues/56167#issuecomment-810457405[@Amanieu's
