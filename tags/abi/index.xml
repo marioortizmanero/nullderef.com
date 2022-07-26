@@ -32,8 +32,8 @@ and for all.</p>
 , but the concepts
 should be roughly the same for any dynamic loading method. Similarly, some of my
 advice is related to modifying an already existing project of large size. If
-you’re starting from scratch with a plugin system (PDK) in mind, it should be
-the same, just easier in some aspects.</p>
+you’re starting from scratch with a plugin system in mind, it should be the
+same, just easier in some aspects.</p>
 </div>
 <div class="sect1">
 <h2 id="advice">1. Some prototyping advice</h2>
@@ -159,7 +159,7 @@ that we haven’t cleaned up yet, which are usually harmless.</p>
 <div class="paragraph">
 <p>One month later, I was able to finally compile
 <a href="https://github.com/tremor-rs/tremor-runtime"><code>tremor-runtime</code></a> with the initial
-PDK prototype. This screenshot made my day, as simple as it may seem:</p>
+prototype. This screenshot made my day, as simple as it may seem:</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
@@ -183,8 +183,8 @@ having to painfully resolve them many times until I got the hang of it.</p>
 </div>
 <div class="paragraph">
 <p>Say, you have a number of <code>use</code> statements at the top of your file. After adding
-some changes related to the PDK, you now need to import <code>PdkValue</code> as well.
-You’d usually do:</p>
+some changes related to the plugin system, you now need to import <code>PdkValue</code> as
+well. You’d usually do:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -451,6 +451,9 @@ deriving <code>StableAbi</code> for those that don’t need the latter.</p>
 </p>
 
 
+
+
+
 </div>
 </div>
 </div>
@@ -516,7 +519,7 @@ can be used in that case instead.</p>
 <div class="paragraph">
 <p>This can be messy because in order to avoid conversions, your plugin system will
 <em>infect</em> the entire codebase. You may quickly find yourself propagating the
-usage of <code>RHashMap</code> everywhere, even when the PDK isn’t that important. For
+usage of <code>RHashMap</code> everywhere, even when the system isn’t that important. For
 example, <code>Value</code> also appeared in
 <a href="https://www.tremor.rs/docs/tremor-script/index">Trickle</a>&#39;s implementation, the
 scripting language used to configure Tremor’s pipelines. Having to use
@@ -583,6 +586,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
 </span>
 
 
+
+
+
 </div>
 <div class="paragraph text-center">
 
@@ -608,6 +614,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
     <span class="gh-number">rodrimati1992/abi_stable_crates#59</span></a>
 
 </span>
+
+
+
 
 
 </div>
@@ -637,6 +646,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
 </span>
 
 
+
+
+
 </div>
 <div class="paragraph text-center">
 
@@ -664,6 +676,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
 </span>
 
 
+
+
+
 </div>
 <div class="paragraph text-center">
 
@@ -689,6 +704,39 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
     <span class="gh-number">rodrimati1992/abi_stable_crates#70</span></a>
 
 </p>
+
+
+
+
+
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/82" style="text-decoration: none;">Implement <code>ROption::{ok_or,ok_or_else}</code>
+    <span class="gh-number">rodrimati1992/abi_stable_crates#82</span></a>
+
+</span>
+
+
+
 
 
 </div>
@@ -843,8 +891,8 @@ pub enum PdkValue {
 <div class="paragraph">
 <p>We don’t need to write any additional methods for the new <code>PdkValue</code>, only its
 conversions to and from the regular <code>Value</code>. This would be equivalent to,
-instead of passing a <code>Vec</code> to the PDK, replacing it with a <code>*const u8</code> for the
-data and a <code>u32</code> for the length. We’re just simplifying the types at the FFI
+instead of passing a <code>Vec</code> to the interface, replacing it with a <code>*const u8</code> for
+the data and a <code>u32</code> for the length. We’re just simplifying the types at the FFI
 boundary, and then maybe converting them back for access to the full
 functionality.</p>
 </div>
@@ -1026,6 +1074,9 @@ something that can be fixed with a procedural macro in the future:</p>
 </p>
 
 
+
+
+
 </div>
 <div class="paragraph">
 <p>The only problem I found was that the futures didn’t implement <code>StableAbi</code>, so
@@ -1057,6 +1108,9 @@ to understand the crate, but it’s nothing a Pull Request can’t fix:</p>
     <span class="gh-number">oxalica/async-ffi#10</span></a>
 
 </p>
+
+
+
 
 
 </div>
@@ -1382,8 +1436,8 @@ to me with Tremor as well.</p>
 <p>For now, I just have the runtime and the interface in the same crate. External
 plugins then have the entire runtime as a dependency. Which, as I said, is
 suboptimal, but it works. Moving so much stuff into a separate <code>common</code> crate
-would mean a <em>ton</em> of conflicts, so I would rather leave it for whenever my
-first iteration of the PDK is merged.</p>
+would mean a <em>ton</em> of conflicts, so I would rather leave it for whenever the
+first iteration is merged.</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
@@ -1400,7 +1454,7 @@ first iteration of the PDK is merged.</p>
 <p>Preparing the release for the plugin system has always sounded like a quite
 complicated task. I’ve never wanted to introduce too many changes at once
 because otherwise it will become very hard to review and merge into the main
-branch. This is why I decided to schedule the PDK release in four separate
+branch. This is why I decided to schedule the release in four separate
 iterations:</p>
 </div>
 <div class="olist arabic">
@@ -1484,6 +1538,9 @@ this issue in the meanwhile, and hope that you don’t run into it:</p>
 </p>
 
 
+
+
+
 </div>
 <div class="paragraph">
 <p>After I’m fully done I will also reorganize this series a bit and make it an
@@ -1516,6 +1573,9 @@ here:</p>
     <span class="gh-number">marioortizmanero/nullderef.com#50</span></a>
 
 </p>
+
+
+
 
 
 </div>
@@ -1558,6 +1618,9 @@ the whole experience has been so far, and what I’ve learned:</p>
 
 </span>
 
+
+
+
 </p>
 </li>
 <li>
@@ -1580,12 +1643,12 @@ Key memoization in <code>tremor-runtime/tremor-value/src/known_key.rs</code></a>
       <guid>https://nullderef.com/blog/plugin-abi-stable/</guid>
       <description>Taking a look at the state of dynamic loading in the Rust ecosystem</description>
       <content:encoded><![CDATA[<div class="paragraph">
-<p><a href="https://nullderef.com/blog/plugin-dynload/">The last article</a> of this
-<a href="https://nullderef.com/series/rust-plugins/">series</a> covered how the plugin system
-could be implemented from scratch. This is a lot of work if you’re dealing
-with a relatively large codebase and therefore a complex interface in your
-plugin system, so let’s see how we can make our lives easier. I’ve been wanting
-to try <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+<p><a href="https://nullderef.com/blog/plugin-dynload/">Previously</a> in this
+<a href="https://nullderef.com/series/rust-plugins/">series</a>, I covered how the plugin
+system could be implemented from scratch. This is a lot of work if you’re
+dealing with a relatively large codebase and therefore a complex interface in
+your plugin system, so let’s see how we can make our lives easier. I’ve been
+wanting to try <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
  for this since the beginning, which was
 specifically created for plugins. But we aren’t really locked to that crate, so
 I’ll show other alternatives as well, which can even be combined to your liking.</p>
@@ -2439,6 +2502,9 @@ with <code>panic = &#34;abort&#34;</code>, it’s only available on nightly unti
 </p>
 
 
+
+
+
 </div>
 </div>
 <div class="sect2">
@@ -2692,7 +2758,7 @@ But if your programs supports other Operating Systems, you might want to check
 their manuals one by one in order to make sure.</p>
 </div>
 <div class="paragraph">
-<p>However, for the first version of our PDK this won’t be a problem at all. For
+<p>However, for the first version of our system this won’t be a problem at all. For
 simplicity’s sake, loading plugins after the startup will not be implemented
 yet, and we’ll do it sequentially. But it’s good to know it for the future.</p>
 </div>
@@ -2712,7 +2778,7 @@ after using it for <a href="https://nullderef.com/blog/web-api-client/">another 
 <div class="paragraph">
 <p>First, we can take a look at already implemented plugin systems in order to have
 an idea of the performance hit we’ll experience in Tremor. This is what we
-should expect once our PDK is polished and ready for deployment:</p>
+should expect once our system is polished and ready for deployment:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2807,11 +2873,11 @@ not as bad as I thought; there’s plenty of tools for each use-case, though mos
 are admittedly only in early stages.</p>
 </div>
 <div class="paragraph">
-<p>Hopefully the performance degradations we’ve found won’t be as noticeable in the
-final version of the PDK. We’ll use <code>sabi_trait</code> only when loading the library
-instead of for each call. And having a more complex use-case will probably avoid
-such incredible optimizations in the native code. You can find the full
-statistical reports in the
+<p>Hopefully, the performance degradations we’ve found won’t be as noticeable in
+the final version of the system. We’ll use <code>sabi_trait</code> only when loading the
+library instead of for each call. And having a more complex use-case will
+probably avoid such incredible optimizations in the native code. You can find
+the full statistical reports in the
 <a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/criterion-reports"><code>criterion-reports</code></a>
 directory of the
 <a href="https://github.com/marioortizmanero/pdk-experiments/">repository</a>.</p>
@@ -2852,6 +2918,9 @@ they can be approached.</p>
     <span class="gh-number">h33p/cglue#3</span></a>
 
 </span>
+
+
+
 
 </p>
 </li>
@@ -2909,11 +2978,12 @@ Disadvantages — Dynamic Shared Object (DSO) Support</a></p>
       <guid>https://nullderef.com/blog/plugin-dynload/</guid>
       <description>A closer look at dynamic loading in Rust</description>
       <content:encoded><![CDATA[<div class="paragraph">
-<p>In the <a href="https://nullderef.com/blog/plugin-start/">last part</a> of this
+<p>In the <a href="https://nullderef.com/blog/plugin-start/">last article</a> of this
 <a href="https://nullderef.com/series/rust-plugins/">series</a> I wrote some simple
 experiments of plugins both with WebAssembly and dynamic loading. After
-discarding Wasm for this specific PDK, I wanted to try to get a more realistic
-example with dynamic loading and work towards the final implementation.</p>
+discarding Wasm for this specific plugin system, I wanted to try to get a more
+realistic example with dynamic loading and work towards the final
+implementation.</p>
 </div>
 <div class="paragraph">
 <p>Since the Tremor team suggested that I began by implementing connectors, we’ll
@@ -3019,16 +3089,16 @@ and implements a higher-level asynchronous interface on top of it.</p>
 <p>As always, these articles include a first section with content specific to
 Tremor that you might <a href="#actual_start">want to skip</a>. Unfortunately, with time
 this series will become more and more specific to Tremor; after all I’m just
-reporting my progress on their PDK. Still, having a step-by-step walkthrough for
-a real-life Plugin System will surely be helpful to those attempting to do the
-same.</p>
+reporting my progress on their project. Still, having a step-by-step walkthrough
+for a real-life Plugin System will surely be helpful to those attempting to do
+the same.</p>
 </div>
 <div class="sect2">
 <h3 id="_my_next_steps">2.1. My next steps</h3>
 <div class="paragraph">
 <p>In the first meeting we discussed the work I had exposed in my last update.
 Despite the complications (being forced to use <code>#[repr(C)]</code>), the team liked where
-the PDK was going.</p>
+the plugin system was going.</p>
 </div>
 <div class="paragraph">
 <p>They suggested me to start with connectors for the real-life example, even
@@ -3086,10 +3156,10 @@ incredibly helpful.</p>
 <div class="sect2">
 <h3 id="_how_tremor_works">2.3. How Tremor works</h3>
 <div class="paragraph">
-<p>After starting to write the PDK example for connectors and failing because I
+<p>After starting to write a first prototype for connectors and failing because I
 didn’t know what I was doing, I decided to step back and try to understand in
 detail how Tremor works. Once I had that covered, I could try to simplify the
-PDK as much as possible in order to keep my sanity.</p>
+plugin system as much as possible in order to keep my sanity.</p>
 </div>
 <div class="paragraph">
 <p>I jumped into the codebase of
@@ -3166,9 +3236,9 @@ handling their communication details.</p>
 <div class="paragraph">
 <p>Once all the managers are initialized, Tremor currently registers all the
 built-in artifacts in a “hardcoded” way with <code>register_builtin_types</code>. But
-after the PDK is implemented, this will happen dynamically, i.e., Tremor will
-automatically look for DLL/SO files in its configured directory and try to
-register all the plugins it can find. The user may additionally request a
+after the plugin system is implemented, this will happen dynamically, i.e.,
+Tremor will automatically look for DLL/SO files in its configured directory and
+try to register all the plugins it can find. The user may additionally request a
 specific plugin to be loaded while Tremor is running.</p>
 </div>
 <div class="paragraph">
@@ -3255,9 +3325,9 @@ performance testing.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>Both of these are relatively simple and will be helpful to benchmark the PDK
-later on. But that isn’t really important right now; I first need to get the PDK
-working, and then I can care about performance.</p>
+<p>Both of these are relatively simple and will be helpful to benchmark the plugin
+system later on. But that isn’t really important right now; I first need to get
+it working, and then I can care about performance.</p>
 </div>
 </div>
 </div>
@@ -3327,11 +3397,11 @@ until it’s properly updated upstream, among other things. Pretty cool :)</p>
 <h2 id="_getting_deeper_into_dynamic_linking">4. Getting deeper into dynamic linking</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now that we definitely know how to approach the PDK, we have two choices: using
-raw dynamic linking with the C ABI and <code>libloading</code>, or trying out the
-<code>abi_stable</code> crate. I suggest we do both. We’ll most likely end up using the
-latter because it should be easier and safer, but it’s still a very good idea to
-know how <code>abi_stable</code> works under the hood.</p>
+<p>Now that we definitely know how to approach the plugin system, we have two
+choices: using raw dynamic linking with the C ABI and <code>libloading</code>, or trying
+out the <code>abi_stable</code> crate. I suggest we do both. We’ll most likely end up using
+the latter because it should be easier and safer, but it’s still a very good
+idea to know how <code>abi_stable</code> works under the hood.</p>
 </div>
 <div class="paragraph">
 <p>In the previous article I created a <code>dynamic-simple</code> experiment in examples to
@@ -3419,7 +3489,7 @@ runtime should check it before anything else.</p>
 not <code>#[repr(C)]</code>).</p>
 </li>
 <li>
-<p><strong>Stable</strong>. <code>abi_stable::Rstr</code> won’t work either because the versions for
+<p><strong>Stable</strong>. <code>abi_stable::RStr</code> won’t work either because the versions for
 <code>abi_stable</code> might mismatch, since we’re reading the symbol before knowing
 that. Its layout must be <em>always</em> the same.</p>
 </li>
@@ -4111,28 +4181,18 @@ C++</a></p>
       <pubDate>Sun, 05 Sep 2021 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/blog/plugin-start/</guid>
-      <description>My first steps trying to implement the PDK</description>
+      <description>My first steps trying to implement the plugin system</description>
       <content:encoded><![CDATA[<div class="paragraph">
-<p>Welcome to my second article about Plugins in Rust! Here I will try to actually
-write some simple code of what a PDK (<em>Plugin Development Kit</em>) might look like,
-and also do some research about questions that arise while doing so. Please note
-that this is a series of posts, so you might be interested in reading
-<a href="https://nullderef.com/series/rust-plugins/">the previous ones for context</a>.</p>
+<p>Welcome to the second article of my
+<a href="https://nullderef.com/series/rust-plugins/">“Plugins in Rust” series</a>! Here I
+will try to actually write some simple code of what a plugin system might look
+like, and try to answer any questions that may arise while doing so.</p>
 </div>
 <div class="paragraph">
-<p>Some probably weren’t expecting me to continue the series, as in the
-<a href="https://nullderef.com/blog/plugin-tech/">last article</a> I wrote that Google didn’t
-end up allocating a slot for my project (as this was initially going to be for
-the <a href="https://summerofcode.withgoogle.com/">Google Summer of Code</a>). But the Tremor
-team ended up talking with me and arranging the same thing via the
-<a href="https://lfx.linuxfoundation.org/tools/mentorship/">The Linux Foundation
-Mentorships</a>, so I will be able to work on the PDK in the end!</p>
-</div>
-<div class="paragraph">
-<p>Even though this project is specific to Tremor, I try to keep it relatively
-generic so that it’s useful to future rustaceans interested in plugins. If you
-don’t really care about Tremor’s specific case, you can skip to the
-<a href="#actual_start">next section</a>.</p>
+<p>Even though the project is specific to <a href="https://www.tremor.rs/">Tremor</a>, I try to
+keep it relatively generic so that it’s useful to future rustaceans interested
+in plugin systems. So if you don’t really care about Tremor’s specific case, you
+can skip to the <a href="#actual_start">next section</a>.</p>
 </div>
 <div class="sect1">
 <h2 id="_about_tremor">1. About Tremor</h2>
@@ -4148,8 +4208,8 @@ still surprised by their welcomingness and how refreshing their dynamics were.</
 <div class="paragraph">
 <p>Starting to work on Tremor for the first time with such a large task at first
 sounds daunting. I was somewhat overwhelmed by that and felt quite some pressure
-on me. But their words helped me de-stress about it; finishing the PDK would of
-course be hard, but no need to worry about things you can’t control yet.</p>
+on me. But their words helped me de-stress about it; finishing the project would
+of course be hard, but no need to worry about things you can’t control yet.</p>
 </div>
 <div class="paragraph">
 <p>I particularly liked the three “rules” of their workflow:</p>
@@ -4188,8 +4248,8 @@ considering.</p>
 <div class="paragraph">
 <p>Also note that while writing this post I quite literally broke my leg (tibia &amp;
 fibula). The team was very supportive, and I took some rest until I went through
-surgery (I’m still recovering). Which is another reason as to why this article
-has taken me longer than usual to release. Thanks a lot to all of them ❤️.</p>
+surgery. Which is another reason as to why this article has taken me longer than
+usual to release. Thanks a lot to all of them ❤️.</p>
 </div>
 </div>
 <div class="sect2">
@@ -4206,20 +4266,20 @@ project, and he explained me his progress in detail. In summary, he was starting
 to add gRPC support to Tremor, and wasn’t sure how to approach it so that new
 interfaces could be added outside the compilation time. He had multiple ideas on
 how to implement this, but the one that interested me the most was via Wasm or
-dynamic linking, which was exactly what I was trying to do as well for the PDK.
-This meant I’d probably spend more time with him, as our projects were more
-interconnected than I thought.</p>
+dynamic linking, which was exactly what I was trying to do as well for the
+system. This meant I’d probably spend more time with him, as our projects were
+more interconnected than I thought.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_learning_about_the_internals_of_tremor">1.3. Learning about the internals of Tremor</h3>
 <div class="paragraph">
-<p>I’ve always known that the original intent for the PDK was the typical
+<p>I’ve always known that the original intent for the system was the typical
 architecture via dynamic linking, but I wanted to explore the viability of Wasm
 or other alternatives before ruling it out. Would this idea be destroyed by
 someone in the end, or does it stand a chance? In order to know that I’d first
 need to find more specific requisites by defining the basic interfaces of the
-PDK. Which is very hard at first because you need to know more about the
+system. Which is very hard at first because you need to know more about the
 internals of Tremor and how it works.</p>
 </div>
 <div class="paragraph">
@@ -4227,7 +4287,7 @@ internals of Tremor and how it works.</p>
 with the help of some drawings, taking a look at the code, and running it. He
 also taught me the novel concept of a <em>connector</em>, which is just an abstraction
 over both sources and sinks. The thing was that connectors were still Work In
-Progress, and Matthias needed to know how the PDK would work to modify the
+Progress, and Matthias needed to know how the system would work to modify the
 <code>Connector</code> interface. Mainly how to combine plugins and generics, which is what
 I’ll try to figure out in this article.</p>
 </div>
@@ -4250,24 +4310,24 @@ might not be compatible with dynamic loading.</p>
 <div class="paragraph">
 <p>Up until now I had mostly investigated about the
 <a href="https://nullderef.com/blog/plugin-tech/">technologies</a> that could be used for the
-PDK, but I was suggested that I should first take a look at how the interfaces
+system, but I was suggested that I should first take a look at how the interfaces
 would actually look like. That way it would be easier to take the final decision
-for the PDK’s technology, according to the requirements for these interfaces. In
+for the system’s technology, according to the requirements for these interfaces. In
 summary, the following questions arose:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>What’s the performance hit of the PDK?</p>
+<p>What’s the performance hit of the system?</p>
 </li>
 <li>
 <p>Can we avoid serialization?</p>
 </li>
 <li>
-<p>Is it possible to use generics in the PDK?</p>
+<p>Is it possible to use generics in the system?</p>
 </li>
 <li>
-<p>Otherwise, is it possible to use <code>dyn</code> in the PDK?</p>
+<p>Otherwise, is it possible to use <code>dyn</code> in the system?</p>
 </li>
 <li>
 <p>If all else fails, what can be done to represent a “generic” trait object in
@@ -4361,7 +4421,7 @@ anyway.</p>
 <div class="paragraph">
 <p>I’ve created the
 <a href="https://github.com/marioortizmanero/pdk-experiments">pdk-experiments</a> repository,
-where I’ll write various examples of how the PDK might work. The first
+where I’ll write various examples of how the plugin system might work. The first
 experiment is in the
 <a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-simple"><code>dynamic-simple</code>
 directory</a>, with a small example of how to dynamically load plugins with Rust.</p>
@@ -4802,17 +4862,16 @@ that this is hopefully more clear to future users.</p>
 supported types <a href="#wasmer-types">[6]</a>. There are a few ways to handle non-trivial
 types like structs or enums:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>Via the <a href="https://github.com/webassembly/interface-types"><strong>Interface Types
-Proposal</strong> for WebAssembly</a>. It defines the binary format for encoding and
-decoding the newly supported types, and specifies a set of instructions to
-transform the data between WebAssembly and the outside world. Note that this
-proposal is not meant to define a fixed representation of e.g., a string in
-Wasm, it attempts to allow representation-agnostic high-level value types.</p>
-<div class="openblock">
-<div class="content">
+<div class="sect3">
+<h4 id="_the_interface_types_proposal">4.3.1. The Interface Types Proposal</h4>
+<div class="paragraph">
+<p><a href="https://github.com/webassembly/interface-types">This proposal for WebAssembly</a>
+defines the binary format for encoding and decoding the newly supported types,
+and specifies a set of instructions to transform the data between WebAssembly
+and the outside world. Note that this proposal is not meant to define a fixed
+representation of e.g., a string in Wasm, it attempts to allow
+representation-agnostic high-level value types.</p>
+</div>
 <div class="paragraph">
 <p>These new <em>high-level value types</em> are called <strong>interface types</strong>. The current
 proposal defines them as:</p>
@@ -4913,19 +4972,18 @@ of Wasmtime’s, which explains the situation.</p>
 worth my time, as it’s still too early.</p>
 </div>
 </div>
-</div>
-</li>
-<li>
-<p>The hacky-but-working way, via <strong>pointers and a shared
-<a href="https://docs.wasmer.io/integrations/examples/memory">memory</a></strong>. The user has to
-first construct and serialize the complex types, and then save them into
-Wasm’s memory, which can be accessed directly by the runtime or the plugin
-with <a href="https://docs.wasmer.io/integrations/examples/memory-pointers">pointers</a>.
-This is what <a href="https://github.com/feather-rs/feather/tree/main/quill">Feather</a> or
+<div class="sect3">
+<h4 id="_the_hacky_but_working_way">4.3.2. The hacky-but-working way</h4>
+<div class="paragraph">
+<p>Via pointers and a shared
+<a href="https://docs.wasmer.io/integrations/examples/memory">memory</a>. The user has to
+first construct and serialize the complex types, and then save them into Wasm’s
+memory, which can be accessed directly by the runtime or the plugin with
+<a href="https://docs.wasmer.io/integrations/examples/memory-pointers">pointers</a>. This is
+what <a href="https://github.com/feather-rs/feather/tree/main/quill">Feather</a> or
 <a href="https://book.veloren.net/contributors/developers/codebase-structure.html#plugins">Veloren</a>
 do, in case you want more details.</p>
-<div class="openblock">
-<div class="content">
+</div>
 <div class="paragraph">
 <p>Not only does this require a serialization and deserialization step and
 writing/reading all the data from memory, but also it’s very cumbersome to use
@@ -4941,20 +4999,21 @@ wasn’t worth exploring in depth because it requires a [de]serialization step
 Tremor can’t afford.</p>
 </div>
 </div>
-</div>
-</li>
-<li>
+<div class="sect3">
+<h4 id="_separate_executables">4.3.3. Separate executables</h4>
+<div class="paragraph">
 <p>Another way I’ve seen to work around this is by using Wasm as an executable
 instead of a library. <a href="https://github.com/zellij-org/zellij">Zellij</a> does this,
 and communicates with the plugins via the standard input and standard output
 streams.</p>
+</div>
 <div class="paragraph">
 <p>Unfortunately, this also requires [de]serializing and has the overhead of
 writing/reading all the data from stdin and stdout.</p>
 </div>
-</li>
-</ul>
 </div>
+<div class="sect3">
+<h4 id="_conclusion">4.3.4. Conclusion</h4>
 <div class="paragraph">
 <p>Ultimately, this has forced me to discard WebAssembly for Tremor’s Plugin
 Development Kit. Performance is really important in this specific case, and Wasm
@@ -4966,23 +5025,24 @@ want to go.</p>
 </div>
 </div>
 </div>
+</div>
 <div class="sect1">
 <h2 id="_wrapping_up">5. Wrapping up</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Today we’ve learned a lot of things both about dynamic loading and WebAssembly.
-Unfortunately, I’ve had to discard the latter for Tremor’s PDK, but it may be of
-interest to projects that aren’t so focused on performance. Or maybe by the time
-you, the reader, have finished this article, Interface Types are already
+Unfortunately, I’ve had to discard the latter for Tremor’s case, but it may be
+of interest to projects that aren’t so focused on performance. Or maybe by the
+time you, the reader, have finished this article, the issues I found are already
 stabilized and broadly used, which would make Wasm an even more appealing
 choice.</p>
 </div>
 <div class="paragraph">
-<p>In the next post, I will try to get a more advanced example of a PDK with
-dynamic loading. The goal is to simulate the end-product by writing it as close
-as possible to how it would be used in real life. This way, we will also be able
-to benchmark it against a statically linked implementation and analyze the
-performance overhead we’ll end up getting.</p>
+<p>In the next post, I will try to get a more advanced example of a plugin system
+with dynamic loading. The goal is to simulate the end-product by writing it as
+close as possible to how it would be used in real life. This way, we will also
+be able to benchmark it against a statically linked implementation and analyze
+the performance overhead we’ll end up getting.</p>
 </div>
 <div class="paragraph">
 <p>I did write a few benchmarks for the examples provided in this article, but they
@@ -5062,6 +5122,9 @@ the build environment — Github rust-lang/miri</a></p>
       <span class="gh-number">bytecodealliance/wasmtime#677</span></a>
   
   </span>
+  
+  
+  
   
 </p>
 </li>

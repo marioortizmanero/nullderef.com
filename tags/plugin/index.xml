@@ -11,7 +11,2696 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Fri, 11 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/plugin/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 26 Jul 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/plugin/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Plugins in Rust: Wrapping Up</title>
+      <link>https://nullderef.com/blog/plugin-end/</link>
+      <pubDate>Tue, 26 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://nullderef.com/blog/plugin-end/</guid>
+      <description>The last finishing touches and ideas before our plugin system reaches production.</description>
+      <content:encoded><![CDATA[<div class="paragraph">
+<p>Welcome to the final article of this
+<a href="https://nullderef.com/series/rust-plugins/">series</a>! Here I’ll showcase some
+clean-ups and optimizations I may or may not have performed yet, so that our
+plugin system can get closer to production. I will also run benchmarks for some of
+these to ensure that the changes are actually worth it.</p>
+</div>
+<div class="sect1">
+<h2 id="_benchmarking">1. Benchmarking</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_tooling">1.1. Tooling</h3>
+<div class="paragraph">
+<p>There are all kinds of ways to measure the performance of a system, and it’s
+important to take as many of them as possible into account. Here are the ones I
+used myself:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Raw metrics</strong>: Tremor is able to measure its own raw throughput, latency
+ranges, or standard deviation. They serve as an overall score and are very
+easy to compare against eachother.</p>
+</li>
+<li>
+<p><strong><code>perf.data</code></strong>: the command
+<a href="https://perf.wiki.kernel.org/index.php/Main_Page"><code>perf</code></a> measures the runtime
+performance thanks to monitoring capabilities in the Linux kernel. It
+generates a file with the full execution trace, which can be visualized in
+multiple ways, including:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.brendangregg.com/flamegraphs.html">Flamegraphs</a>: hierarchical and
+simple graphs.</p>
+</li>
+<li>
+<p><code>perf report</code>: the integrated CLI, which is more detailed but harder to
+understand.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>High Dynamic Range (HDR) histograms</strong>: Tremor’s latency percentiles can be
+turned into a graph with
+<a href="https://hdrhistogram.github.io/HdrHistogram/plotFiles.html">this site</a>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>There are many other techniques available for benchmarking, though. I wasn’t
+able to get into lower level performance indicators like cache misses. This part
+of the project has helped me realize how hard it is to benchmark a program
+reliably; I would suggest checking out other dedicated learning sources on the
+topic. You should also tune the process according to your use-case, since it may
+vary heavily between programs. See “<a href="#more-bench">More detailed benchmarking</a>” for more information.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_methodology">1.2. Methodology</h3>
+<div class="paragraph">
+<p>My first issue was only having my laptop available for the benchmarks. It’s a
+decent machine, but it caused greater variance in the results, and it wasn’t
+very productive, since I had to stop everything I was doing to exclusively run
+them. The Tremor team helped me out by granting me access to their dedicated
+benchmarking server:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Full specs of both machines, for reference</caption>
+<colgroup>
+<col style="width: 20%;"/>
+<col style="width: 20%;"/>
+<col style="width: 20%;"/>
+<col style="width: 20%;"/>
+<col style="width: 20%;"/>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Machine</th>
+<th class="tableblock halign-left valign-top">CPU</th>
+<th class="tableblock halign-left valign-top">RAM</th>
+<th class="tableblock halign-left valign-top">Disk</th>
+<th class="tableblock halign-left valign-top">Operating System</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Laptop (Dell Vostro 5481)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Intel i5-8265U</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16 GB @ 2667 MHz</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SSD</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Arch Linux, 5.18 kernel, 64 bits</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Benchmarking Machine</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Intel Xeon E-2278G</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32 GB @ 2667 MHz</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SSD</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ubuntu 20.04, 5.4 kernel, 64 bits</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>I ended up developing <a href="https://nullderef.com/blog/plugin-end/bench.sh">a custom
+script</a> to run all the tests properly:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It first validates the configuration, including what benchmarks to run and
+what binaries to compare. It was quite annoying to run into a typo 2 hours
+into the benchmarks…​</p>
+</li>
+<li>
+<p>It performs a few warmup rounds before the actual benchmarks. This was
+specially important when using my laptop, since it started to overheat after
+the first few rounds, degrading its performance.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>One way to ensure the variance isn’t too high is to run the exact same benchmark
+twice:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="/blog/plugin-end/histogram_variance.png"><img src="/blog/plugin-end/histogram_variance.png" alt="histogram variance"/></a>
+</div>
+<div class="title">Figure 1. Histogram for both machines. Unexpectedly, the server ended up having greater variance with this test, but it was good enough to continue anyway. Note that you can click on these images to zoom in.</div>
+</div>
+<div class="paragraph">
+<p>I would strongly recommend anyone to get a separate machine to run benchmarks.
+Not only will they be more reliable, but also you will be able to continue
+working while the benchmarks run.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The measurements in this article are performed with the new <code>#[repr(C)]</code>
+interface, but the plugins aren’t actually loaded dynamically yet. This is
+because, as the
+<a href="https://nullderef.com/blog/plugin-impl/#_separating_runtime_and_interface">planning</a>
+specifies, we are on a previous step to actually making the plugins external.
+The final performance will be slightly worse.
+</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_experiments">2. Experiments</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We can divide the experiments in two categories:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><em>For tracking</em>: the change is always going to be a good idea, because it may
+also clean up the code or make it more robust. We just measure its performance
+impact to report the results and avoid surprises.</p>
+</li>
+<li>
+<p><em>For investigation</em>: the change increases the complexity to explicitly improve
+performance, so we need to make sure it’s worth our time. This improvement may
+occur directly with the change, or indirectly by helping to come up with new
+optimizations.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Benchmarking is only essential in the latter, but I thought it would be a great
+idea in both cases. That way, I can write up a report like this article,
+explaining the improvements I worked on.</p>
+</div>
+<div class="sect2">
+<h3 id="_type_conversions">2.1. Type conversions</h3>
+<div class="paragraph">
+<p>The most important performance concern in the first version of the plugin system
+had to do with
+<a href="https://nullderef.com/blog/plugin-impl/#_reaching_reprc_blockers">the issues I
+had found when trying to convert external types to the C ABI</a>. In short, there
+was an existing type named <code>Value</code>, which I needed to make FFI-safe for the
+plugin system. However, it was used throughout the entire codebase, and
+modifying its definition would’ve required a large amount of unrelated changes
+for just the first iteration.</p>
+</div>
+<div class="paragraph">
+<p>My
+<a href="https://nullderef.com/blog/plugin-impl/#_simplifying_the_type_at_the_ffi_boundary">temporary
+fix</a> was to create the copy <code>PdkValue</code>, and convert to <code>Value</code> and back when
+going through the FFI boundary. <code>PdkValue</code> was only used for the plugin system,
+making it quite easy to implement in contrast.</p>
+</div>
+<div class="paragraph">
+<p>An obvious experiment was to fix this problem properly by making <code>Value</code>
+FFI-safe and removing <code>PdkValue</code>. Unless the performance degraded considerably,
+this was always going to be a nice change because it would simplify the code.</p>
+</div>
+<div class="paragraph">
+<p>After the fix, I was able to investigate about the impact of these conversions
+with some flamegraphs:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="/blog/plugin-end/with_value_conv.png"><img src="/blog/plugin-end/with_value_conv.png" alt="with value conv"/></a>
+</div>
+<div class="title">Figure 2. With both <code>Value</code> and <code>PdkValue</code>. Highlighted in pink are the occurrences of <code>From</code>, <code>Into</code>, and <code>FromIterator</code>, which add up to 9.4% of all the calls in the execution.</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="/blog/plugin-end/without_value_conv.png"><img src="/blog/plugin-end/without_value_conv.png" alt="without value conv"/></a>
+</div>
+<div class="title">Figure 3. With a single <code>Value</code>. The conversion calls add up to 5.2% now, and the highlighted parts are much more sparse and harder to notice.</div>
+</div>
+<div class="paragraph">
+<p>The flamegraphs pointed out that Tremor was spending roughly 4.2% more of its
+execution time just converting between <code>Value</code> and <code>PdkValue</code>. This metric is
+tricky, though. Spending less time on type conversions doesn’t mean that the
+overall program is faster. The percentages are relative to the specific
+execution, and it’s possible that the rest of the program just got slower in the
+case of a single <code>Value</code>.</p>
+</div>
+<div class="paragraph">
+<p>By checking other metrics we discover that this is more or less the case. The
+histogram shows that while a single <code>Value</code> improves the latency, the overall
+throughput actually decreases:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="/blog/plugin-end/histogram_pdk.png"><img src="/blog/plugin-end/histogram_pdk.png" alt="histogram pdk"/></a>
+</div>
+<div class="title">Figure 4. Histogram without the plugin system (<code>connectors</code> branch) vs. first version vs. single <code>Value</code>.</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Relative throughput comparison (higher is better)</caption>
+<colgroup>
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3333%;"/>
+<col style="width: 33.3334%;"/>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-center valign-top">No plugin system (%)</th>
+<th class="tableblock halign-center valign-top">With <code>PdkValue</code> (%)</th>
+<th class="tableblock halign-center valign-top">Single <code>Value</code> (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">66.67</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">63.74</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>This showcases one of my initial mistakes. My comparison only used the
+<code>passthrough</code> benchmark, which simply forwards all input events to the output.
+For a more realistic use-case, I should’ve also tried with other configurations,
+which may include different payloads or event processing logic. In retrospect,
+these results should be taken with a grain of salt.</p>
+</div>
+<div class="paragraph">
+<p>Anyway, it all makes sense to some degree. Converting <code>Value</code> to an FFI-safe
+type requires using, among others, <code>RHashMap</code> instead of <code>HashMap</code> internally.
+Tremor’s original <code>HashMap</code> was taken from the <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
+ crate,
+which was more performant than the standard library version, and even more than
+<code>abi_stable</code>&#39;s. Converting between types temporarily for the FFI interface
+might actually be faster than using less performant types everywhere.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_double_box">2.2. Double <code>Box</code></h3>
+<div class="paragraph">
+<p>I later came up with an improvement over the previous section. The <code>HashMap</code>
+within <code>Value</code> was originally stored inside a <code>Box</code> to reduce the overall size
+of the enum. In the experiment, I just converted it to a <code>RBox</code> and called it a
+day:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-diff" data-lang="diff"> enum Value {
+     // ...
+-    Object(Box&lt;HashMap&lt;String, Value&gt;&gt;),
++    Object(RBox&lt;RHashMap&lt;RString, Value&gt;&gt;),
+     // ...
+ }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>However, turns out that unlike <code>RString</code> or <code>RCow</code>, <code>RHashMap</code> isn’t a
+re-implementation of the underlying type. Writing a hash table from scratch is
+too complex, so the author just made it an opaque type that wraps the standard
+library version.</p>
+</div>
+<div class="paragraph">
+<p>Since <code>RHashMap</code> is an opaque type, it was already on the heap internally thanks
+to another <code>RBox</code>. Thus, the <code>Object</code> variant was boxed twice, which is
+unnecessary, since the size of <code>RHashMap</code> is already minimal. Having to allocate
+every hash table twice was probably costly, and fixing this counted as a
+clean-up, so it was worth trying.</p>
+</div>
+<div class="paragraph">
+<p>The subsequent benchmarks showed a slight improvement in performance, though I
+was still only using the <code>passthrough</code> benchmark at this point. I kept the
+change because it didn’t make much sense to leave the doubly boxed hash table,
+and because it slightly improved the readability of the code.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="/blog/plugin-end/histogram_box.png"><img src="/blog/plugin-end/histogram_box.png" alt="histogram box"/></a>
+</div>
+<div class="title">Figure 5. Histogram of a double box vs. a single box. Note that this test was run on the benchmarking server, while the previous one used my laptop. These tests aren’t meant to be compared between different sections.</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. Relative throughput comparison (higher is better)</caption>
+<colgroup>
+<col style="width: 50%;"/>
+<col style="width: 50%;"/>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-center valign-top">Double <code>RBox</code> (%)</th>
+<th class="tableblock halign-center valign-top">Single <code>RBox</code> (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">100.82</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_hash_table_optimization">2.3. Hash table optimization</h3>
+<div class="paragraph">
+<p>Using a single <code>Value</code> improved the ergonomics of the code by sacrificing a bit
+of efficiency. We could try to fix this regression by creating an FFI-safe
+wrapper for the original external hash table implementation.</p>
+</div>
+<div class="paragraph">
+<p>Tremor used <code>halfbrown</code> both because it’s faster for their usecase, and because
+it has access to lower level functionality. The
+<a href="https://github.com/rust-lang/rust/issues/56167"><code>raw_entry</code></a> interface is only
+available on nightly Rust, while <code>halfbrown</code> exports it in its stable version.
+<code>raw_entry</code> makes it possible to memoize hashes, enabling an optimization in
+Tremor’s JSON handling.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+This actually isn’t a great idea in the long term, because <code>raw_entry</code>
+isn’t going to make it to a stable release <a href="#raw-entry-unstable">[1]</a>. The Rust team
+is working on a different interface, but it will probably be similar enough that
+updating our <code>raw_entry</code> usage won’t be too complicated.
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>This time I did it right since the beginning and tried multiple benchmarks. The
+results are much more varied now, and the efficiency can be analyzed from
+multiple points of view:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="/blog/plugin-end/histogram_pdk_v2_passthrough.png"><img src="/blog/plugin-end/histogram_pdk_v2_passthrough.png" alt="histogram pdk v2 passthrough"/></a>
+</div>
+<div class="title">Figure 6. Histogram for <code>passthrough</code>, which simply redirects input events from a single source to the output.</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png"><img src="/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png" alt="histogram pdk v2 passthrough two inputs"/></a>
+</div>
+<div class="title">Figure 7. Histogram for <code>passthrough-two-inputs</code>, which redirects input events from two different sources to the output.</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png"><img src="/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png" alt="histogram pdk v2 throughput logging json"/></a>
+</div>
+<div class="title">Figure 8. Histogram for <code>throughput-logging-json</code>, which also implements some event processing logic over JSON data.</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png"><img src="/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png" alt="histogram pdk v2 throughput logging msgpack"/></a>
+</div>
+<div class="title">Figure 9. Histogram for <code>throughput-logging-msgpack</code>, which also implements some event processing logic over <a href="https://msgpack.org/index.html">MessagePack</a> data.</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. Relative performance for number of events processed per second (higher is better)</caption>
+<colgroup>
+<col style="width: 20%;"/>
+<col style="width: 20%;"/>
+<col style="width: 20%;"/>
+<col style="width: 20%;"/>
+<col style="width: 20%;"/>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Benchmark</th>
+<th class="tableblock halign-center valign-top">No plugin system (%)</th>
+<th class="tableblock halign-center valign-top">Halfbrown, No JSON Known Key (%)</th>
+<th class="tableblock halign-center valign-top">Halfbrown (%)</th>
+<th class="tableblock halign-center valign-top">Hashbrown (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Passthrough</strong></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">77.39</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">76.33</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">70.86</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Passthrough Two Inputs</strong></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">70.34</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">69.78</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">68.76</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Throughput Logging JSON</strong></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">65.57</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">64.48</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">69.21</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Throughput Logging MsgPack</strong></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">66.66</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">65.52</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">70.69</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Average</strong></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">69.99</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">69.02</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">69.88</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>They seem to point out that, with the plugin system, <a href="https://crates.io/crates/hashbrown"><code>hashbrown</code></a>
+
+(the standard hash table) might actually be better than <code>halfbrown</code>. The JSON
+optimization I mentioned could also be worth removing now. But it’s really hard
+to make a decision just out of this set of benchmarks because of the complexity
+of the change.</p>
+</div>
+<div class="paragraph">
+<p>This time, the experiment is only done for investigation. These results must
+only be taken as an indicator of something worth investigating more in depth. It
+would be premature to make assumptions so early and remove <code>halfbrown</code>. We would
+need to analyze at the impact of using <code>hashbrown</code> without the plugin system,
+and understand in detail <em>why this happens</em>. Taking a look at the flamegraphs,
+for example, could help in figuring out the underlying reasoning.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_abi_stable">2.4. <code>abi_stable</code></h3>
+<div class="paragraph">
+<p>We can also take a look at the recurring occurrence of an experiment that isn’t
+worth pursuing. <code>abi_stable</code> imposes all kinds of overheads, apart from the type
+validation step before loading a plugin. I wanted to learn more about the <code>Drop</code>
+implementations, which require accessing to a vtable, and in cases like <code>RBox</code>,
+dealing with additional logic to ensure everything is safe
+<a href="#abi-stable-box-drop">[2]</a>.</p>
+</div>
+<div class="paragraph">
+<p>After zooming into specific sections, we can see this overhead by ourselves in
+the call stack:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="blog/plugin-end/with_destructor.png"><img src="/blog/plugin-end/with_destructor.png" alt="with destructor"/></a>
+</div>
+<div class="title">Figure 10. Flamegraph with <code>abi_stable</code>&#39;s complex destructors, shown in pink and zoomed in.</div>
+</div>
+<div class="paragraph">
+<p>However, I overestimated the importance of this problem. Taking a look at the
+big picture, it’s obvious that optimizing <code>RBox</code>&#39;s implementation of <code>Drop</code>
+would be premature at the moment:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="/blog/plugin-end/with_destructor_globally.png"><img src="/blog/plugin-end/with_destructor_globally.png" alt="with destructor globally"/></a>
+</div>
+<div class="title">Figure 11. Flamegraph with <code>abi_stable</code>&#39;s complex destructors, shown in pink and without zooming in.</div>
+</div>
+<div class="paragraph">
+<p>I’m definitely taking note of this idea in order to investigate about it in the
+future for further performance squeezing. But I currently have lots of other
+more impactful experiments in mind with a higher priority.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_unimplemented_ideas">3. Unimplemented ideas</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It’s already been a year since I started working with Tremor. I extended the
+mentorship from three months to twelve so that I could use it as my bachelor’s
+thesis (see “<a href="#thesis">My Final Year Project</a>”).</p>
+</div>
+<div class="paragraph">
+<p>But now that I have finally graduated and need to find a full-time job, I won’t
+be able to continue experimenting with the plugin system. My hope is that with
+the information in this series, the Tremor team can keep improving the plugin
+system so that it’s ready for deployment. The same applies to anyone reading
+this; hopefully you’ll have enough pointers to continue on your own after this.</p>
+</div>
+<div class="paragraph">
+<p>Here are some ideas worth considering that I haven’t been able to carry out:</p>
+</div>
+<div class="sect2">
+<h3 id="more-bench">3.1. More detailed benchmarking</h3>
+<div class="paragraph">
+<p><code>perf</code> can track much more information than just the call stack. For example,
+<code>perf stat</code> provides statistics like cache or branch misses <a href="#perf-stat">[3]</a>. Other
+profiling tools like <a href="https://valgrind.org/">Valgrind</a>,
+<a href="https://developer.amd.com/amd-uprof/">AMD μProf</a>, or
+<a href="https://valgrind.org/">Valgrind</a> may provide more specialized insights
+<a href="#profiling">[4]</a>. The whole
+<a href="https://nnethercote.github.io/perf-book/title-page.html">The Rust Performance
+Book</a> is a great read for more resources and ideas.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_investigate_wrapper_overhead">3.2. Investigate wrapper overhead</h3>
+<div class="paragraph">
+<p>The communication between runtime and plugins is handled through the C ABI at a
+lower level. To improve the ergonomics internally, the interface is accompanied
+by a set of wrappers, which convert the types to the standard library.</p>
+</div>
+<div class="paragraph">
+<p>Instead of returning a <code>Result</code>, the following raw function uses the FFI-safe
+alternative <code>RResult</code>, which doesn’t even work with <code>?</code> for error handling. This
+example is quite specific to <code>abi_stable</code>, but what’s important is that we just
+wrap the base function <code>connect</code> and transform it to an easier to use one:</p>
+</div>
+<div class="listingblock">
+<div class="title">Low-level interface to communicate between binaries.</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">#[abi_stable::sabi_trait]
+pub trait RawConnector: Send {
+    fn connect&lt;&#39;a&gt;(
+        &amp;&#39;a mut self,
+        ctx: &amp;&#39;a ConnectorContext,
+        attempt: &amp;&#39;a Attempt,
+    ) -&gt; BorrowingFfiFuture&lt;&#39;a, RResult&lt;bool&gt;&gt;;
+}
+
+/// Alias for the FFI-safe dynamic connector type
+pub type BoxedRawConnector = RawConnector_TO&lt;&#39;static, RBox&lt;()&gt;&gt;;</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">High-level wrapper for what essentially is a <code>Box&lt;dyn RawConnector&gt;</code>.</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub(crate) struct Connector(BoxedRawConnector);
+impl Connector {
+    #[inline]
+    pub async fn connect(&amp;mut self, ctx: &amp;ConnectorContext, attempt: &amp;Attempt) -&gt; Result&lt;bool&gt; {
+        self.0
+            .connect(ctx, attempt)
+            .await
+            .map_err(Into::into) // RBoxError -&gt; Error::PluginError
+            .into() // RResult -&gt; Result
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here we just convert the return types, but we can do the same for the parameters
+or whatever boilerplate is needed for that function. Note that this wrapper only
+needs to be available in the runtime crate; the plugin is only meant to
+implement <code>RawConnector</code> and doesn’t need access to <code>Connector</code>.</p>
+</div>
+<div class="paragraph">
+<p>The problem is that, even though wrappers reduce the much dreaded boilerplate,
+they can also affect performance-critical parts considerably. <code>connect</code> is only
+called at the beginning of the program, but <code>on_event</code> is invoked for every
+single event, making it our <em>hot loop</em>. Any small operation, like a type
+conversion, will have a much greater impact in there. This experiment consists
+on iteratively removing wrappers and looking for performance improvements.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_investigate_async_runtime_conflicts">3.3. Investigate async runtime conflicts</h3>
+<div class="paragraph">
+<p>As far as I understand, the runtime and the plugins don’t share the same async
+runtime state. Every binary has its own thread pool and works independently. It
+would be best to share everything between runtime and plugins, though it sounds
+incredibly complicated, and it would most likely require contributions to the
+async runtimes themselves.</p>
+</div>
+<div class="paragraph">
+<p>I also wonder what happens when the runtime and the plugin use different async
+runtimes, even if they are independent in the binaries. Tremor’s core is
+implemented with <a href="https://crates.io/crates/async_std"><code>async_std</code></a>
+, but an external plugin could freely
+use <a href="https://crates.io/crates/tokio"><code>tokio</code></a>
+, for example. I’ve heard that this could break in many
+ways, since async runtimes heavily rely on global state.</p>
+</div>
+<div class="paragraph">
+<p>Testing different async runtimes should be easy, so it should at least be done
+before reaching production just to document the behavior. What I’m not so sure
+about is how to avoid the conflict, in case it was problematic. The fix would
+probably be hacky, as this is a somewhat obscure problem.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_benchmark_async_ffi">3.4. Benchmark <code>async_ffi</code></h3>
+<div class="paragraph">
+<p>Checking how much of a performance impact <a href="https://crates.io/crates/async_ffi"><code>async_ffi</code></a>
+ causes sounds
+like a good idea. It’s actually a quite simple library; all it really does is
+implement opaque wrappers for the async-related types. But it’s used so often
+(once per call), that it may end up being noticeable.</p>
+</div>
+<div class="paragraph">
+<p>I’m sure that if <code>async_ffi</code> ended up being an issue, it could be optimized
+internally in various ways. Furthermore, we currently use <code>async</code> very
+liberally. Only using it when strictly necessary could also help reduce the
+overhead.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_improve_error_reporting">3.5. Improve error reporting</h3>
+<div class="paragraph">
+<p>For simplicity, errors in our interface are reported via <code>abi_stable</code>&#39;s
+<a href="https://docs.rs/abi_stable/0.10.4/abi_stable/std_types/type.SendRBoxError.html"><code>SendRBoxError</code></a>,
+which is basically a <code>Box&lt;dyn Error + Send&gt;</code>. It’s really the only way to do it,
+because a plugin could have any kind of error, and we can’t know them at
+compile-time.</p>
+</div>
+<div class="paragraph">
+<p>Using <code>Box&lt;dyn Error&gt;</code> instead of a concrete type makes it really hard to
+identify and handle specific errors. We could implement our own <code>Error</code> subtrait
+that provides more plugin-related information. An easier option is to define a
+more organized data structure with common kinds of errors:</p>
+</div>
+<div class="listingblock">
+<div class="title">Example of a more organized error type, even if it still uses <code>Box&lt;dyn Error&gt;</code>.</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">pub struct PluginError {
+    err: SendRBoxError,
+    kind: PluginErrorKind
+}
+
+pub enum PluginErrorKind {
+    Internal, // Implementation-defined errors we can&#39;t handle
+    ConnectionFailed, // Edge cases in `connect`
+    // ...
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_reduce_error_handling_boilerplate">3.6. Reduce error handling boilerplate</h3>
+<div class="paragraph">
+<p>In the plugin system we have to use an FFI-safe type like <code>RResult</code> instead of
+<code>Result</code>. Since the <code>Try</code> trait isn’t stable <a href="#try-trait">[5]</a>, we can’t use the <code>?</code>
+operator yet. <code>abi_stable</code> exports the
+<a href="https://docs.rs/abi_stable/0.10.4/abi_stable/macro.rtry.html"><code>rtry</code> macro</a> as a
+substitute for <code>?</code>, but in my experience it introduces noise in the code, making
+it uglier and harder to maintain.</p>
+</div>
+<div class="paragraph">
+<p>Depending on how much <code>Try</code> is going to take to stabilize, creating a procedural
+macro might be worth our time. It would just replace <code>?</code> with <code>rtry</code> or whatever
+is configred, which should be somewhat simple to write. I’m surprised I couldn’t
+find an existing crate for that yet.</p>
+</div>
+<div class="listingblock">
+<div class="title">Readibility would improve in longer functions with lots of error handling.</div>
+<div class="content">
+<pre class="highlight"><code class="language-diff" data-lang="diff">+#[try_with(rtry)]
+ fn fallible() -&gt; RResult&lt;()&gt; {
+-    if rtry!(fallible_op_1()) &amp;&amp; rtry!(fallible_op_2()) {
+-        rtry!(fallible_op_3());
++    if fallible_op_1()? &amp;&amp; fallible_op_2()? {
++        fallible_op_3()?;
+     }
+
+     ROk(())
+ }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Admittedly, the example above is an oversimplification. In reality, a single
+function may mix both <code>Result</code> and <code>RResult</code>, or require type conversions. The
+proc macro would probably be a bit more complex, but it might be worth
+considering regardless.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_reduce_async_boilerplate">3.7. Reduce async boilerplate</h3>
+<div class="paragraph">
+<p><code>async_ffi</code> would really benefit with a procedural macro as well. It always
+requires using <code>async move { /* …​ */ }.into_ffi()</code>, which is quite a bit of
+boilerplate and increases the indentation level by one.</p>
+</div>
+<div class="listingblock">
+<div class="title">Without the procedural macro.</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">use async_ffi::{FfiFuture, FutureExt};
+
+#[no_mangle]
+pub extern &#34;C&#34; fn work(arg: u32) -&gt; FfiFuture&lt;u32&gt; {
+    async move {
+        let ret = do_some_io(arg).await;
+        do_some_sleep(42).await;
+        ret
+    }
+    .into_ffi()
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">With the procedural macro, especially noticeable in more complex functions.</div>
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">use async_ffi::async_ffi;
+
+#[no_mangle]
+#[async_ffi]
+pub async extern &#34;C&#34; fn work(arg: u32) -&gt; u32 {
+    let ret = do_some_io(arg).await;
+    do_some_sleep(42).await;
+    ret
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I already opened an issue about this with more details for whoever wants to give
+it a try:</p>
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/oxalica/async-ffi/issues/12" style="text-decoration: none;">Procedural macro for boilerplate
+    <span class="gh-number">oxalica/async-ffi#12</span></a>
+
+</span>
+
+
+
+
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="_improve_cross_platform_support">3.8. Improve cross-platform support</h3>
+<div class="paragraph">
+<p>As I mentioned in earlier articles, our plugin system will only work on Windows,
+macOS, and Linux <a href="#thread-safe">[6]</a>. It will still compile on other platforms, but
+possibly with data races in the dynamic linking internals.</p>
+</div>
+<div class="paragraph">
+<p>Specifically, <a href="https://crates.io/crates/libloading"><code>libloading</code></a>
+, which is used by <code>abi_stable</code>, states
+that its error handling isn’t fully thread-safe on some platforms
+<a href="#libloading-threadsafe">[7]</a>, such as <code>dlerror</code> on FreeBSD. Its only consequence
+should be garbage error messages, but I still wouldn’t risk it. There are two
+ways to approach this:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Quick fix</strong>: add a compile-time error for any platform that isn’t explicitly
+supported. Before adding support for a new platform, we will have to manually
+ensure that its dynamic loading error handling is thread-safe.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rust" data-lang="rust">// Ideally, there should be a comment here with references that state the
+// thread-safety of the supported platforms.
+#[cfg(not(any(unix, windows, target_os = &#34;macos&#34;)))]
+compile_error!(
+    &#34;This platform isn&#39;t currently supported. Please open a ticket on GitHub.&#34;
+);</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Proper fix</strong>: fix the data races upstream with an internal mutex. This is what
+the alternative <a href="https://crates.io/crates/dlopen"><code>dlopen</code></a>
+ does, though in their case they <em>always</em>
+have the mutex, which is unnecessary in some platforms <a href="#dlopen-mutex">[8]</a>.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_performance_impact_of_panic_handling">3.9. Performance impact of panic handling</h3>
+<div class="paragraph">
+<p><code>abi_stable</code> has to track all panic occurrences so that they don’t propagate
+through the FFI boundary. Otherwise, as discussed in other articles <a href="#panic-1">[9]</a>
+<a href="#panic-2">[10]</a>, we would be invoking undefined behaviour. <code>async_ffi</code> also has
+special handling for panics, which overcomplicates the crate a bit.</p>
+</div>
+<div class="paragraph">
+<p>There are two interesting experiments to try:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Comparing the performance of <code>panic = &#34;abort&#34;</code> and <code>panic = &#34;unwind&#34;</code>.
+Technically, aborting should optimize away most of the extra code
+<a href="#panic-abort">[11]</a>, but it should only be used for research, as it would make it
+incredibly hard to debug errors in production.</p>
+</li>
+<li>
+<p>Preparing <code>abi_stable</code> and <code>async_ffi</code> for the stable release of
+<a href="https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html"><code>extern &#34;C-unwind&#34;</code></a>,
+thanks to which all the additional panic handling could be removed. Unlike
+aborting, we would still be able to debug errors just fine.</p>
+<div class="paragraph">
+<p>For now, it’s only available on nightly without a certain release date, but it
+will surely be useful in the future, and we could measure how much panic
+handling costs. Testing new features like that also speeds up their release,
+since we could share feedback with the
+<a href="https://github.com/rust-lang/project-ffi-unwind">project group</a>.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_use_z_randomize_layout_to_find_ffi_bugs">3.10. Use <code>-Z randomize-layout</code> to find FFI bugs</h3>
+<div class="paragraph">
+<p>The unstable compiler flag
+<a href="https://github.com/rust-lang/compiler-team/issues/457"><code>-Z randomize-layout</code></a>
+randomizes the layout of <code>#[repr(Rust)]</code> types. The Rust ABI is unstable: it
+explicitly doesn’t specify much about the type layouts, and we must not rely on
+them. However, in practice they’re usually consistent, at least within the same
+compiler version <a href="#abi-instability">[12]</a>, so these errors can be hard to catch
+without a tool like this.</p>
+</div>
+<div class="paragraph">
+<p>We use <code>#[repr(C)]</code> for the plugin system, so this flag shouldn’t cause any
+issues…​ unless we’re mistakenly interacting with the Rust ABI. In that case,
+the program would crash in random and unexpected ways, pointing out that there’s
+something wrong. It certainly won’t be a super nice debugging experience, but
+it’s better than having it happen in production.</p>
+</div>
+<div class="paragraph">
+<p>This may even catch other bugs unrelated to the project. Tremor implements
+self-referential types and other optimizations, and it’s possible that some of
+them incorrectly rely on the Rust ABI.</p>
+</div>
+<div class="paragraph">
+<p>Tremor’s Continuous Integration tests could be run with <code>-Z randomize-layout</code> to
+ensure that no opaque types export Rust types, even if <code>abi_stable</code> prevents
+most cases within the plugin system.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_try_raw_dynamic_loading">3.11. Try raw dynamic loading</h3>
+<div class="paragraph">
+<p>What I didn’t know at the beginning of this journey is that the hardest part
+would be making everything <code>#[repr(C)]</code>. Using <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+ is certainly
+very useful for types like <code>RVec</code> and to create custom types, but at times I
+find the library too much.</p>
+</div>
+<div class="paragraph">
+<p>A few developers, including myself, think that it would be best to have separate
+libraries for all the utilities <code>abi_stable</code> provides, rather than bundling
+everything in there. If they became modularized, making it the “community
+standard” would be easier, and we could have compatible alternatives for
+different preferences.</p>
+</div>
+<div class="paragraph">
+<p>It also boils down to just having more support from the community. <code>abi_stable</code>
+is an incredibly complex library, and I want to give props to the legend
+<a href="https://github.com/rodrimati1992">rodrimati1992</a> for creating and maintaining it.
+But such complexity makes it a scary crate to contribute to, which I know
+first-hand. Turning it into smaller crates would really help decentralize the
+work, in my opinion.</p>
+</div>
+<div class="paragraph">
+<p>Anyway, the point of this experiment is that <code>abi_stable</code> isn’t a hard
+requirement for the plugin system. Using it definitely makes its implementation
+easier, but also introduces many overheads. Its main selling points are
+usability, safety, and backward compatibility. But with enough effort and care,
+we could write the plugin system by ourselves from scratch.</p>
+</div>
+<div class="paragraph">
+<p>It would be super useful to see how much performance could be squeezed out by
+removing <code>abi_stable</code>. This doesn’t need to be done over the full plugin system;
+we could benchmark smaller prototypes, like the ones I host at
+<a href="https://github.com/marioortizmanero/pdk-experiments">marioortizmanero/pdk-experiments</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_simplify_the_interface_further">3.12. Simplify the interface further</h3>
+<div class="paragraph">
+<p>I’m not fully satisfied with what the final interface for the plugin system
+looks like either. For the first version, all I did was change as little as
+possible so that we could have a working prototype. But there are many parts
+that could be simplified with dedicated refactors.</p>
+</div>
+<div class="paragraph">
+<p>This includes trying to minimize the use of complex communication patterns like
+channels, external types that need to be turned into opaque types. Everything
+could be organized a bit better, especially the plugin initialization and
+repetitive opaque types. These improvements can be worked on iteratively,
+because you will only find out new possibilities with time.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_for_the_long_term_future">3.13. For the long-term future</h3>
+<div class="paragraph">
+<p>Most of the previous experiments are focused on either usability or performance.
+However, there are plenty of other ways in which our plugin system could evolve
+once we reach our short-term goals:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Supporting more components</strong> in the plugin system. We could keep splitting up
+the executables into even smaller pieces, continuing to improve the overall
+flexibility and compilation times.</p>
+</li>
+<li>
+<p><strong>Refining the user experience</strong> by making the plugin loading smarter and easier
+to use. In the far future, we could even have a centralized repository with
+all the plugins, so that it’s as easy as possible to import and load them. You
+can think of <a href="https://crates.io/">crates.io</a> or
+<a href="https://hub.docker.com/">hub.docker.com</a>.</p>
+</li>
+<li>
+<p><strong>Improving the developer experience</strong> is also very important. Anyone should be
+able to implement their own plugin, but ours is currently too tied to the
+internals of Tremor. We could create project templates, properly document
+everything, write examples, etc.</p>
+</li>
+<li>
+<p><strong>Security</strong> is something we sacrificed when we chose dynamic loading as our
+base technology. We don’t have a sandbox, which would be essential if a plugin
+repository were to exist.</p>
+</li>
+<li>
+<p><strong>Restarting or unloading plugins</strong> at runtime. Unloading is almost impossible,
+considering that <code>abi_stable</code> explicitly doesn’t support it
+<a href="#abi-stable-unloading">[13]</a>. But restarting could work by simply stopping and
+leaking an existing plugin, and then loading it again with the same config. It
+would improve error resilience considerably, as we would be able to restart
+plugins upon failure (cautiously, as we could run out of memory after leaking
+too much).</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">4. Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>That was all! In summary, our new interface initially slowed down the program by
+around 36%. In a few iterations, we’ve reduced that number to around 30%, and
+there are still many ideas left to try.</p>
+</div>
+<div class="paragraph">
+<p>The complexity of the whole project has turned out to be much greater than we
+predicted at the beginning. I still remember when we were unaware of the ABI
+instability and thought we could get away with an interface in pure Rust. Thus,
+I haven’t been able to attain some goals specified initially, and there’s still
+a bit of work left before reaching production, mainly related to performance.</p>
+</div>
+<div class="paragraph">
+<p>However, I’m sure my implementation will serve as a great base for what the
+plugin system may evolve into in the future! And hopefully, this series and my
+contributions (see “<a href="#os">Open Source Contributions</a>”) will make plugin systems more accessible, even
+outside Tremor.</p>
+</div>
+<div class="paragraph">
+<p>Doing all of this in an open source environment has been enormously rewarding.
+Even if you’re working for a company with propietary software, please try to
+contribute upstream instead of forking or patching. Try to pay it back to those
+who save you from so much work, and submit a PR or an issue.</p>
+</div>
+<div class="paragraph">
+<p>This project has been possible thanks to Darach, Heinz, and Matthias, my mentors
+in the Tremor team. Thanks to Wayfair as well for supporting open source, and
+for funding this project. And one final thanks to the Rust community for
+motivating me to continue with the series, and for providing such splendid
+libraries and tools.</p>
+</div>
+<div class="paragraph">
+<p>Please <a href="#comments">leave a comment below</a> for any questions or suggestions you
+may have. Also let me know of any new advances on any of the ideas above, so
+that I can add a link for future readers. I would love to see your plugin system
+creations and results :)</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="ulist bibliography">
+<ul class="bibliography">
+<li>
+<p><a id="raw-entry-unstable"></a>[1]
+<a href="https://github.com/rust-lang/rust/issues/56167#issuecomment-810457405">@Amanieu’s
+comment — Tracking issue for HashMap::raw_entry</a></p>
+</li>
+<li>
+<p><a id="abi-stable-box-drop"></a>[2]
+<a href="https://github.com/rodrimati1992/abi_stable_crates/blob/4514c38829548ef6f4201dac183c1e866bdd2401/abi_stable/src/std_types/boxed.rs#L597"><code>Drop</code>
+for <code>RBox</code> in <code>abi_stable/src/std_types/boxed.rs</code></a></p>
+</li>
+<li>
+<p><a id="perf-stat"></a>[3]
+<a href="https://perf.wiki.kernel.org/index.php/Tutorial#Counting_with_perf_stat">Counting
+with <code>perf stat</code> — Perf Wiki</a></p>
+</li>
+<li>
+<p><a id="profiling"></a>[4]
+<a href="https://nnethercote.github.io/perf-book/profiling.html">Profilers — The Rust
+Performance Book</a></p>
+</li>
+<li>
+<p><a id="try-trait"></a>[5]
+<a href="https://rust-lang.github.io/rfcs/3058-try-trait-v2.html">Try trait v2 — The
+Rust RFC Book</a></p>
+</li>
+<li>
+<p><a id="thread-safe"></a>[6]
+<a href="https://nullderef.com/blog/plugin-abi-stable/#_thread_safety">Thread safety — Plugins in Rust: Reducing the Pain with Dependencies, NullDeref</a></p>
+</li>
+<li>
+<p><a id="libloading-threadsafe"></a>[7]
+<a href="https://docs.rs/libloading/0.7.3/libloading/struct.Library.html#thread-safety">Thread-safety — <code>libloading</code> v0.7.3 docs</a></p>
+</li>
+<li>
+<p><a id="dlopen-mutex"></a>[8]
+
+  
+  
+  
+  
+  
+  
+  
+    
+  
+  
+  
+  <span class="gh-reference">
+  
+    
+    
+      <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+    
+  
+    <a class="gh-title" href="https://github.com/szymonwieloch/rust-dlopen/issues/42" style="text-decoration: none;"><code>dlerror</code> <em>is</em> thread-safe on some platforms
+      <span class="gh-number">szymonwieloch/rust-dlopen#42</span></a>
+  
+  </span>
+  
+  
+  
+  
+</p>
+</li>
+<li>
+<p><a id="panic-1"></a>[9]
+<a href="https://nullderef.com/blog/plugin-abi-stable/#_panicking">Panicking — Plugins
+in Rust: Reducing the Pain with Dependencies, NullDeref</a></p>
+</li>
+<li>
+<p><a id="panic-2"></a>[10]
+<a href="https://nullderef.com/blog/plugin-dynload/#_panicking">Panicking — Plugins in
+Rust: Diving into Dynamic Loading, NullDeref</a></p>
+</li>
+<li>
+<p><a id="panic-abort"></a>[11]
+<a href="https://doc.rust-lang.org/book/ch09-01-unrecoverable-errors-with-panic.html#unwinding-the-stack-or-aborting-in-response-to-a-panic">Unwinding
+the Stack or Aborting in Response to a Panic — The Rust Programming Language</a></p>
+</li>
+<li>
+<p><a id="abi-instability"></a>[12]
+<a href="https://nullderef.com/blog/plugin-start/#_abi_unstability_its_much_worse_than_it_seems">ABI
+unstability, it’s much worse than it seems — Plugins in Rust: Getting
+Started, NullDeref</a></p>
+</li>
+<li>
+<p><a id="abi-stable-unloading"></a>[13]
+<a href="https://github.com/rodrimati1992/abi_stable_crates/tree/69fd90c97268ac0d8d4fe4e83747250e6ed2f3cf#non-features-extremely-unlikely-to-be-added">Non-features
+(extremely unlikely to be added) — GitHub rodrimati1992/abi_stable_crates</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="os">Appendix A: Open Source Contributions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>One of my favorite parts of the project has been contributing so much to all
+kinds of open source dependencies, so I’ve maintained a list of its occurrences.
+Some are more important than others, but it’s still a decent metric for my
+results. This skips the issues or pull requests that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Contributed nothing (e.g., asking questions or discarded ideas).</p>
+</li>
+<li>
+<p>Were repetitive (e.g., I made a few identical PRs in Tremor when I was fixing
+problems with Git).</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_external_contributions">A.1. External Contributions</h3>
+<div class="paragraph">
+<p>These include repositories not directly related to Tremor:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rust-lang/nomicon/issues/338" style="text-decoration: none;">Subtyping and Variance - Trait variance not covered
+    <span class="gh-number">rust-lang/nomicon#338</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/szymonwieloch/rust-dlopen/issues/42" style="text-decoration: none;"><code>dlerror</code> <em>is</em> thread-safe on some platforms
+    <span class="gh-number">szymonwieloch/rust-dlopen#42</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/wasmerio/wasmer/issues/2539" style="text-decoration: none;">Add deprecation notice to the crate <code>wasmer-runtime</code>
+    <span class="gh-number">wasmerio/wasmer#2539</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/oxalica/async-ffi/pull/10" style="text-decoration: none;">Support for <code>abi_stable</code>
+    <span class="gh-number">oxalica/async-ffi#10</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/oxalica/async-ffi/pull/11" style="text-decoration: none;">Cbindgen support
+    <span class="gh-number">oxalica/async-ffi#11</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/oxalica/async-ffi/issues/12" style="text-decoration: none;">Procedural macro for boilerplate
+    <span class="gh-number">oxalica/async-ffi#12</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/issues/52" style="text-decoration: none;">Generating C bindings
+    <span class="gh-number">rodrimati1992/abi_stable_crates#52</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/issues/60" style="text-decoration: none;">Stable ABI for floating point numbers
+    <span class="gh-number">rodrimati1992/abi_stable_crates#60</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/55" style="text-decoration: none;">Fix &lsquo;carte&rsquo; typo
+    <span class="gh-number">rodrimati1992/abi_stable_crates#55</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/57" style="text-decoration: none;">Fix some more typos
+    <span class="gh-number">rodrimati1992/abi_stable_crates#57</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/58" style="text-decoration: none;">Add support for .keys() and .values() in RHashMap
+    <span class="gh-number">rodrimati1992/abi_stable_crates#58</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/59" style="text-decoration: none;">Implement <code>Index</code> for slices and vectors
+    <span class="gh-number">rodrimati1992/abi_stable_crates#59</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/61" style="text-decoration: none;">Support for <code>f32</code> and <code>f64</code>
+    <span class="gh-number">rodrimati1992/abi_stable_crates#61</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/68" style="text-decoration: none;">Implement <code>ROption::as_deref</code>
+    <span class="gh-number">rodrimati1992/abi_stable_crates#68</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/70" style="text-decoration: none;">Implement <code>RVec::append</code>
+    <span class="gh-number">rodrimati1992/abi_stable_crates#70</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/76" style="text-decoration: none;">Fix <code>R*</code> lifetimes
+    <span class="gh-number">rodrimati1992/abi_stable_crates#76</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/77" style="text-decoration: none;">Fix inconsistencies with <code>RVec</code> in respect to <code>Vec</code>
+    <span class="gh-number">rodrimati1992/abi_stable_crates#77</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/82" style="text-decoration: none;">Implement <code>ROption::{ok_or,ok_or_else}</code>
+    <span class="gh-number">rodrimati1992/abi_stable_crates#82</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/83" style="text-decoration: none;"><code>RHashMap::raw_entry[_mut]</code> support
+    <span class="gh-number">rodrimati1992/abi_stable_crates#83</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/85" style="text-decoration: none;">Fix hasher
+    <span class="gh-number">rodrimati1992/abi_stable_crates#85</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/88" style="text-decoration: none;">Only implement <code>Default</code> once
+    <span class="gh-number">rodrimati1992/abi_stable_crates#88</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/simd-lite/simd-json-derive/pull/9" style="text-decoration: none;">Support for <code>abi_stable</code>
+    <span class="gh-number">simd-lite/simd-json-derive#9</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/simd-lite/simd-json-derive/issues/10" style="text-decoration: none;">No docs for v0.3.0
+    <span class="gh-number">simd-lite/simd-json-derive#10</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/simd-lite/value-trait/pull/14" style="text-decoration: none;">Add support for StableAbi
+    <span class="gh-number">simd-lite/value-trait#14</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/simd-lite/value-trait/pull/16" style="text-decoration: none;">User friendliness for the win! (close #15)
+    <span class="gh-number">simd-lite/value-trait#16</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/simd-lite/value-trait/pull/18" style="text-decoration: none;">Update abi_stable after upstreamed changes
+    <span class="gh-number">simd-lite/value-trait#18</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/nagisa/rust_libloading/pull/94" style="text-decoration: none;">Small typo
+    <span class="gh-number">nagisa/rust_libloading#94</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/szymonwieloch/rust-dlopen/pull/40" style="text-decoration: none;">Fix typo
+    <span class="gh-number">szymonwieloch/rust-dlopen#40</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/Licenser/halfbrown/pull/13" style="text-decoration: none;">Implement <code>remove_entry</code>
+    <span class="gh-number">Licenser/halfbrown#13</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/Licenser/halfbrown/pull/14" style="text-decoration: none;">Implement <code>Clone</code> and <code>Debug</code> for <code>Iter</code>
+    <span class="gh-number">Licenser/halfbrown#14</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/Licenser/halfbrown/pull/16" style="text-decoration: none;">Relax constraints
+    <span class="gh-number">Licenser/halfbrown#16</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/Licenser/halfbrown/pull/17" style="text-decoration: none;">Same <code>Default</code> constraints
+    <span class="gh-number">Licenser/halfbrown#17</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/Licenser/halfbrown/pull/18" style="text-decoration: none;">Fix <code>Clone</code> requirements for <code>Iter</code>
+    <span class="gh-number">Licenser/halfbrown#18</span></a>
+
+</span>
+
+
+
+
+
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_internal_contributions">A.2. Internal Contributions</h3>
+<div class="paragraph">
+<p>Here are the issues and pull requests created within Tremor’s repositories,
+including those for the plugin system and other unrelated improvements:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/pull/1434" style="text-decoration: none;">PDK support
+    <span class="gh-number">tremor-rs/tremor-runtime#1434</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/marioortizmanero/tremor-runtime/pull/11" style="text-decoration: none;">PDK with a single value
+    <span class="gh-number">marioortizmanero/tremor-runtime#11</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/pull/1447" style="text-decoration: none;">Fix <code>makefile bench</code>
+    <span class="gh-number">tremor-rs/tremor-runtime#1447</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+<p>
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/marioortizmanero/tremor-runtime/pull/2" style="text-decoration: none;">Adding <code>abi_stable</code> support for <code>tremor-script</code>
+    <span class="gh-number">marioortizmanero/tremor-runtime#2</span></a>
+
+</span>
+
+
+
+
+ (second attempt)</p>
+</li>
+<li>
+<p>
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/marioortizmanero/tremor-runtime/pull/1" style="text-decoration: none;">Adding <code>abi_stable</code> support for <code>tremor-runtime</code>
+    <span class="gh-number">marioortizmanero/tremor-runtime#1</span></a>
+
+</span>
+
+
+
+
+ (second attempt)</p>
+</li>
+<li>
+<p>
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/pull/1303" style="text-decoration: none;">Adding <code>abi_stable</code> support for <code>tremor-value</code>
+    <span class="gh-number">tremor-rs/tremor-runtime#1303</span></a>
+
+</span>
+
+
+
+
+ (second attempt)</p>
+</li>
+<li>
+<p>
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/pull/1287" style="text-decoration: none;">Plugin Development Kit: Connectors
+    <span class="gh-number">tremor-rs/tremor-runtime#1287</span></a>
+
+</span>
+
+
+
+
+ (first attempt)</p>
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/issues/1353" style="text-decoration: none;"><code>deny</code> statemements in <code>lib.rs</code> should be enforced in the CI rather than in the code
+    <span class="gh-number">tremor-rs/tremor-runtime#1353</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/issues/1812" style="text-decoration: none;"><code>KnownKey</code> relies on a deterministic hash builder
+    <span class="gh-number">tremor-rs/tremor-runtime#1812</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/pull/72" style="text-decoration: none;">Fix wrong links in getting started
+    <span class="gh-number">tremor-rs/tremor-www#72</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/issues/73" style="text-decoration: none;">Redirect <code>docs.tremor.rs</code> to <code>www.tremor.rs/docs</code>
+    <span class="gh-number">tremor-rs/tremor-www#73</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/pull/186" style="text-decoration: none;">Links pinned to 0.12 don&rsquo;t work
+    <span class="gh-number">tremor-rs/tremor-www#186</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/pull/187" style="text-decoration: none;">Small fix in code snippet
+    <span class="gh-number">tremor-rs/tremor-www#187</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/issues/195" style="text-decoration: none;">No margins in benchmark page
+    <span class="gh-number">tremor-rs/tremor-www#195</span></a>
+
+</span>
+
+
+
+
+
+</li>
+<li>
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/pull/219" style="text-decoration: none;">Fix typos in benchmarks page
+    <span class="gh-number">tremor-rs/tremor-www#219</span></a>
+
+</span>
+
+
+
+
+
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_other_achievements">Appendix B: Other Achievements</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_breaking_the_compiler">B.1. Breaking the Compiler</h3>
+<div class="paragraph">
+<p>I also managed to break the Rust compiler while working on this plugin system.
+It may not be as rare as one would think, but for some reason I felt oddly proud
+to achieve it, so I’ll share it here :)</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="/blog/plugin-end/rustc_crash.png" alt="rustc crash" width="100%"/>
+</div>
+</div>
+<div class="paragraph">
+<p>It’s seemingly related to incremental compilation, and
+<a href="https://github.com/rust-lang/rust/issues/90608">someone had already reported it
+before</a>. It should be fixed in a future version, and I haven’t come across it
+again.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_lfx_mentorship_showcase">B.2. LFX Mentorship Showcase</h3>
+<div class="paragraph">
+<p>I already shared this in a previous article, but for completeness I’ll repeat it
+here. This online event made it possible to showcase my work back in January
+with a <a href="https://youtu.be/htLCyqY0kt0?t=3166">quick 15-minute presentation</a>. I
+couldn’t get into many technical details, but I’m sure it will be useful to
+someone else considering a <a href="https://lfx.linuxfoundation.org/tools/mentorship/">LFX
+Mentorship</a> or <a href="https://summerofcode.withgoogle.com/">Google Summer of Code</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="thesis">B.3. My Final Year Project</h3>
+<div class="paragraph">
+<p>Finally, I have recently submitted this as
+<a href="https://github.com/marioortizmanero/final-year-project">my bachelor’s Final Year
+Project</a>. It takes a more academic approach, and I rigorously reorganized
+everything so that even developers unfamiliar with Rust can understand it. The
+abstract is in English, but unfortunately, the rest is in Spanish due to absurd
+university rules.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_kubecon_cloudnativecon_2022">B.4. KubeCon + CloudNativeCon 2022</h3>
+<div class="paragraph">
+<p>Thanks to the Tremor team, I was also able to presentially attend
+<a href="https://events.linuxfoundation.org/kubecon-cloudnativecon-europe/">KubeCon<br/>
+CloudNativeCon</a> 2022 in Valencia, Spain! It was my first conference and I was
+very pleasantly surprised by how nice everyone was. I had tons of fun and met
+smart folk with all kinds of backgrounds. If you’re on the fence about attending
+something similar, I strongly recommend you to go for it!</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="/blog/plugin-end/paella.jpg" alt="paella" width="50%"/>
+</div>
+<div class="title">Figure 12. Paella! <a href="https://www.linkedin.com/feed/update/urn:li:share:6934450596049539072">From my LinkedIn profile</a>.</div>
+</div>
+</div>
+</div>
+</div>
+]]></content:encoded>
+    </item>
+    
     <item>
       <title>Plugins in Rust: Getting our Hands Dirty</title>
       <link>https://nullderef.com/blog/plugin-impl/</link>
@@ -32,8 +2721,8 @@ and for all.</p>
 , but the concepts
 should be roughly the same for any dynamic loading method. Similarly, some of my
 advice is related to modifying an already existing project of large size. If
-you’re starting from scratch with a plugin system (PDK) in mind, it should be
-the same, just easier in some aspects.</p>
+you’re starting from scratch with a plugin system in mind, it should be the
+same, just easier in some aspects.</p>
 </div>
 <div class="sect1">
 <h2 id="advice">1. Some prototyping advice</h2>
@@ -159,7 +2848,7 @@ that we haven’t cleaned up yet, which are usually harmless.</p>
 <div class="paragraph">
 <p>One month later, I was able to finally compile
 <a href="https://github.com/tremor-rs/tremor-runtime"><code>tremor-runtime</code></a> with the initial
-PDK prototype. This screenshot made my day, as simple as it may seem:</p>
+prototype. This screenshot made my day, as simple as it may seem:</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
@@ -183,8 +2872,8 @@ having to painfully resolve them many times until I got the hang of it.</p>
 </div>
 <div class="paragraph">
 <p>Say, you have a number of <code>use</code> statements at the top of your file. After adding
-some changes related to the PDK, you now need to import <code>PdkValue</code> as well.
-You’d usually do:</p>
+some changes related to the plugin system, you now need to import <code>PdkValue</code> as
+well. You’d usually do:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -451,6 +3140,9 @@ deriving <code>StableAbi</code> for those that don’t need the latter.</p>
 </p>
 
 
+
+
+
 </div>
 </div>
 </div>
@@ -516,7 +3208,7 @@ can be used in that case instead.</p>
 <div class="paragraph">
 <p>This can be messy because in order to avoid conversions, your plugin system will
 <em>infect</em> the entire codebase. You may quickly find yourself propagating the
-usage of <code>RHashMap</code> everywhere, even when the PDK isn’t that important. For
+usage of <code>RHashMap</code> everywhere, even when the system isn’t that important. For
 example, <code>Value</code> also appeared in
 <a href="https://www.tremor.rs/docs/tremor-script/index">Trickle</a>&#39;s implementation, the
 scripting language used to configure Tremor’s pipelines. Having to use
@@ -583,6 +3275,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
 </span>
 
 
+
+
+
 </div>
 <div class="paragraph text-center">
 
@@ -608,6 +3303,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
     <span class="gh-number">rodrimati1992/abi_stable_crates#59</span></a>
 
 </span>
+
+
+
 
 
 </div>
@@ -637,6 +3335,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
 </span>
 
 
+
+
+
 </div>
 <div class="paragraph text-center">
 
@@ -664,6 +3365,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
 </span>
 
 
+
+
+
 </div>
 <div class="paragraph text-center">
 
@@ -689,6 +3393,39 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
     <span class="gh-number">rodrimati1992/abi_stable_crates#70</span></a>
 
 </p>
+
+
+
+
+
+</div>
+<div class="paragraph text-center">
+
+
+
+
+
+
+
+
+  
+
+
+
+<span class="gh-reference">
+
+  
+  
+    <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
+  
+
+  <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/82" style="text-decoration: none;">Implement <code>ROption::{ok_or,ok_or_else}</code>
+    <span class="gh-number">rodrimati1992/abi_stable_crates#82</span></a>
+
+</span>
+
+
+
 
 
 </div>
@@ -843,8 +3580,8 @@ pub enum PdkValue {
 <div class="paragraph">
 <p>We don’t need to write any additional methods for the new <code>PdkValue</code>, only its
 conversions to and from the regular <code>Value</code>. This would be equivalent to,
-instead of passing a <code>Vec</code> to the PDK, replacing it with a <code>*const u8</code> for the
-data and a <code>u32</code> for the length. We’re just simplifying the types at the FFI
+instead of passing a <code>Vec</code> to the interface, replacing it with a <code>*const u8</code> for
+the data and a <code>u32</code> for the length. We’re just simplifying the types at the FFI
 boundary, and then maybe converting them back for access to the full
 functionality.</p>
 </div>
@@ -1026,6 +3763,9 @@ something that can be fixed with a procedural macro in the future:</p>
 </p>
 
 
+
+
+
 </div>
 <div class="paragraph">
 <p>The only problem I found was that the futures didn’t implement <code>StableAbi</code>, so
@@ -1057,6 +3797,9 @@ to understand the crate, but it’s nothing a Pull Request can’t fix:</p>
     <span class="gh-number">oxalica/async-ffi#10</span></a>
 
 </p>
+
+
+
 
 
 </div>
@@ -1382,8 +4125,8 @@ to me with Tremor as well.</p>
 <p>For now, I just have the runtime and the interface in the same crate. External
 plugins then have the entire runtime as a dependency. Which, as I said, is
 suboptimal, but it works. Moving so much stuff into a separate <code>common</code> crate
-would mean a <em>ton</em> of conflicts, so I would rather leave it for whenever my
-first iteration of the PDK is merged.</p>
+would mean a <em>ton</em> of conflicts, so I would rather leave it for whenever the
+first iteration is merged.</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
@@ -1400,7 +4143,7 @@ first iteration of the PDK is merged.</p>
 <p>Preparing the release for the plugin system has always sounded like a quite
 complicated task. I’ve never wanted to introduce too many changes at once
 because otherwise it will become very hard to review and merge into the main
-branch. This is why I decided to schedule the PDK release in four separate
+branch. This is why I decided to schedule the release in four separate
 iterations:</p>
 </div>
 <div class="olist arabic">
@@ -1484,6 +4227,9 @@ this issue in the meanwhile, and hope that you don’t run into it:</p>
 </p>
 
 
+
+
+
 </div>
 <div class="paragraph">
 <p>After I’m fully done I will also reorganize this series a bit and make it an
@@ -1516,6 +4262,9 @@ here:</p>
     <span class="gh-number">marioortizmanero/nullderef.com#50</span></a>
 
 </p>
+
+
+
 
 
 </div>
@@ -1558,6 +4307,9 @@ the whole experience has been so far, and what I’ve learned:</p>
 
 </span>
 
+
+
+
 </p>
 </li>
 <li>
@@ -1580,12 +4332,12 @@ Key memoization in <code>tremor-runtime/tremor-value/src/known_key.rs</code></a>
       <guid>https://nullderef.com/blog/plugin-abi-stable/</guid>
       <description>Taking a look at the state of dynamic loading in the Rust ecosystem</description>
       <content:encoded><![CDATA[<div class="paragraph">
-<p><a href="https://nullderef.com/blog/plugin-dynload/">The last article</a> of this
-<a href="https://nullderef.com/series/rust-plugins/">series</a> covered how the plugin system
-could be implemented from scratch. This is a lot of work if you’re dealing
-with a relatively large codebase and therefore a complex interface in your
-plugin system, so let’s see how we can make our lives easier. I’ve been wanting
-to try <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
+<p><a href="https://nullderef.com/blog/plugin-dynload/">Previously</a> in this
+<a href="https://nullderef.com/series/rust-plugins/">series</a>, I covered how the plugin
+system could be implemented from scratch. This is a lot of work if you’re
+dealing with a relatively large codebase and therefore a complex interface in
+your plugin system, so let’s see how we can make our lives easier. I’ve been
+wanting to try <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
  for this since the beginning, which was
 specifically created for plugins. But we aren’t really locked to that crate, so
 I’ll show other alternatives as well, which can even be combined to your liking.</p>
@@ -2439,6 +5191,9 @@ with <code>panic = &#34;abort&#34;</code>, it’s only available on nightly unti
 </p>
 
 
+
+
+
 </div>
 </div>
 <div class="sect2">
@@ -2692,7 +5447,7 @@ But if your programs supports other Operating Systems, you might want to check
 their manuals one by one in order to make sure.</p>
 </div>
 <div class="paragraph">
-<p>However, for the first version of our PDK this won’t be a problem at all. For
+<p>However, for the first version of our system this won’t be a problem at all. For
 simplicity’s sake, loading plugins after the startup will not be implemented
 yet, and we’ll do it sequentially. But it’s good to know it for the future.</p>
 </div>
@@ -2712,7 +5467,7 @@ after using it for <a href="https://nullderef.com/blog/web-api-client/">another 
 <div class="paragraph">
 <p>First, we can take a look at already implemented plugin systems in order to have
 an idea of the performance hit we’ll experience in Tremor. This is what we
-should expect once our PDK is polished and ready for deployment:</p>
+should expect once our system is polished and ready for deployment:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2807,11 +5562,11 @@ not as bad as I thought; there’s plenty of tools for each use-case, though mos
 are admittedly only in early stages.</p>
 </div>
 <div class="paragraph">
-<p>Hopefully the performance degradations we’ve found won’t be as noticeable in the
-final version of the PDK. We’ll use <code>sabi_trait</code> only when loading the library
-instead of for each call. And having a more complex use-case will probably avoid
-such incredible optimizations in the native code. You can find the full
-statistical reports in the
+<p>Hopefully, the performance degradations we’ve found won’t be as noticeable in
+the final version of the system. We’ll use <code>sabi_trait</code> only when loading the
+library instead of for each call. And having a more complex use-case will
+probably avoid such incredible optimizations in the native code. You can find
+the full statistical reports in the
 <a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/criterion-reports"><code>criterion-reports</code></a>
 directory of the
 <a href="https://github.com/marioortizmanero/pdk-experiments/">repository</a>.</p>
@@ -2852,6 +5607,9 @@ they can be approached.</p>
     <span class="gh-number">h33p/cglue#3</span></a>
 
 </span>
+
+
+
 
 </p>
 </li>
@@ -2909,11 +5667,12 @@ Disadvantages — Dynamic Shared Object (DSO) Support</a></p>
       <guid>https://nullderef.com/blog/plugin-dynload/</guid>
       <description>A closer look at dynamic loading in Rust</description>
       <content:encoded><![CDATA[<div class="paragraph">
-<p>In the <a href="https://nullderef.com/blog/plugin-start/">last part</a> of this
+<p>In the <a href="https://nullderef.com/blog/plugin-start/">last article</a> of this
 <a href="https://nullderef.com/series/rust-plugins/">series</a> I wrote some simple
 experiments of plugins both with WebAssembly and dynamic loading. After
-discarding Wasm for this specific PDK, I wanted to try to get a more realistic
-example with dynamic loading and work towards the final implementation.</p>
+discarding Wasm for this specific plugin system, I wanted to try to get a more
+realistic example with dynamic loading and work towards the final
+implementation.</p>
 </div>
 <div class="paragraph">
 <p>Since the Tremor team suggested that I began by implementing connectors, we’ll
@@ -3019,16 +5778,16 @@ and implements a higher-level asynchronous interface on top of it.</p>
 <p>As always, these articles include a first section with content specific to
 Tremor that you might <a href="#actual_start">want to skip</a>. Unfortunately, with time
 this series will become more and more specific to Tremor; after all I’m just
-reporting my progress on their PDK. Still, having a step-by-step walkthrough for
-a real-life Plugin System will surely be helpful to those attempting to do the
-same.</p>
+reporting my progress on their project. Still, having a step-by-step walkthrough
+for a real-life Plugin System will surely be helpful to those attempting to do
+the same.</p>
 </div>
 <div class="sect2">
 <h3 id="_my_next_steps">2.1. My next steps</h3>
 <div class="paragraph">
 <p>In the first meeting we discussed the work I had exposed in my last update.
 Despite the complications (being forced to use <code>#[repr(C)]</code>), the team liked where
-the PDK was going.</p>
+the plugin system was going.</p>
 </div>
 <div class="paragraph">
 <p>They suggested me to start with connectors for the real-life example, even
@@ -3086,10 +5845,10 @@ incredibly helpful.</p>
 <div class="sect2">
 <h3 id="_how_tremor_works">2.3. How Tremor works</h3>
 <div class="paragraph">
-<p>After starting to write the PDK example for connectors and failing because I
+<p>After starting to write a first prototype for connectors and failing because I
 didn’t know what I was doing, I decided to step back and try to understand in
 detail how Tremor works. Once I had that covered, I could try to simplify the
-PDK as much as possible in order to keep my sanity.</p>
+plugin system as much as possible in order to keep my sanity.</p>
 </div>
 <div class="paragraph">
 <p>I jumped into the codebase of
@@ -3166,9 +5925,9 @@ handling their communication details.</p>
 <div class="paragraph">
 <p>Once all the managers are initialized, Tremor currently registers all the
 built-in artifacts in a “hardcoded” way with <code>register_builtin_types</code>. But
-after the PDK is implemented, this will happen dynamically, i.e., Tremor will
-automatically look for DLL/SO files in its configured directory and try to
-register all the plugins it can find. The user may additionally request a
+after the plugin system is implemented, this will happen dynamically, i.e.,
+Tremor will automatically look for DLL/SO files in its configured directory and
+try to register all the plugins it can find. The user may additionally request a
 specific plugin to be loaded while Tremor is running.</p>
 </div>
 <div class="paragraph">
@@ -3255,9 +6014,9 @@ performance testing.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>Both of these are relatively simple and will be helpful to benchmark the PDK
-later on. But that isn’t really important right now; I first need to get the PDK
-working, and then I can care about performance.</p>
+<p>Both of these are relatively simple and will be helpful to benchmark the plugin
+system later on. But that isn’t really important right now; I first need to get
+it working, and then I can care about performance.</p>
 </div>
 </div>
 </div>
@@ -3327,11 +6086,11 @@ until it’s properly updated upstream, among other things. Pretty cool :)</p>
 <h2 id="_getting_deeper_into_dynamic_linking">4. Getting deeper into dynamic linking</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Now that we definitely know how to approach the PDK, we have two choices: using
-raw dynamic linking with the C ABI and <code>libloading</code>, or trying out the
-<code>abi_stable</code> crate. I suggest we do both. We’ll most likely end up using the
-latter because it should be easier and safer, but it’s still a very good idea to
-know how <code>abi_stable</code> works under the hood.</p>
+<p>Now that we definitely know how to approach the plugin system, we have two
+choices: using raw dynamic linking with the C ABI and <code>libloading</code>, or trying
+out the <code>abi_stable</code> crate. I suggest we do both. We’ll most likely end up using
+the latter because it should be easier and safer, but it’s still a very good
+idea to know how <code>abi_stable</code> works under the hood.</p>
 </div>
 <div class="paragraph">
 <p>In the previous article I created a <code>dynamic-simple</code> experiment in examples to
@@ -3419,7 +6178,7 @@ runtime should check it before anything else.</p>
 not <code>#[repr(C)]</code>).</p>
 </li>
 <li>
-<p><strong>Stable</strong>. <code>abi_stable::Rstr</code> won’t work either because the versions for
+<p><strong>Stable</strong>. <code>abi_stable::RStr</code> won’t work either because the versions for
 <code>abi_stable</code> might mismatch, since we’re reading the symbol before knowing
 that. Its layout must be <em>always</em> the same.</p>
 </li>
@@ -4111,28 +6870,18 @@ C++</a></p>
       <pubDate>Sun, 05 Sep 2021 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/blog/plugin-start/</guid>
-      <description>My first steps trying to implement the PDK</description>
+      <description>My first steps trying to implement the plugin system</description>
       <content:encoded><![CDATA[<div class="paragraph">
-<p>Welcome to my second article about Plugins in Rust! Here I will try to actually
-write some simple code of what a PDK (<em>Plugin Development Kit</em>) might look like,
-and also do some research about questions that arise while doing so. Please note
-that this is a series of posts, so you might be interested in reading
-<a href="https://nullderef.com/series/rust-plugins/">the previous ones for context</a>.</p>
+<p>Welcome to the second article of my
+<a href="https://nullderef.com/series/rust-plugins/">“Plugins in Rust” series</a>! Here I
+will try to actually write some simple code of what a plugin system might look
+like, and try to answer any questions that may arise while doing so.</p>
 </div>
 <div class="paragraph">
-<p>Some probably weren’t expecting me to continue the series, as in the
-<a href="https://nullderef.com/blog/plugin-tech/">last article</a> I wrote that Google didn’t
-end up allocating a slot for my project (as this was initially going to be for
-the <a href="https://summerofcode.withgoogle.com/">Google Summer of Code</a>). But the Tremor
-team ended up talking with me and arranging the same thing via the
-<a href="https://lfx.linuxfoundation.org/tools/mentorship/">The Linux Foundation
-Mentorships</a>, so I will be able to work on the PDK in the end!</p>
-</div>
-<div class="paragraph">
-<p>Even though this project is specific to Tremor, I try to keep it relatively
-generic so that it’s useful to future rustaceans interested in plugins. If you
-don’t really care about Tremor’s specific case, you can skip to the
-<a href="#actual_start">next section</a>.</p>
+<p>Even though the project is specific to <a href="https://www.tremor.rs/">Tremor</a>, I try to
+keep it relatively generic so that it’s useful to future rustaceans interested
+in plugin systems. So if you don’t really care about Tremor’s specific case, you
+can skip to the <a href="#actual_start">next section</a>.</p>
 </div>
 <div class="sect1">
 <h2 id="_about_tremor">1. About Tremor</h2>
@@ -4148,8 +6897,8 @@ still surprised by their welcomingness and how refreshing their dynamics were.</
 <div class="paragraph">
 <p>Starting to work on Tremor for the first time with such a large task at first
 sounds daunting. I was somewhat overwhelmed by that and felt quite some pressure
-on me. But their words helped me de-stress about it; finishing the PDK would of
-course be hard, but no need to worry about things you can’t control yet.</p>
+on me. But their words helped me de-stress about it; finishing the project would
+of course be hard, but no need to worry about things you can’t control yet.</p>
 </div>
 <div class="paragraph">
 <p>I particularly liked the three “rules” of their workflow:</p>
@@ -4188,8 +6937,8 @@ considering.</p>
 <div class="paragraph">
 <p>Also note that while writing this post I quite literally broke my leg (tibia &amp;
 fibula). The team was very supportive, and I took some rest until I went through
-surgery (I’m still recovering). Which is another reason as to why this article
-has taken me longer than usual to release. Thanks a lot to all of them ❤️.</p>
+surgery. Which is another reason as to why this article has taken me longer than
+usual to release. Thanks a lot to all of them ❤️.</p>
 </div>
 </div>
 <div class="sect2">
@@ -4206,20 +6955,20 @@ project, and he explained me his progress in detail. In summary, he was starting
 to add gRPC support to Tremor, and wasn’t sure how to approach it so that new
 interfaces could be added outside the compilation time. He had multiple ideas on
 how to implement this, but the one that interested me the most was via Wasm or
-dynamic linking, which was exactly what I was trying to do as well for the PDK.
-This meant I’d probably spend more time with him, as our projects were more
-interconnected than I thought.</p>
+dynamic linking, which was exactly what I was trying to do as well for the
+system. This meant I’d probably spend more time with him, as our projects were
+more interconnected than I thought.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_learning_about_the_internals_of_tremor">1.3. Learning about the internals of Tremor</h3>
 <div class="paragraph">
-<p>I’ve always known that the original intent for the PDK was the typical
+<p>I’ve always known that the original intent for the system was the typical
 architecture via dynamic linking, but I wanted to explore the viability of Wasm
 or other alternatives before ruling it out. Would this idea be destroyed by
 someone in the end, or does it stand a chance? In order to know that I’d first
 need to find more specific requisites by defining the basic interfaces of the
-PDK. Which is very hard at first because you need to know more about the
+system. Which is very hard at first because you need to know more about the
 internals of Tremor and how it works.</p>
 </div>
 <div class="paragraph">
@@ -4227,7 +6976,7 @@ internals of Tremor and how it works.</p>
 with the help of some drawings, taking a look at the code, and running it. He
 also taught me the novel concept of a <em>connector</em>, which is just an abstraction
 over both sources and sinks. The thing was that connectors were still Work In
-Progress, and Matthias needed to know how the PDK would work to modify the
+Progress, and Matthias needed to know how the system would work to modify the
 <code>Connector</code> interface. Mainly how to combine plugins and generics, which is what
 I’ll try to figure out in this article.</p>
 </div>
@@ -4250,24 +6999,24 @@ might not be compatible with dynamic loading.</p>
 <div class="paragraph">
 <p>Up until now I had mostly investigated about the
 <a href="https://nullderef.com/blog/plugin-tech/">technologies</a> that could be used for the
-PDK, but I was suggested that I should first take a look at how the interfaces
+system, but I was suggested that I should first take a look at how the interfaces
 would actually look like. That way it would be easier to take the final decision
-for the PDK’s technology, according to the requirements for these interfaces. In
+for the system’s technology, according to the requirements for these interfaces. In
 summary, the following questions arose:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>What’s the performance hit of the PDK?</p>
+<p>What’s the performance hit of the system?</p>
 </li>
 <li>
 <p>Can we avoid serialization?</p>
 </li>
 <li>
-<p>Is it possible to use generics in the PDK?</p>
+<p>Is it possible to use generics in the system?</p>
 </li>
 <li>
-<p>Otherwise, is it possible to use <code>dyn</code> in the PDK?</p>
+<p>Otherwise, is it possible to use <code>dyn</code> in the system?</p>
 </li>
 <li>
 <p>If all else fails, what can be done to represent a “generic” trait object in
@@ -4361,7 +7110,7 @@ anyway.</p>
 <div class="paragraph">
 <p>I’ve created the
 <a href="https://github.com/marioortizmanero/pdk-experiments">pdk-experiments</a> repository,
-where I’ll write various examples of how the PDK might work. The first
+where I’ll write various examples of how the plugin system might work. The first
 experiment is in the
 <a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-simple"><code>dynamic-simple</code>
 directory</a>, with a small example of how to dynamically load plugins with Rust.</p>
@@ -4802,17 +7551,16 @@ that this is hopefully more clear to future users.</p>
 supported types <a href="#wasmer-types">[6]</a>. There are a few ways to handle non-trivial
 types like structs or enums:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>Via the <a href="https://github.com/webassembly/interface-types"><strong>Interface Types
-Proposal</strong> for WebAssembly</a>. It defines the binary format for encoding and
-decoding the newly supported types, and specifies a set of instructions to
-transform the data between WebAssembly and the outside world. Note that this
-proposal is not meant to define a fixed representation of e.g., a string in
-Wasm, it attempts to allow representation-agnostic high-level value types.</p>
-<div class="openblock">
-<div class="content">
+<div class="sect3">
+<h4 id="_the_interface_types_proposal">4.3.1. The Interface Types Proposal</h4>
+<div class="paragraph">
+<p><a href="https://github.com/webassembly/interface-types">This proposal for WebAssembly</a>
+defines the binary format for encoding and decoding the newly supported types,
+and specifies a set of instructions to transform the data between WebAssembly
+and the outside world. Note that this proposal is not meant to define a fixed
+representation of e.g., a string in Wasm, it attempts to allow
+representation-agnostic high-level value types.</p>
+</div>
 <div class="paragraph">
 <p>These new <em>high-level value types</em> are called <strong>interface types</strong>. The current
 proposal defines them as:</p>
@@ -4913,19 +7661,18 @@ of Wasmtime’s, which explains the situation.</p>
 worth my time, as it’s still too early.</p>
 </div>
 </div>
-</div>
-</li>
-<li>
-<p>The hacky-but-working way, via <strong>pointers and a shared
-<a href="https://docs.wasmer.io/integrations/examples/memory">memory</a></strong>. The user has to
-first construct and serialize the complex types, and then save them into
-Wasm’s memory, which can be accessed directly by the runtime or the plugin
-with <a href="https://docs.wasmer.io/integrations/examples/memory-pointers">pointers</a>.
-This is what <a href="https://github.com/feather-rs/feather/tree/main/quill">Feather</a> or
+<div class="sect3">
+<h4 id="_the_hacky_but_working_way">4.3.2. The hacky-but-working way</h4>
+<div class="paragraph">
+<p>Via pointers and a shared
+<a href="https://docs.wasmer.io/integrations/examples/memory">memory</a>. The user has to
+first construct and serialize the complex types, and then save them into Wasm’s
+memory, which can be accessed directly by the runtime or the plugin with
+<a href="https://docs.wasmer.io/integrations/examples/memory-pointers">pointers</a>. This is
+what <a href="https://github.com/feather-rs/feather/tree/main/quill">Feather</a> or
 <a href="https://book.veloren.net/contributors/developers/codebase-structure.html#plugins">Veloren</a>
 do, in case you want more details.</p>
-<div class="openblock">
-<div class="content">
+</div>
 <div class="paragraph">
 <p>Not only does this require a serialization and deserialization step and
 writing/reading all the data from memory, but also it’s very cumbersome to use
@@ -4941,20 +7688,21 @@ wasn’t worth exploring in depth because it requires a [de]serialization step
 Tremor can’t afford.</p>
 </div>
 </div>
-</div>
-</li>
-<li>
+<div class="sect3">
+<h4 id="_separate_executables">4.3.3. Separate executables</h4>
+<div class="paragraph">
 <p>Another way I’ve seen to work around this is by using Wasm as an executable
 instead of a library. <a href="https://github.com/zellij-org/zellij">Zellij</a> does this,
 and communicates with the plugins via the standard input and standard output
 streams.</p>
+</div>
 <div class="paragraph">
 <p>Unfortunately, this also requires [de]serializing and has the overhead of
 writing/reading all the data from stdin and stdout.</p>
 </div>
-</li>
-</ul>
 </div>
+<div class="sect3">
+<h4 id="_conclusion">4.3.4. Conclusion</h4>
 <div class="paragraph">
 <p>Ultimately, this has forced me to discard WebAssembly for Tremor’s Plugin
 Development Kit. Performance is really important in this specific case, and Wasm
@@ -4966,23 +7714,24 @@ want to go.</p>
 </div>
 </div>
 </div>
+</div>
 <div class="sect1">
 <h2 id="_wrapping_up">5. Wrapping up</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Today we’ve learned a lot of things both about dynamic loading and WebAssembly.
-Unfortunately, I’ve had to discard the latter for Tremor’s PDK, but it may be of
-interest to projects that aren’t so focused on performance. Or maybe by the time
-you, the reader, have finished this article, Interface Types are already
+Unfortunately, I’ve had to discard the latter for Tremor’s case, but it may be
+of interest to projects that aren’t so focused on performance. Or maybe by the
+time you, the reader, have finished this article, the issues I found are already
 stabilized and broadly used, which would make Wasm an even more appealing
 choice.</p>
 </div>
 <div class="paragraph">
-<p>In the next post, I will try to get a more advanced example of a PDK with
-dynamic loading. The goal is to simulate the end-product by writing it as close
-as possible to how it would be used in real life. This way, we will also be able
-to benchmark it against a statically linked implementation and analyze the
-performance overhead we’ll end up getting.</p>
+<p>In the next post, I will try to get a more advanced example of a plugin system
+with dynamic loading. The goal is to simulate the end-product by writing it as
+close as possible to how it would be used in real life. This way, we will also
+be able to benchmark it against a statically linked implementation and analyze
+the performance overhead we’ll end up getting.</p>
 </div>
 <div class="paragraph">
 <p>I did write a few benchmarks for the examples provided in this article, but they
@@ -5063,6 +7812,9 @@ the build environment — Github rust-lang/miri</a></p>
   
   </span>
   
+  
+  
+  
 </p>
 </li>
 <li>
@@ -5092,15 +7844,14 @@ simple WASM API layer using interface types and Wasmtime — radu’s blog</
       <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/blog/plugin-tech/</guid>
-      <description>A more in-depth look at Rust PDKs</description>
+      <description>A more in-depth look at Rust plugin systems</description>
       <content:encoded><![CDATA[<div class="paragraph">
 <p>Welcome to the <a href="https://nullderef.com/series/rust-plugins/">“Plugins in Rust”
 series</a>! During the next months I’ll be involved in a project with
-<a href="https://www.tremor.rs/">Tremor</a>, for which I need to implement a Plugin System
-(a.k.a. Plugin Development Kit or PDK). The goal is to maximize modularity and
-reduce Rust’s wild compilation times. The implementation will end up being done
-with dynamic loading, but I will cover all the alternatives first to make sure
-it’s the best approach for my use-case.</p>
+<a href="https://www.tremor.rs/">Tremor</a>, for which I need to implement a Plugin System.
+The goal is to maximize modularity and reduce Rust’s wild compilation times. The
+implementation will end up being done with dynamic loading, but I will cover all
+the alternatives first to make sure it’s the best approach for my use-case.</p>
 </div>
 <div class="paragraph">
 <p>In this first article I will analyze the different ways in which our plugin
@@ -5113,13 +7864,14 @@ and make their own decisions.</p>
 <h2 id="requirements">1. The Problem</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This is actually part of my Google Summer of Code project for
-<a href="https://www.tremor.rs/">Tremor</a>. My first article about a Plugin System in Rust
-was in the <a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>, which serves as
-a brief introduction and might be interesting as well. While this will
-specifically cover Tremor’s use case, I’m sure many other applications in the
-future will have similar requirements for their own program. And considering the
-few articles I found about plugins in Rust, this
+<p>This is actually part of my <a href="https://summerofcode.withgoogle.com/">Google Summer
+of Code</a> project for <a href="https://www.tremor.rs/">Tremor</a>. My first article about a
+Plugin System in Rust was in the
+<a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>, which serves as a brief
+introduction and might be interesting as well. While this will specifically
+cover Tremor’s use case, I’m sure many other applications in the future will
+have similar requirements for their own program. And considering the few
+articles I found about plugins in Rust, this
 <a href="https://nullderef.com/series/rust-plugins/">series</a> may be helpful to the
 community.</p>
 </div>
@@ -5180,8 +7932,8 @@ run-time.</p>
 <h2 id="safety">2. Safety Concerns</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>I’ve been wanting to take a look at the possible safety concerns a PDK could
-bring to Tremor since the initial proposal.</p>
+<p>I’ve been wanting to take a look at the possible safety concerns a plugin system
+could bring to Tremor since the initial proposal.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -5338,8 +8090,8 @@ it may check if they’re compatible, rather than breaking in mysterious ways.</
 <div class="sectionbody">
 <div class="paragraph">
 <p>The following are the most viable technologies that could be used as the base of
-a PDK. Some of them won’t match the requirements I mentioned earlier at first
-glance, but it’s a good idea to at least <em>consider</em> all of them. I haven’t
+the system. Some of them won’t match the requirements I mentioned earlier at
+first glance, but it’s a good idea to at least <em>consider</em> all of them. I haven’t
 written a line of code yet, so if an approach were to catch someone’s eye we
 could investigate more about it. I will rate each of the alternatives in a scale
 from 1 to 5 (approximately) in order to easen the decision-taking.</p>
@@ -5471,9 +8223,9 @@ and <code>#[derive(Deserialize)]</code> for receiving.</p>
 </div>
 <div class="paragraph">
 <p>As to safety, separate processes imply that malfunctioning plugins don’t affect
-Tremor directly, and the PDK basically consists on implementing servers, which
-require no <code>unsafe</code> at all and has much more popularity and support in Rust.
-It’s still hard to properly sandbox the plugins, though.</p>
+Tremor directly, and the system basically consists on implementing servers,
+which require no <code>unsafe</code> at all and has much more popularity and support in
+Rust. It’s still hard to properly sandbox the plugins, though.</p>
 </div>
 <div class="paragraph">
 <p>Overall, I consider this a very solid solution, with its main drawback being
@@ -5599,7 +8351,7 @@ doesn’t seem to be any better than FFIs overall.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ffi">4.3. FFI</h3>
+<h3 id="ffi">4.3. Dynamic Loading</h3>
 <div class="paragraph">
 <p>This is possibly the <em>least weird</em> way to implement a Plugin Development Kit,
 i.e., it’s the most popular method I’ve seen outside of Rust. A <em>Foreign
@@ -5773,11 +8525,11 @@ or CraneLift, which Wasmtime is built on, to Run Wasm modules as plugins.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="wasm">4.4. WebAssembly Interface</h3>
+<h3 id="wasm">4.4. WebAssembly</h3>
 <div class="paragraph">
 <p>Now, this is what I wanted to emphasize in this article! Turns out WebAssembly
 isn’t limited to web development anymore; it’s slowly evolving into a portable
-binary-code format. As far as I know, this should be like a mix between <a href="#ffi">FFI</a>
+binary-code format. As far as I know, this should be like a mix between <a href="#ffi">Dynamic Loading</a>
 and <a href="#scripting-langs">Scripting Languages</a>, with a stronger focus in stability and portability.
 Here’s what Wikipedia has to say about it:</p>
 </div>
@@ -5825,15 +8577,16 @@ the host can limit exactly what a program has access to.</p>
 </div>
 <div class="paragraph">
 <p>WASI is just a standard, so it has multiple runtimes available. The most popular
-ones are coincidentally implemented in Rust as well:
+ones are coincidentally written in Rust:
 <a href="https://github.com/bytecodealliance/wasmtime"><strong>wasmtime</strong></a> and
 <a href="https://github.com/wasmerio/wasmer"><strong>wasmer</strong></a>. Both use the
 <a href="https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md">Cranelift</a>
-backend to generate the WebAssembly machine code (although wasmer seems to
-support more backends, like LLVM). Then, the runtime can be used to run the
-generated <code>.wasm</code> binary in different ways (say, as a CLI or a library). This
-also means that plugins could be written in any language that compiles to
-WebAssembly.</p>
+backend to generate the WebAssembly machine code, though wasmer seems to also
+support LLVM and others. Then, the runtime can be used to run the generated
+<code>.wasm</code> binary as a CLI or a library. This also means that plugins could be
+written in any language that compiles to WebAssembly, though it is frequently
+harder than compiling to native code. Many Rust libraries don’t support
+WebAssembly, so it could be tricky depending on the situation.</p>
 </div>
 <div class="paragraph">
 <p>The differences between the two runtimes aren’t that big. You can read
@@ -5853,7 +8606,7 @@ emphasis.</p>
 <div class="paragraph">
 <p>The article also includes a <span class="line-through">not reliable at all</span> benchmark,
 which can serve us as a way to compare its performance with the native code
-you’d get with e.g., <a href="#ffi">FFI</a>. It estimates that Wasm is a bit less than an order
+you’d get with e.g., <a href="#ffi">Dynamic Loading</a>. It estimates that Wasm is a bit less than an order
 of magnitude slower than native code, and the same applies to memory usage.
 <a href="https://github.com/jedisct1/webassembly-benchmarks/tree/master/2021-Q1">A more
 thorough benchmark</a> was done in libsodium that shows better results: Wasm can be
@@ -5879,7 +8632,7 @@ version of the final code in <a href="https://github.com/FreeMasen/wasmer-plugin
 repository</a>.</p>
 </div>
 <div class="paragraph">
-<p>All in all, WebAssembly seems to win against <a href="#ffi">FFI</a> in terms of security by not
+<p>All in all, WebAssembly seems to win against <a href="#ffi">Dynamic Loading</a> in terms of security by not
 needing <code>unsafe</code> at all and including sandboxing by default, at the cost of
 efficiency. This is up to the managers of the project and what they consider
 more important.</p>
@@ -5902,7 +8655,7 @@ more important.</p>
 <p><strong class="green white-background txt-margin-right txt-round">4/5</strong> <strong>Backwards compatibility</strong></p>
 </li>
 <li>
-<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Ease of porting existing implementations</strong></p>
 </li>
 </ol>
 </div>
@@ -5941,7 +8694,7 @@ serialization. So it’s basically the IPC <a href="#pipes">Based on Pipes</a> a
 plugin system allowing one to create plugins in any language that compiles to
 WebAssembly”.</p>
 <div class="paragraph">
-<p>This is an extremely valuable resource in case the <a href="#wasm">WebAssembly Interface</a> option is chosen, as
+<p>This is an extremely valuable resource in case the <a href="#wasm">WebAssembly</a> option is chosen, as
 it’s very similar to what Tremor needs. One can even subscribe to events in
 order to simulate the traits in Tremor that currently use <code>async</code>.</p>
 </div>
@@ -5953,7 +8706,7 @@ via stdin and stdout, serializing and deserializing with
 status bar, or a file manager. Very neat architecture!</p>
 </div>
 <div class="paragraph">
-<p>Other WebAssmbly-based PDKs:
+<p>Other WebAssmbly-based plugin systems:
 <a href="https://book.veloren.net/contributors/developers/codebase-structure.html#plugins">Veloren</a>,
 <a href="https://github.com/feather-rs/feather/tree/main/quill">Feather</a>.</p>
 </div>
@@ -6111,6 +8864,9 @@ other libraries — dlopen v0.1.8</a></p>
     <span class="gh-number">amethyst/amethyst#1729</span></a>
 
 </span>
+
+
+
 
 </p>
 </li>

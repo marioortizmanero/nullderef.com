@@ -37,7 +37,8 @@ time. Specially considering how much I’ve gone in circles and how much time I�
 rewrite is interesting for other open source maintainers in the same situation
 as me. This all started when I wanted to use a Rust Spotify API wrapper for one
 of my projects at that time, <a href="https://vidify.org/">Vidify</a>. I went to
-<a href="https://crates.io/">crates.io</a> and looked for &#34;Spotify&#34;, and all I found was <a href="https://crates.io/crates/rspotify"><code>rspotify</code></a>
+<a href="https://crates.io/">crates.io</a> and looked for “Spotify”, and all I found was
+<a href="https://crates.io/crates/rspotify"><code>rspotify</code></a>
  (the most popular one), <a href="https://crates.io/crates/aspotify"><code>aspotify</code></a>
  (an
 asynchronous-only alternative), and a bunch of other outdated or incomplete
@@ -922,6 +923,9 @@ in that case perform the re-authorization process automatically.</p>
 </span>
 
 
+
+
+
 </div>
 </div>
 <div class="sect2">
@@ -967,6 +971,9 @@ know its type, and that its contents are valid, so you’re ready to use it.</p>
 
 </span>
 
+
+
+
  and
 
 
@@ -991,6 +998,9 @@ know its type, and that its contents are valid, so you’re ready to use it.</p>
     <span class="gh-number">ramsayleung/rspotify#244</span></a>
 
 </span>
+
+
+
 
 </p>
 </div>
@@ -1036,6 +1046,9 @@ async. The latter can be implemented easily in your crate thanks to <a href="htt
     <span class="gh-number">ramsayleung/rspotify#124</span></a>
 
 </span>
+
+
+
 
 
 </div>
@@ -1106,6 +1119,9 @@ fn endpoint() -&gt; Result&lt;Vec&lt;Artists&gt;&gt; {
     <span class="gh-number">ramsayleung/rspotify#149</span></a>
 
 </span>
+
+
+
 
 
 </div>
@@ -1384,6 +1400,9 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
 
 </span>
 
+
+
+
 </p>
 </li>
 <li>
@@ -1410,6 +1429,9 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
     <span class="gh-number">ramsayleung/rspotify#112</span></a>
 
 </span>
+
+
+
 
 </p>
 </li>
@@ -1438,6 +1460,9 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
 
 </span>
 
+
+
+
 </p>
 </li>
 <li>
@@ -1465,6 +1490,9 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
 
 </span>
 
+
+
+
 </p>
 </li>
 <li>
@@ -1491,6 +1519,9 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
     <span class="gh-number">ramsayleung/rspotify#173</span></a>
 
 </span>
+
+
+
 
 </p>
 </li>
@@ -1536,6 +1567,9 @@ definition? - StackOverFlow</a></p>
 
 </span>
 
+
+
+
 </p>
 </li>
 <li>
@@ -1562,6 +1596,9 @@ definition? - StackOverFlow</a></p>
     <span class="gh-number">ramsayleung/rspotify#150</span></a>
 
 </span>
+
+
+
 
 </p>
 </li>
@@ -1595,6 +1632,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
 
 </span>
 
+
+
+
 </p>
 </li>
 <li>
@@ -1621,6 +1661,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
     <span class="gh-number">ramsayleung/rspotify#134</span></a>
 
 </span>
+
+
+
 
 </p>
 </li>
@@ -1649,6 +1692,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
 
 </span>
 
+
+
+
 </p>
 </li>
 <li>
@@ -1675,6 +1721,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
     <span class="gh-number">ramsayleung/rspotify#191</span></a>
 
 </span>
+
+
+
 
 </p>
 </li>
@@ -1703,6 +1752,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
 
 </span>
 
+
+
+
 </p>
 </li>
 <li>
@@ -1729,6 +1781,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
     <span class="gh-number">ramsayleung/rspotify#202</span></a>
 
 </span>
+
+
+
 
 </p>
 </li>
@@ -1761,6 +1816,9 @@ hashmap constructor - @gmattozzi, Twitter</a></p>
     <span class="gh-number">ramsayleung/rspotify#108</span></a>
 
 </span>
+
+
+
 
 </p>
 </li>

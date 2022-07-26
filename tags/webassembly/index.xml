@@ -18,15 +18,14 @@
       <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
       
       <guid>https://nullderef.com/blog/plugin-tech/</guid>
-      <description>A more in-depth look at Rust PDKs</description>
+      <description>A more in-depth look at Rust plugin systems</description>
       <content:encoded><![CDATA[<div class="paragraph">
 <p>Welcome to the <a href="https://nullderef.com/series/rust-plugins/">“Plugins in Rust”
 series</a>! During the next months I’ll be involved in a project with
-<a href="https://www.tremor.rs/">Tremor</a>, for which I need to implement a Plugin System
-(a.k.a. Plugin Development Kit or PDK). The goal is to maximize modularity and
-reduce Rust’s wild compilation times. The implementation will end up being done
-with dynamic loading, but I will cover all the alternatives first to make sure
-it’s the best approach for my use-case.</p>
+<a href="https://www.tremor.rs/">Tremor</a>, for which I need to implement a Plugin System.
+The goal is to maximize modularity and reduce Rust’s wild compilation times. The
+implementation will end up being done with dynamic loading, but I will cover all
+the alternatives first to make sure it’s the best approach for my use-case.</p>
 </div>
 <div class="paragraph">
 <p>In this first article I will analyze the different ways in which our plugin
@@ -39,13 +38,14 @@ and make their own decisions.</p>
 <h2 id="requirements">1. The Problem</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This is actually part of my Google Summer of Code project for
-<a href="https://www.tremor.rs/">Tremor</a>. My first article about a Plugin System in Rust
-was in the <a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>, which serves as
-a brief introduction and might be interesting as well. While this will
-specifically cover Tremor’s use case, I’m sure many other applications in the
-future will have similar requirements for their own program. And considering the
-few articles I found about plugins in Rust, this
+<p>This is actually part of my <a href="https://summerofcode.withgoogle.com/">Google Summer
+of Code</a> project for <a href="https://www.tremor.rs/">Tremor</a>. My first article about a
+Plugin System in Rust was in the
+<a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>, which serves as a brief
+introduction and might be interesting as well. While this will specifically
+cover Tremor’s use case, I’m sure many other applications in the future will
+have similar requirements for their own program. And considering the few
+articles I found about plugins in Rust, this
 <a href="https://nullderef.com/series/rust-plugins/">series</a> may be helpful to the
 community.</p>
 </div>
@@ -106,8 +106,8 @@ run-time.</p>
 <h2 id="safety">2. Safety Concerns</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>I’ve been wanting to take a look at the possible safety concerns a PDK could
-bring to Tremor since the initial proposal.</p>
+<p>I’ve been wanting to take a look at the possible safety concerns a plugin system
+could bring to Tremor since the initial proposal.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -264,8 +264,8 @@ it may check if they’re compatible, rather than breaking in mysterious ways.</
 <div class="sectionbody">
 <div class="paragraph">
 <p>The following are the most viable technologies that could be used as the base of
-a PDK. Some of them won’t match the requirements I mentioned earlier at first
-glance, but it’s a good idea to at least <em>consider</em> all of them. I haven’t
+the system. Some of them won’t match the requirements I mentioned earlier at
+first glance, but it’s a good idea to at least <em>consider</em> all of them. I haven’t
 written a line of code yet, so if an approach were to catch someone’s eye we
 could investigate more about it. I will rate each of the alternatives in a scale
 from 1 to 5 (approximately) in order to easen the decision-taking.</p>
@@ -397,9 +397,9 @@ and <code>#[derive(Deserialize)]</code> for receiving.</p>
 </div>
 <div class="paragraph">
 <p>As to safety, separate processes imply that malfunctioning plugins don’t affect
-Tremor directly, and the PDK basically consists on implementing servers, which
-require no <code>unsafe</code> at all and has much more popularity and support in Rust.
-It’s still hard to properly sandbox the plugins, though.</p>
+Tremor directly, and the system basically consists on implementing servers,
+which require no <code>unsafe</code> at all and has much more popularity and support in
+Rust. It’s still hard to properly sandbox the plugins, though.</p>
 </div>
 <div class="paragraph">
 <p>Overall, I consider this a very solid solution, with its main drawback being
@@ -525,7 +525,7 @@ doesn’t seem to be any better than FFIs overall.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="ffi">4.3. FFI</h3>
+<h3 id="ffi">4.3. Dynamic Loading</h3>
 <div class="paragraph">
 <p>This is possibly the <em>least weird</em> way to implement a Plugin Development Kit,
 i.e., it’s the most popular method I’ve seen outside of Rust. A <em>Foreign
@@ -699,11 +699,11 @@ or CraneLift, which Wasmtime is built on, to Run Wasm modules as plugins.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="wasm">4.4. WebAssembly Interface</h3>
+<h3 id="wasm">4.4. WebAssembly</h3>
 <div class="paragraph">
 <p>Now, this is what I wanted to emphasize in this article! Turns out WebAssembly
 isn’t limited to web development anymore; it’s slowly evolving into a portable
-binary-code format. As far as I know, this should be like a mix between <a href="#ffi">FFI</a>
+binary-code format. As far as I know, this should be like a mix between <a href="#ffi">Dynamic Loading</a>
 and <a href="#scripting-langs">Scripting Languages</a>, with a stronger focus in stability and portability.
 Here’s what Wikipedia has to say about it:</p>
 </div>
@@ -751,15 +751,16 @@ the host can limit exactly what a program has access to.</p>
 </div>
 <div class="paragraph">
 <p>WASI is just a standard, so it has multiple runtimes available. The most popular
-ones are coincidentally implemented in Rust as well:
+ones are coincidentally written in Rust:
 <a href="https://github.com/bytecodealliance/wasmtime"><strong>wasmtime</strong></a> and
 <a href="https://github.com/wasmerio/wasmer"><strong>wasmer</strong></a>. Both use the
 <a href="https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md">Cranelift</a>
-backend to generate the WebAssembly machine code (although wasmer seems to
-support more backends, like LLVM). Then, the runtime can be used to run the
-generated <code>.wasm</code> binary in different ways (say, as a CLI or a library). This
-also means that plugins could be written in any language that compiles to
-WebAssembly.</p>
+backend to generate the WebAssembly machine code, though wasmer seems to also
+support LLVM and others. Then, the runtime can be used to run the generated
+<code>.wasm</code> binary as a CLI or a library. This also means that plugins could be
+written in any language that compiles to WebAssembly, though it is frequently
+harder than compiling to native code. Many Rust libraries don’t support
+WebAssembly, so it could be tricky depending on the situation.</p>
 </div>
 <div class="paragraph">
 <p>The differences between the two runtimes aren’t that big. You can read
@@ -779,7 +780,7 @@ emphasis.</p>
 <div class="paragraph">
 <p>The article also includes a <span class="line-through">not reliable at all</span> benchmark,
 which can serve us as a way to compare its performance with the native code
-you’d get with e.g., <a href="#ffi">FFI</a>. It estimates that Wasm is a bit less than an order
+you’d get with e.g., <a href="#ffi">Dynamic Loading</a>. It estimates that Wasm is a bit less than an order
 of magnitude slower than native code, and the same applies to memory usage.
 <a href="https://github.com/jedisct1/webassembly-benchmarks/tree/master/2021-Q1">A more
 thorough benchmark</a> was done in libsodium that shows better results: Wasm can be
@@ -805,7 +806,7 @@ version of the final code in <a href="https://github.com/FreeMasen/wasmer-plugin
 repository</a>.</p>
 </div>
 <div class="paragraph">
-<p>All in all, WebAssembly seems to win against <a href="#ffi">FFI</a> in terms of security by not
+<p>All in all, WebAssembly seems to win against <a href="#ffi">Dynamic Loading</a> in terms of security by not
 needing <code>unsafe</code> at all and including sandboxing by default, at the cost of
 efficiency. This is up to the managers of the project and what they consider
 more important.</p>
@@ -828,7 +829,7 @@ more important.</p>
 <p><strong class="green white-background txt-margin-right txt-round">4/5</strong> <strong>Backwards compatibility</strong></p>
 </li>
 <li>
-<p><strong class="green white-background txt-margin-right txt-round">5/5</strong> <strong>Ease of porting existing implementations</strong></p>
+<p><strong class="olive white-background txt-margin-right txt-round">3/5</strong> <strong>Ease of porting existing implementations</strong></p>
 </li>
 </ol>
 </div>
@@ -867,7 +868,7 @@ serialization. So it’s basically the IPC <a href="#pipes">Based on Pipes</a> a
 plugin system allowing one to create plugins in any language that compiles to
 WebAssembly”.</p>
 <div class="paragraph">
-<p>This is an extremely valuable resource in case the <a href="#wasm">WebAssembly Interface</a> option is chosen, as
+<p>This is an extremely valuable resource in case the <a href="#wasm">WebAssembly</a> option is chosen, as
 it’s very similar to what Tremor needs. One can even subscribe to events in
 order to simulate the traits in Tremor that currently use <code>async</code>.</p>
 </div>
@@ -879,7 +880,7 @@ via stdin and stdout, serializing and deserializing with
 status bar, or a file manager. Very neat architecture!</p>
 </div>
 <div class="paragraph">
-<p>Other WebAssmbly-based PDKs:
+<p>Other WebAssmbly-based plugin systems:
 <a href="https://book.veloren.net/contributors/developers/codebase-structure.html#plugins">Veloren</a>,
 <a href="https://github.com/feather-rs/feather/tree/main/quill">Feather</a>.</p>
 </div>
@@ -1037,6 +1038,9 @@ other libraries — dlopen v0.1.8</a></p>
     <span class="gh-number">amethyst/amethyst#1729</span></a>
 
 </span>
+
+
+
 
 </p>
 </li>
