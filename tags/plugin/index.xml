@@ -7867,13 +7867,10 @@ and make their own decisions.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This is actually part of my <a href="https://summerofcode.withgoogle.com/">Google Summer
-of Code</a> project for <a href="https://www.tremor.rs/">Tremor</a>. My first article about a
-Plugin System in Rust was in the
-<a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>, which serves as a brief
-introduction and might be interesting as well. While this will specifically
-cover Tremor’s use case, I’m sure many other applications in the future will
-have similar requirements for their own program. And considering the few
-articles I found about plugins in Rust, this
+of Code</a> project for <a href="https://www.tremor.rs/">Tremor</a>. While this will
+specifically cover Tremor’s use case, I’m sure many other applications in the
+future will have similar requirements for their own program. And considering the
+few articles I found about plugins in Rust, this
 <a href="https://nullderef.com/series/rust-plugins/">series</a> may be helpful to the
 community.</p>
 </div>
@@ -8378,27 +8375,24 @@ goal for this project, so I don’t plan on using it. And the
 library loading simpler, based on <code>libloading</code>.</p>
 </div>
 <div class="paragraph">
-<p>I already briefly discussed Rust-to-C FFIs in detail in the
-<a href="https://nullderef.com/blog/gsoc-proposal/">proposal</a>. It’s a lot of work to
-create an internal interface for Tremor through C. But it’s unfortunately the
-only way to do this, since Rust-to-Rust FFI is not stable. It also has awful
-safety; lots of <code>unsafe</code> usage is required with plenty of caveats
-<a href="#ffi-caveat-1">[10]</a> <a href="#ffi-caveat-2">[11]</a>, including subtle differences in the interface
-between Operating Systems <a href="#ffi-cross-platform">[12]</a>, although <code>dlopen</code> seems to be
-better in that regard <a href="#ffi-dlopen-safety">[13]</a>. No sandboxing either. And plugins
-can abort Tremor’s core execution when panicking/leaking memory/similars (I
-haven’t been able to find information about using <code>catch_unwind</code>).</p>
+<p>Creating an internal interface for Tremor through C is a lot of work. But it’s
+unfortunately the only way to do it, since Rust-to-Rust FFI is not stable. It
+has awful safety by relying heavily on <code>unsafe</code> with plenty of caveats
+<a href="#ffi-caveat-1">[10]</a> <a href="#ffi-caveat-2">[11]</a>, including subtle differences between
+Operating Systems <a href="#ffi-cross-platform">[12]</a> — although <code>dlopen</code> seems to be better
+in that regard <a href="#ffi-dlopen-safety">[13]</a>. Since it doesn’t have a sandbox, plugins
+can abort Tremor’s core execution when panicking/leaking memory/similars.</p>
 </div>
 <div class="paragraph">
 <p>I recently discovered the
 <a href="https://github.com/rodrimati1992/abi_stable_crates"><code>abi_stable</code></a> crate, which
-guarantees Rust ABI’s stability unofficially and helps a lot with the binary
+guarantees stability in Rust’s ABI unofficially and helps a lot with the binary
 compatibility aspect.</p>
 </div>
 <div class="paragraph">
-<p>It includes FFI-safe alternatives to many of the types in <code>std</code>, and even
-external ones (namely <code>crossbeam</code>, <code>parking_lot</code> and <code>serde_json</code>). This works
-by implementing a
+<p>It includes FFI-safe alternatives to many of the types in the standard library,
+and even external ones (namely <code>crossbeam</code>, <code>parking_lot</code> and <code>serde_json</code>).
+This works by implementing a
 <a href="https://docs.rs/abi_stable/*/abi_stable/abi_stability/stable_abi_trait/trait.StableAbi.html"><code>StableAbi</code></a>
 trait that guarantees its FFI-safety, which may be done automatically with one
 of its procedural macros. Internal ABI stability is also guaranteed with macros
