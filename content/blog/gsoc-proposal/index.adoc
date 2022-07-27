@@ -44,22 +44,15 @@ and are just introductions to possible approaches.
 
 === Defining an Interface
 
-The minimum common denominator to define binary interfaces most times is C.
-However, while this would allow Tremor plugins to be written in any language,
-the complexity of this project would increase tremendously. Types required for
-the interface like `tremor_script::Value` (currently used by
+The minimum common denominator to define binary interfaces most times is C. This
+would allow Tremor plugins to be written in any language, but the complexity of
+this project would increase tremendously. Types required for the interface like
+`tremor_script::Value` (currently used by
 https://github.com/tremor-rs/tremor-runtime/blob/main/src/codec.rs#L70[some
 traits]), error handling, and other advanced features like lifetimes or
-templates would have to be transformed down to the C ABI. Not only would this be
-an incredibly tedious and complicated task, but it'd also introduce a small
+templates would have to be simplified to the C ABI. Not only would this be an
+incredibly tedious and complicated task, but it'd also introduce a small
 overhead for every function in the plugin.
-
-WARNING: Upon further investigation, in future articles I've discovered that the
-following statement is not true. Do note that Rust to Rust FFI is completely
-unstable and should not be used at all for a plugin system; using the C ABI is
-the best way to do it. This is
-https://nullderef.com/blog/plugin-start/#_abi_unstability_its_much_worse_than_it_seems[explained
-in the next articles in detail].
 
 Thus, the only viable solution is a Rust to Rust FFI, using
 https://doc.rust-lang.org/rustc/command-line-arguments.html#--crate-type-a-list-of-types-of-crates-for-the-compiler-to-emit[`dylib`]
@@ -71,6 +64,13 @@ compatible at all. This could be less of a problem with alternatives like
 https://github.com/rodrimati1992/abi_stable_crates/[`abi_stable_crates`], which
 provide unofficial stable ABIs, but they don't follow Rust's objectives nor are
 very popular, so these libraries might end up unmaintained or just not worth it.
+
+WARNING: Upon further investigation, in future articles I've discovered that the
+previous statement is not true. Rust to Rust FFI is completely unstable and
+should not be used at all for a plugin system; using the C ABI is the best way
+to do it. This is
+https://nullderef.com/blog/plugin-start/#_abi_unstability_its_much_worse_than_it_seems[explained
+in the next articles in detail].
 
 Interface improvements may also happen in the future, where a method might be
 deprecated, removed, or added. The same could happen with Tremor; different API
