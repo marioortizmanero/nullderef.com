@@ -1,0 +1,30 @@
+---
+title: "[Talk] Rust, the best and worst thing to happen to Tremor"
+description: "The talk I submitted for TremorCon 2022"
+author: "Mario Ortiz Manero"
+images: ["/blog/tremorcon22/party.jpg"]
+tags: ["rust", "rustlang", "tremor", "talk"]
+series: ["rust-plugins"]
+date: 2022-10-18
+GHissueID: 12
+---
+
+Hello! I've recently had the pleasure of giving a talk at this year's
+https://community.cncf.io/events/details/cncf-tremor-community-presents-tremor-con-2022/[TremorCon].
+I really enjoy public speaking, so this has been an excellent opportunity to get
+better at it (let me know your thoughts!). In case you missed it, you can check
+out the recording here:
+
+++++
+<iframe width="1600" height="400" src="https://www.youtube.com/embed/cz6nv5YzgqM" title="Rust, the best and worst thing to happen to Tremor" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+++++
+
+You can also find the slides here in
+https://nullderef.com/blog/tremorcon22/TremorCon22_MarioOrtizManero.pdf[`pdf`]
+or in
+https://nullderef.com/blog/tremorcon22/TremorCon22_MarioOrtizManero.pptx[`pptx`].
+
+If you want to learn about new events I'm involved in, like this one, you can
+follow me on https://twitter.com/null_deref[Twitter] or
+https://www.linkedin.com/in/marioortizmanero/[LinkedIn]. Don't forget to also
+give https://twitter.com/TremorDebs[Tremor] a follow!
