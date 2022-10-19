@@ -27,4 +27,6 @@ https://nullderef.com/blog/tremorcon22/TremorCon22_MarioOrtizManero.pptx[`pptx`]
 If you want to learn about new events I'm involved in, like this one, you can
 follow me on https://twitter.com/null_deref[Twitter] or
 https://www.linkedin.com/in/marioortizmanero/[LinkedIn]. Don't forget to also
-give https://twitter.com/TremorDebs[Tremor] a follow!
+give https://twitter.com/TremorDebs[Tremor] a follow, and to check out
+https://www.youtube.com/watch?v=og3kIey0X5E&list=PLNTN4J6tdf22rEnqZlVRWHjiDyRBNy3Iw[the
+rest of the conference]!
