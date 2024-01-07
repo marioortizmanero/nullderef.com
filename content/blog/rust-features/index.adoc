@@ -77,19 +77,17 @@ Instead of adding features to configure the behaviour of your program, you can
 do the same with a `Config` struct. You may not even need a struct if it's just
 a single option to be configured, but that way it's future-proof. For example:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 #[derive(Default)]
 struct Config {
     cached_token: bool,
     refreshing_token: bool,
 }
-----
+{{< /highlight >}}
 
 You can then modify your client in order to optionally take the `Config` struct:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 struct Client {
     config: Config
 }
@@ -127,13 +125,12 @@ impl Client {
         println!("Performing request!");
     }
 }
-----
+{{< /highlight >}}
 
 Finally, the user can customize the client however they want in the code itself
 in a very natural way:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 fn main() {
     // Option A
     let client = Client::new();
@@ -145,7 +142,7 @@ fn main() {
     };
     let client = Client::with_config(config);
 }
-----
+{{< /highlight >}}
 
 === Proving that you end up with the same code
 

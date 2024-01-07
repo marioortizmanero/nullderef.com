@@ -124,8 +124,7 @@ synchronous or asynchronous. Since the usage for an HTTP client in an API is
 often very basic, i.e., you only need to make requests and get the results, we
 can cover its usage under a single interface. For example:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub trait HttpClient: Send + Default {
    type Error;
 
@@ -145,12 +144,11 @@ pub trait HttpClient: Send + Default {
     
     // etc
 }
-----
+{{< /highlight >}}
 
 Then, we can add an implementation for each of our supported clients:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub struct UreqClient {}
 
 impl HttpClient for UreqClient {
@@ -175,12 +173,11 @@ impl HttpClient for UreqClient {
 
     // etc
 }
-----
+{{< /highlight >}}
 
 And we can finally make our client generic over its internal HTTP client:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub struct Spotify<Http: HttpClient> {
     http: Http,
     // etc
@@ -193,7 +190,7 @@ impl<Http: HttpClient> Spotify<Http> {
         self.http.get("/some/endpoint", headers, payload)
     }
 }
-----
+{{< /highlight >}}
 
 Beware that this introduces a good amount of additional complexity which is
 probably unnecessary for your own API wrapper. But this was definitely something
@@ -223,8 +220,7 @@ https://en.wikipedia.org/wiki/OAuth[OAuth information]. This used to work with
 the https://doc.rust-lang.org/1.0.0/style/ownership/builders.html[_builder
 pattern_], following this structure (though not exactly the same):
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 // OAuth information
 let oauth = SpotifyOAuth::default()
     .redirect_uri("http://localhost:8888/callback")
@@ -251,7 +247,7 @@ let spotify = Spotify::default()
 
 // Performing a request
 spotify.seek_track(25000, None).unwrap();
-----
+{{< /highlight >}}
 
 I wanted something more tailored towards our specific application. I think the
 builder pattern is great, but it might become too verbose or confusing:
@@ -269,8 +265,7 @@ builder pattern is great, but it might become too verbose or confusing:
 After removing the builder pattern and being more explicit about the
 authorization method that's being used, this is more or less what we get:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 // OAuth information
 let oauth = OAuth::new("http://localhost:8888/callback", "user-read-currently-playing");
 // Basic information
@@ -283,19 +278,18 @@ spotify.prompt_for_token().unwrap();
 
 // Performing a request
 spotify.seek_track(25000, None).unwrap();
-----
+{{< /highlight >}}
 
 And if the user wants something more advanced, they can always write this:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 let oauth = OAuth {
     redirect_uri: "http://localhost:8888/callback",
     state: generate_random_string(16, alphabets::ALPHANUM),
     scopes: "user-read-currently-playing",
     ..Default::default()
 };
-----
+{{< /highlight >}}
 
 It's sufficient to use the regular initialization pattern for this case because
 we don't even need validation. If we did, we could always just add a few setters
@@ -312,8 +306,7 @@ Having multiple clients seems trivial with inheritance, with a base from which
 they can extend. In Rust, we could follow the typical "`composition over
 inheritance`" principle:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub struct EndpointsBase {
     http: Rc<Http> // Shared with the rest of the endpoints
 }
@@ -340,7 +333,7 @@ impl AuthCodeSpotify {
     pub fn base(&self) -> &EndpointsBase { &self.0 }
     pub fn oauth(&self) -> &EndpointsOAuth { &self.1 }
 }
-----
+{{< /highlight >}}
 
 The user can then write `spotify.base().endpoint1()` or
 `spotify.oauth().endpoint3()` to access the endpoints in their different groups.
@@ -352,8 +345,7 @@ groups take a reference to the client itself instead, which is pretty neat and
 works just as well:
 
 .https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=6cce195451518fcf644e7506ca7b51b2[Simplified from the working example on the Rust playground]
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub trait Spotify {
     fn get_http(&self) -> &Http;
     fn get_token(&self) -> &Token;
@@ -387,7 +379,7 @@ impl AuthCodeSpotify {
     pub fn base(&self) -> EndpointsBase<'_, Self> { EndpointsBase(self) }
     pub fn oauth(&self) -> EndpointsOAuth<'_, Self> { EndpointsOAuth(self) }
 }
-----
+{{< /highlight >}}
 
 However, you might think using just `spotify.endpoint1()` instead of
 `spotify.base().endpoint1()` is more suitable for your particular API client.
@@ -400,8 +392,7 @@ interface. All you need is a couple traits with the endpoint implementations,
 which require a getter to the HTTP client or similars:
 
 .https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=901e41d16172e17368328c5a7744f673[Simplified from the working example on the Rust playground]
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub trait EndpointsBase {
     fn get_http(&self) -> &Http;
 
@@ -428,7 +419,7 @@ impl EndpointsBase for AuthCodeSpotify {
 impl EndpointsOAuth for AuthCodeSpotify {
     fn get_token(&self) -> &Token { &self.1 }
 }
-----
+{{< /highlight >}}
 
 This way, as long as the user has these traits in scope, they can access the
 endpoints with just `spotify.endpoint1()`. We can make that easier by including
@@ -478,8 +469,7 @@ struct for configuration, on the assumption that features would be more
 performant:
 
 .Which is faster?
-[source, rust]
-----
+{{< highlight "rust" >}}
 if self.config.cached_token {
     println!("Saving cache token to the file!");
 }
@@ -488,7 +478,7 @@ if self.config.cached_token {
 {
     println!("Saving cache token to the file!");
 }
-----
+{{< /highlight >}}
 
 Turns out that both of these are usually compiled to the same machine code
 anyway. Since `self.config.cached_token` is most times specified as a constant,
@@ -523,14 +513,13 @@ hood _without the user knowing about it_. When initializing a client we used to
 automatically try to read from the environment variables. If that didn't work
 then we tried to use the default values or we just panicked in the builder:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 let creds = SpotifyClientCredentials::default() // this reads the env variables
     .client_id("this-is-my-client-id")
     .client_secret("this-is-my-client-secret")
     .build()
     .unwrap();
-----
+{{< /highlight >}}
 
 This is a pretty useful feature, but we can't be sure the writer/reader of the
 code knows about it, and it could potentially cause unintended behaviour.
@@ -538,14 +527,13 @@ Instead, we can just have a `default` method that does nothing special, which is
 what the user would expect, and also `from_env`, which _explicitly_ tells us
 what it does:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 let creds = SpotifyClientCredentials::from_env() // this reads the env variables
     .client_id("this-is-my-client-id")
     .client_secret("this-is-my-client-secret")
     .build()
     .unwrap();
-----
+{{< /highlight >}}
 
 == Flexibility
 
@@ -644,38 +632,35 @@ Macros in Rust are pretty cool! But you don't want to overdo them either. In
 per endpoint. Some of the parameters in the endpoints were mandatory, and others
 optional (passed as an `Option`):
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 let mut params = Query::with_capacity(3);
 params.insert("ids", ids);
 params.insert("limit", limit.to_string());
 if let Some(ref market) = market {
     params.insert("market", market.as_ref());
 }
-----
+{{< /highlight >}}
 
 I first tried to simplify this by using macros to their full strength, so my
 initial attempts looked like this:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 let params = build_map! {
     ids,
     limit => limit.to_string(),
     optional market => market.as_ref(),
 };
-----
+{{< /highlight >}}
 
 Or this:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 let params = build_map! {
     ids,
     limit => limit.to_string(),
     Some(market) => market.as_ref()
 };
-----
+{{< /highlight >}}
 
 Yes, they are _very_ concise and we remove a lot of boilerplate, but they're bad
 for two reasons:
@@ -695,25 +680,23 @@ a regular hashmap builder macro like you'd find on
 https://docs.rs/maplit/1.0.2/maplit/[`maplit`], and the macro doesn't hide
 anything:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 let params = build_map! {
     "ids": ids,
     "limit": limit.to_string(),
     optional "market": market.map(|x| x.as_ref()),
 };
-----
+{{< /highlight >}}
 
 Anyhow, we might remove it in the future, since this syntax will soon work as
 well <<hashmap-new>>:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 HashMap::from([
   (k1, v1),
   (k2, v2)
 ]);
-----
+{{< /highlight >}}
 
 == Other goodies
 
@@ -772,8 +755,7 @@ async_stream >}}.
 
 Due to how JSON works, sometimes an object will always have a single field:
 
-[source, javascript]
-----
+{{< highlight "javascript" >}}
 {
     "many_artists": [
         {
@@ -782,13 +764,12 @@ Due to how JSON works, sometimes an object will always have a single field:
         // ...
     ]
 }
-----
+{{< /highlight >}}
 
 In that case, instead of just deserializing that object with {{< crate serde >}}
 and returning it to the user, you can just return that one field in the object:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 #[derive(Deserialize)]
 struct ArtistCollection {
     many_artists: Vec<Artists>
@@ -805,7 +786,7 @@ fn endpoint() -> Result<Vec<Artists>> {
     let response = request();
     serde_json::from_str::<ArtistCollection>(response).map(|x| x.many_artists)
 }
-----
+{{< /highlight >}}
 
 [.text-center]
 {{< gh issue "ramsayleung/rspotify" 149 "The way to reduce wrapper object" >}}

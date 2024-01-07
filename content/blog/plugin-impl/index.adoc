@@ -103,12 +103,11 @@ in my experience, they're always in the way when trying to deal with actual
 errors. For example, I don't care that an import is unused at all. I'll fix it
 once I'm done, but please let me keep trying to "`make this work`"!
 
-[source, rust]
-----
+{{< highlight rust >}}
 // TODO: disable and cleanup with `cargo fix` automatically once done
 #![allow(unused)]
 #![allow(dead_code)]
-----
+{{< /highlight >}}
 
 Note that I'm not using `#![allow(warnings)]`, because most warnings will
 actually be really helpful when refactoring to avoid early bugs. We just want to
@@ -137,11 +136,10 @@ Say, you have a number of `use` statements at the top of your file. After adding
 some changes related to the plugin system, you now need to import `PdkValue` as
 well. You'd usually do:
 
-[source, diff]
-----
+{{< highlight diff >}}
 -use tremor_value::{Value, ValueTrait};
 +use tremor_value::{Value, ValueTrait, PdkValue};
-----
+{{< /highlight >}}
 
 The problem is that if the parent branch later adds or removes one of the items
 in that `use` statement, you may encounter a conflict. Git isn't smart enough to
@@ -149,33 +147,30 @@ handle Rust import statements (although that'd be pretty cool). Multiply this by
 100 statements, and you might eventually go crazy. You can keep your sanity by
 adding the new item in a separate block of ``use``s instead:
 
-[source, diff]
-----
+{{< highlight "diff" >}}
 -use tremor_value::{Value, ValueTrait};
 +
 +use tremor_value::PdkValue;
-----
+{{< /highlight >}}
 
 Same thing may happen if `tremor_value` wasn't imported and you have to add a
 new line to the already existing `use` block:
 
-[source, diff]
-----
+{{< highlight "diff" >}}
  use more_stuff::{X, Y, Z};
 +use tremor_value::PdkValue;
  use other_stuff::{A, B, C};
-----
+{{< /highlight >}}
 
 In my experience, Git also trips up with this sometimes. You can follow the same
 advice:
 
-[source, diff]
-----
+{{< highlight "diff" >}}
  use more_stuff::{X, Y, Z};
  use other_stuff::{A, B, C};
 +
 +use tremor_value::PdkValue;
-----
+{{< /highlight >}}
 
 In summary, you can just create a new block after all the previous ``use``s and
 add your stuff in there. You can clean it up at the end or in a different pull
@@ -200,8 +195,7 @@ In my case, it first looked as follows. The specifics about how this works with
 {{< crate abi_stable >}} are explained in the
 https://nullderef.com/blog/plugin-abi-stable/[previous post].
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 /// This type represents a connector plugin that has been loaded with
 /// `abi_stable`. It serves as a builder, making it possible to construct a
 /// trait object of `RawConnector`.
@@ -237,7 +231,7 @@ impl RootModule for ConnectorMod_Ref {
     /// only required method for the `RootModule` trait.
     declare_root_module_statics! {ConnectorMod_Ref}
 }
-----
+{{< /highlight >}}
 
 My task was to turn the `Connector` trait into a plugin. All the `Connector`
 implementors were meant to be constructed with `ConnectorBuilder`, and from that
@@ -273,8 +267,7 @@ the most problematic part was the `Value` type. It's used to represent a
 JSON-like payload; roughly defined as follows:
 
 [[value_decl]]
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub enum Value {
     /// Static values (integers, booleans, etc)
     Static(StaticNode),
@@ -287,12 +280,11 @@ pub enum Value {
     /// A binary type
     Bytes(Vec<u8>),
 }
-----
+{{< /highlight >}}
 
 In order to be able to use `Value` in the plugin system, it can be converted to:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 #[repr(C)]
 #[derive(StableAbi)] // Only necessary for abi_stable
 pub enum Value {
@@ -307,7 +299,7 @@ pub enum Value {
     /// A binary type
     Bytes(RVec<u8>),
 }
-----
+{{< /highlight >}}
 
 The first problem arises in the `Static` variant:
 https://docs.rs/value-trait/latest/value_trait/enum.StaticNode.html[`StaticNode`]
@@ -315,8 +307,7 @@ is a {repr-rust} _external_ type. It's from our {{< crate value_trait >}}
 dependency, and it may hold different basic types: numbers, booleans, or just
 nothing.
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub enum StaticNode {
     I64(i64),
     U64(u64),
@@ -324,14 +315,13 @@ pub enum StaticNode {
     Bool(bool),
     Null,
 }
-----
+{{< /highlight >}}
 
 This could be fixed by simply applying the very same procedure again (hence
 _recursively_ until everything is {repr-c}). Here it will finally work because
 there aren't any other {repr-rust} types in `StaticNode`:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 #[cfg_attr(feature = "abi_stable", repr(C))]
 #[cfg_attr(feature = "abi_stable", derive(abi_stable::StableAbi))]
 pub enum StaticNode {
@@ -341,7 +331,7 @@ pub enum StaticNode {
     Bool(bool),
     Null,
 }
-----
+{{< /highlight >}}
 
 Since it's an external library, we'll have to make a Pull Request and hope that
 the author is okay with the changes. `abi_stable` should be optional so that
@@ -358,20 +348,18 @@ Awesome. We got `Value` working now for FFI. Right? No? Oh. It seems like the
 compiler strongly disagrees. By changing the variants of `Value`, a great amount
 of the code that used it will now fail to compile in multiple ways:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 // Won't work because Value::Array holds an RVec now
 let value = Value::Array(Vec::new());
-----
+{{< /highlight >}}
 
 That's the easiest one: we just need to change `Vec` to `RVec` and it should be
 fine. The types in {{< crate abi_stable >}} are meant to be a drop-in
 replacement for the ones in `std`:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 let value = Value::Array(RVec::new());
-----
+{{< /highlight >}}
 
 It gets a bit more complicated when the old types are exposed in methods,
 because you have to decide whether to expand the FFI boundary from the
@@ -381,8 +369,7 @@ _internals_ of `Value` to the _users_ of `Value`. For instance, the
 error in there, which raises a decision that must be made: returning `RHashMap`
 or adding an internal conversion to `HashMap`.
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 impl Value {
     // Original code
     fn as_object(&self) -> Option<&HashMap<String, Value>> {
@@ -397,7 +384,7 @@ impl Value {
         }
     }
 }
-----
+{{< /highlight >}}
 
 * If the return type is changed to `RHashMap`, almost every caller to
   `as_object` in the program will now fail to compile because they expect a
@@ -544,8 +531,7 @@ image::simplify.png[width=75%, align=center]
 Since it's a new type, we won't run into the breaking changes I showed in the
 <<avoid>> section, and it's quite easy to implement:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 #[repr(C)]
 #[derive(StableAbi)]
 pub enum PdkValue {
@@ -560,7 +546,7 @@ pub enum PdkValue {
     /// A binary type
     Bytes(RVec<u8>),
 }
-----
+{{< /highlight >}}
 
 We don't need to write any additional methods for the new `PdkValue`, only its
 conversions to and from the regular `Value`. This would be equivalent to,
@@ -573,8 +559,7 @@ The problem in my case is that these conversions are now stem:[O(n)] instead of
 stem:[O(1)], because I have to iterate the objects and arrays in order to
 convert its inner values as well:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 impl From<Value> for PdkValue {
     fn from(original: Value) -> Self {
         match original {
@@ -622,12 +607,11 @@ impl From<PdkValue> for Value {
         }
     }
 }
-----
+{{< /highlight >}}
 
 And then we can use it like:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 // This is implemented in the plugin. It will work because `PdkValue` is
 // FFI-safe.
 pub extern "C" fn plugin_stuff(value: PdkValue) {
@@ -639,7 +623,7 @@ pub extern "C" fn plugin_stuff(value: PdkValue) {
 fn runtime_wrapper(value: Value) {
     plugin_stuff(value.into());
 }
-----
+{{< /highlight >}}
 
 Surprisingly easy to get working! Two problems, though:
 
@@ -677,8 +661,7 @@ In the previous post I introduced the {{< crate async_ffi >}} crate, which
 exports FFI-compatible ``Future``s. It's quite easy to use:
 
 .Example from the docs
-[source, rust]
-----
+{{< highlight "rust" >}}
 use async_ffi::{FfiFuture, FutureExt};
 
 #[no_mangle]
@@ -690,7 +673,7 @@ pub extern "C" fn work(arg: u32) -> FfiFuture<u32> {
     }
     .into_ffi()
 }
-----
+{{< /highlight >}}
 
 The types in {{< crate async_ffi >}} implement `Future`, so invoking that
 function is as easy as usual: just adding `.await` after the function call.
@@ -747,18 +730,16 @@ a bit] with them and it's a good alternative if you:
   nasty real quick.
 
 .In the shared crate: the type definition
-[source, rust]
-----
+{{< highlight "rust" >}}
 #[repr(C)]
 pub struct ConnectorContext {
     id: i32,
     callback: extern "C" fn(i32),
 }
-----
+{{< /highlight >}}
 
 .In the runtime: the callback definition and the plugin loading
-[source, rust]
-----
+{{< highlight "rust" >}}
 // This will run a few plugins concurrently.
 pub fn run() {
     // You still have access to some resources in the runtime, but don't
@@ -783,11 +764,10 @@ pub fn run() {
 
     println!("Final count: {}", COUNT.load(Ordering::Relaxed));
 }
-----
+{{< /highlight >}}
 
 .In the plugin: the functionality implementation
-[source, rust]
-----
+{{< highlight "rust" >}}
 // This only invokes the callback with its own ID.
 pub extern "C" fn plugin_fn(ctx: &ConnectorContext) {
     // Asynchronous communication!
@@ -795,13 +775,12 @@ pub extern "C" fn plugin_fn(ctx: &ConnectorContext) {
         (ctx.callback)(ctx.id);
     });
 }
-----
+{{< /highlight >}}
 
 You can even wrap the function pointer up so that the usage can remain as
 `sender.send(value)`:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub struct Sender<T> {
     callback: extern "C" fn(T),
 }
@@ -815,7 +794,7 @@ impl<T> Sender<T> {
         (self.callback)(t);
     }
 }
-----
+{{< /highlight >}}
 
 However, the use-cases for this are very limited. If you don't really need to
 access anything in the runtime you might as well just have a regular function in
@@ -830,8 +809,7 @@ what I did in order to have asynchronous channels available on the plugins.
 Using `abi_stable` it's quite easy:
 
 .In the shared crate: the interface
-[source, rust]
-----
+{{< highlight "rust" >}}
 #[abi_stable::sabi_trait]
 pub trait SenderOpaque: Send {
     /// Send a message to the runtime
@@ -840,11 +818,10 @@ pub trait SenderOpaque: Send {
 
 /// Alias for the FFI-safe sender, boxed
 pub type BoxedSender = SenderOpaque_TO<'static, RBox<()>>;
-----
+{{< /highlight >}}
 
 .In the runtime: the plugin loading
-[source, rust]
-----
+{{< highlight "rust" >}}
 impl SenderOpaque for async_std::channel::Sender<Reply> {
     fn send(&self, reply: Reply) -> BorrowingFfiFuture<'_, RResult<()>> {
         async move {
@@ -870,18 +847,17 @@ fn runtime() {
         println!("Got a reply from a plugin: {reply:?}");
     }
 }
-----
+{{< /highlight >}}
 
 .In the plugin: the functionality implementation
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub extern "C" fn plugin(sender: BoxedSender) {
     // Asynchronous communication!
     task::spawn(async move {
         sender.send(Reply::Fail).await.unwrap()
     });
 }
-----
+{{< /highlight >}}
 
 == Loading plugins
 
@@ -899,8 +875,7 @@ Once the runtime has a list of what directories may contain plugins, it can look
 for them recursively with the crate {{< crate walkdir >}}. It's highly
 customizable and remarkably easy to use:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 /// Recursively finds all the connector plugins in a directory. It doesn't
 /// follow symlinks, and has a sensible maximum depth so that it doesn't get
 /// stuck.
@@ -932,7 +907,7 @@ pub fn find_recursively(base_dir: &str) -> Vec<ConnectorMod_Ref> {
         })
         .collect()
 }
-----
+{{< /highlight >}}
 
 == Separating runtime and interface
 

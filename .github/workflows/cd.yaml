@@ -7,21 +7,29 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
-          submodules: true  # Fetch Hugo themes (true OR recursive)
-          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+          # Fetch Hugo themes (true OR recursive)
+          submodules: true
+          # Fetch all history for .GitInfo and .Lastmod
+          fetch-depth: 0
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
 
-      - name: Setup Asciidoctor
-        run: sudo apt-get -y update && sudo apt install -y asciidoctor
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
 
-      - name: Build
-        run: hugo --minify --verbose --gc
+      - run: gem install asciidoctor
+
+      - name: Run Hugo
+        run: |
+          alias asciidoctor="asciidoctor --attribute=experimental=true --attribute=icons=font"
+          hugo --minify --verbose --gc
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3

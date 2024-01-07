@@ -191,10 +191,9 @@ function with the C ABI. We can specify the ABI with `extern "C"`, or simply
 it'll just compute the minimum between two integers:
 
 .`common/src/lib.rs`
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub type MinFunction = unsafe extern fn(i32, i32) -> i32;
-----
+{{< /highlight >}}
 
 With it, the plugin crate may export its own implementation. In this case I'll
 declare a `static` variable, but the example showcases how `extern` may work as
@@ -204,15 +203,14 @@ variable's name isn't https://en.wikipedia.org/wiki/Name_mangling[_mangled_] and
 we can access it when dynamically loading the library.
 
 .`plugin-sample/src/lib.rs`
-[source, rust]
-----
+{{< highlight "rust" >}}
 #[no_mangle]
 pub static with_static: MinFunction = min;
 
 pub extern fn min(a: i32, b: i32) -> i32 {
     a.min(b)
 }
-----
+{{< /highlight >}}
 
 Finally, the main binary can load the library with {{< crate libloading >}},
 which requires a bit of `unsafe`. I was looking forward to using a different
@@ -228,8 +226,7 @@ features and performance they're pretty close anyway <<dynload-comp>>. Here's
 what the code looks like:
 
 .`src/main.rs`
-[source, rust]
-----
+{{< highlight "rust" >}}
 fn run_plugin(path: &str) -> Result<(), libloading::Error> {
     unsafe {
         let library = Library::new(path)?;
@@ -242,13 +239,12 @@ fn run_plugin(path: &str) -> Result<(), libloading::Error> {
 
     Ok(())
 }
-----
+{{< /highlight >}}
 
 We can run it with the following commands (though the `Makefile` in the repo
 will do everything for you):
 
-[source, commandline]
-----
+{{< highlight "console" >}}
 $ cd plugin-sample
 $ cargo build --release
 $ cd ..
@@ -257,7 +253,7 @@ Running plugin:
   min(1, 2): 1
   min(-10, 10): -10
   min(2000, 2000): 2000
-----
+{{< /highlight >}}
 
 Cool! This raises a few questions that I should learn more about:
 
@@ -380,13 +376,12 @@ Wasm does have support for globals, but since handling complex types -- those
 other than numbers, a function in this case -- isn't trivial, it's not worth it.
 
 .`plugin-sample/src/lib.rs`
-[source, rust]
-----
+{{< highlight "rust" >}}
 #[no_mangle]
 pub fn with_extern(a: i32, b: i32) -> i32 {
     a.min(b)
 }
-----
+{{< /highlight >}}
 
 For the runtime, since it's a simple example I'll try both
 https://wasmer.io/[Wasmer] and https://wasmtime.dev/[Wasmtime]. For more complex
@@ -401,8 +396,7 @@ anyway, so I'll just use that for now. If we ended up using Wasm for Tremor I'd
 try updating and maintaining `wasm_plugin` to keep the code boilerplate-free.
 
 .Wasmer, in `src/main.rs`
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub fn run_plugin(path: &str) -> Result<(), Box<dyn Error>> {
     // For reference, Feather also reads the plugins with `fs::read`:
     // https://github.com/feather-rs/feather/blob/07c64678f80ff77be3dbd3d99fbe5558b4e72c97/quill/cargo-quill/src/main.rs#L107
@@ -420,11 +414,10 @@ pub fn run_plugin(path: &str) -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
-----
+{{< /highlight >}}
 
 .Wasmtime, in `src/main.rs`
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub fn run_plugin(path: &str) -> Result<(), Box<dyn Error>> {
     let engine = Engine::default();
     let module = Module::from_file(&engine, &path)?;
@@ -443,12 +436,11 @@ pub fn run_plugin(path: &str) -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
-----
+{{< /highlight >}}
 
 For a simple example they're pretty much the same. Running them:
 
-[source, text]
-----
+{{< highlight "console" >}}
 $ rustup target add wasm32-wasi
 $ cd plugin-simple
 $ cargo build --target wasm32-wasi --release
@@ -458,7 +450,7 @@ Running plugin:
   min(1, 2): 1
   min(-10, 10): -10
   min(2000, 2000): 2000
-----
+{{< /highlight >}}
 
 * AFAIK Rust has multiple compilation targets for Wasm. Which one should I be
   using?
@@ -539,8 +531,7 @@ experimental *`witx` files* <<witx>>, which makes it easy to define a common ABI
 in order to interact from different programming languages <<witx-example>>
 <<witx-guide>>. They look like this:
 
-[source, lisp]
-----
+{{< highlight "lisp" >}}
 (use "errno.witx")
 
 ;;; Add two integers
@@ -552,7 +543,7 @@ in order to interact from different programming languages <<witx-example>>
     (result $res s32)
   )
 )
-----
+{{< /highlight >}}
 
 Please refer to the
 https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md[proposal
@@ -647,12 +638,11 @@ simple examples, the Wasm ones don't include the [de]serialization part that may
 introduce even more overhead. Knowing that, the results are the following, which
 is more or less what I was expecting:
 
-[source, text]
-----
+{{< highlight "text" >}}
 test test::dynamic_simple ... bench:     139,702 ns/iter (+/- 34,699)
 test test::wasmer_setup   ... bench:     967,633 ns/iter (+/- 203,933)
 test test::wasmtime_setup ... bench:     988,500 ns/iter (+/- 363,244)
-----
+{{< /highlight >}}
 
 I hope you enjoyed reading this post and that you learned something from it! You
 can leave any suggestions in the comments below.

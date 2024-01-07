@@ -394,8 +394,7 @@ for both the runtime and the plugin. Here's an example of how this could go
 wrong if we don't save information about versioning:
 
 .Plugin implementation
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub mod common {
     // This is the declaration for the plugin data in version 0.1
     #[repr(C)]
@@ -410,11 +409,10 @@ pub static PLUGIN_DATA: common::PluginData = common::PluginData {
     name: b"test",
     new
 };
-----
+{{< /highlight >}}
 
 .Runtime implementation
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub mod common {
     // And this is the same type, but in version 0.2
     #[repr(C)]
@@ -437,7 +435,7 @@ fn main() -> Result<(), anyhow::Error> {
 
     Ok(())
 }
-----
+{{< /highlight >}}
 
 In the code above, we can see that, even though both versions of `PluginData`
 are FFI-safe, their layouts aren't the same, because the last one has a new
@@ -457,8 +455,7 @@ Specifically, the type used to export the version has to be:
 * *Thread-safe* (implement `Sync`). If we wanted to use something like `*const
   c_char`, the compiler would throw the following error, because it's a pointer:
 +
-[source, text]
-----
+{{< highlight "text" >}}
 error[E0277]: `*const i8` cannot be shared between threads safely
  --> src/lib.rs:4:1
   |
@@ -467,17 +464,16 @@ error[E0277]: `*const i8` cannot be shared between threads safely
   |
   = help: the trait `Sync` is not implemented for `*const i8`
   = note: shared static variables must have a type that implements `Sync`
-----
+{{< /highlight >}}
 +
 Instead, we can use a function that returns the string:
 +
-[source, rust]
-----
+{{< highlight "rust" >}}
 #[no_mangle]
 pub extern "C" fn get_version() -> *const c_char {
     b"0.1.0\0".as_ptr() as _
 }
-----
+{{< /highlight >}}
 
 Finally, there are multiple ways to handle versioning within the runtime,
 depending on how fine-grained (but also more error-prone) it should be:
@@ -556,11 +552,10 @@ interface. For example, the TCP connector will need to keep its socket after its
 initialization in order to send or receive messages. This means that most of
 them will follow the following pattern:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 let state = plugin.new();
 plugin.something(&mut state);
-----
+{{< /highlight >}}
 
 The state is first created with a `new` function that initializes everything as
 needed, and then a mutable reference is passed to its functions. The main
@@ -579,17 +574,15 @@ types the compiler didn't generate code for.
 It's really easy to prove in Rust with the following example. We'll try to
 _load_ an external function with generics:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 extern "C" {
     fn foo<T>(_: T);
 }
-----
+{{< /highlight >}}
 
 This results in the following error:
 
-[source, text]
-----
+{{< highlight "text" >}}
 error[E0044]: foreign items may not have type parameters
  --> src/lib.rs:2:5
   |
@@ -601,15 +594,14 @@ error[E0044]: foreign items may not have type parameters
 error: aborting due to previous error
 
 For more information about this error, try `rustc --explain E0044`.
-----
+{{< /highlight >}}
 
 Interestingly enough, the compiler lets you export generic functions declared
 _in Rust_:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 extern fn foo<T>(_: T) {}
-----
+{{< /highlight >}}
 
 This confused me in the beginning; it made me think generic functions through
 FFI were somehow be possible. But as described in
@@ -618,12 +610,11 @@ them], they're only supported to pass callbacks to C functions.
 
 Note that generics in plugins do work for lifetimes. This will compile:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 extern "C" {
     fn foo<'a>(_: &'a str) -> &'a str;
 }
-----
+{{< /highlight >}}
 
 Even though lifetimes and generics share the same syntax, in the case of
 lifetimes they are only annotations for the Rust compiler; monomorphization is
@@ -637,16 +628,14 @@ https://www.youtube.com/watch?v=xcygqF5LVmM[this video by Jon Gjengset].
 The alternative to generics is often using trait object types with `dyn`. Again,
 will that work for plugins? Let's try:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub trait PluginState {}
 pub extern fn foo<T>(_: &dyn PluginState) {}
-----
+{{< /highlight >}}
 
 Compiling...
 
-[source, text]
-----
+{{< highlight "text" >}}
 warning: `extern` fn uses type `dyn PluginState`, which is not FFI-safe
  --> src/lib.rs:2:25
   |
@@ -655,7 +644,7 @@ warning: `extern` fn uses type `dyn PluginState`, which is not FFI-safe
   |
   = note: `#[warn(improper_ctypes_definitions)]` on by default
   = note: trait objects have no C equivalent
-----
+{{< /highlight >}}
 
 Nope. `dyn` is strictly part of the Rust ABI, so it's not stable for our plugin
 system.
@@ -671,8 +660,7 @@ For safety's sake, let's see how the second one works. This pattern is used for
 example in PulseAudio <<pulseaudio-ptr>>, in which callbacks pass a `void*`
 parameter for user data. Here's a simpler program:
 
-[source, c]
-----
+{{< highlight "c" >}}
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -707,7 +695,7 @@ int main() {
     // Don't forget!
     free(state);
 }
-----
+{{< /highlight >}}
 
 This does work perfectly, and we could port it to Rust as a straightforward
 solution. However, it has the following inconvenients:
@@ -727,8 +715,7 @@ F. Bryan's] covers the topic extremely well.
 Here's how our previous example would look like, which could be translated to
 Rust with no problems whatsoever:
 
-[source, c]
-----
+{{< highlight "c" >}}
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -777,7 +764,7 @@ int main() {
     // Don't forget!
     free(state);
 }
-----
+{{< /highlight >}}
 
 The main difference in the code is the new base class `plugin_base_t`. It
 defines a single function `print` that should be implemented by its children,
@@ -816,11 +803,10 @@ fields at all, like the name or the version. This one is already handled by
 exported by the shared object, the following error will show up:
 
 .https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-missing[See the full code here]
-[source, text]
-----
+{{< highlight "console" >}}
 $ make debug-missing
 Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.so: undefined symbol: get_name
-----
+{{< /highlight >}}
 
 === Version mismatch
 
@@ -828,13 +814,12 @@ After implementing the versioning system, we can see how these kinds of errors
 can be caught safely:
 
 .https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-versionmismatch[See the full code here]
-[source, text]
-----
+{{< highlight "console" >}}
 $ make debug-versionmismatch
 Initializing plugin versionmismatch
 Version mismatch. Aborting.
 Error when setting up the plugin: version mismatch: 0.0.0 incompatible with 0.1.0
-----
+{{< /highlight >}}
 
 === Wrong type
 
@@ -851,11 +836,10 @@ ____
 Ignoring this will cause an unavoidable segfault:
 
 .https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongtype[See the full code here]
-[source, text]
-----
+{{< highlight "console" >}}
 $ make debug-wrongtype
 Segmentation fault (core dumped)
-----
+{{< /highlight >}}
 
 === Wrong address
 
@@ -864,11 +848,10 @@ plugin exports, e.g., the name with a null pointer, we'll just get a
 segmentation fault:
 
 .https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongaddress[See the full code here]
-[source, text]
-----
+{{< highlight "console" >}}
 $ make debug-wrongaddress
 Segmentation fault (core dumped)
-----
+{{< /highlight >}}
 
 In order to avoid this, the runtime could manually check that the pointer isn't
 zero, the usual value for null. But the same would still happen if the pointer's
@@ -889,11 +872,10 @@ https://doc.rust-lang.org/std/panic/fn.catch_unwind.html[`catch_unwind`] in
 order to not crash the entire runtime when something goes wrong:
 
 .https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-panic[See the full code here]
-[source, text]
-----
+{{< highlight "console" >}}
 $ make debug-panic
 Segmentation fault (core dumped)
-----
+{{< /highlight >}}
 
 == Full implementation
 
@@ -919,8 +901,7 @@ and version returning `*const c_char`, and exporting the plugin data struct. For
 the curious, it's defined in the `common` directory.
 
 .Sample usage of the macro
-[source, rust]
-----
+{{< highlight "rust" >}}
 define_connector_plugin! {
     name: "metronome",
     data: ConnectorPlugin {
@@ -930,7 +911,7 @@ define_connector_plugin! {
         is_source: true
     }
 }
-----
+{{< /highlight >}}
 
 The plugin system supports multiple types of plugins (connectors, codecs, etc),
 so there's actually a specific macro and data structure for each of them.

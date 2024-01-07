@@ -1,15 +1,16 @@
 {{- with site.Params.homeInfoParams }}
 <article class="first-entry home-info">
+    {{/* CUSTOM HEADER: support both light and dark theme logo */}}
     <header class="entry-header">
         {{ with .Title }}
-        <h1>{{ . | markdownify }}</h1>
+          <h1>{{ . | markdownify }}</h1>
         {{ end }}
         <div class="indexlogo">
           {{ with .LogoLight }}
-          <img class="ligththeme" src="{{ . }}"/>
+            <img class="ligththeme" src="{{ . }}"/>
           {{ end }}
           {{ with .LogoDark }}
-          <img class="darktheme" src="{{ . }}"/>
+            <img class="darktheme" src="{{ . }}"/>
           {{ end }}
         </div>
     </header>
@@ -17,7 +18,7 @@
         <p>{{ .Content | markdownify }}</p>
     </div>
     <footer class="entry-footer">
-        {{ partial "social_icons.html" site.Params.socialIcons }}
+        {{ partial "social_icons.html" (dict "align" site.Params.homeInfoParams.AlignSocialIconsTo) }}
     </footer>
 </article>
 {{- end -}}
