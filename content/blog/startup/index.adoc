@@ -1,0 +1,32 @@
+---
+title: "Founding a startup without going crazy"
+description: "Some investigation on how to found a startup in a sustainable way"
+author: "Mario Ortiz Manero"
+images: ["TODO"]
+tags: [TODO]
+date: 2024-01-07
+GHissueID: TODO
+---
+
+Jen-Hsun Huang -- NVIDIA
+
+- VC don't invest in business plans, it does in people and the market. The
+  latter isn't so important because it changes, and you need to reinvent
+  yourself. He started with $2M.
+- Initial plan was to build chips for 3D gaming; first in the market.
+- Perspective > vision. Everyone has it, just specific to yourself,
+  surroundings, tastes, etc. Perspective > ideas.
+- What's the essence of your business? What makes it work?
+- Ignored customers for 5Y to create the industry.
+- Why do you want to build a company? I hope it's not money.
+- Company growth -> you have to take the initiative to cannibalize your own
+  products. Otherwise, someone else will.
+- Fail to learn, but fail quickly, "intellectual honesty".
+- CEO skill: Become comfortable with ambiguity
+- Started at 30yo, no business classes prior
+- He learns from anybody (even kids)
+- Focus; do one thing well
+- Everything is torn apart & reinvented @ some point
+
+- Pending questions: relationships with kids, burnout, working too much?? He
+  only seems to work
