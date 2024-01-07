@@ -1,4 +1,4 @@
-baseURL: https://nullderef.com
+baseURL: "https://nullderef.com"
 title: NullDeref
 languageCode: en-us
 theme: "PaperMod"
@@ -11,8 +11,8 @@ buildDrafts: false
 buildFuture: false
 buildExpired: false
 enableEmoji: true
+pygmentsUseClasses: true
 googleAnalytics: G-MVVGNX70LX
-disqusShortname: nullderef-com
 
 paginate: 50
 
@@ -24,7 +24,6 @@ security:
 languages:
   en:
     languageName: "English"
-    subtitle: "Yet Another Programming Blog"
     weight: 1
     menu:
       main:
@@ -37,18 +36,22 @@ languages:
         - name: Search
           url: search/
           weight: 3
+    params:
+      subtitle: "Yet Another Programming Blog"
 
 params:
-  env: production # to enable google analytics, opengraph, twitter-cards and schema.
+  # to enable google analytics, opengraph, twitter-cards and schema.
+  env: production
   description: "Mario Ortiz Manero's personal blog, where he writes about his latest software projects."
   author: Mario Ortiz Manero
   keywords: ["rust", "rustlang", "guides", "open-source", "programming", "software"]
   images: ["/logo-banner.png"]
 
+  # light/dark/auto
   defaultTheme: auto
+  # disableThemeToggle: true
   ShowCodeCopyButtons: true
   ShowFullTextInRSS: true
-  # disableThemeToggle: true
   ShowShareButtons: true
   ShowReadingTime: true
   # disableSpecial1stPost: true
@@ -66,6 +69,9 @@ params:
 
       _-- **Mario Ortiz Manero**_
 
+  social:
+    x: null_deref
+
   socialIcons:
     - name: GitHub
       url: "https://github.com/marioortizmanero/"
@@ -74,14 +80,19 @@ params:
     - name: LinkedIn
       url: "https://www.linkedin.com/in/marioortizmanero/"
       personal: true
-    - name: Twitter
-      url: "https://twitter.com/null_deref"
+    - name: X
+      url: "https://x.com/null_deref"
+      personal: true
+    - name: Mastodon
+      url: "https://mstdn.social/@nullderef"
       personal: true
     - name: RSS
       url: "https://nullderef.com/index.xml"
 
-social:
-  twitter: null_deref
+markup:
+  highlight:
+    # Required to enable syntax highlighting
+    noClasses: false
 
 minify:
     disableXML: true
@@ -98,7 +109,8 @@ outputs:
   home:
     - HTML
     - RSS
-    - JSON # necessary for the search
+    # necessary for the search
+    - JSON
 
 taxonomies:
   tag: tags
