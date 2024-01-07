@@ -199,15 +199,14 @@ within `Value` was originally stored inside a `Box` to reduce the overall size
 of the enum. In the experiment, I just converted it to a `RBox` and called it a
 day:
 
-[source, diff]
-----
+{{< highlight "diff" >}}
  enum Value {
      // ...
 -    Object(Box<HashMap<String, Value>>),
 +    Object(RBox<RHashMap<RString, Value>>),
      // ...
  }
-----
+{{< /highlight >}}
 
 However, turns out that unlike `RString` or `RCow`, `RHashMap` isn't a
 re-implementation of the underlying type. Writing a hash table from scratch is
@@ -431,8 +430,7 @@ example is quite specific to `abi_stable`, but what's important is that we just
 wrap the base function `connect` and transform it to an easier to use one:
 
 .Low-level interface to communicate between binaries.
-[source, rust]
-----
+{{< highlight "rust" >}}
 #[abi_stable::sabi_trait]
 pub trait RawConnector: Send {
     fn connect<'a>(
@@ -444,11 +442,10 @@ pub trait RawConnector: Send {
 
 /// Alias for the FFI-safe dynamic connector type
 pub type BoxedRawConnector = RawConnector_TO<'static, RBox<()>>;
-----
+{{< /highlight >}}
 
 .High-level wrapper for what essentially is a `Box<dyn RawConnector>`.
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub(crate) struct Connector(BoxedRawConnector);
 impl Connector {
     #[inline]
@@ -460,7 +457,7 @@ impl Connector {
             .into() // RResult -> Result
     }
 }
-----
+{{< /highlight >}}
 
 Here we just convert the return types, but we can do the same for the parameters
 or whatever boilerplate is needed for that function. Note that this wrapper only
@@ -520,8 +517,7 @@ that provides more plugin-related information. An easier option is to define a
 more organized data structure with common kinds of errors:
 
 .Example of a more organized error type, even if it still uses `Box<dyn Error>`.
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub struct PluginError {
     err: SendRBoxError,
     kind: PluginErrorKind
@@ -532,7 +528,7 @@ pub enum PluginErrorKind {
     ConnectionFailed, // Edge cases in `connect`
     // ...
 }
-----
+{{< /highlight >}}
 
 === Reduce error handling boilerplate
 
@@ -549,8 +545,7 @@ is configred, which should be somewhat simple to implement. I'm surprised I
 couldn't find an existing crate for that.
 
 .Readability would improve in longer functions with lots of error handling.
-[source, diff]
-----
+{{< highlight "diff" >}}
 +#[try_with(rtry)]
  fn fallible() -> RResult<()> {
 -    if rtry!(fallible_op_1()) && rtry!(fallible_op_2()) {
@@ -561,7 +556,7 @@ couldn't find an existing crate for that.
  
      ROk(())
  }
-----
+{{< /highlight >}}
 
 Admittedly, the example above is an oversimplification. In reality, a single
 function may mix both `Result` and `RResult`, or require type conversions. The
@@ -575,8 +570,7 @@ requires using `async move { /* ... */ }.into_ffi()`, which is quite a bit of
 boilerplate and increases the indentation level by one.
 
 .Without the procedural macro.
-[source, rust]
-----
+{{< highlight "rust" >}}
 use async_ffi::{FfiFuture, FutureExt};
 
 #[no_mangle]
@@ -588,11 +582,10 @@ pub extern "C" fn work(arg: u32) -> FfiFuture<u32> {
     }
     .into_ffi()
 }
-----
+{{< /highlight >}}
 
 .With the procedural macro, especially noticeable in more complex functions.
-[source, rust]
-----
+{{< highlight "rust" >}}
 use async_ffi::async_ffi;
 
 #[no_mangle]
@@ -602,7 +595,7 @@ pub async extern "C" fn work(arg: u32) -> u32 {
     do_some_sleep(42).await;
     ret
 }
-----
+{{< /highlight >}}
 
 I already opened an issue about this with more details for whoever wants to give
 it a try:
@@ -626,15 +619,14 @@ ways to approach this:
   supported. Before adding support for a new platform, we will have to manually
   ensure that its error handling for dynamic loading is thread-safe.
 +
-[source, rust]
-----
+{{< highlight "rust" >}}
 // Ideally, there should be a comment here with references that state the
 // thread-safety of the supported platforms.
 #[cfg(not(any(unix, windows, target_os = "macos")))]
 compile_error!(
     "This platform isn't currently supported. Please open a ticket on GitHub."
 );
-----
+{{< /highlight >}}
 . *Proper fix*: fix the data races upstream with an internal mutex. This is what
   the alternative {{< crate dlopen >}} does, though in their case they _always_
   have the mutex, which is unnecessary in some platforms <<dlopen-mutex>>.
