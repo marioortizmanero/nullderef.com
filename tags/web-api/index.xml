@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>web-api on NullDeref</title>
     <link>https://nullderef.com/tags/web-api/</link>
     <description>Recent content in web-api on NullDeref</description>
     <image>
+      <title>NullDeref</title>
       <url>https://nullderef.com/logo-banner.png</url>
       <link>https://nullderef.com/logo-banner.png</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>en</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Wed, 13 Oct 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/web-api/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 13 Oct 2021 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://nullderef.com/tags/web-api/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Designing an API Client in Rust: New RSpotify Version a Year Later</title>
       <link>https://nullderef.com/blog/web-api-client/</link>
       <pubDate>Wed, 13 Oct 2021 00:00:00 +0000</pubDate>
-      
       <guid>https://nullderef.com/blog/web-api-client/</guid>
       <description>Inspired by the RSpotify rewrite, a few tips on how to make a solid wrapper for most web API wrappers.</description>
       <content:encoded><![CDATA[<div class="paragraph">
@@ -163,78 +164,72 @@ synchronous or asynchronous. Since the usage for an HTTP client in an API is
 often very basic, i.e., you only need to make requests and get the results, we
 can cover its usage under a single interface. For example:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">pub trait HttpClient: Send + Default {
-   type Error;
-
-    fn get(
-        &amp;self,
-        url: &amp;str,
-        headers: Option&lt;&amp;Headers&gt;,
-        payload: &amp;Query,
-    ) -&gt; Result&lt;String, Self::Error&gt;;
-
-    fn post(
-        &amp;self,
-        url: &amp;str,
-        headers: Option&lt;&amp;Headers&gt;,
-        payload: &amp;Value,
-    ) -&gt; Result&lt;String, Self::Error&gt;;
-
-    // etc
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">HttpClient</span>: <span class="nb">Send</span> <span class="o">+</span><span class="w"> </span><span class="nb">Default</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">type</span> <span class="nc">Error</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">get</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">url</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">headers</span>: <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="n">Headers</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">payload</span>: <span class="kp">&amp;</span><span class="nc">Query</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="bp">Self</span>::<span class="n">Error</span><span class="o">&gt;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">post</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">url</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">headers</span>: <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="n">Headers</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">payload</span>: <span class="kp">&amp;</span><span class="nc">Value</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="bp">Self</span>::<span class="n">Error</span><span class="o">&gt;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// etc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Then, we can add an implementation for each of our supported clients:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">pub struct UreqClient {}
-
-impl HttpClient for UreqClient {
-    type Error = ureq::Transport;
-
-    #[inline]
-    fn get(
-        &amp;self,
-        url: &amp;str,
-        headers: Option&lt;&amp;Headers&gt;,
-        payload: &amp;Query,
-    ) -&gt; Result&lt;String, Self::Error&gt; {
-        let request = ureq::get(url);
-        let sender = |mut req: Request| {
-            for (key, val) in payload.iter() {
-                req = req.query(key, val)
-            }
-            req.call()
-        };
-        self.request(request, headers, sender) // Internal more complex handler
-    }
-
-    // etc
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">UreqClient</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">HttpClient</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">UreqClient</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">type</span> <span class="nc">Error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ureq</span>::<span class="n">Transport</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[inline]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">get</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">url</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">headers</span>: <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="n">Headers</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">payload</span>: <span class="kp">&amp;</span><span class="nc">Query</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span><span class="w"> </span><span class="bp">Self</span>::<span class="n">Error</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ureq</span>::<span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">sender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">|</span><span class="k">mut</span><span class="w"> </span><span class="n">req</span>: <span class="nc">Request</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">payload</span><span class="p">.</span><span class="n">iter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">req</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="n">query</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">req</span><span class="p">.</span><span class="n">call</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">};</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="bp">self</span><span class="p">.</span><span class="n">request</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">headers</span><span class="p">,</span><span class="w"> </span><span class="n">sender</span><span class="p">)</span><span class="w"> </span><span class="c1">// Internal more complex handler
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// etc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>And we can finally make our client generic over its internal HTTP client:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">pub struct Spotify&lt;Http: HttpClient&gt; {
-    http: Http,
-    // etc
-}
-
-impl&lt;Http: HttpClient&gt; Spotify&lt;Http&gt; {
-    pub fn endpoint(&amp;self) -&gt; String {
-        let headers = todo!();
-        let payload = todo!();
-        self.http.get(&#34;/some/endpoint&#34;, headers, payload)
-    }
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">Spotify</span><span class="o">&lt;</span><span class="n">Http</span>: <span class="nc">HttpClient</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">http</span>: <span class="nc">Http</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// etc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="o">&lt;</span><span class="n">Http</span>: <span class="nc">HttpClient</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Spotify</span><span class="o">&lt;</span><span class="n">Http</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">endpoint</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">String</span> <span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">headers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">todo!</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">todo!</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="bp">self</span><span class="p">.</span><span class="n">http</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#34;/some/endpoint&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">headers</span><span class="p">,</span><span class="w"> </span><span class="n">payload</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Beware that this introduces a good amount of additional complexity which is
@@ -270,35 +265,33 @@ can’t access an endpoint to modify the user’s data; you need
 the <a href="https://doc.rust-lang.org/1.0.0/style/ownership/builders.html"><em>builder
 pattern</em></a>, following this structure (though not exactly the same):</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">// OAuth information
-let oauth = SpotifyOAuth::default()
-    .redirect_uri(&#34;http://localhost:8888/callback&#34;)
-    .scope(&#34;user-modify-playback-state&#34;)
-    .build()
-    .unwrap();
-
-// Basic information
-let creds = SpotifyClientCredentials::default()
-    .client_id(&#34;this-is-my-client-id&#34;)
-    .client_secret(&#34;this-is-my-client-secret&#34;)
-    .build()
-    .unwrap();
-
-// Obtaining the access token
-let token = get_token(&amp;mut oauth).unwrap();
-
-// The client itself
-let spotify = Spotify::default()
-    .client_credentials_manager(creds)
-    .token_info(token)
-    .build()
-    .unwrap();
-
-// Performing a request
-spotify.seek_track(25000, None).unwrap();</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="c1">// OAuth information
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">let</span><span class="w"> </span><span class="n">oauth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpotifyOAuth</span>::<span class="n">default</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">redirect_uri</span><span class="p">(</span><span class="s">&#34;http://localhost:8888/callback&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">scope</span><span class="p">(</span><span class="s">&#34;user-modify-playback-state&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">build</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// Basic information
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">let</span><span class="w"> </span><span class="n">creds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpotifyClientCredentials</span>::<span class="n">default</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">client_id</span><span class="p">(</span><span class="s">&#34;this-is-my-client-id&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">client_secret</span><span class="p">(</span><span class="s">&#34;this-is-my-client-secret&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">build</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// Obtaining the access token
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">let</span><span class="w"> </span><span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_token</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">oauth</span><span class="p">).</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// The client itself
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">let</span><span class="w"> </span><span class="n">spotify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Spotify</span>::<span class="n">default</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">client_credentials_manager</span><span class="p">(</span><span class="n">creds</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">token_info</span><span class="p">(</span><span class="n">token</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">build</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// Performing a request
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">spotify</span><span class="p">.</span><span class="n">seek_track</span><span class="p">(</span><span class="mi">25000</span><span class="p">,</span><span class="w"> </span><span class="nb">None</span><span class="p">).</span><span class="n">unwrap</span><span class="p">();</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>I wanted something more tailored towards our specific application. I think the
@@ -327,34 +320,30 @@ client for each authorization method?</p>
 <p>After removing the builder pattern and being more explicit about the
 authorization method that’s being used, this is more or less what we get:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">// OAuth information
-let oauth = OAuth::new(&#34;http://localhost:8888/callback&#34;, &#34;user-read-currently-playing&#34;);
-// Basic information
-let creds = Credentials::new(&#34;my-client-id&#34;, &#34;my-client-secret&#34;);
-// The client itself, now clearly with the &#34;authorization code&#34; method
-let mut spotify = AuthCodeSpotify::new(creds, oauth);
-
-// Obtaining the access token
-spotify.prompt_for_token().unwrap();
-
-// Performing a request
-spotify.seek_track(25000, None).unwrap();</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="c1">// OAuth information
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">let</span><span class="w"> </span><span class="n">oauth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OAuth</span>::<span class="n">new</span><span class="p">(</span><span class="s">&#34;http://localhost:8888/callback&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;user-read-currently-playing&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// Basic information
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">let</span><span class="w"> </span><span class="n">creds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Credentials</span>::<span class="n">new</span><span class="p">(</span><span class="s">&#34;my-client-id&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;my-client-secret&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// The client itself, now clearly with the &#34;authorization code&#34; method
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">spotify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AuthCodeSpotify</span>::<span class="n">new</span><span class="p">(</span><span class="n">creds</span><span class="p">,</span><span class="w"> </span><span class="n">oauth</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// Obtaining the access token
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">spotify</span><span class="p">.</span><span class="n">prompt_for_token</span><span class="p">().</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// Performing a request
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">spotify</span><span class="p">.</span><span class="n">seek_track</span><span class="p">(</span><span class="mi">25000</span><span class="p">,</span><span class="w"> </span><span class="nb">None</span><span class="p">).</span><span class="n">unwrap</span><span class="p">();</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>And if the user wants something more advanced, they can always write this:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">let oauth = OAuth {
-    redirect_uri: &#34;http://localhost:8888/callback&#34;,
-    state: generate_random_string(16, alphabets::ALPHANUM),
-    scopes: &#34;user-read-currently-playing&#34;,
-    ..Default::default()
-};</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">oauth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OAuth</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">redirect_uri</span>: <span class="s">&#34;http://localhost:8888/callback&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">state</span>: <span class="nc">generate_random_string</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="n">alphabets</span>::<span class="no">ALPHANUM</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">scopes</span>: <span class="s">&#34;user-read-currently-playing&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="o">..</span><span class="nb">Default</span>::<span class="n">default</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">};</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>It’s sufficient to use the regular initialization pattern for this case because
@@ -374,35 +363,33 @@ decide which one was the best. I gave this a lot of thought <a href="#gh-auth">[
 they can extend. In Rust, we could follow the typical “composition over
 inheritance” principle:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">pub struct EndpointsBase {
-    http: Rc&lt;Http&gt; // Shared with the rest of the endpoints
-}
-impl EndpointsBase {
-    pub fn endpoint1(&amp;self) { self.http.get(&#34;/endpoint1&#34;) }
-    pub fn endpoint2(&amp;self) { self.http.get(&#34;/endpoint2&#34;) }
-    // etc
-}
-
-pub struct EndpointsOAuth {
-    token: Token,
-    http: Rc&lt;Http&gt;
-}
-impl EndpointsOAuth {
-    pub fn endpoint3(&amp;self) { self.http.get_oauth(&#34;/endpoint3&#34;, self.token) }
-    pub fn endpoint4(&amp;self) { self.http.get_oauth(&#34;/endpoint4&#34;, self.token) }
-    // etc
-}
-
-pub struct AuthCodeSpotify(EndpointsBase, EndpointsOAuth);
-impl AuthCodeSpotify {
-    pub fn authenticate(&amp;self) { /* ... */ }
-
-    pub fn base(&amp;self) -&gt; &amp;EndpointsBase { &amp;self.0 }
-    pub fn oauth(&amp;self) -&gt; &amp;EndpointsOAuth { &amp;self.1 }
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">EndpointsBase</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">http</span>: <span class="nc">Rc</span><span class="o">&lt;</span><span class="n">Http</span><span class="o">&gt;</span><span class="w"> </span><span class="c1">// Shared with the rest of the endpoints
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">EndpointsBase</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">endpoint1</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">http</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#34;/endpoint1&#34;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">endpoint2</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">http</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#34;/endpoint2&#34;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// etc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">EndpointsOAuth</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">token</span>: <span class="nc">Token</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">http</span>: <span class="nc">Rc</span><span class="o">&lt;</span><span class="n">Http</span><span class="o">&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">EndpointsOAuth</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">endpoint3</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">http</span><span class="p">.</span><span class="n">get_oauth</span><span class="p">(</span><span class="s">&#34;/endpoint3&#34;</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">token</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">endpoint4</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">http</span><span class="p">.</span><span class="n">get_oauth</span><span class="p">(</span><span class="s">&#34;/endpoint4&#34;</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">token</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// etc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">AuthCodeSpotify</span><span class="p">(</span><span class="n">EndpointsBase</span><span class="p">,</span><span class="w"> </span><span class="n">EndpointsOAuth</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">AuthCodeSpotify</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">authenticate</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">base</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="nc">EndpointsBase</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">&amp;</span><span class="bp">self</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">oauth</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="nc">EndpointsOAuth</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">&amp;</span><span class="bp">self</span><span class="p">.</span><span class="mi">1</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>The user can then write <code>spotify.base().endpoint1()</code> or
@@ -415,43 +402,41 @@ for the Spotify API, which groups up the endpoints by categories. Their endpoint
 groups take a reference to the client itself instead, which is pretty neat and
 works just as well:</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title"><a href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2018&amp;gist=6cce195451518fcf644e7506ca7b51b2">Simplified from the working example on the Rust playground</a></div>
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">pub trait Spotify {
-    fn get_http(&amp;self) -&gt; &amp;Http;
-    fn get_token(&amp;self) -&gt; &amp;Token;
-}
-
-pub struct EndpointsBase&lt;&#39;a, S: Spotify&gt;(&amp;&#39;a S);
-impl&lt;S: Spotify&gt; EndpointsBase&lt;&#39;_, S&gt; {
-    pub fn endpoint1(&amp;self) { self.0.get_http().get(&#34;/endpoint1&#34;) }
-    pub fn endpoint2(&amp;self) { self.0.get_http().get(&#34;/endpoint2&#34;) }
-    // etc
-}
-
-pub struct EndpointsOAuth&lt;&#39;a, S: Spotify&gt;(&amp;&#39;a S);
-impl&lt;S: Spotify&gt; EndpointsOAuth&lt;&#39;_, S&gt; {
-    pub fn endpoint3(&amp;self) { self.0.get_http().get_oauth(&#34;/endpoint3&#34;, self.0.get_token()) }
-    pub fn endpoint4(&amp;self) { self.0.get_http().get_oauth(&#34;/endpoint4&#34;, self.0.get_token()) }
-    // etc
-}
-
-pub struct AuthCodeSpotify {
-    pub http: Http,
-    pub token: Token
-}
-impl Spotify for AuthCodeSpotify {
-    fn get_http(&amp;self) -&gt; &amp;Http { &amp;self.http }
-    fn get_token(&amp;self) -&gt; &amp;Token { &amp;self.token }
-}
-impl AuthCodeSpotify {
-    pub fn authenticate(&amp;self) { /* ... */ }
-
-    pub fn base(&amp;self) -&gt; EndpointsBase&lt;&#39;_, Self&gt; { EndpointsBase(self) }
-    pub fn oauth(&amp;self) -&gt; EndpointsOAuth&lt;&#39;_, Self&gt; { EndpointsOAuth(self) }
-}</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">Spotify</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">get_http</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="nc">Http</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">get_token</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="nc">Token</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">EndpointsBase</span><span class="o">&lt;</span><span class="na">&#39;a</span><span class="p">,</span><span class="w"> </span><span class="n">S</span>: <span class="nc">Spotify</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="na">&#39;a</span><span class="w"> </span><span class="n">S</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="o">&lt;</span><span class="n">S</span>: <span class="nc">Spotify</span><span class="o">&gt;</span><span class="w"> </span><span class="n">EndpointsBase</span><span class="o">&lt;</span><span class="nb">&#39;_</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">endpoint1</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="mf">0.</span><span class="n">get_http</span><span class="p">().</span><span class="n">get</span><span class="p">(</span><span class="s">&#34;/endpoint1&#34;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">endpoint2</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="mf">0.</span><span class="n">get_http</span><span class="p">().</span><span class="n">get</span><span class="p">(</span><span class="s">&#34;/endpoint2&#34;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// etc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">EndpointsOAuth</span><span class="o">&lt;</span><span class="na">&#39;a</span><span class="p">,</span><span class="w"> </span><span class="n">S</span>: <span class="nc">Spotify</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="na">&#39;a</span><span class="w"> </span><span class="n">S</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="o">&lt;</span><span class="n">S</span>: <span class="nc">Spotify</span><span class="o">&gt;</span><span class="w"> </span><span class="n">EndpointsOAuth</span><span class="o">&lt;</span><span class="nb">&#39;_</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">endpoint3</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="mf">0.</span><span class="n">get_http</span><span class="p">().</span><span class="n">get_oauth</span><span class="p">(</span><span class="s">&#34;/endpoint3&#34;</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="mf">0.</span><span class="n">get_token</span><span class="p">())</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">endpoint4</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="mf">0.</span><span class="n">get_http</span><span class="p">().</span><span class="n">get_oauth</span><span class="p">(</span><span class="s">&#34;/endpoint4&#34;</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="mf">0.</span><span class="n">get_token</span><span class="p">())</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// etc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">AuthCodeSpotify</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">http</span>: <span class="nc">Http</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">token</span>: <span class="nc">Token</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">Spotify</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">AuthCodeSpotify</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">get_http</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="nc">Http</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">&amp;</span><span class="bp">self</span><span class="p">.</span><span class="n">http</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">get_token</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="nc">Token</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">&amp;</span><span class="bp">self</span><span class="p">.</span><span class="n">token</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">AuthCodeSpotify</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">authenticate</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">base</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">EndpointsBase</span><span class="o">&lt;</span><span class="nb">&#39;_</span><span class="p">,</span><span class="w"> </span><span class="bp">Self</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">EndpointsBase</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">oauth</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">EndpointsOAuth</span><span class="o">&lt;</span><span class="nb">&#39;_</span><span class="p">,</span><span class="w"> </span><span class="bp">Self</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">EndpointsOAuth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>However, you might think using just <code>spotify.endpoint1()</code> instead of
@@ -465,36 +450,34 @@ automatically do it, but that’s a common anti-pattern <a href="#deref-antipatt
 interface. All you need is a couple traits with the endpoint implementations,
 which require a getter to the HTTP client or similars:</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title"><a href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2018&amp;gist=901e41d16172e17368328c5a7744f673">Simplified from the working example on the Rust playground</a></div>
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">pub trait EndpointsBase {
-    fn get_http(&amp;self) -&gt; &amp;Http;
-
-    fn endpoint1(&amp;self) { self.get_http().get(&#34;/endpoint1&#34;) }
-    fn endpoint2(&amp;self) { self.get_http().get(&#34;/endpoint2&#34;) }
-    // etc
-}
-
-pub trait EndpointsOAuth: EndpointsBase {
-    fn get_token(&amp;self) -&gt; &amp;Token;
-
-    fn endpoint3(&amp;self) { self.get_http().get_oauth(&#34;/endpoint3&#34;, self.get_token()) }
-    fn endpoint4(&amp;self) { self.get_http().get_oauth(&#34;/endpoint4&#34;, self.get_token()) }
-    // etc
-}
-
-pub struct AuthCodeSpotify(Http, Token);
-impl AuthCodeSpotify {
-    pub fn authenticate(&amp;self) { /* ... */ }
-}
-impl EndpointsBase for AuthCodeSpotify {
-    fn get_http(&amp;self) -&gt; &amp;Http { &amp;self.0 }
-}
-impl EndpointsOAuth for AuthCodeSpotify {
-    fn get_token(&amp;self) -&gt; &amp;Token { &amp;self.1 }
-}</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">EndpointsBase</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">get_http</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="nc">Http</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">endpoint1</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">get_http</span><span class="p">().</span><span class="n">get</span><span class="p">(</span><span class="s">&#34;/endpoint1&#34;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">endpoint2</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">get_http</span><span class="p">().</span><span class="n">get</span><span class="p">(</span><span class="s">&#34;/endpoint2&#34;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// etc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">EndpointsOAuth</span>: <span class="nc">EndpointsBase</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">get_token</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="nc">Token</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">endpoint3</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">get_http</span><span class="p">().</span><span class="n">get_oauth</span><span class="p">(</span><span class="s">&#34;/endpoint3&#34;</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">get_token</span><span class="p">())</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">endpoint4</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">get_http</span><span class="p">().</span><span class="n">get_oauth</span><span class="p">(</span><span class="s">&#34;/endpoint4&#34;</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">get_token</span><span class="p">())</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// etc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">AuthCodeSpotify</span><span class="p">(</span><span class="n">Http</span><span class="p">,</span><span class="w"> </span><span class="n">Token</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">AuthCodeSpotify</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">authenticate</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">EndpointsBase</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">AuthCodeSpotify</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">get_http</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="nc">Http</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">&amp;</span><span class="bp">self</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">EndpointsOAuth</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">AuthCodeSpotify</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">get_token</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="nc">Token</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">&amp;</span><span class="bp">self</span><span class="p">.</span><span class="mi">1</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>This way, as long as the user has these traits in scope, they can access the
@@ -556,18 +539,16 @@ duplication.</p>
 struct for configuration, on the assumption that features would be more
 performant:</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title">Which is faster?</div>
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">if self.config.cached_token {
-    println!(&#34;Saving cache token to the file!&#34;);
-}
-
-#[cfg(feature = &#34;cached_token&#34;)]
-{
-    println!(&#34;Saving cache token to the file!&#34;);
-}</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">cached_token</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Saving cache token to the file!&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[cfg(feature = </span><span class="s">&#34;cached_token&#34;</span><span class="cp">)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Saving cache token to the file!&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Turns out that both of these are usually compiled to the same machine code
@@ -607,14 +588,12 @@ hood <em>without the user knowing about it</em>. When initializing a client we u
 automatically try to read from the environment variables. If that didn’t work
 then we tried to use the default values or we just panicked in the builder:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">let creds = SpotifyClientCredentials::default() // this reads the env variables
-    .client_id(&#34;this-is-my-client-id&#34;)
-    .client_secret(&#34;this-is-my-client-secret&#34;)
-    .build()
-    .unwrap();</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">creds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpotifyClientCredentials</span>::<span class="n">default</span><span class="p">()</span><span class="w"> </span><span class="c1">// this reads the env variables
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="p">.</span><span class="n">client_id</span><span class="p">(</span><span class="s">&#34;this-is-my-client-id&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">client_secret</span><span class="p">(</span><span class="s">&#34;this-is-my-client-secret&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">build</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">unwrap</span><span class="p">();</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>This is a pretty useful feature, but we can’t be sure the writer/reader of the
@@ -623,14 +602,12 @@ Instead, we can just have a <code>default</code> method that does nothing specia
 what the user would expect, and also <code>from_env</code>, which <em>explicitly</em> tells us
 what it does:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">let creds = SpotifyClientCredentials::from_env() // this reads the env variables
-    .client_id(&#34;this-is-my-client-id&#34;)
-    .client_secret(&#34;this-is-my-client-secret&#34;)
-    .build()
-    .unwrap();</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">creds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpotifyClientCredentials</span>::<span class="n">from_env</span><span class="p">()</span><span class="w"> </span><span class="c1">// this reads the env variables
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="p">.</span><span class="n">client_id</span><span class="p">(</span><span class="s">&#34;this-is-my-client-id&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">client_secret</span><span class="p">(</span><span class="s">&#34;this-is-my-client-secret&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">build</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">unwrap</span><span class="p">();</span></span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -787,40 +764,34 @@ have problems with it.</p>
 per endpoint. Some of the parameters in the endpoints were mandatory, and others
 optional (passed as an <code>Option</code>):</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">let mut params = Query::with_capacity(3);
-params.insert(&#34;ids&#34;, ids);
-params.insert(&#34;limit&#34;, limit.to_string());
-if let Some(ref market) = market {
-    params.insert(&#34;market&#34;, market.as_ref());
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Query</span>::<span class="n">with_capacity</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">params</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#34;ids&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">ids</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">params</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#34;limit&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="p">.</span><span class="n">to_string</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="k">ref</span><span class="w"> </span><span class="n">market</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">market</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">params</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#34;market&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">market</span><span class="p">.</span><span class="n">as_ref</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>I first tried to simplify this by using macros to their full strength, so my
 initial attempts looked like this:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">let params = build_map! {
-    ids,
-    limit =&gt; limit.to_string(),
-    optional market =&gt; market.as_ref(),
-};</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">build_map!</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">ids</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">limit</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">limit</span><span class="p">.</span><span class="n">to_string</span><span class="p">(),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">optional</span><span class="w"> </span><span class="n">market</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">market</span><span class="p">.</span><span class="n">as_ref</span><span class="p">(),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">};</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Or this:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">let params = build_map! {
-    ids,
-    limit =&gt; limit.to_string(),
-    Some(market) =&gt; market.as_ref()
-};</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">build_map!</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">ids</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">limit</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">limit</span><span class="p">.</span><span class="n">to_string</span><span class="p">(),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nb">Some</span><span class="p">(</span><span class="n">market</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">market</span><span class="p">.</span><span class="n">as_ref</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">};</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Yes, they are <em>very</em> concise and we remove a lot of boilerplate, but they’re bad
@@ -857,26 +828,22 @@ a regular hashmap builder macro like you’d find on
 <a href="https://docs.rs/maplit/1.0.2/maplit/"><code>maplit</code></a>, and the macro doesn’t hide
 anything:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">let params = build_map! {
-    &#34;ids&#34;: ids,
-    &#34;limit&#34;: limit.to_string(),
-    optional &#34;market&#34;: market.map(|x| x.as_ref()),
-};</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">build_map!</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="s">&#34;ids&#34;</span>: <span class="nc">ids</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="s">&#34;limit&#34;</span>: <span class="nc">limit</span><span class="p">.</span><span class="n">to_string</span><span class="p">(),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">optional</span><span class="w"> </span><span class="s">&#34;market&#34;</span>: <span class="nc">market</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="o">|</span><span class="n">x</span><span class="o">|</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">as_ref</span><span class="p">()),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">};</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Anyhow, we might remove it in the future, since this syntax will soon work as
 well <a href="#hashmap-new">[19]</a>:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">HashMap::from([
-  (k1, v1),
-  (k2, v2)
-]);</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">HashMap</span>::<span class="n">from</span><span class="p">([</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">(</span><span class="n">k1</span><span class="p">,</span><span class="w"> </span><span class="n">v1</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">(</span><span class="n">k2</span><span class="p">,</span><span class="w"> </span><span class="n">v2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">]);</span></span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -1058,42 +1025,38 @@ async. The latter can be implemented easily in your crate thanks to <a href="htt
 <div class="paragraph">
 <p>Due to how JSON works, sometimes an object will always have a single field:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">{
-    &#34;many_artists&#34;: [
-        {
-            // ..
-        },
-        // ...
-    ]
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;many_artists&#34;</span><span class="o">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// ..
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>In that case, instead of just deserializing that object with <a href="https://crates.io/crates/serde"><code>serde</code></a>
 
 and returning it to the user, you can just return that one field in the object:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">#[derive(Deserialize)]
-struct ArtistCollection {
-    many_artists: Vec&lt;Artists&gt;
-}
-
-// Before
-fn endpoint() -&gt; Result&lt;ArtistCollection&gt; {
-    let response = request();
-    serde_json::from_str(response)
-}
-
-// After
-fn endpoint() -&gt; Result&lt;Vec&lt;Artists&gt;&gt; {
-    let response = request();
-    serde_json::from_str::&lt;ArtistCollection&gt;(response).map(|x| x.many_artists)
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="cp">#[derive(Deserialize)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">struct</span> <span class="nc">ArtistCollection</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">many_artists</span>: <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Artists</span><span class="o">&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// Before
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">fn</span> <span class="nf">endpoint</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="n">ArtistCollection</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">serde_json</span>::<span class="n">from_str</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// After
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">fn</span> <span class="nf">endpoint</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Artists</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">serde_json</span>::<span class="n">from_str</span>::<span class="o">&lt;</span><span class="n">ArtistCollection</span><span class="o">&gt;</span><span class="p">(</span><span class="n">response</span><span class="p">).</span><span class="n">map</span><span class="p">(</span><span class="o">|</span><span class="n">x</span><span class="o">|</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">many_artists</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph text-center">
 
@@ -1828,6 +1791,5 @@ hashmap constructor - @gmattozzi, Twitter</a></p>
 </div>
 ]]></content:encoded>
     </item>
-    
   </channel>
 </rss>

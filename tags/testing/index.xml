@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>testing on NullDeref</title>
     <link>https://nullderef.com/tags/testing/</link>
     <description>Recent content in testing on NullDeref</description>
     <image>
+      <title>NullDeref</title>
       <url>https://nullderef.com/logo-banner.png</url>
       <link>https://nullderef.com/logo-banner.png</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>en</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Tue, 26 Jul 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/testing/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 26 Jul 2022 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://nullderef.com/tags/testing/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Plugins in Rust: Wrapping Up</title>
       <link>https://nullderef.com/blog/plugin-end/</link>
       <pubDate>Tue, 26 Jul 2022 00:00:00 +0000</pubDate>
-      
       <guid>https://nullderef.com/blog/plugin-end/</guid>
       <description>The last finishing touches and ideas before our plugin system reaches production.</description>
       <content:encoded><![CDATA[<div class="paragraph">
@@ -307,15 +308,14 @@ within <code>Value</code> was originally stored inside a <code>Box</code> to red
 of the enum. In the experiment, I just converted it to a <code>RBox</code> and called it a
 day:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-diff" data-lang="diff"> enum Value {
-     // ...
--    Object(Box&lt;HashMap&lt;String, Value&gt;&gt;),
-+    Object(RBox&lt;RHashMap&lt;RString, Value&gt;&gt;),
-     // ...
- }</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="line"><span class="cl"> enum Value {
+</span></span><span class="line"><span class="cl">     // ...
+</span></span><span class="line"><span class="cl"><span class="gd">-    Object(Box&lt;HashMap&lt;String, Value&gt;&gt;),
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+    Object(RBox&lt;RHashMap&lt;RString, Value&gt;&gt;),
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>     // ...
+</span></span><span class="line"><span class="cl"> }
+</span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>However, turns out that unlike <code>RString</code> or <code>RCow</code>, <code>RHashMap</code> isn’t a
@@ -578,37 +578,33 @@ alternative <code>RResult</code>, which doesn’t even work with <code>?</code> 
 example is quite specific to <code>abi_stable</code>, but what’s important is that we just
 wrap the base function <code>connect</code> and transform it to an easier to use one:</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title">Low-level interface to communicate between binaries.</div>
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">#[abi_stable::sabi_trait]
-pub trait RawConnector: Send {
-    fn connect&lt;&#39;a&gt;(
-        &amp;&#39;a mut self,
-        ctx: &amp;&#39;a ConnectorContext,
-        attempt: &amp;&#39;a Attempt,
-    ) -&gt; BorrowingFfiFuture&lt;&#39;a, RResult&lt;bool&gt;&gt;;
-}
-
-/// Alias for the FFI-safe dynamic connector type
-pub type BoxedRawConnector = RawConnector_TO&lt;&#39;static, RBox&lt;()&gt;&gt;;</code></pre>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="cp">#[abi_stable::sabi_trait]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">RawConnector</span>: <span class="nb">Send</span> <span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">connect</span><span class="o">&lt;</span><span class="na">&#39;a</span><span class="o">&gt;</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="o">&amp;</span><span class="na">&#39;a</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">ctx</span>: <span class="kp">&amp;</span><span class="na">&#39;a</span> <span class="nc">ConnectorContext</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">attempt</span>: <span class="kp">&amp;</span><span class="na">&#39;a</span> <span class="nc">Attempt</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">BorrowingFfiFuture</span><span class="o">&lt;</span><span class="na">&#39;a</span><span class="p">,</span><span class="w"> </span><span class="n">RResult</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;&gt;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="sd">/// Alias for the FFI-safe dynamic connector type
+</span></span></span><span class="line"><span class="cl"><span class="sd"></span><span class="k">pub</span><span class="w"> </span><span class="k">type</span> <span class="nc">BoxedRawConnector</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RawConnector_TO</span><span class="o">&lt;</span><span class="nb">&#39;static</span><span class="p">,</span><span class="w"> </span><span class="n">RBox</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;&gt;</span><span class="p">;</span></span></span></code></pre></div>
 </div>
-</div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title">High-level wrapper for what essentially is a <code>Box&lt;dyn RawConnector&gt;</code>.</div>
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">pub(crate) struct Connector(BoxedRawConnector);
-impl Connector {
-    #[inline]
-    pub async fn connect(&amp;mut self, ctx: &amp;ConnectorContext, attempt: &amp;Attempt) -&gt; Result&lt;bool&gt; {
-        self.0
-            .connect(ctx, attempt)
-            .await
-            .map_err(Into::into) // RBoxError -&gt; Error::PluginError
-            .into() // RResult -&gt; Result
-    }
-}</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span><span class="w"> </span><span class="k">struct</span> <span class="nc">Connector</span><span class="p">(</span><span class="n">BoxedRawConnector</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">Connector</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[inline]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="k">fn</span> <span class="nf">connect</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">ctx</span>: <span class="kp">&amp;</span><span class="nc">ConnectorContext</span><span class="p">,</span><span class="w"> </span><span class="n">attempt</span>: <span class="kp">&amp;</span><span class="nc">Attempt</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="bp">self</span><span class="p">.</span><span class="mi">0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">attempt</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="k">await</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="n">map_err</span><span class="p">(</span><span class="nb">Into</span>::<span class="n">into</span><span class="p">)</span><span class="w"> </span><span class="c1">// RBoxError -&gt; Error::PluginError
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">            </span><span class="p">.</span><span class="n">into</span><span class="p">()</span><span class="w"> </span><span class="c1">// RResult -&gt; Result
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Here we just convert the return types, but we can do the same for the parameters
@@ -682,20 +678,18 @@ identify and handle specific errors. We could implement our own <code>Error</cod
 that provides more plugin-related information. An easier option is to define a
 more organized data structure with common kinds of errors:</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title">Example of a more organized error type, even if it still uses <code>Box&lt;dyn Error&gt;</code>.</div>
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">pub struct PluginError {
-    err: SendRBoxError,
-    kind: PluginErrorKind
-}
-
-pub enum PluginErrorKind {
-    Internal, // Implementation-defined errors we can&#39;t handle
-    ConnectionFailed, // Edge cases in `connect`
-    // ...
-}</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">PluginError</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">err</span>: <span class="nc">SendRBoxError</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">kind</span>: <span class="nc">PluginErrorKind</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">enum</span> <span class="nc">PluginErrorKind</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">Internal</span><span class="p">,</span><span class="w"> </span><span class="c1">// Implementation-defined errors we can&#39;t handle
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">ConnectionFailed</span><span class="p">,</span><span class="w"> </span><span class="c1">// Edge cases in `connect`
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">// ...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 </div>
 <div class="sect2">
@@ -714,20 +708,19 @@ macro might be worth our time. It would just replace <code>?</code> with <code>r
 is configred, which should be somewhat simple to implement. I’m surprised I
 couldn’t find an existing crate for that.</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title">Readability would improve in longer functions with lots of error handling.</div>
-<div class="content">
-<pre class="highlight"><code class="language-diff" data-lang="diff">+#[try_with(rtry)]
- fn fallible() -&gt; RResult&lt;()&gt; {
--    if rtry!(fallible_op_1()) &amp;&amp; rtry!(fallible_op_2()) {
--        rtry!(fallible_op_3());
-+    if fallible_op_1()? &amp;&amp; fallible_op_2()? {
-+        fallible_op_3()?;
-     }
-
-     ROk(())
- }</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="line"><span class="cl"><span class="gi">+#[try_with(rtry)]
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span> fn fallible() -&gt; RResult&lt;()&gt; {
+</span></span><span class="line"><span class="cl"><span class="gd">-    if rtry!(fallible_op_1()) &amp;&amp; rtry!(fallible_op_2()) {
+</span></span></span><span class="line"><span class="cl"><span class="gd">-        rtry!(fallible_op_3());
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+    if fallible_op_1()? &amp;&amp; fallible_op_2()? {
+</span></span></span><span class="line"><span class="cl"><span class="gi">+        fallible_op_3()?;
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>     }
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">     ROk(())
+</span></span><span class="line"><span class="cl"> }
+</span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Admittedly, the example above is an oversimplification. In reality, a single
@@ -743,35 +736,31 @@ considering regardless.</p>
 requires using <code>async move { /* …​ */ }.into_ffi()</code>, which is quite a bit of
 boilerplate and increases the indentation level by one.</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title">Without the procedural macro.</div>
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">use async_ffi::{FfiFuture, FutureExt};
-
-#[no_mangle]
-pub extern &#34;C&#34; fn work(arg: u32) -&gt; FfiFuture&lt;u32&gt; {
-    async move {
-        let ret = do_some_io(arg).await;
-        do_some_sleep(42).await;
-        ret
-    }
-    .into_ffi()
-}</code></pre>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">use</span><span class="w"> </span><span class="n">async_ffi</span>::<span class="p">{</span><span class="n">FfiFuture</span><span class="p">,</span><span class="w"> </span><span class="n">FutureExt</span><span class="p">};</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[no_mangle]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="k">fn</span> <span class="nf">work</span><span class="p">(</span><span class="n">arg</span>: <span class="kt">u32</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">FfiFuture</span><span class="o">&lt;</span><span class="kt">u32</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="k">move</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">do_some_io</span><span class="p">(</span><span class="n">arg</span><span class="p">).</span><span class="k">await</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">do_some_sleep</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="k">await</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">ret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">into_ffi</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
-</div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title">With the procedural macro, especially noticeable in more complex functions.</div>
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">use async_ffi::async_ffi;
-
-#[no_mangle]
-#[async_ffi]
-pub async extern &#34;C&#34; fn work(arg: u32) -&gt; u32 {
-    let ret = do_some_io(arg).await;
-    do_some_sleep(42).await;
-    ret
-}</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">use</span><span class="w"> </span><span class="n">async_ffi</span>::<span class="n">async_ffi</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[no_mangle]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[async_ffi]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="k">fn</span> <span class="nf">work</span><span class="p">(</span><span class="n">arg</span>: <span class="kt">u32</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kt">u32</span> <span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">do_some_io</span><span class="p">(</span><span class="n">arg</span><span class="p">).</span><span class="k">await</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">do_some_sleep</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="k">await</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">ret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>I already opened an issue about this with more details for whoever wants to give
@@ -829,15 +818,13 @@ ways to approach this:</p>
 <p><strong>Quick fix</strong>: add a compile-time error for any platform that isn’t explicitly
 supported. Before adding support for a new platform, we will have to manually
 ensure that its error handling for dynamic loading is thread-safe.</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">// Ideally, there should be a comment here with references that state the
-// thread-safety of the supported platforms.
-#[cfg(not(any(unix, windows, target_os = &#34;macos&#34;)))]
-compile_error!(
-    &#34;This platform isn&#39;t currently supported. Please open a ticket on GitHub.&#34;
-);</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="c1">// Ideally, there should be a comment here with references that state the
+</span></span></span><span class="line"><span class="cl"><span class="c1">// thread-safety of the supported platforms.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#[cfg(not(any(unix, windows, target_os = </span><span class="s">&#34;macos&#34;</span><span class="cp">)))]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="fm">compile_error!</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="s">&#34;This platform isn&#39;t currently supported. Please open a ticket on GitHub.&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span></span></span></code></pre></div>
 </div>
 </li>
 <li>
@@ -2702,6 +2689,5 @@ something similar, I strongly recommend you to go for it!</p>
 </div>
 ]]></content:encoded>
     </item>
-    
   </channel>
 </rss>

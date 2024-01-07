@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>beginners on NullDeref</title>
     <link>https://nullderef.com/tags/beginners/</link>
     <description>Recent content in beginners on NullDeref</description>
     <image>
+      <title>NullDeref</title>
       <url>https://nullderef.com/logo-banner.png</url>
       <link>https://nullderef.com/logo-banner.png</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>en</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Tue, 06 Jul 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/beginners/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 06 Jul 2021 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://nullderef.com/tags/beginners/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Why you shouldn&#39;t obsess about Rust &#34;features&#34;</title>
       <link>https://nullderef.com/blog/rust-features/</link>
       <pubDate>Tue, 06 Jul 2021 00:00:00 +0000</pubDate>
-      
       <guid>https://nullderef.com/blog/rust-features/</guid>
       <description>Friendly reminder: you might not need conditional compilation</description>
       <content:encoded><![CDATA[<div class="paragraph">
@@ -111,77 +112,71 @@ Instead of adding features to configure the behaviour of your program, you can
 do the same with a <code>Config</code> struct. You may not even need a struct if it’s just
 a single option to be configured, but that way it’s future-proof. For example:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">#[derive(Default)]
-struct Config {
-    cached_token: bool,
-    refreshing_token: bool,
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="cp">#[derive(Default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">struct</span> <span class="nc">Config</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">cached_token</span>: <span class="kt">bool</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">refreshing_token</span>: <span class="kt">bool</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>You can then modify your client in order to optionally take the <code>Config</code> struct:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">struct Client {
-    config: Config
-}
-
-impl Client {
-    /// Uses the default configuration for the initialization
-    fn new() -&gt; Client {
-        Client {
-            config: Config::default(),
-        }
-    }
-
-    /// Uses a custom configuration for the initialization
-    fn with_config(config: Config) -&gt; Client {
-        Client {
-            config,
-        }
-    }
-
-    fn do_request(&amp;self) {
-        if self.config.cached_token {
-            println!(&#34;Saving cache token to the file!&#34;);
-        }
-        // The previous block used to be equivalent to:
-        //
-        // #[cfg(feature = &#34;cached_token&#34;)]
-        // {
-        //     println!(&#34;Saving cache token to the file!&#34;);
-        // }
-
-        if self.config.refreshing_token {
-            println!(&#34;Refreshing token!&#34;);
-        }
-
-        println!(&#34;Performing request!&#34;);
-    }
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">Client</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">config</span>: <span class="nc">Config</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">Client</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="sd">/// Uses the default configuration for the initialization
+</span></span></span><span class="line"><span class="cl"><span class="sd"></span><span class="w">    </span><span class="k">fn</span> <span class="nf">new</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nc">Client</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">Client</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">config</span>: <span class="nc">Config</span>::<span class="n">default</span><span class="p">(),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="sd">/// Uses a custom configuration for the initialization
+</span></span></span><span class="line"><span class="cl"><span class="sd"></span><span class="w">    </span><span class="k">fn</span> <span class="nf">with_config</span><span class="p">(</span><span class="n">config</span>: <span class="nc">Config</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">Client</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">Client</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">config</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">do_request</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">cached_token</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Saving cache token to the file!&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// The previous block used to be equivalent to:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="c1">// #[cfg(feature = &#34;cached_token&#34;)]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="c1">// {
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="c1">//     println!(&#34;Saving cache token to the file!&#34;);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="c1">// }
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">refreshing_token</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Refreshing token!&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;Performing request!&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Finally, the user can customize the client however they want in the code itself
 in a very natural way:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">fn main() {
-    // Option A
-    let client = Client::new();
-
-    // Option B
-    let config = Config {
-        cached_token: true,
-        ..Default::default()
-    };
-    let client = Client::with_config(config);
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// Option A
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Client</span>::<span class="n">new</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// Option B
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Config</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">cached_token</span>: <span class="nc">true</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="o">..</span><span class="nb">Default</span>::<span class="n">default</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">};</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Client</span>::<span class="n">with_config</span><span class="p">(</span><span class="n">config</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="sect2">
 <h3 id="_proving_that_you_end_up_with_the_same_code">Proving that you end up with the same code</h3>
@@ -299,20 +294,18 @@ reminder! If you have any suggestions please leave them in the section below :)<
 </div>
 ]]></content:encoded>
     </item>
-    
     <item>
       <title>Optional parameters in Rust</title>
       <link>https://nullderef.com/blog/rust-parameters/</link>
       <pubDate>Sat, 10 Oct 2020 00:00:00 +0000</pubDate>
-      
       <guid>https://nullderef.com/blog/rust-parameters/</guid>
       <description>Analyzing different approaches for optional parameters in Rust</description>
       <content:encoded><![CDATA[<p>Optional or default parameters are a very interesting feature of some languages
 that Rust specifically doesn&rsquo;t cover (and looks like it won&rsquo;t <a href="https://github.com/rust-lang/rfcs/pull/2964">anytime
 soon</a>). Say your library has lots
 of endpoints like so:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">endpoint</span><span style="color:#f92672">&lt;</span>T1, T2, T3, <span style="color:#f92672">..</span>.<span style="color:#f92672">&gt;</span>(mandatory: <span style="color:#a6e22e">T1</span>, opt1: Option<span style="color:#f92672">&lt;</span>T2<span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span>T3<span style="color:#f92672">&gt;</span>, <span style="color:#f92672">..</span>.);
-</span></span></code></pre></div><p>In this case, when you call <code>endpoint</code>, you have to use <code>endpoint(mandatory, None, None, ...)</code>, or <code>endpoint(mandatory, Some(val1), Some(val2), ...)</code>,
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">fn</span> <span class="nf">endpoint</span><span class="o">&lt;</span><span class="n">T1</span><span class="p">,</span><span class="w"> </span><span class="n">T2</span><span class="p">,</span><span class="w"> </span><span class="n">T3</span><span class="p">,</span><span class="w"> </span><span class="o">..</span><span class="p">.</span><span class="o">&gt;</span><span class="p">(</span><span class="n">mandatory</span>: <span class="nc">T1</span><span class="p">,</span><span class="w"> </span><span class="n">opt1</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="n">T2</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">opt2</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="n">T3</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="o">..</span><span class="p">.);</span><span class="w">
+</span></span></span></code></pre></div><p>In this case, when you call <code>endpoint</code>, you have to use <code>endpoint(mandatory, None, None, ...)</code>, or <code>endpoint(mandatory, Some(val1), Some(val2), ...)</code>,
 instead of the more intuitive <code>endpoint(mandatory)</code> or <code>endpoint(mandatory, val1, val2)</code>. Other languages like Python have named arguments, which make
 optional parameters natural and easier to read: <code>endpoint(mandatory, opt1=val1, opt2=val2)</code>, while also allowing them to be written in any order.</p>
 <p>Even without official support, there are lots of different ways to approach them
@@ -322,43 +315,43 @@ they can be approached, and the ups and downs of each of them.</p>
 <h2 id="introducing-an-example">Introducing an example</h2>
 <p>Let&rsquo;s start with a typical web API wrapper library. These often require a client
 struct to hold authentication fields and such:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#75715e">#[derive(Default, Debug, Clone)]</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">APIClient</span>;
-</span></span></code></pre></div><p>This client will have various endpoints which can be used to send requests to
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="cp">#[derive(Default, Debug, Clone)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">struct</span> <span class="nc">APIClient</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>This client will have various endpoints which can be used to send requests to
 the server. We will use a function with the actual implementation and some type
 aliases so that the following snippets are easier to read:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">use</span> std::error::Error;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#e6db74">/// Some value that the endpoint will return
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"></span><span style="color:#75715e">#[derive(Debug, Default)]</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Value</span>;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">ReturnedValue</span> <span style="color:#f92672">=</span> Result<span style="color:#f92672">&lt;</span>Value, Box<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">dyn</span> Error<span style="color:#f92672">&gt;&gt;</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#e6db74">/// The actual code for the endpoint inside the client
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"></span><span style="color:#66d9ef">impl</span> APIClient {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">actual_endpoint</span>(name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>, opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
-</span></span><span style="display:flex;"><span>        println!(<span style="color:#e6db74">&#34;params: </span><span style="color:#e6db74">{}</span><span style="color:#e6db74"> </span><span style="color:#e6db74">{:?}</span><span style="color:#e6db74"> </span><span style="color:#e6db74">{:?}</span><span style="color:#e6db74">&#34;</span>, name, opt1, opt2);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        Ok(Default::default())
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="a-using-optiont">A) Using <code>Option&lt;T&gt;</code></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">error</span>::<span class="n">Error</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="sd">/// Some value that the endpoint will return
+</span></span></span><span class="line"><span class="cl"><span class="sd"></span><span class="cp">#[derive(Debug, Default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">struct</span> <span class="nc">Value</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">type</span> <span class="nc">ReturnedValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">Value</span><span class="p">,</span><span class="w"> </span><span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span><span class="w"> </span><span class="n">Error</span><span class="o">&gt;&gt;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="sd">/// The actual code for the endpoint inside the client
+</span></span></span><span class="line"><span class="cl"><span class="sd"></span><span class="k">impl</span><span class="w"> </span><span class="n">APIClient</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">actual_endpoint</span><span class="p">(</span><span class="n">name</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">,</span><span class="w"> </span><span class="n">opt1</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">u32</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">opt2</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">i32</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">ReturnedValue</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;params: </span><span class="si">{}</span><span class="s"> </span><span class="si">{:?}</span><span class="s"> </span><span class="si">{:?}</span><span class="s">&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">opt1</span><span class="p">,</span><span class="w"> </span><span class="n">opt2</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nb">Ok</span><span class="p">(</span><span class="nb">Default</span>::<span class="n">default</span><span class="p">())</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><h2 id="a-using-optiont">A) Using <code>Option&lt;T&gt;</code></h2>
 <p>The simplest way to do this would be to just use the <code>actual_endpoint</code> function
 signature. Sometimes the best solution is the simplest, and your project just
 might not need more complex approaches. Do consider if anything more elaborate
 is actually necessary.</p>
 <p>For the sake of this example, it would look like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">impl</span> APIClient {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_a</span>(<span style="color:#f92672">&amp;</span>self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>, opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>, opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
-</span></span><span style="display:flex;"><span>        self.actual_endpoint(name, opt1, opt2)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> api <span style="color:#f92672">=</span> APIClient {};
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> param2: <span style="color:#66d9ef">u32</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">324</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>api.approach_a(<span style="color:#e6db74">&#34;option&#34;</span>, Some(param2), Some(<span style="color:#ae81ff">1234</span>))<span style="color:#f92672">?</span>;
-</span></span><span style="display:flex;"><span>api.approach_a(<span style="color:#e6db74">&#34;option&#34;</span>, None, None)<span style="color:#f92672">?</span>;
-</span></span></code></pre></div><h3 id="upsides">Upsides</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">impl</span><span class="w"> </span><span class="n">APIClient</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">approach_a</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">name</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">,</span><span class="w"> </span><span class="n">opt1</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">u32</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">opt2</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">i32</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">ReturnedValue</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="bp">self</span><span class="p">.</span><span class="n">actual_endpoint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">opt1</span><span class="p">,</span><span class="w"> </span><span class="n">opt2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">APIClient</span><span class="w"> </span><span class="p">{};</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">let</span><span class="w"> </span><span class="n">param2</span>: <span class="kt">u32</span> <span class="o">=</span><span class="w"> </span><span class="mi">324</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">api</span><span class="p">.</span><span class="n">approach_a</span><span class="p">(</span><span class="s">&#34;option&#34;</span><span class="p">,</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="n">param2</span><span class="p">),</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="mi">1234</span><span class="p">))</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">api</span><span class="p">.</span><span class="n">approach_a</span><span class="p">(</span><span class="s">&#34;option&#34;</span><span class="p">,</span><span class="w"> </span><span class="nb">None</span><span class="p">,</span><span class="w"> </span><span class="nb">None</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="upsides">Upsides</h3>
 <ul>
 <li>Simplest to understand and implement.</li>
 </ul>
@@ -372,20 +365,20 @@ with <code>None</code> values, since these don&rsquo;t have context to know what
 <p>A variation of the previous approach consists on using <code>Into&lt;Option&lt;T&gt;&gt;</code> as the
 generic value for the optional parameters (<code>impl Into&lt;Option&lt;T&gt;&gt;</code> can be used as
 well). This way, <code>Some</code> isn&rsquo;t needed when the optional parameters are specified:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">impl</span> APIClient {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_b</span><span style="color:#f92672">&lt;</span>T1, T2<span style="color:#f92672">&gt;</span>(<span style="color:#f92672">&amp;</span>self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>, opt1: <span style="color:#a6e22e">T1</span>, opt2: <span style="color:#a6e22e">T2</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span>
-</span></span><span style="display:flex;"><span>        T1: Into<span style="color:#f92672">&lt;</span>Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;&gt;</span>,
-</span></span><span style="display:flex;"><span>        T2: Into<span style="color:#f92672">&lt;</span>Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;&gt;</span>,
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>        self.actual_endpoint(name, opt1.into(), opt2.into())
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span>api.approach_b(<span style="color:#e6db74">&#34;into_option&#34;</span>, param2, <span style="color:#ae81ff">1234</span>)<span style="color:#f92672">?</span>;
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// This still works
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>api.approach_b(<span style="color:#e6db74">&#34;into_option&#34;</span>, Some(param2), Some(<span style="color:#ae81ff">123</span>))<span style="color:#f92672">?</span>;
-</span></span><span style="display:flex;"><span>api.approach_b(<span style="color:#e6db74">&#34;into_option&#34;</span>, None, None)<span style="color:#f92672">?</span>;
-</span></span></code></pre></div><h3 id="upsides-1">Upsides</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">impl</span><span class="w"> </span><span class="n">APIClient</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">approach_b</span><span class="o">&lt;</span><span class="n">T1</span><span class="p">,</span><span class="w"> </span><span class="n">T2</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">name</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">,</span><span class="w"> </span><span class="n">opt1</span>: <span class="nc">T1</span><span class="p">,</span><span class="w"> </span><span class="n">opt2</span>: <span class="nc">T2</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">ReturnedValue</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">where</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">T1</span>: <span class="nb">Into</span><span class="o">&lt;</span><span class="nb">Option</span><span class="o">&lt;</span><span class="kt">u32</span><span class="o">&gt;&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">T2</span>: <span class="nb">Into</span><span class="o">&lt;</span><span class="nb">Option</span><span class="o">&lt;</span><span class="kt">i32</span><span class="o">&gt;&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="bp">self</span><span class="p">.</span><span class="n">actual_endpoint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">opt1</span><span class="p">.</span><span class="n">into</span><span class="p">(),</span><span class="w"> </span><span class="n">opt2</span><span class="p">.</span><span class="n">into</span><span class="p">())</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">api</span><span class="p">.</span><span class="n">approach_b</span><span class="p">(</span><span class="s">&#34;into_option&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">param2</span><span class="p">,</span><span class="w"> </span><span class="mi">1234</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// This still works
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">api</span><span class="p">.</span><span class="n">approach_b</span><span class="p">(</span><span class="s">&#34;into_option&#34;</span><span class="p">,</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="n">param2</span><span class="p">),</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="mi">123</span><span class="p">))</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">api</span><span class="p">.</span><span class="n">approach_b</span><span class="p">(</span><span class="s">&#34;into_option&#34;</span><span class="p">,</span><span class="w"> </span><span class="nb">None</span><span class="p">,</span><span class="w"> </span><span class="nb">None</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h3 id="upsides-1">Upsides</h3>
 <ul>
 <li><code>Some</code> isn&rsquo;t required, which makes it slightly easier to read.</li>
 </ul>
@@ -402,37 +395,37 @@ the number of optional parameters.</li>
 instead. The complexity is still relatively simple, and it can work out well
 if the API has functions with repetitive function signatures. This will serve
 as a base for the following approaches as well:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> call1 <span style="color:#f92672">=</span> params::ApproachC {
-</span></span><span style="display:flex;"><span>    name: <span style="color:#e6db74">&#34;builder&#34;</span>.to_string(),
-</span></span><span style="display:flex;"><span>    opt1: Some(param2),
-</span></span><span style="display:flex;"><span>    opt2: Some(<span style="color:#ae81ff">123</span>),
-</span></span><span style="display:flex;"><span>};
-</span></span><span style="display:flex;"><span>api.approach_c(<span style="color:#f92672">&amp;</span>call1)<span style="color:#f92672">?</span>;
-</span></span></code></pre></div><p>We can even use <code>..Default::default()</code> to initialize the rest of the parameters
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">call1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span>::<span class="n">ApproachC</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name</span>: <span class="s">&#34;builder&#34;</span><span class="p">.</span><span class="n">to_string</span><span class="p">(),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">opt1</span>: <span class="nb">Some</span><span class="p">(</span><span class="n">param2</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">opt2</span>: <span class="nb">Some</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">};</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">api</span><span class="p">.</span><span class="n">approach_c</span><span class="p">(</span><span class="o">&amp;</span><span class="n">call1</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>We can even use <code>..Default::default()</code> to initialize the rest of the parameters
 with their default values:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> call2 <span style="color:#f92672">=</span> params::ApproachC {
-</span></span><span style="display:flex;"><span>    name: <span style="color:#e6db74">&#34;builder&#34;</span>.to_string(),
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">..</span>Default::default()
-</span></span><span style="display:flex;"><span>};
-</span></span><span style="display:flex;"><span>api.approach_c(<span style="color:#f92672">&amp;</span>call2)<span style="color:#f92672">?</span>;
-</span></span></code></pre></div><p>The implementation looks like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">mod</span> params {
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">/// We derive `Default` to be able to initialize with
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"></span>    <span style="color:#e6db74">/// `..Default::default()`.
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"></span>    <span style="color:#75715e">#[derive(Default)]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachC</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pub</span> name: String,
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pub</span> opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">impl</span> APIClient {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_c</span>(<span style="color:#f92672">&amp;</span>self, data: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">params</span>::ApproachC) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
-</span></span><span style="display:flex;"><span>        self.actual_endpoint(<span style="color:#f92672">&amp;</span>data.name, data.opt1, data.opt2)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h3 id="upsides-2">Upsides</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">call2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span>::<span class="n">ApproachC</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name</span>: <span class="s">&#34;builder&#34;</span><span class="p">.</span><span class="n">to_string</span><span class="p">(),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="o">..</span><span class="nb">Default</span>::<span class="n">default</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">};</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">api</span><span class="p">.</span><span class="n">approach_c</span><span class="p">(</span><span class="o">&amp;</span><span class="n">call2</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>The implementation looks like this:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">mod</span> <span class="nn">params</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="sd">/// We derive `Default` to be able to initialize with
+</span></span></span><span class="line"><span class="cl"><span class="sd"></span><span class="w">    </span><span class="sd">/// `..Default::default()`.
+</span></span></span><span class="line"><span class="cl"><span class="sd"></span><span class="w">    </span><span class="cp">#[derive(Default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">ApproachC</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">pub</span><span class="w"> </span><span class="n">name</span>: <span class="nb">String</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">pub</span><span class="w"> </span><span class="n">opt1</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">u32</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">pub</span><span class="w"> </span><span class="n">opt2</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">i32</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">APIClient</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">approach_c</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">data</span>: <span class="kp">&amp;</span><span class="nc">params</span>::<span class="n">ApproachC</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">ReturnedValue</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="bp">self</span><span class="p">.</span><span class="n">actual_endpoint</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt1</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><h3 id="upsides-2">Upsides</h3>
 <ul>
 <li>Some APIs might feel more natural this way, if the combination of these
 parameters as a group makes sense.</li>
@@ -450,38 +443,38 @@ endpoint.</li>
 pattern</a> for the
 parameters, so that building the parameters is simpler and more pretty to look
 at:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> call1 <span style="color:#f92672">=</span> params::ApproachDBuilder::default()
-</span></span><span style="display:flex;"><span>    .name(<span style="color:#e6db74">&#34;builder&#34;</span>)
-</span></span><span style="display:flex;"><span>    .opt1(param2)
-</span></span><span style="display:flex;"><span>    .opt2(<span style="color:#ae81ff">2134</span>)
-</span></span><span style="display:flex;"><span>    .build()<span style="color:#f92672">?</span>;
-</span></span><span style="display:flex;"><span>api.approach_d(<span style="color:#f92672">&amp;</span>call1)<span style="color:#f92672">?</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> call2 <span style="color:#f92672">=</span> params::ApproachDBuilder::default()
-</span></span><span style="display:flex;"><span>    .name(<span style="color:#e6db74">&#34;builder&#34;</span>)
-</span></span><span style="display:flex;"><span>    .build()<span style="color:#f92672">?</span>;
-</span></span><span style="display:flex;"><span>api.approach_d(<span style="color:#f92672">&amp;</span>call2)<span style="color:#f92672">?</span>;
-</span></span></code></pre></div><p>In this case, we use the
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">call1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span>::<span class="n">ApproachDBuilder</span>::<span class="n">default</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">name</span><span class="p">(</span><span class="s">&#34;builder&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">opt1</span><span class="p">(</span><span class="n">param2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">opt2</span><span class="p">(</span><span class="mi">2134</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">build</span><span class="p">()</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">api</span><span class="p">.</span><span class="n">approach_d</span><span class="p">(</span><span class="o">&amp;</span><span class="n">call1</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">let</span><span class="w"> </span><span class="n">call2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span>::<span class="n">ApproachDBuilder</span>::<span class="n">default</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">name</span><span class="p">(</span><span class="s">&#34;builder&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">build</span><span class="p">()</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">api</span><span class="p">.</span><span class="n">approach_d</span><span class="p">(</span><span class="o">&amp;</span><span class="n">call2</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>In this case, we use the
 <a href="https://crates.io/crates/derive_builder"><code>derive_builder</code></a> crate to make the
 implementation less repetitive:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">mod</span> params {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#[derive(Default, Builder)]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachD</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#[builder(setter(into))]</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pub</span> name: String,
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pub</span> opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">impl</span> APIClient {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_d</span>(<span style="color:#f92672">&amp;</span>self, data: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">params</span>::ApproachD) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
-</span></span><span style="display:flex;"><span>        self.actual_endpoint(<span style="color:#f92672">&amp;</span>data.name, data.opt1, data.opt2)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h3 id="upsides-3">Upsides</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">mod</span> <span class="nn">params</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[derive(Default, Builder)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">ApproachD</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="cp">#[builder(setter(into))]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">pub</span><span class="w"> </span><span class="n">name</span>: <span class="nb">String</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="cp">#[builder(setter(strip_option), default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">pub</span><span class="w"> </span><span class="n">opt1</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">u32</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="cp">#[builder(setter(strip_option), default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">pub</span><span class="w"> </span><span class="n">opt2</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">i32</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">APIClient</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">approach_d</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">data</span>: <span class="kp">&amp;</span><span class="nc">params</span>::<span class="n">ApproachD</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">ReturnedValue</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="bp">self</span><span class="p">.</span><span class="n">actual_endpoint</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt1</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><h3 id="upsides-3">Upsides</h3>
 <ul>
 <li>It&rsquo;s the most popular pattern in Rust for optional parameters.</li>
 <li>The struct can still be reused in different calls.</li>
@@ -505,35 +498,35 @@ client-oriented? Starting from the previous approach, we could make the call
 <em>inside the endpoint struct itself</em> instead of in the API&rsquo;s client by adding it
 to <code>ApproachE</code>, or by overriding the <code>build</code> method from <code>derive_builder</code> for
 a slightly less verbose version:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span>ApproachEBuilder::default()
-</span></span><span style="display:flex;"><span>    .name(<span style="color:#e6db74">&#34;endpoint-oriented&#34;</span>)
-</span></span><span style="display:flex;"><span>    .opt1(param2)
-</span></span><span style="display:flex;"><span>    .opt2(<span style="color:#ae81ff">1111</span>)
-</span></span><span style="display:flex;"><span>    .call(<span style="color:#f92672">&amp;</span>api)<span style="color:#f92672">?</span>;
-</span></span><span style="display:flex;"><span>ApproachEBuilder::default()
-</span></span><span style="display:flex;"><span>    .name(<span style="color:#e6db74">&#34;endpoint-oriented&#34;</span>)
-</span></span><span style="display:flex;"><span>    .call(<span style="color:#f92672">&amp;</span>api)<span style="color:#f92672">?</span>;
-</span></span></code></pre></div><p>And its implementation:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#75715e">#[derive(Default, Builder)]</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#[builder(build_fn(private))]</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachE</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#[builder(setter(into))]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> name: String,
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">impl</span> ApproachEBuilder {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">call</span>(<span style="color:#f92672">&amp;</span>self, client: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">APIClient</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> data <span style="color:#f92672">=</span> self.build()<span style="color:#f92672">?</span>; <span style="color:#75715e">// This might fail!
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// `actual_endpoint` would have to be at least pub(in crate) in this
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// case.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        client.actual_endpoint(<span style="color:#f92672">&amp;</span>data.name, data.opt1, data.opt2)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>Note: this is assuming the client contains necessary information to make the
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">ApproachEBuilder</span>::<span class="n">default</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">name</span><span class="p">(</span><span class="s">&#34;endpoint-oriented&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">opt1</span><span class="p">(</span><span class="n">param2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">opt2</span><span class="p">(</span><span class="mi">1111</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">call</span><span class="p">(</span><span class="o">&amp;</span><span class="n">api</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">ApproachEBuilder</span>::<span class="n">default</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">name</span><span class="p">(</span><span class="s">&#34;endpoint-oriented&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">call</span><span class="p">(</span><span class="o">&amp;</span><span class="n">api</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>And its implementation:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="cp">#[derive(Default, Builder)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[builder(build_fn(private))]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">struct</span> <span class="nc">ApproachE</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[builder(setter(into))]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">name</span>: <span class="nb">String</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[builder(setter(strip_option), default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">opt1</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">u32</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[builder(setter(strip_option), default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">opt2</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">i32</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">ApproachEBuilder</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">call</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">client</span>: <span class="kp">&amp;</span><span class="nc">APIClient</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">ReturnedValue</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">build</span><span class="p">()</span><span class="o">?</span><span class="p">;</span><span class="w"> </span><span class="c1">// This might fail!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="c1">// `actual_endpoint` would have to be at least pub(in crate) in this
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="c1">// case.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="n">actual_endpoint</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt1</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>Note: this is assuming the client contains necessary information to make the
 requests, like a
 <a href="https://docs.rs/reqwest/latest/reqwest/struct.Client.html"><code>reqwest::Client</code></a>
 or authentication details. But for example, <code>ureq</code> can perform calls without a
@@ -564,40 +557,40 @@ whatever is necessary to start building the endpoint. Mandatory parameters are
 added to that function&rsquo;s signature, so that the build can never fail. This also
 avoids passing the client in <code>call(&amp;api)</code>, since we can do that inside the
 method. This is how it would look like:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span>api.approach_f(<span style="color:#e6db74">&#34;hybrid-derive-pattern&#34;</span>)
-</span></span><span style="display:flex;"><span>    .opt1(param2)
-</span></span><span style="display:flex;"><span>    .opt2(<span style="color:#ae81ff">2222</span>)
-</span></span><span style="display:flex;"><span>    .call()<span style="color:#f92672">?</span>;
-</span></span></code></pre></div><p>And an implementation by wrapping <code>derive_builder</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">impl</span> APIClient {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_f</span>(<span style="color:#f92672">&amp;</span>self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) -&gt; <span style="color:#a6e22e">ApproachFBuilder</span> {
-</span></span><span style="display:flex;"><span>        ApproachFBuilder::default().client(self).name(name)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#e6db74">/// Not meant to be used directly, only within `APIClient`.
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"></span><span style="color:#75715e">#[derive(Default, Builder)]</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#[builder(build_fn(private), pattern = </span><span style="color:#e6db74">&#34;owned&#34;</span><span style="color:#75715e">)]</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ApproachF</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-</span></span><span style="display:flex;"><span>    client: Option<span style="color:#f92672">&lt;&amp;</span><span style="color:#a6e22e">&#39;a</span> APIClient<span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#[builder(setter(into))]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> name: String,
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">impl</span> ApproachFBuilder<span style="color:#f92672">&lt;</span>&#39;_<span style="color:#f92672">&gt;</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">call</span>(self) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> data <span style="color:#f92672">=</span> self.build().unwrap(); <span style="color:#75715e">// This should never fail
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        data.client
-</span></span><span style="display:flex;"><span>            .unwrap()
-</span></span><span style="display:flex;"><span>            .actual_endpoint(<span style="color:#f92672">&amp;</span>data.name, data.opt1, data.opt2)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p><code>derive_builder</code> doesn&rsquo;t know that <code>build()</code> can never technically fail
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">api</span><span class="p">.</span><span class="n">approach_f</span><span class="p">(</span><span class="s">&#34;hybrid-derive-pattern&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">opt1</span><span class="p">(</span><span class="n">param2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">opt2</span><span class="p">(</span><span class="mi">2222</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">call</span><span class="p">()</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>And an implementation by wrapping <code>derive_builder</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">impl</span><span class="w"> </span><span class="n">APIClient</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">approach_f</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">name</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">ApproachFBuilder</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">ApproachFBuilder</span>::<span class="n">default</span><span class="p">().</span><span class="n">client</span><span class="p">(</span><span class="bp">self</span><span class="p">).</span><span class="n">name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="sd">/// Not meant to be used directly, only within `APIClient`.
+</span></span></span><span class="line"><span class="cl"><span class="sd"></span><span class="cp">#[derive(Default, Builder)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[builder(build_fn(private), pattern = </span><span class="s">&#34;owned&#34;</span><span class="cp">)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">ApproachF</span><span class="o">&lt;</span><span class="na">&#39;a</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[builder(setter(strip_option), default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">client</span>: <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="na">&#39;a</span><span class="w"> </span><span class="n">APIClient</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[builder(setter(into))]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">name</span>: <span class="nb">String</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[builder(setter(strip_option), default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">opt1</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">u32</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[builder(setter(strip_option), default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">opt2</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">i32</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">ApproachFBuilder</span><span class="o">&lt;</span><span class="nb">&#39;_</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">ReturnedValue</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">build</span><span class="p">().</span><span class="n">unwrap</span><span class="p">();</span><span class="w"> </span><span class="c1">// This should never fail
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="n">data</span><span class="p">.</span><span class="n">client</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="n">unwrap</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="n">actual_endpoint</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt1</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p><code>derive_builder</code> doesn&rsquo;t know that <code>build()</code> can never technically fail
 because the mandatory parameters are provided inside the wrapper, so it&rsquo;s kind
 of a waste to use this macro. It also forces us to create the wrapper because
 the builder always has to be initialized with <code>Builder::default()</code>. With a
@@ -632,54 +625,54 @@ sense for some APIs.</p>
 parameters would go first. This would require a different order for the optional
 parameters. Here&rsquo;s an example if all the endpoints shared the same optional
 parameters:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span>api.opt1(param2)
-</span></span><span style="display:flex;"><span>    .opt2(<span style="color:#ae81ff">2222</span>)
-</span></span><span style="display:flex;"><span>    .approach_f(<span style="color:#e6db74">&#34;group-builder-pattern&#34;</span>)<span style="color:#f92672">?</span>;
-</span></span></code></pre></div><p>And if we used different groups it would look like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span>api.group()
-</span></span><span style="display:flex;"><span>    .opt1(param2)
-</span></span><span style="display:flex;"><span>    .opt2(<span style="color:#ae81ff">2222</span>)
-</span></span><span style="display:flex;"><span>    .approach_g(<span style="color:#e6db74">&#34;group-builder-pattern&#34;</span>)<span style="color:#f92672">?</span>;
-</span></span><span style="display:flex;"><span>api.group().opt2(<span style="color:#ae81ff">2222</span>).approach_h(<span style="color:#e6db74">&#34;builder-from-scratch&#34;</span>)<span style="color:#f92672">?</span>;
-</span></span></code></pre></div><p>Here&rsquo;s an implementation with <code>derive_builder</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">impl</span> APIClient
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">group</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#a6e22e">GroupBuilder</span> {
-</span></span><span style="display:flex;"><span>        GroupBuilder::default().client(self)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#[derive(Default, Builder)]</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#[builder(build_fn(private), pattern = </span><span style="color:#e6db74">&#34;owned&#34;</span><span style="color:#75715e">)]</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Group</span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">&#39;a</span><span style="color:#f92672">&gt;</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-</span></span><span style="display:flex;"><span>    client: Option<span style="color:#f92672">&lt;&amp;</span><span style="color:#a6e22e">&#39;a</span> APIClient<span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> opt1: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#[builder(setter(strip_option), default)]</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> opt2: Option<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">i32</span><span style="color:#f92672">&gt;</span>,
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">impl</span> GroupBuilder<span style="color:#f92672">&lt;</span>&#39;_<span style="color:#f92672">&gt;</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_g</span>(self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> data <span style="color:#f92672">=</span> self.build().unwrap();
-</span></span><span style="display:flex;"><span>        data.client
-</span></span><span style="display:flex;"><span>            .unwrap()
-</span></span><span style="display:flex;"><span>            .actual_endpoint(name, data.opt1, data.opt2)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pub</span> <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">approach_h</span>(self, name: <span style="color:#66d9ef">&amp;</span><span style="color:#66d9ef">str</span>) -&gt; <span style="color:#a6e22e">ReturnedValue</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> data <span style="color:#f92672">=</span> self.build().unwrap();
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// This endpoint doesn&#39;t need `opt1`. It can either be ignored, or
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#75715e">// be an error. I hate silent errors, though.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> data.opt1.is_some() {
-</span></span><span style="display:flex;"><span>            panic!(<span style="color:#e6db74">&#34;opt1 isn&#39;t needed for enpoint_h&#34;</span>)
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        data.client.unwrap().actual_endpoint(name, None, data.opt2)
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>As the <code>approach_h</code> endpoint indicates, the shared optional parameters don&rsquo;t
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">api</span><span class="p">.</span><span class="n">opt1</span><span class="p">(</span><span class="n">param2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">opt2</span><span class="p">(</span><span class="mi">2222</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">approach_f</span><span class="p">(</span><span class="s">&#34;group-builder-pattern&#34;</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>And if we used different groups it would look like this:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">api</span><span class="p">.</span><span class="n">group</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">opt1</span><span class="p">(</span><span class="n">param2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">opt2</span><span class="p">(</span><span class="mi">2222</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">approach_g</span><span class="p">(</span><span class="s">&#34;group-builder-pattern&#34;</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">api</span><span class="p">.</span><span class="n">group</span><span class="p">().</span><span class="n">opt2</span><span class="p">(</span><span class="mi">2222</span><span class="p">).</span><span class="n">approach_h</span><span class="p">(</span><span class="s">&#34;builder-from-scratch&#34;</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>Here&rsquo;s an implementation with <code>derive_builder</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">impl</span><span class="w"> </span><span class="n">APIClient</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">group</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">GroupBuilder</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">GroupBuilder</span>::<span class="n">default</span><span class="p">().</span><span class="n">client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[derive(Default, Builder)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[builder(build_fn(private), pattern = </span><span class="s">&#34;owned&#34;</span><span class="cp">)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">Group</span><span class="o">&lt;</span><span class="na">&#39;a</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[builder(setter(strip_option), default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">client</span>: <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="na">&#39;a</span><span class="w"> </span><span class="n">APIClient</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[builder(setter(strip_option), default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">opt1</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">u32</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[builder(setter(strip_option), default)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">opt2</span>: <span class="nb">Option</span><span class="o">&lt;</span><span class="kt">i32</span><span class="o">&gt;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">impl</span><span class="w"> </span><span class="n">GroupBuilder</span><span class="o">&lt;</span><span class="nb">&#39;_</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">approach_g</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">name</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">ReturnedValue</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">build</span><span class="p">().</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">data</span><span class="p">.</span><span class="n">client</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="n">unwrap</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="n">actual_endpoint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt1</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">approach_h</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">name</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">ReturnedValue</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">build</span><span class="p">().</span><span class="n">unwrap</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// This endpoint doesn&#39;t need `opt1`. It can either be ignored, or
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="c1">// be an error. I hate silent errors, though.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt1</span><span class="p">.</span><span class="n">is_some</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="fm">panic!</span><span class="p">(</span><span class="s">&#34;opt1 isn&#39;t needed for enpoint_h&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">data</span><span class="p">.</span><span class="n">client</span><span class="p">.</span><span class="n">unwrap</span><span class="p">().</span><span class="n">actual_endpoint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="nb">None</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">opt2</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>As the <code>approach_h</code> endpoint indicates, the shared optional parameters don&rsquo;t
 actually have to be strictly the same. As long as they are related, they can
 share the same group, and some extra verifications can be added in the final
 call to make sure the user is using it properly.</p>
@@ -724,6 +717,5 @@ errors or things that could be improved about the Rust code.</p>
 <a href="https://vidify.org/blog/rust-parameters/">https://vidify.org/blog/rust-parameters/</a>.</em></p>
 ]]></content:encoded>
     </item>
-    
   </channel>
 </rss>

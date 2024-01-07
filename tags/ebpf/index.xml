@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>ebpf on NullDeref</title>
     <link>https://nullderef.com/tags/ebpf/</link>
     <description>Recent content in ebpf on NullDeref</description>
     <image>
+      <title>NullDeref</title>
       <url>https://nullderef.com/logo-banner.png</url>
       <link>https://nullderef.com/logo-banner.png</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>en</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Tue, 05 Oct 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://nullderef.com/tags/ebpf/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 05 Oct 2021 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://nullderef.com/tags/ebpf/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Plugins in Rust: Diving into Dynamic Loading</title>
       <link>https://nullderef.com/blog/plugin-dynload/</link>
       <pubDate>Tue, 05 Oct 2021 00:00:00 +0000</pubDate>
-      
       <guid>https://nullderef.com/blog/plugin-dynload/</guid>
       <description>A closer look at dynamic loading in Rust</description>
       <content:encoded><![CDATA[<div class="paragraph">
@@ -465,51 +466,47 @@ versioning. In order to safely load the plugin, one must ensure that the
 versions of the <code>common</code> crate match — or at least that they’re compatible — for both the runtime and the plugin. Here’s an example of how this could go
 wrong if we don’t save information about versioning:</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title">Plugin implementation</div>
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">pub mod common {
-    // This is the declaration for the plugin data in version 0.1
-    #[repr(C)]
-    pub struct PluginData {
-        pub name: &amp;&#39;static [u8],
-        pub new: unsafe extern &#34;C&#34; fn() -&gt; State,
-    }
-}
-
-#[no_mangle]
-pub static PLUGIN_DATA: common::PluginData = common::PluginData {
-    name: b&#34;test&#34;,
-    new
-};</code></pre>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">pub</span><span class="w"> </span><span class="k">mod</span> <span class="nn">common</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// This is the declaration for the plugin data in version 0.1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="cp">#[repr(C)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">PluginData</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">pub</span><span class="w"> </span><span class="n">name</span>: <span class="kp">&amp;</span><span class="nb">&#39;static</span> <span class="p">[</span><span class="kt">u8</span><span class="p">],</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">pub</span><span class="w"> </span><span class="n">new</span>: <span class="nc">unsafe</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="k">fn</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nc">State</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[no_mangle]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="no">PLUGIN_DATA</span>: <span class="nc">common</span>::<span class="n">PluginData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">common</span>::<span class="n">PluginData</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name</span>: <span class="nc">b</span><span class="s">&#34;test&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">new</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">};</span></span></span></code></pre></div>
 </div>
-</div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title">Runtime implementation</div>
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">pub mod common {
-    // And this is the same type, but in version 0.2
-    #[repr(C)]
-    pub struct PluginData {
-        pub name: &amp;[u8],
-        pub new: unsafe extern &#34;C&#34; fn() -&gt; State,
-        // NOTE: this field is new here!
-        pub connect: unsafe extern &#34;C&#34; fn(&amp;mut State) -&gt; bool
-    }
-}
-
-fn main() -&gt; Result&lt;(), anyhow::Error&gt; {
-    unsafe {
-        let library = Library::new(path)?;
-
-        let data = library
-            .get::&lt;*const common::PluginData&gt;(b&#34;PLUGIN_DATA&#34;)?
-            .read(); // !!! UNDEFINED BEHAVIOUR !!! What will `data.connect` be?
-    }
-
-    Ok(())
-}</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">pub</span><span class="w"> </span><span class="k">mod</span> <span class="nn">common</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// And this is the same type, but in version 0.2
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="cp">#[repr(C)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">PluginData</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">pub</span><span class="w"> </span><span class="n">name</span>: <span class="kp">&amp;</span><span class="p">[</span><span class="kt">u8</span><span class="p">],</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">pub</span><span class="w"> </span><span class="n">new</span>: <span class="nc">unsafe</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="k">fn</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nc">State</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// NOTE: this field is new here!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="k">pub</span><span class="w"> </span><span class="n">connect</span>: <span class="nc">unsafe</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="k">fn</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">State</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span><span class="w"> </span><span class="n">anyhow</span>::<span class="n">Error</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">library</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Library</span>::<span class="n">new</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">?</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">library</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="n">get</span>::<span class="o">&lt;*</span><span class="k">const</span><span class="w"> </span><span class="n">common</span>::<span class="n">PluginData</span><span class="o">&gt;</span><span class="p">(</span><span class="sa">b</span><span class="s">&#34;PLUGIN_DATA&#34;</span><span class="p">)</span><span class="o">?</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="n">read</span><span class="p">();</span><span class="w"> </span><span class="c1">// !!! UNDEFINED BEHAVIOUR !!! What will `data.connect` be?
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>In the code above, we can see that, even though both versions of <code>PluginData</code>
@@ -538,28 +535,24 @@ that. Its layout must be <em>always</em> the same.</p>
 <li>
 <p><strong>Thread-safe</strong> (implement <code>Sync</code>). If we wanted to use something like <code>*const
 c_char</code>, the compiler would throw the following error, because it’s a pointer:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">error[E0277]: `*const i8` cannot be shared between threads safely
- --&gt; src/lib.rs:4:1
-  |
-4 | pub static VERSION: *const c_char = b&#34;0.1.0\0&#34;.as_ptr() as _;
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `*const i8` cannot be shared between threads safely
-  |
-  = help: the trait `Sync` is not implemented for `*const i8`
-  = note: shared static variables must have a type that implements `Sync`</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">error[E0277]: `*const i8` cannot be shared between threads safely
+</span></span><span class="line"><span class="cl"> --&gt; src/lib.rs:4:1
+</span></span><span class="line"><span class="cl">  |
+</span></span><span class="line"><span class="cl">4 | pub static VERSION: *const c_char = b&#34;0.1.0\0&#34;.as_ptr() as _;
+</span></span><span class="line"><span class="cl">  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `*const i8` cannot be shared between threads safely
+</span></span><span class="line"><span class="cl">  |
+</span></span><span class="line"><span class="cl">  = help: the trait `Sync` is not implemented for `*const i8`
+</span></span><span class="line"><span class="cl">  = note: shared static variables must have a type that implements `Sync`</span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Instead, we can use a function that returns the string:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">#[no_mangle]
-pub extern &#34;C&#34; fn get_version() -&gt; *const c_char {
-    b&#34;0.1.0\0&#34;.as_ptr() as _
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="cp">#[no_mangle]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="k">fn</span> <span class="nf">get_version</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="o">*</span><span class="k">const</span><span class="w"> </span><span class="n">c_char</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="sa">b</span><span class="s">&#34;0.1.0</span><span class="se">\0</span><span class="s">&#34;</span><span class="p">.</span><span class="n">as_ptr</span><span class="p">()</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">_</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 </li>
 </ul>
@@ -680,11 +673,9 @@ interface. For example, the TCP connector will need to keep its socket after its
 initialization in order to send or receive messages. This means that most of
 them will follow the following pattern:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">let state = plugin.new();
-plugin.something(&amp;mut state);</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plugin</span><span class="p">.</span><span class="n">new</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">plugin</span><span class="p">.</span><span class="n">something</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">state</span><span class="p">);</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>The state is first created with a <code>new</code> function that initializes everything as
@@ -706,39 +697,33 @@ types the compiler didn’t generate code for.</p>
 <p>It’s really easy to prove in Rust with the following example. We’ll try to
 <em>load</em> an external function with generics:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">extern &#34;C&#34; {
-    fn foo&lt;T&gt;(_: T);
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">foo</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span>: <span class="nc">T</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>This results in the following error:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">error[E0044]: foreign items may not have type parameters
- --&gt; src/lib.rs:2:5
-  |
-2 |     fn foo&lt;T&gt;(_: T);
-  |     ^^^^^^^^^^^^^^^^ can&#39;t have type parameters
-  |
-  = help: replace the type parameters with concrete types like `u32`
-
-error: aborting due to previous error
-
-For more information about this error, try `rustc --explain E0044`.</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">error[E0044]: foreign items may not have type parameters
+</span></span><span class="line"><span class="cl"> --&gt; src/lib.rs:2:5
+</span></span><span class="line"><span class="cl">  |
+</span></span><span class="line"><span class="cl">2 |     fn foo&lt;T&gt;(_: T);
+</span></span><span class="line"><span class="cl">  |     ^^^^^^^^^^^^^^^^ can&#39;t have type parameters
+</span></span><span class="line"><span class="cl">  |
+</span></span><span class="line"><span class="cl">  = help: replace the type parameters with concrete types like `u32`
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">error: aborting due to previous error
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">For more information about this error, try `rustc --explain E0044`.</span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Interestingly enough, the compiler lets you export generic functions declared
 <em>in Rust</em>:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">extern fn foo&lt;T&gt;(_: T) {}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">extern</span><span class="w"> </span><span class="k">fn</span> <span class="nf">foo</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span>: <span class="nc">T</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>This confused me in the beginning; it made me think generic functions through
@@ -749,12 +734,10 @@ them</a>, they’re only supported to pass callbacks to C functions.</p>
 <div class="paragraph">
 <p>Note that generics in plugins do work for lifetimes. This will compile:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">extern &#34;C&#34; {
-    fn foo&lt;&#39;a&gt;(_: &amp;&#39;a str) -&gt; &amp;&#39;a str;
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">extern</span><span class="w"> </span><span class="s">&#34;C&#34;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">foo</span><span class="o">&lt;</span><span class="na">&#39;a</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span>: <span class="kp">&amp;</span><span class="na">&#39;a</span> <span class="kt">str</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="na">&#39;a</span> <span class="kt">str</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Even though lifetimes and generics share the same syntax, in the case of
@@ -772,26 +755,22 @@ not applied.</p>
 <p>The alternative to generics is often using trait object types with <code>dyn</code>. Again,
 will that work for plugins? Let’s try:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">pub trait PluginState {}
-pub extern fn foo&lt;T&gt;(_: &amp;dyn PluginState) {}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">PluginState</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="k">fn</span> <span class="nf">foo</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span>: <span class="kp">&amp;</span><span class="nc">dyn</span><span class="w"> </span><span class="n">PluginState</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Compiling…​</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">warning: `extern` fn uses type `dyn PluginState`, which is not FFI-safe
- --&gt; src/lib.rs:2:25
-  |
-2 | pub extern fn foo&lt;T&gt;(_: &amp;dyn PluginState) {}
-  |                         ^^^^^^^^^^^^^^^^ not FFI-safe
-  |
-  = note: `#[warn(improper_ctypes_definitions)]` on by default
-  = note: trait objects have no C equivalent</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">warning: `extern` fn uses type `dyn PluginState`, which is not FFI-safe
+</span></span><span class="line"><span class="cl"> --&gt; src/lib.rs:2:25
+</span></span><span class="line"><span class="cl">  |
+</span></span><span class="line"><span class="cl">2 | pub extern fn foo&lt;T&gt;(_: &amp;dyn PluginState) {}
+</span></span><span class="line"><span class="cl">  |                         ^^^^^^^^^^^^^^^^ not FFI-safe
+</span></span><span class="line"><span class="cl">  |
+</span></span><span class="line"><span class="cl">  = note: `#[warn(improper_ctypes_definitions)]` on by default
+</span></span><span class="line"><span class="cl">  = note: trait objects have no C equivalent</span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>Nope. <code>dyn</code> is strictly part of the Rust ABI, so it’s not stable for our plugin
@@ -818,43 +797,41 @@ system.</p>
 example in PulseAudio <a href="#pulseaudio-ptr">[8]</a>, in which callbacks pass a <code>void*</code>
 parameter for user data. Here’s a simpler program:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-c" data-lang="c">#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-
-// The state of the plugin
-typedef struct {
-    int counter;
-} plugin_state_t;
-
-// Exported by the plugin, initializes the state
-void* new() {
-    plugin_state_t* plugin_state = malloc(sizeof(plugin_state_t));
-    plugin_state-&gt;counter = 0;
-    return (void*) plugin_state;
-}
-
-// Exported by the plugin, which takes a pointer to its state
-void something(void* state) {
-    // We know the runtime used `new` to initialize the state, so we can cast it
-    // back to its original type.
-    plugin_state_t* plugin_state = (plugin_state_t*) state;
-
-    printf(&#34;Current state: { counter = %d }\n&#34;, plugin_state-&gt;counter);
-    plugin_state-&gt;counter++;
-    printf(&#34;Final state: { counter = %d }\n&#34;, plugin_state-&gt;counter);
-}
-
-int main() {
-    // We initialize the plugin, which returns its state
-    void* state = new();
-    // When calling anything from the plugin we pass its state
-    something(state);
-    // Don&#39;t forget!
-    free(state);
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// The state of the plugin
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">counter</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="kt">plugin_state_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Exported by the plugin, initializes the state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span><span class="o">*</span> <span class="nf">new</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">plugin_state_t</span><span class="o">*</span> <span class="n">plugin_state</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">plugin_state_t</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">plugin_state</span><span class="o">-&gt;</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span> <span class="n">plugin_state</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Exported by the plugin, which takes a pointer to its state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">something</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">state</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// We know the runtime used `new` to initialize the state, so we can cast it
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// back to its original type.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">plugin_state_t</span><span class="o">*</span> <span class="n">plugin_state</span> <span class="o">=</span> <span class="p">(</span><span class="kt">plugin_state_t</span><span class="o">*</span><span class="p">)</span> <span class="n">state</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Current state: { counter = %d }</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">plugin_state</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">plugin_state</span><span class="o">-&gt;</span><span class="n">counter</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Final state: { counter = %d }</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">plugin_state</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// We initialize the plugin, which returns its state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">void</span><span class="o">*</span> <span class="n">state</span> <span class="o">=</span> <span class="nf">new</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// When calling anything from the plugin we pass its state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">something</span><span class="p">(</span><span class="n">state</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Don&#39;t forget!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">free</span><span class="p">(</span><span class="n">state</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>This does work perfectly, and we could port it to Rust as a straightforward
@@ -884,57 +861,55 @@ F. Bryan’s</a> covers the topic extremely well.</p>
 <p>Here’s how our previous example would look like, which could be translated to
 Rust with no problems whatsoever:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-c" data-lang="c">#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-
-// The base plugin type
-typedef struct base_state_t {
-    void (*print)(struct base_state_t *);
-} base_state_t;
-
-// The state of the plugin, child of the above type
-typedef struct {
-    base_state_t base;
-    int counter;
-} plugin_state_t;
-
-// The implementation of `print` for the `plugin_state_t` child
-void print(base_state_t* state) {
-    plugin_state_t* plugin_state = (plugin_state_t*) state;
-    printf(&#34;Current state: { counter = %d }\n&#34;, plugin_state-&gt;counter);
-}
-
-// Exported by the plugin, initializes the state
-base_state_t* new() {
-    base_state_t base = {print};
-
-    plugin_state_t* plugin_state = malloc(sizeof(plugin_state_t));
-    plugin_state-&gt;base = base;
-    plugin_state-&gt;counter = 0;
-    return (base_state_t*) plugin_state;
-}
-
-// Exported by the plugin, which takes a pointer to its state
-void something(void* state) {
-    // We know the runtime used `new` to initialize the state, so we can cast it
-    // back to its original type.
-    plugin_state_t* plugin_state = (plugin_state_t*) state;
-    plugin_state-&gt;counter++;
-}
-
-int main() {
-    // We initialize the plugin, which returns its state
-    base_state_t* state = new();
-    // When calling anything from the plugin we pass its state
-    state-&gt;print(state);
-    something((void*) state);
-    state-&gt;print(state);
-    // Don&#39;t forget!
-    free(state);
-}</code></pre>
-</div>
+<div class="paragraph">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// The base plugin type
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">typedef</span> <span class="k">struct</span> <span class="kt">base_state_t</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">print</span><span class="p">)(</span><span class="k">struct</span> <span class="kt">base_state_t</span> <span class="o">*</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="kt">base_state_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// The state of the plugin, child of the above type
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">base_state_t</span> <span class="n">base</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">counter</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="kt">plugin_state_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// The implementation of `print` for the `plugin_state_t` child
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="kt">base_state_t</span><span class="o">*</span> <span class="n">state</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">plugin_state_t</span><span class="o">*</span> <span class="n">plugin_state</span> <span class="o">=</span> <span class="p">(</span><span class="kt">plugin_state_t</span><span class="o">*</span><span class="p">)</span> <span class="n">state</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Current state: { counter = %d }</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">plugin_state</span><span class="o">-&gt;</span><span class="n">counter</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Exported by the plugin, initializes the state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">base_state_t</span><span class="o">*</span> <span class="nf">new</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">base_state_t</span> <span class="n">base</span> <span class="o">=</span> <span class="p">{</span><span class="n">print</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">plugin_state_t</span><span class="o">*</span> <span class="n">plugin_state</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">plugin_state_t</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">plugin_state</span><span class="o">-&gt;</span><span class="n">base</span> <span class="o">=</span> <span class="n">base</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">plugin_state</span><span class="o">-&gt;</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">(</span><span class="kt">base_state_t</span><span class="o">*</span><span class="p">)</span> <span class="n">plugin_state</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Exported by the plugin, which takes a pointer to its state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">something</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">state</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// We know the runtime used `new` to initialize the state, so we can cast it
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// back to its original type.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">plugin_state_t</span><span class="o">*</span> <span class="n">plugin_state</span> <span class="o">=</span> <span class="p">(</span><span class="kt">plugin_state_t</span><span class="o">*</span><span class="p">)</span> <span class="n">state</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">plugin_state</span><span class="o">-&gt;</span><span class="n">counter</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// We initialize the plugin, which returns its state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">base_state_t</span><span class="o">*</span> <span class="n">state</span> <span class="o">=</span> <span class="nf">new</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// When calling anything from the plugin we pass its state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">state</span><span class="o">-&gt;</span><span class="nf">print</span><span class="p">(</span><span class="n">state</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">something</span><span class="p">((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span> <span class="n">state</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">state</span><span class="o">-&gt;</span><span class="nf">print</span><span class="p">(</span><span class="n">state</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Don&#39;t forget!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">free</span><span class="p">(</span><span class="n">state</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>The main difference in the code is the new base class <code>plugin_base_t</code>. It
@@ -974,12 +949,11 @@ fields at all, like the name or the version. This one is already handled by
 <code>libloading</code>, actually. When using <code>library.get(&#34;name&#34;)</code>, if <code>&#34;name&#34;</code> is not
 exported by the shared object, the following error will show up:</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-missing">See the full code here</a></div>
-<div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-missing
-Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.so: undefined symbol: get_name</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-console" data-lang="console"><span class="line"><span class="cl"><span class="gp">$</span> make debug-missing
+</span></span><span class="line"><span class="cl"><span class="go">Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.so: undefined symbol: get_name
+</span></span></span></code></pre></div>
 </div>
 </div>
 <div class="sect2">
@@ -988,14 +962,13 @@ Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.
 <p>After implementing the versioning system, we can see how these kinds of errors
 can be caught safely:</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-versionmismatch">See the full code here</a></div>
-<div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-versionmismatch
-Initializing plugin versionmismatch
-Version mismatch. Aborting.
-Error when setting up the plugin: version mismatch: 0.0.0 incompatible with 0.1.0</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-console" data-lang="console"><span class="line"><span class="cl"><span class="gp">$</span> make debug-versionmismatch
+</span></span><span class="line"><span class="cl"><span class="go">Initializing plugin versionmismatch
+</span></span></span><span class="line"><span class="cl"><span class="go">Version mismatch. Aborting.
+</span></span></span><span class="line"><span class="cl"><span class="go">Error when setting up the plugin: version mismatch: 0.0.0 incompatible with 0.1.0
+</span></span></span></code></pre></div>
 </div>
 </div>
 <div class="sect2">
@@ -1019,12 +992,11 @@ loaded. Using a <code>Symbol</code> with a wrong type is undefined.</p>
 <div class="paragraph">
 <p>Ignoring this will cause an unavoidable segfault:</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongtype">See the full code here</a></div>
-<div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-wrongtype
-Segmentation fault (core dumped)</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-console" data-lang="console"><span class="line"><span class="cl"><span class="gp">$</span> make debug-wrongtype
+</span></span><span class="line"><span class="cl"><span class="go">Segmentation fault (core dumped)
+</span></span></span></code></pre></div>
 </div>
 </div>
 <div class="sect2">
@@ -1034,12 +1006,11 @@ Segmentation fault (core dumped)</code></pre>
 plugin exports, e.g., the name with a null pointer, we’ll just get a
 segmentation fault:</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongaddress">See the full code here</a></div>
-<div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-wrongaddress
-Segmentation fault (core dumped)</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-console" data-lang="console"><span class="line"><span class="cl"><span class="gp">$</span> make debug-wrongaddress
+</span></span><span class="line"><span class="cl"><span class="go">Segmentation fault (core dumped)
+</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>In order to avoid this, the runtime could manually check that the pointer isn’t
@@ -1072,12 +1043,11 @@ Plugin developers should wrap every single exported function in
 <a href="https://doc.rust-lang.org/std/panic/fn.catch_unwind.html"><code>catch_unwind</code></a> in
 order to not crash the entire runtime when something goes wrong:</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title"><a href="https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-panic">See the full code here</a></div>
-<div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">$ make debug-panic
-Segmentation fault (core dumped)</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-console" data-lang="console"><span class="line"><span class="cl"><span class="gp">$</span> make debug-panic
+</span></span><span class="line"><span class="cl"><span class="go">Segmentation fault (core dumped)
+</span></span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -1120,19 +1090,17 @@ boilerplate, which basically consists on creating functions for the name, kind,
 and version returning <code>*const c_char</code>, and exporting the plugin data struct. For
 the curious, it’s defined in the <code>common</code> directory.</p>
 </div>
-<div class="listingblock">
+<div class="paragraph">
 <div class="title">Sample usage of the macro</div>
-<div class="content">
-<pre class="highlight"><code class="language-rust" data-lang="rust">define_connector_plugin! {
-    name: &#34;metronome&#34;,
-    data: ConnectorPlugin {
-        new,
-        something,
-        is_sink: false,
-        is_source: true
-    }
-}</code></pre>
-</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="fm">define_connector_plugin!</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name</span>: <span class="s">&#34;metronome&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">data</span>: <span class="nc">ConnectorPlugin</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">new</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">something</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">is_sink</span>: <span class="nc">false</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">is_source</span>: <span class="nc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
 <p>The plugin system supports multiple types of plugins (connectors, codecs, etc),
@@ -1216,6 +1184,5 @@ C++</a></p>
 </div>
 ]]></content:encoded>
     </item>
-    
   </channel>
 </rss>
