@@ -8,7 +8,9 @@ date: 2024-01-07
 GHissueID: TODO
 ---
 
-Jen-Hsun Huang -- NVIDIA
+== Jen-Hsun Huang -- NVIDIA
+
+Original video: https://www.youtube.com/watch?v=Xn1EsFe7snQ
 
 - VC don't invest in business plans, it does in people and the market. The
   latter isn't so important because it changes, and you need to reinvent
