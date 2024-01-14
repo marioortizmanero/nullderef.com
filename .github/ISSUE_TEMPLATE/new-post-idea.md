@@ -20,4 +20,4 @@ TODO list:
   + [ ] date
   + [ ] GHissueID (create an issue for the comments [here](https://github.com/marioortizmanero/nullderef.com-comments))
 - [ ] Clean up bibliography
-- [ ] Share on other platforms (Reddit, LinkedIn, Twitter)
+- [ ] Share on other platforms (Reddit, LinkedIn, Twitter, Mastodon)
