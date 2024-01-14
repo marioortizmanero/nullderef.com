@@ -2,6 +2,9 @@
 
 body {
   font-family: "Merriweather", serif;
+}
+
+p {
   text-align: justify;
   hyphens: auto;
 }
