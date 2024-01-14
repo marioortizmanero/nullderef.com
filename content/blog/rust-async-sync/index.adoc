@@ -5,9 +5,10 @@ Rust for too much"
 summary: "My journey trying to support both asynchronous and blocking code in
 the Rspotify library. I did get it working in the end thanks to `maybe_async`,
 but Cargo doesn't like that solution, so it's far from perfect."
+images: ["TODO"]
 author: "Mario Ortiz Manero"
-tags: ["rust", "async", "macros"]
-date: 2021-09-22
+tags: ["rust", "async", "macros", "procedural macros"]
+date: 2024-01-14
 GHissueID: 34
 ---
 
@@ -44,23 +45,22 @@ ____
 Now, low-level wise that sounds like a very complicated task. Having a common
 interface for both async code -- which requires a runtime like {{< crate tokio
 >}}, awaiting futures, pinning, etc -- and regular sync code? I mean, they asked
-nicely, so maybe we can try. After all the only difference in your crate would
-be the occurrences of the `async` and `await` keywords because you aren't doing
+nicely, so maybe we can try. After all the only difference in the code would be
+the occurrences of the `async` and `await` keywords because you aren't doing
 anything fancy.
 
 Well, this is _more or less_ what happened with the crate {{< crate rspotify
->}}, which I maintain along with its creator
+>}}, which I used to maintain along with its creator
 https://github.com/ramsayleung/[Ramsay]. For those who don't know, it's a
-wrapper for the Spotify Web API. Did we get this working in the end? If so, how?
-I'll try to explain the situation in this article.
+wrapper for the Spotify Web API. To clarify, I did get this working in the end,
+although not as cleanly as I was hoping. I'll try to explain the situation in
+this article.
 
 == The first approaches
 
-To put the reader more into context, here's what Rspotify's client looks like,
-more or less:
+To give more context, here's what Rspotify's client looks like, more or less:
 
-[source, rust]
-----
+{{< highlight rust >}}
 struct Spotify { /* ... */ }
 
 impl Spotify {
@@ -71,11 +71,11 @@ impl Spotify {
         self.http.get("/some-endpoint", params).await
     }
 }
-----
+{{< /highlight >}}
 
 Essentially, we would have to make `some_endpoint` available for both
 asynchronous and blocking users. The important question here is, how do you do
-this once you have hundreds of endpoints? And how can you make it easy to switch
+this once you have dozens of endpoints? And how can you make it easy to switch
 between async and sync for the user?
 
 === Good ol' copy-pasting
@@ -90,39 +90,37 @@ share the same interface, manually removing `async`/`.await` and importing
 much complexity overhead.
 
 The Rspotify user just has to import `rspotify::blocking::Client` instead of
-`rspotify::Client`, and voilà! Their code is now blocking. And if we don't want
-overhead for the async users we can just feature-gate it under the name
+`rspotify::Client`, and voilà! Their code is now blocking. This may result in
+binary bloat for only-async users, so we can just feature-gate it under the name
 `blocking` and done.
 
 The problem was much more clear later on, though. Half the crate's code was
 duplicated. Adding a new endpoint or modifying it meant writing or removing
-everything twice. And good luck if you had to refactor something, prepare
-yourself to double your efforts!
+everything twice.
 
-There is no way to make sure both implementations are equivalent either unless
-you test absolutely everything. Which isn't a bad idea either, but maybe you
-copy-pasted the tests wrong! How about that? The poor reviewer of the Pull
-Request would have to read through the same code twice as well to make sure both
-sides look alright -- which sounds incredibly prone to human errors.
+There is no way to make sure both implementations are equivalent unless you test
+absolutely everything. Which isn't a bad idea either, but maybe you copy-pasted
+the tests wrong! How about that? The poor reviewer  would have to read through
+the same code twice as well to make sure both sides look alright -- which sounds
+incredibly prone to human errors.
 
-In my experience it really slowed down the development of Rspotify, specially
-for new contributors who weren't used to this whole ordeal. And so as a new
-excited maintainer of Rspotify, I began to
+In my experience, it really slowed down the development of Rspotify, specially
+for new contributors who weren't used to this whole ordeal. As a new excited
+maintainer of Rspotify, I began to
 https://github.com/ramsayleung/rspotify/issues/112[investigate other possible
 solutions].
 
 === Calling `block_on`
 
-https://github.com/ramsayleung/rspotify/pull/120[Our second approach] consisted
+https://github.com/ramsayleung/rspotify/pull/120[The second approach] consisted
 on implementing everything on the async side. Then, you just make wrappers for
 the blocking code calling
 https://docs.rs/tokio/latest/tokio/runtime/struct.Runtime.html#method.block_on[`block_on`]
 internally. `block_on` will run the future until completion, basically
-converting it into blocking code. This way you still need to copy the
-_definitions_, but the implementation is written once only.
+converting it into blocking code. You still need to copy the method
+_definitions_, but the implementation is written once only:
 
-[source, rust]
-----
+{{< highlight rust >}}
 mod blocking {
     struct Spotify(super::Spotify);
 
@@ -134,31 +132,30 @@ mod blocking {
         }
     }
 }
-----
+{{< /highlight >}}
 
 Note that in order to call `block_on`, you first have to create some kind of
 runtime. For example, with {{< crate tokio >}}:
 
-[source, rust]
-----
+{{< highlight rust >}}
 let mut runtime = tokio::runtime::Builder::new()
     .basic_scheduler()
     .enable_all()
     .build()
     .unwrap();
-----
+{{< /highlight >}}
 
+// TODO: double-check that it actually kills concurrency
 This raises the question: should we initialize the runtime in each call to the
-endpoint, or is there a way to share it? We could keep it as a global (_ewwww_)
-or perhaps better we can save the runtime in the `Spotify` struct. But since it
+endpoint, or is there a way to share it? We could keep it as a global (_ewwww_),
+or perhaps better, we can save the runtime in the `Spotify` struct. But since it
 takes a _mutable_ reference to the runtime, you'd have to wrap it up with
-`Arc<Mutex<T>>`, completely killing the concurrency in your client. Instead, the
-proper way to do this is with a Tokio
+`Arc<Mutex<T>>`, completely killing the concurrency in your client. The proper
+way to do this is with a Tokio
 https://docs.rs/tokio/latest/tokio/runtime/struct.Handle.html[Handle], which
 contains a reference to the runtime internally. One way to do it would be:
 
-[source, rust]
-----
+{{< highlight rust >}}
 use tokio::runtime::Runtime;
 
 lazy_static! { // You can also use `once_cell`
@@ -170,7 +167,7 @@ fn endpoint(&self, param: String) -> SpotifyResult<String> {
         self.0.endpoint(param).await
     })
 }
-----
+{{< /highlight >}}
 
 While this does make our blocking client faster <<block-on-perf>>, turns out
 that we're just walking in circles. {{< crate reqwest >}} does it differently in
@@ -217,22 +214,20 @@ Anyway, the idea is that with this crate you can automatically remove the
 `async` and `.await` occurrences in your code with a procedural macro,
 essentially automating the copy-pasting approach. For example:
 
-[source, rust]
-----
+{{< highlight rust >}}
 #[maybe_async::maybe_async]
 async fn endpoint() { /* stuff */ }
-----
+{{< /highlight >}}
 
 Generates the following code:
 
-[source, rust]
-----
+{{< highlight rust >}}
 #[cfg(not(feature = "is_sync"))]
 async fn endpoint() { /* stuff */ }
 
 #[cfg(feature = "is_sync")]
 fn endpoint() { /* stuff with `.await` removed */ }
-----
+{{< /highlight >}}
 
 You can configure whether you want asynchronous or blocking code by toggling the
 `maybe_async/is_sync` feature when compiling the crate. The macro works for
@@ -263,8 +258,7 @@ client], and then implement it for each of the clients you want to support
 https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/ureq.rs#L56[2]):
 
 .A simplified example of how this may look like
-[source, rust]
-----
+{{< highlight rust >}}
 #[maybe_async]
 trait HttpClient {
     async fn get(&self) -> String;
@@ -288,7 +282,7 @@ struct SpotifyClient<Http: HttpClient> {
 impl<Http: HttpClient> SpotifyClient<Http> {
     async fn endpoint(&self) { self.http.get(/* ... */) }
 }
-----
+{{< /highlight >}}
 
 Then, the user may configure whichever client they want to use with feature
 flags in their `Cargo.toml`. For example, if `client-ureq` is enabled, since
@@ -375,22 +369,20 @@ feature flags: `is_sync` and `is_async`. It would generate the functions in the
 same way, but with a `_sync` or `_async` suffix appended to the identifier so
 that they wouldn't be conflicting. For example:
 
-[source, rust]
-----
+{{< highlight rust >}}
 #[maybe_async::maybe_async]
 async fn endpoint() { /* stuff */ }
-----
+{{< /highlight >}}
 
 Would now generate the following code:
 
-[source, rust]
-----
+{{< highlight rust >}}
 #[cfg(feature = "is_async")]
 async fn endpoint_async() { /* stuff */ }
 
 #[cfg(feature = "is_sync")]
 fn endpoint_sync() { /* stuff with `.await` removed */ }
-----
+{{< /highlight >}}
 
 In my opinion, however, the user experience will suck if these suffixes have to
 be added to each call to your library. I wondered if it would be possible to do
@@ -482,11 +474,11 @@ You can leave a comment below if you like.
 [bibliography]
 == References
 
-- [[[block-on-perf,     1]]] https://github.com/ramsayleung/rspotify/issues/112#issuecomment-683266508
-- [[[block-on-channels, 2]]] https://github.com/seanmonstar/reqwest/blob/0.10.x/src/blocking/client.rs#L757
-- [[[block-on-reqwest,  3]]] https://github.com/ramsayleung/rspotify/issues/112#issuecomment-683249563
-- [[[features-additive, 4]]] https://github.com/rust-lang/cargo/blob/master/src/doc/src/reference/features.md#feature-unification
-- [[[arangors-error,    5]]] https://github.com/fMeow/arangors/issues/37
-- [[[aragog-error,      6]]] https://gitlab.com/qonfucius/aragog/-/blob/0.140.0/src/lib.rs#L488
-- [[[inkwell-error,     7]]] https://github.com/TheDan64/inkwell/blob/bfb0e32bc329fd35f6c5a529a1a6209936a147f8/src/lib.rs#L107
-- [[[k8s-error,         8]]] https://github.com/Arnavion/k8s-openapi/blob/v0.13.0/build.rs#L31
+- [[[block-on-perf,     1]]] {{< gh issue-comment "ramsayleung/rspotify" "112#issuecomment-683266508" "Cleaning up the `blocking` module" >}}
+- [[[block-on-channels, 2]]] https://github.com/seanmonstar/reqwest/blob/0.10.x/src/blocking/client.rs#L757[reqwest/src/blocking/client.rs @ line 757 -- GitHub]
+- [[[block-on-reqwest,  3]]] {{< gh issue-comment "ramsayleung/rspotify" "112#issuecomment-683249563" "Cleaning up the `blocking` module" >}}
+- [[[features-additive, 4]]] https://github.com/rust-lang/cargo/blob/master/src/doc/src/reference/features.md#feature-unification[Cargo's Documentation, "`Feature unification`"]
+- [[[arangors-error,    5]]] {{< gh issue "fMeow/arangors" 37 "Proposal: Move `sync` and `async` features into seperate modules" >}}
+- [[[aragog-error,      6]]] https://gitlab.com/qonfucius/aragog/-/blob/0.140.0/src/lib.rs#L488[aragog/src/lib.rs @ line 488 -- GitLab]
+- [[[inkwell-error,     7]]] https://github.com/TheDan64/inkwell/blob/bfb0e32bc329fd35f6c5a529a1a6209936a147f8/src/lib.rs#L107[inkwell/src/lib.rs @ line 107 -- GitHub]
+- [[[k8s-error,         8]]] https://github.com/Arnavion/k8s-openapi/blob/v0.13.0/build.rs#L31[k8s-openapi/build.rs @ line 31 -- GitHub]
