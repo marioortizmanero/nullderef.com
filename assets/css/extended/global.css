@@ -1,5 +1,9 @@
 /* Fixes for the full website */
 
+body {
+  font-family: "Merriweather", serif;
+}
+
 /* Fix selection colors for dark mode */
 ::selection {
   background: var(--primary);
