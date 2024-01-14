@@ -9,3 +9,8 @@ GHissueID: TODO
 ---
 
 == test
+
+== References
+
+* https://en.m.wikipedia.org/wiki/Copycat_suicide
+* https://news.ycombinator.com/item?id=38935605
