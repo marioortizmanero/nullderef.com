@@ -13,8 +13,6 @@
   {{ errorf "Invalid GitHub type (issue/pr/issue-comment/pr-comment): %q" $type }}
 {{ end }}
 
-{{ $full_url := printf "https://github.com/%s/%s/%s" $repo $url_type $reference }}
-
 {{ if eq $html "paragraph" }}
 <p class="gh-reference">
 {{ else }}
@@ -29,7 +27,7 @@
     <svg class="gh-icon" width="16" height="16" viewBox="0 0 20 20" version="1.1" id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"> <defs id="defs1" /> <path d="M 3.25,15 C 1.4550746,15 0,13.544925 0,11.75 V 3.25 C 0,1.4550746 1.4550746,0 3.25,0 h 13.5 C 18.544925,0 20,1.4550746 20,3.25 v 8.5 C 20,13.544925 18.544925,15 16.75,15 H 11.012485 L 5.9986815,18.750679 C 5.4458514,19.164165 4.6624979,19.051204 4.2490125,18.498373 4.0873576,18.282241 4,18.019591 4,17.749906 L 3.9992143,15 Z m 7.263515,-1.5 H 16.75 c 0.966498,0 1.75,-0.783502 1.75,-1.75 V 3.25 C 18.5,2.2835017 17.716498,1.5 16.75,1.5 H 3.25 C 2.2835017,1.5 1.5,2.2835017 1.5,3.25 v 8.5 c 0,0.966498 0.7835017,1.75 1.75,1.75 H 5.4987857 L 5.499,14.249786 5.4998574,17.25057 Z" id="path1" /> </svg>
   {{ end }}
 
-  <a class="gh-title" href="{{ $full_url }}" style="text-decoration: none;">{{ $title | markdownify }}
+  <a class="gh-title" href="https://github.com/{{ $repo }}/{{ $url_type }}/{{ $reference }}" style="text-decoration: none;">{{ $title | markdownify }}
   {{ if or (eq $type "pr-comment") (eq $type "issue-comment") }}
     {{ $reference = index (split $reference "#") 0 }}
     <span class="gh-number">{{ $repo }}#{{ $reference }} <i>(comment)</i></span></a>
