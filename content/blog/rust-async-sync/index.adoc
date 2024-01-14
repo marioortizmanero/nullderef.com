@@ -115,11 +115,11 @@ solutions].
 
 https://github.com/ramsayleung/rspotify/pull/120[The second approach] consisted
 on implementing everything on the async side. Then, you just make wrappers for
-the blocking code calling
+the blocking interface, which call
 https://docs.rs/tokio/latest/tokio/runtime/struct.Runtime.html#method.block_on[`block_on`]
 internally. `block_on` will run the future until completion, basically
-converting it into blocking code. You still need to copy the method
-_definitions_, but the implementation is written once only:
+making it synchronous. You still need to copy the method _definitions_, but the
+implementation is written once only:
 
 {{< highlight rust >}}
 mod blocking {
@@ -175,14 +175,14 @@ itself does, in case you're interested. In short, it spawns a thread that calls
 `block_on` waiting on a channel with jobs <<block-on-channels>>
 <<block-on-reqwest>>.
 
-Unfortunately, this whole solution has quite the overhead. You have to pull in
-large dependencies like `futures` or `tokio`, and include them in your binary.
-All of that, in order to... actually end up writing blocking code. So not only
-is it a cost at runtime, but also at compile time. It just feels wrong to me.
+Unfortunately, this solution still has quite the overhead. You pull in large
+dependencies like `futures` or `tokio`, and include them in your binary. All of
+that, in order to... actually end up writing blocking code. So not only is it a
+cost at runtime, but also at compile time. It just feels wrong to me.
 
 And you still have a good amount of duplicate code, even if it's just
 definitions, which can sum up. {{< crate reqwest >}} is a huge project and can
-probably afford this for their `blocking` module. But for a less popular module
+probably afford this for their `blocking` module. But for a less popular crate
 like `rspotify`, this is harder to pull off.
 
 === Duplicating the crate
@@ -203,9 +203,8 @@ sounds completely out of scope.
 == What ended up "`working`": the `maybe_async` crate
 
 https://github.com/ramsayleung/rspotify/pull/129[The third attempt] is based on
-a crate called {{< crate maybe_async >}}. I remember thinking it was the perfect
-solution back when I discovered it. I was foolishly happy I had managed to solve
-this issue.
+a crate called {{< crate maybe_async >}}. I remember foolishly thinking it was
+the perfect solution back when I discovered it.
 
 Anyway, the idea is that with this crate you can automatically remove the
 `async` and `.await` occurrences in your code with a procedural macro,
@@ -230,22 +229,20 @@ You can configure whether you want asynchronous or blocking code by toggling the
 `maybe_async/is_sync` feature when compiling the crate. The macro works for
 functions, traits and `impl` blocks. If one conversion isn't as easy as removing
 `async` and `.await`, you can specify custom implementations with the
-`async_impl` and `sync_impl` procedural macros. It does its job perfectly, and
-we've been using it for Rspotify for a while now with no problems whatsoever.
+`async_impl` and `sync_impl` procedural macros. It does this wonderfully, and
+we've already been using it for Rspotify for a while now.
 
-In fact, it worked so well that what I made Rspotify _http-client agnostic_,
-which is even more flexible than being _async/sync agnostic_. This allows us to
-support multiple HTTP clients like {{< crate reqwest >}} and {{< crate ureq >}},
+In fact, it worked so well that I made Rspotify _http-client agnostic_, which is
+even more flexible than being _async/sync agnostic_. This allows us to support
+multiple HTTP clients like {{< crate reqwest >}} and {{< crate ureq >}},
 independently of whether the client is asynchronous or synchronous.
 
 Being _http-client agnostic_ is not that hard to implement if you have
 `maybe_async` around. You just need to define a trait for the
 https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/common.rs#L46[HTTP
-client], and then implement it for each of the clients you want to support
-(https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/reqwest.rs#L97[1],
-https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/ureq.rs#L56[2]):
+client], and then implement it for each of the clients you want to support:
 
-.A snippet of code is worth a thousand words
+.A snippet of code is worth a thousand words. (_You can find the full source for Rspotify's https://github.com/ramsayleung/rspotify/blob/master/rspotify-http/src/reqwest.rs#L97[``reqwest``'s client here], and https://github.com/ramsayleung/rspotify/blob/master/rspotify-http/src/ureq.rs#L56[``ureq``'s here]_)
 {{< highlight rust >}}
 #[maybe_async]
 trait HttpClient {
@@ -271,6 +268,8 @@ impl<Http: HttpClient> SpotifyClient<Http> {
     async fn endpoint(&self) { self.http.get(/* ... */) }
 }
 {{< /highlight >}}
+
+
 
 Then, we could extend it so that whichever client they want to use can be
 enabled with feature flags in their `Cargo.toml`. For example, if `client-ureq`
@@ -305,8 +304,8 @@ reference explains this quite well, if you want more details].
 This optimization means that mutually exclusive features may break a dependency
 tree. In our case, `maybe_async/is_sync` is a _toggle_ feature enabled by
 `client-ureq`. So if you try to compile it with `client-reqwest` also enabled,
-it will fail because `maybe_async` will be configured to also generate
-synchronous function signatures. It's impossible to have a crate that depends on
+it will fail because `maybe_async` will be configured to generate synchronous
+function signatures instead. It's impossible to have a crate that depends on
 both sync and async Rspotify either directly or indirectly, and the whole
 concept of `maybe_async` is currently wrong according to the Cargo reference.
 
@@ -406,7 +405,7 @@ might be interesting to read previous discussions about it:
   similar case with the Windows API. The discussion includes more examples and
   solution ideas, but none have made it to Cargo yet.
 * https://github.com/rust-lang/cargo/issues/4803[Another issue in Cargo] asks
-  for a way to test/build with combinations of flags easily. If features are
+  for a way to test and build with combinations of flags easily. If features are
   strictly additive, then `cargo test --all-features` will cover everything. But
   in case it doesn't, the user has to run the command with multiple combinations
   of feature flags, which is quite cumbersome. This is already possible
@@ -415,8 +414,7 @@ might be interesting to read previous discussions about it:
 According to
 https://github.com/rust-lang/rfcs/pull/2962#issuecomment-664656377[this old
 comment], it's not something the Rust team has already discarded; it's still
-being discussed. But these threads are relatively recent, so there hasn't been
-much progress yet.
+being discussed.
 
 == Conclusion
 
@@ -440,7 +438,7 @@ only support async`" or "`No. We only support sync`". While there are users
 interested in being able to use both, sometimes you just have to say no. If such
 a feature becomes so complicated to deal with that your entire codebase becomes
 a mess, and you don't have the engineering power to maintain it, then it's your
-only choice. If someone cared enough they could just fork the crate and convert
+only choice. If someone cared enough, they could just fork the crate and convert
 it to synchronous for their own usage.
 +
 After all, most API wrappers and the like only support either asynchronous or
@@ -450,13 +448,14 @@ and they're quite popular.
 
 Even though it was quite frustrating at times, I don't really regret spending so
 much time walking in circles trying to get both async and sync to work. I was
-contributing to Rspotify in the first place just to _learn_. I had no deadlines,
+contributing to Rspotify in the first place just to _learn_. I had no deadlines
 and no stress, I just wanted to try to improve a library in Rust in my free
 time. And I _have_ learned a lot; hopefully you too, after reading this.
 
 Perhaps the lesson today is that we should remember that Rust is a low level
 language after all, and there are some things that aren't possible without a lot
-of complexity.
+of complexity. Anyhow, I'm looking forward to how the Rust team fixes this in
+the future.
 
 So what do you think? What would you do if you were a maintainer of Rspotify?
 You can leave a comment below if you like.
