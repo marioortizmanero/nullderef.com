@@ -885,7 +885,9 @@ in that case perform the re-authorization process automatically.</p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/223" style="text-decoration: none;">Implement cache token and refresh token
+  
     <span class="gh-number">ramsayleung/rspotify#223</span></a>
+  
 
 </span>
 
@@ -934,7 +936,9 @@ know its type, and that its contents are valid, so you’re ready to use it.</p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/161" style="text-decoration: none;">Initial id type proposal
+  
     <span class="gh-number">ramsayleung/rspotify#161</span></a>
+  
 
 </span>
 
@@ -962,7 +966,9 @@ know its type, and that its contents are valid, so you’re ready to use it.</p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/244" style="text-decoration: none;">Fix IDs v4
+  
     <span class="gh-number">ramsayleung/rspotify#244</span></a>
+  
 
 </span>
 
@@ -1010,7 +1016,9 @@ async. The latter can be implemented easily in your crate thanks to <a href="htt
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/124" style="text-decoration: none;">Add unlimited endpoints
+  
     <span class="gh-number">ramsayleung/rspotify#124</span></a>
+  
 
 </span>
 
@@ -1079,7 +1087,9 @@ and returning it to the user, you can just return that one field in the object:<
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/149" style="text-decoration: none;">The way to reduce wrapper object
+  
     <span class="gh-number">ramsayleung/rspotify#149</span></a>
+  
 
 </span>
 
@@ -1359,7 +1369,9 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
   
 
   <a class="gh-title" href="https://github.com/plamere/spotipy/issues/387" style="text-decoration: none;">Is under development?
+  
     <span class="gh-number">plamere/spotipy#387</span></a>
+  
 
 </span>
 
@@ -1389,7 +1401,9 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/112" style="text-decoration: none;">Cleaning up the blocking module
+  
     <span class="gh-number">ramsayleung/rspotify#112</span></a>
+  
 
 </span>
 
@@ -1419,7 +1433,9 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/127" style="text-decoration: none;">Meta-Issue
+  
     <span class="gh-number">ramsayleung/rspotify#127</span></a>
+  
 
 </span>
 
@@ -1449,7 +1465,9 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/129" style="text-decoration: none;">Multiple clients via features
+  
     <span class="gh-number">ramsayleung/rspotify#129</span></a>
+  
 
 </span>
 
@@ -1479,7 +1497,9 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/173" style="text-decoration: none;">Restructure the authentication process
+  
     <span class="gh-number">ramsayleung/rspotify#173</span></a>
+  
 
 </span>
 
@@ -1526,7 +1546,9 @@ definition? - StackOverFlow</a></p>
   
 
   <a class="gh-title" href="https://github.com/rust-lang/rust/issues/4426" style="text-decoration: none;">Tracking issue for generic associated types (GAT)
+  
     <span class="gh-number">rust-lang/rust#4426</span></a>
+  
 
 </span>
 
@@ -1556,7 +1578,9 @@ definition? - StackOverFlow</a></p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/150" style="text-decoration: none;">Authorization Code Flow with Proof Key for Code Exchange (PKCE) is missing
+  
     <span class="gh-number">ramsayleung/rspotify#150</span></a>
+  
 
 </span>
 
@@ -1591,7 +1615,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/206" style="text-decoration: none;">Pass parameters by reference and use iterators wherever possible
+  
     <span class="gh-number">ramsayleung/rspotify#206</span></a>
+  
 
 </span>
 
@@ -1621,7 +1647,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/134" style="text-decoration: none;">Optional parameters
+  
     <span class="gh-number">ramsayleung/rspotify#134</span></a>
+  
 
 </span>
 
@@ -1651,7 +1679,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/234" style="text-decoration: none;">Use an external HTTP universal interface instead of <code>rspotify-http</code>
+  
     <span class="gh-number">ramsayleung/rspotify#234</span></a>
+  
 
 </span>
 
@@ -1681,7 +1711,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/191" style="text-decoration: none;">Move model into a separate rspotify-model crate
+  
     <span class="gh-number">ramsayleung/rspotify#191</span></a>
+  
 
 </span>
 
@@ -1711,7 +1743,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
   
 
   <a class="gh-title" href="https://github.com/KaiJewson/aspotify/issues/14" style="text-decoration: none;">Sharing the model with rspotify-model
+  
     <span class="gh-number">KaiJewson/aspotify#14</span></a>
+  
 
 </span>
 
@@ -1741,7 +1775,9 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/202" style="text-decoration: none;">Remove RSpotify default parameters and add parameter macros
+  
     <span class="gh-number">ramsayleung/rspotify#202</span></a>
+  
 
 </span>
 
@@ -1776,7 +1812,9 @@ hashmap constructor - @gmattozzi, Twitter</a></p>
   
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/108" style="text-decoration: none;">Reducing rspotify&rsquo;s core dependencies
+  
     <span class="gh-number">ramsayleung/rspotify#108</span></a>
+  
 
 </span>
 

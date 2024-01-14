@@ -12,8 +12,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Tue, 18 Oct 2022 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 14 Jan 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://nullderef.com/series/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>RSpotify</title>
+      <link>https://nullderef.com/series/rspotify/</link>
+      <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/series/rspotify/</guid>
+      <description>I was a contributor to [the RSpotify library](https://github.com/ramsayleung/rspotify) to sharpen my Rust skills. This crate provides easy-to-use and complete bindings for [the Spotify web API](https://developer.spotify.com/documentation/web-api). I tried to improve it in all sorts of ways, such as reducing bloat, adding features, or improving its performance. You can read more about them in this series.</description>
+      <content:encoded><![CDATA[]]></content:encoded>
+    </item>
     <item>
       <title>A Plugin System in Rust</title>
       <link>https://nullderef.com/series/rust-plugins/</link>

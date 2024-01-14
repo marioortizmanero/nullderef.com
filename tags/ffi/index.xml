@@ -431,7 +431,9 @@ deriving <code>StableAbi</code> for those that don’t need the latter.</p>
   
 
   <a class="gh-title" href="https://github.com/simd-lite/value-trait/pull/14" style="text-decoration: none;">Add support for StableAbi
+  
     <span class="gh-number">simd-lite/value-trait#14</span></a>
+  
 
 </p>
 
@@ -560,7 +562,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
   
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/58" style="text-decoration: none;">Add support for .keys() and .values() in RHashMap
+  
     <span class="gh-number">rodrimati1992/abi_stable_crates#58</span></a>
+  
 
 </span>
 
@@ -590,7 +594,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
   
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/59" style="text-decoration: none;">Implement <code>Index</code> for slices and vectors
+  
     <span class="gh-number">rodrimati1992/abi_stable_crates#59</span></a>
+  
 
 </span>
 
@@ -620,7 +626,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
   
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/61" style="text-decoration: none;">Support for <code>f32</code> and <code>f64</code>
+  
     <span class="gh-number">rodrimati1992/abi_stable_crates#61</span></a>
+  
 
 </span>
 
@@ -650,7 +658,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
   
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/68" style="text-decoration: none;">Implement <code>ROption::as_deref</code>
+  
     <span class="gh-number">rodrimati1992/abi_stable_crates#68</span></a>
+  
 
 </span>
 
@@ -680,7 +690,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
   
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/70" style="text-decoration: none;">Implement RVec::append
+  
     <span class="gh-number">rodrimati1992/abi_stable_crates#70</span></a>
+  
 
 </p>
 
@@ -710,7 +722,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
   
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/82" style="text-decoration: none;">Implement <code>ROption::{ok_or,ok_or_else}</code>
+  
     <span class="gh-number">rodrimati1992/abi_stable_crates#82</span></a>
+  
 
 </span>
 
@@ -1040,7 +1054,9 @@ something that can be fixed with a procedural macro in the future:</p>
   
 
   <a class="gh-title" href="https://github.com/oxalica/async-ffi/issues/12" style="text-decoration: none;">Procedural macro for boilerplate
+  
     <span class="gh-number">oxalica/async-ffi#12</span></a>
+  
 
 </p>
 
@@ -1076,7 +1092,9 @@ to understand the crate, but it’s nothing a Pull Request can’t fix:</p>
   
 
   <a class="gh-title" href="https://github.com/oxalica/async-ffi/pull/10" style="text-decoration: none;">Support for <code>abi_stable</code>
+  
     <span class="gh-number">oxalica/async-ffi#10</span></a>
+  
 
 </p>
 
@@ -1488,7 +1506,9 @@ this issue in the meanwhile, and hope that you don’t run into it:</p>
   
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/issues/75" style="text-decoration: none;">lifetimes with R* types break compared to non R* types
+  
     <span class="gh-number">rodrimati1992/abi_stable_crates#75</span></a>
+  
 
 </p>
 
@@ -1525,7 +1545,9 @@ here:</p>
   
 
   <a class="gh-title" href="https://github.com/marioortizmanero/nullderef.com/issues/50" style="text-decoration: none;">Reorganize rust plugins series once I&rsquo;m done
+  
     <span class="gh-number">marioortizmanero/nullderef.com#50</span></a>
+  
 
 </p>
 
@@ -1569,7 +1591,9 @@ the whole experience has been so far, and what I’ve learned:</p>
   
 
   <a class="gh-title" href="https://github.com/rust-lang/rust/pull/58623" style="text-decoration: none;">Replace HashMap implementation with SwissTable (as an external crate)
+  
     <span class="gh-number">rust-lang/rust#58623</span></a>
+  
 
 </span>
 
@@ -2421,7 +2445,9 @@ with <code>panic = &#34;abort&#34;</code>, it’s only available on nightly unti
   
 
   <a class="gh-title" href="https://github.com/rust-lang/rust/issues/32837" style="text-decoration: none;">Pluggable panic implementations (tracking issue for RFC 1513)
+  
     <span class="gh-number">rust-lang/rust#32837</span></a>
+  
 
 </p>
 
@@ -2827,7 +2853,9 @@ they can be approached.</p>
   
 
   <a class="gh-title" href="https://github.com/h33p/cglue/issues/3" style="text-decoration: none;">A few questions about the library
+  
     <span class="gh-number">h33p/cglue#3</span></a>
+  
 
 </span>
 
@@ -4976,7 +5004,9 @@ the build environment — Github rust-lang/miri</a></p>
     
   
     <a class="gh-title" href="https://github.com/bytecodealliance/wasmtime/issues/677" style="text-decoration: none;">Support for Interface Types in wasmtime API
+    
       <span class="gh-number">bytecodealliance/wasmtime#677</span></a>
+    
   
   </span>
   
@@ -6021,7 +6051,9 @@ other libraries — dlopen v0.1.8</a></p>
   
 
   <a class="gh-title" href="https://github.com/amethyst/amethyst/issues/1729" style="text-decoration: none;">[NEW FEATURE] WebAssembly scripting system
+  
     <span class="gh-number">amethyst/amethyst#1729</span></a>
+  
 
 </span>
 

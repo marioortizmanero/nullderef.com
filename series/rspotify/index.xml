@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>rspotify on NullDeref</title>
-    <link>https://nullderef.com/tags/rspotify/</link>
-    <description>Recent content in rspotify on NullDeref</description>
+    <title>RSpotify on NullDeref</title>
+    <link>https://nullderef.com/series/rspotify/</link>
+    <description>Recent content in RSpotify on NullDeref</description>
     <image>
       <title>NullDeref</title>
       <url>https://nullderef.com/logo-banner.png</url>
@@ -13,7 +13,7 @@
     <language>en</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
     <lastBuildDate>Sun, 14 Jan 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://nullderef.com/tags/rspotify/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://nullderef.com/series/rspotify/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>The bane of my existence: Supporting both async and sync code in Rust</title>
       <link>https://nullderef.com/blog/rust-async-sync/</link>
