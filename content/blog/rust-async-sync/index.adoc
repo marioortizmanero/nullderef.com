@@ -10,6 +10,7 @@ author: "Mario Ortiz Manero"
 tags: ["rust", "async", "macros", "procedural macros", "rspotify"]
 series: ["rspotify"]
 date: 2024-01-14
+draft: true
 GHissueID: 4
 ---
 
@@ -43,10 +44,10 @@ https://docs.rs/reqwest/0.11.4/reqwest/blocking/index.html[`blocking` module]
 with the exact same functionality, could you perhaps do that as well?
 ____
 
-Now, low-level wise that sounds like a very complicated task. Having a common
+Low-level wise, that sounds like a very complicated task. Having a common
 interface for both async code -- which requires a runtime like {{< crate tokio
 >}}, awaiting futures, pinning, etc -- and regular sync code? I mean, they asked
-nicely, so maybe we can try. After all the only difference in the code would be
+nicely, so maybe we can try. After all, the only difference in the code would be
 the occurrences of the `async` and `await` keywords because you aren't doing
 anything fancy.
 
@@ -59,7 +60,7 @@ this article.
 
 == The first approaches
 
-To give more context, here's what Rspotify's client looks like, more or less:
+To give more context, here's what Rspotify's client looks like, roughly:
 
 {{< highlight rust >}}
 struct Spotify { /* ... */ }
@@ -84,16 +85,15 @@ between async and sync for the user?
 This is what was first implemented. It was quite simple and it worked. You just
 need to copy the regular client code into a new
 https://github.com/ramsayleung/rspotify/tree/v0.9/src/blocking[`blocking` module
-in Rspotify]. Since https://docs.rs/reqwest[`reqwest`] (our HTTP client) and
+in Rspotify]. https://docs.rs/reqwest[`reqwest`] (our HTTP client) and
 https://docs.rs/reqwest/latest/reqwest/blocking/index.html[`reqwest::blocking`]
-share the same interface, manually removing `async`/`.await` and importing
-`reqwest::blocking` instead of `reqwest` in the new module will work without
-much complexity overhead.
+share the same interface, so we can manually remove keywords like `async` or
+`.await` and import `reqwest::blocking` instead of `reqwest` in the new module.
 
-The Rspotify user just has to import `rspotify::blocking::Client` instead of
-`rspotify::Client`, and voilà! Their code is now blocking. This may result in
-binary bloat for only-async users, so we can just feature-gate it under the name
-`blocking` and done.
+Then, the Rspotify user just can just use `rspotify::blocking::Client` instead
+of `rspotify::Client`, and voilà! Their code is now blocking. This will bloat
+the binary size for async-only users, so we can just feature-gate it under the
+name `blocking` and done.
 
 The problem was much more clear later on, though. Half the crate's code was
 duplicated. Adding a new endpoint or modifying it meant writing or removing
@@ -101,11 +101,11 @@ everything twice.
 
 There is no way to make sure both implementations are equivalent unless you test
 absolutely everything. Which isn't a bad idea either, but maybe you copy-pasted
-the tests wrong! How about that? The poor reviewer  would have to read through
-the same code twice as well to make sure both sides look alright -- which sounds
+the tests wrong! How about that? The poor reviewer would have to read through
+the same code twice to make sure both sides look alright -- which sounds
 incredibly prone to human errors.
 
-In my experience, it really slowed down the development of Rspotify, specially
+In our experience, it really slowed down the development of Rspotify, specially
 for new contributors who weren't used to this whole ordeal. As a new excited
 maintainer of Rspotify, I began to
 https://github.com/ramsayleung/rspotify/issues/112[investigate other possible
