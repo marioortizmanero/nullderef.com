@@ -9,9 +9,10 @@
         </svg>
     </h1>
     {{- if .Description }}
-    <div class="post-description">
-        {{ .Description }}
-    </div>
+    {{/* CUSTOM: `p` instead of `div` for consistency */}}
+    <p class="post-description">
+      {{ .Description }}
+    </p>
     {{- end }}
     {{- if not (.Param "hideMeta") }}
     <div class="post-meta">

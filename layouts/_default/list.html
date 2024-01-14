@@ -23,9 +23,10 @@
     {{- end }}
   </h1>
   {{- if .Description }}
-  <div class="post-description post-content">
+  {{/* CUSTOM: `p` instead of `div` for consistency */}}
+  <p class="post-description post-content">
     {{ .Description | markdownify }}
-  </div>
+  </p>
   {{- end }}
 </header>
 {{- end }}

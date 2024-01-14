@@ -16,6 +16,14 @@
   margin-bottom: var(--content-gap);
 }
 
+.projects p,
+.projects h3,
+.project-links div,
+.project-footer {
+  text-align: center;
+  hyphens: none;
+}
+
 .project-entry {
   flex: 0 0 40%;
 
@@ -23,7 +31,6 @@
   flex-direction: column;
   justify-content: space-between;
 
-  text-align: center;
   margin: 5px;
   padding: 10px;
   background: var(--entry);
