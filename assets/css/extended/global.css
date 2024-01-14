@@ -2,6 +2,8 @@
 
 body {
   font-family: "Merriweather", serif;
+  text-align: justify;
+  hyphens: auto;
 }
 
 /* Fix selection colors for dark mode */

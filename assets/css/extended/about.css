@@ -1,5 +1,14 @@
 /* Custom CSS for the "About" page */
 
+.about-intro {
+  margin-bottom: 15px;
+}
+
+.about-intro img {
+  float: right;
+  margin: 0px 0px 0px 15px;
+}
+
 .projects {
   display: flex;
   width: 100%;
