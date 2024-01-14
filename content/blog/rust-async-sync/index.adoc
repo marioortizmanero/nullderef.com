@@ -3,11 +3,12 @@ title: "The bane of my existence: Supporting both async and sync code in Rust"
 description: "Sit beside me and hear this crazy old man's tale of when I asked
 Rust for too much"
 summary: "My journey trying to support both asynchronous and blocking code in
-the Rspotify library. I did get it working in the end thanks to `maybe_async`,
-but Cargo doesn't like that solution, so it's far from perfect."
-images: ["TODO"]
+the Rspotify library. I got it working in the end, but Cargo didn't quite like
+it."
+images: ["/blog/rust-async-sync/preview.jpg"]
 author: "Mario Ortiz Manero"
-tags: ["rust", "async", "macros", "procedural macros"]
+tags: ["rust", "async", "macros", "procedural macros", "rspotify"]
+series: ["rspotify"]
 date: 2024-01-14
 GHissueID: 34
 ---
@@ -135,7 +136,7 @@ mod blocking {
 {{< /highlight >}}
 
 Note that in order to call `block_on`, you first have to create some kind of
-runtime. For example, with {{< crate tokio >}}:
+runtime in the endpoint method. For example, with {{< crate tokio >}}:
 
 {{< highlight rust >}}
 let mut runtime = tokio::runtime::Builder::new()
@@ -145,15 +146,14 @@ let mut runtime = tokio::runtime::Builder::new()
     .unwrap();
 {{< /highlight >}}
 
-// TODO: double-check that it actually kills concurrency
 This raises the question: should we initialize the runtime in each call to the
 endpoint, or is there a way to share it? We could keep it as a global (_ewwww_),
 or perhaps better, we can save the runtime in the `Spotify` struct. But since it
 takes a _mutable_ reference to the runtime, you'd have to wrap it up with
 `Arc<Mutex<T>>`, completely killing the concurrency in your client. The proper
-way to do this is with a Tokio
-https://docs.rs/tokio/latest/tokio/runtime/struct.Handle.html[Handle], which
-contains a reference to the runtime internally. One way to do it would be:
+way to do this is with Tokio's
+https://docs.rs/tokio/latest/tokio/runtime/struct.Handle.html[`Handle`], which
+looks like this:
 
 {{< highlight rust >}}
 use tokio::runtime::Runtime;
@@ -169,26 +169,23 @@ fn endpoint(&self, param: String) -> SpotifyResult<String> {
 }
 {{< /highlight >}}
 
-While this does make our blocking client faster <<block-on-perf>>, turns out
-that we're just walking in circles. {{< crate reqwest >}} does it differently in
-order to achieve even more performance. Without getting into nasty details, it
-basically spawns a thread that calls `block_on` waiting on a channel with jobs
-<<block-on-channels>> <<block-on-reqwest>>.
+While the handle does make our blocking client faster <<block-on-perf>>, there
+is an even more performant way to do it. This is what {{< crate reqwest >}}
+itself does, in case you're interested. In short, it spawns a thread that calls
+`block_on` waiting on a channel with jobs <<block-on-channels>>
+<<block-on-reqwest>>.
 
-Unfortunately this has quite the overhead. You may have to pull in `futures`,
-`tokio`, etc, and include them in your binary in order to... actually end up
-writing blocking code. So not only is it a cost at runtime, but also at compile
-time. It just feels wrong to me.
+Unfortunately, this whole solution has quite the overhead. You have to pull in
+large dependencies like `futures` or `tokio`, and include them in your binary.
+All of that, in order to... actually end up writing blocking code. So not only
+is it a cost at runtime, but also at compile time. It just feels wrong to me.
 
-And you still have a good amount of duplicate code. Mostly definitions, since
-the implementation is only written in the async side, but still, there are _a
-lot_ of definitions. {{< crate reqwest >}} is a huge project and can probably
-afford this for their `blocking` module. But this doesn't really apply to
-`rspotify`.
+And you still have a good amount of duplicate code, even if it's just
+definitions, which can sum up. {{< crate reqwest >}} is a huge project and can
+probably afford this for their `blocking` module. But for a less popular module
+like `rspotify`, this is harder to pull off.
 
-I wonder, is there something better than this?
-
-=== Other ideas?
+=== Duplicating the crate
 
 Another possible way to fix this is, as the features docs suggest, creating
 separate crates. We'd have `rspotify-sync` and `rspotify-async`, and users would
@@ -207,8 +204,8 @@ sounds completely out of scope.
 
 https://github.com/ramsayleung/rspotify/pull/129[The third attempt] is based on
 a crate called {{< crate maybe_async >}}. I remember thinking it was the perfect
-solution back when I discovered it. I was so happy I had managed to solve this
-issue. Hahaha.
+solution back when I discovered it. I was foolishly happy I had managed to solve
+this issue.
 
 Anyway, the idea is that with this crate you can automatically remove the
 `async` and `.await` occurrences in your code with a procedural macro,
@@ -241,15 +238,6 @@ which is even more flexible than being _async/sync agnostic_. This allows us to
 support multiple HTTP clients like {{< crate reqwest >}} and {{< crate ureq >}},
 independently of whether the client is asynchronous or synchronous.
 
-////
-TODO: research crates which are async runtime agnostic
-
-"More or less like how some crates support multiple async backends (say {{<
-crate tokio >}} and {{< crate async_std >}})"
-
-^ Maybe it's `smol` instead of `async_std`
-////
-
 Being _http-client agnostic_ is not that hard to implement if you have
 `maybe_async` around. You just need to define a trait for the
 https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/common.rs#L46[HTTP
@@ -257,7 +245,7 @@ client], and then implement it for each of the clients you want to support
 (https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/reqwest.rs#L97[1],
 https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/ureq.rs#L56[2]):
 
-.A simplified example of how this may look like
+.A snippet of code is worth a thousand words
 {{< highlight rust >}}
 #[maybe_async]
 trait HttpClient {
@@ -284,11 +272,11 @@ impl<Http: HttpClient> SpotifyClient<Http> {
 }
 {{< /highlight >}}
 
-Then, the user may configure whichever client they want to use with feature
-flags in their `Cargo.toml`. For example, if `client-ureq` is enabled, since
-`ureq` is synchronous, it would enable `maybe_async/is_sync` (removing
-`async`/`.await` and the `#[async_impl]` blocks), and the Rspotify client would
-use ``ureq``'s implementation internally.
+Then, we could extend it so that whichever client they want to use can be
+enabled with feature flags in their `Cargo.toml`. For example, if `client-ureq`
+is enabled, since `ureq` is synchronous, it would enable `maybe_async/is_sync`.
+In turn, this would remove the `async`/`.await` and the `#[async_impl]` blocks,
+and the Rspotify client would use ``ureq``'s implementation internally.
 
 This solution has none of the downsides I listed in previous attempts:
 
@@ -315,21 +303,22 @@ https://doc.rust-lang.org/cargo/reference/features.html#feature-unification[The
 reference explains this quite well, if you want more details].
 
 This optimization means that mutually exclusive features may break a dependency
-tree. In our case, since `maybe_async/is_sync` is a _toggle_ feature enabled by
-`client-ureq`, when trying to compile with `client-reqwest` as well it will fail
-because `maybe_async` will be configured to generate synchronous function
-signatures. So it is impossible to have a crate that depends on both sync and
-async Rspotify either directly or indirectly, and the whole concept of
-`maybe_async` is currently wrong according to the Cargo reference.
+tree. In our case, `maybe_async/is_sync` is a _toggle_ feature enabled by
+`client-ureq`. So if you try to compile it with `client-reqwest` also enabled,
+it will fail because `maybe_async` will be configured to also generate
+synchronous function signatures. It's impossible to have a crate that depends on
+both sync and async Rspotify either directly or indirectly, and the whole
+concept of `maybe_async` is currently wrong according to the Cargo reference.
 
 === The feature resolver v2
 
-A common misconception is that this is fixed by the feature resolver v2, which
+A common misconception is that this is fixed by the "`feature resolver v2`",
+which
 https://doc.rust-lang.org/cargo/reference/features.html#feature-resolver-version-2[the
-reference also explains quite well]. It will be enabled by default in the 2021
-edition, but you can currently specify it inside your `Cargo.toml`. This new
-version, among other things, avoids unifying features in some special cases, but
-not in ours:
+reference also explains quite well]. It has been enabled by default since the
+2021 edition, but you can specify it inside your `Cargo.toml` in previous ones.
+This new version, among other things, avoids unifying features in some special
+cases, but not in ours:
 
 ____
 * Features enabled on platform-specific dependencies for targets not currently
@@ -346,28 +335,28 @@ example of conflicting features, which breaks with any feature resolver.
 
 === Other fails
 
-There are a few crates that have this problem currently:
+There were a few crates that also had this problem:
 
 * {{< crate arangors >}} and {{< crate aragog >}}: wrappers for ArangoDB. Both
   use `maybe_async` to switch between async and sync (``arangors``'s author is
-  the same, in fact) <<arangors-error>> <<aragog-error>>.
+  the same person, in fact) <<arangors-error>> <<aragog-error>>.
 * {{< crate inkwell >}}: a wrapper for LLVM. It supports multiple versions of
   LLVM, which are not compatible with eachother <<inkwell-error>>.
 * {{< crate k8s-openapi >}}: a wrapper for Kubernetes, with the same issue as
   `inkwell` <<k8s-error>>.
 
-These crates do warn that they have this problem, but they're stuck as well with
-no way to fix it currently.
-
 === Fixing `maybe_async`
 
-Once more people became aware of this problem,
-https://github.com/fMeow/maybe-async-rs/issues/6[this issue was opened in
-`maybe_async`], which basically explains the situation and tries to provide a
-fix. It's actually not that complicated. `maybe_async` would now have two
-feature flags: `is_sync` and `is_async`. It would generate the functions in the
-same way, but with a `_sync` or `_async` suffix appended to the identifier so
-that they wouldn't be conflicting. For example:
+Once the crate started to gain popularity, this issue was opened in
+`maybe_async`, which explains the situation and showcases a fix:
+
+[.text-center]
+{{< gh issue "fMeow/maybe-async-rs" 6 "async and sync in the same program" "paragraph" >}}
+
+`maybe_async` would now have two feature flags: `is_sync` and `is_async`. The
+crate would generate the functions in the same way, but with a `_sync` or
+`_async` suffix appended to the identifier so that they wouldn't be conflicting.
+For example:
 
 {{< highlight rust >}}
 #[maybe_async::maybe_async]
@@ -384,37 +373,38 @@ async fn endpoint_async() { /* stuff */ }
 fn endpoint_sync() { /* stuff with `.await` removed */ }
 {{< /highlight >}}
 
-In my opinion, however, the user experience will suck if these suffixes have to
-be added to each call to your library. I wondered if it would be possible to do
-it in a more ergonomic way. I forked `maybe_async` and gave it a try, about
-which you can read more
+However, these suffixes introduce noise, so I wondered if it would be possible
+to do it in a more ergonomic way. I forked `maybe_async` and gave it a try,
+about which you can read more
 https://github.com/fMeow/maybe-async-rs/issues/6#issuecomment-880581551[in this
 series of comments]. In summary, it was too complicated, and I ultimately gave
 up.
 
-The only way to fix this edge case would be to considerably worsen the usability
-of Rspotify for everyone. Someone depending on both async and sync is a minority
-and not that important, I think. Unlike `reqwest`, `rspotify` is a "`high
-level`" library, so it's unlikely that it appears more than once in a dependency
-tree in the first place. Perhaps we could ask the Cargo devs for help?
+The only way to fix this edge case would be to worsen the usability of Rspotify
+for everyone. But I'd argue that someone who depends on both async and sync is
+unlikely; we haven't actually had anyone complaining yet. Unlike `reqwest`,
+`rspotify` is a "`high level`" library, so it's hard to imagine a scenario where
+it appears more than once in a dependency tree in the first place.
+
+Perhaps we could ask the Cargo devs for help?
 
 === Support from Cargo
 
 Rspotify is far from being the first who has been through this problem, so it
 might be interesting to read previous discussions about it:
 
-* https://github.com/rust-lang/rfcs/pull/2962[This RFC for the Rust compiler]
-  suggested adding the `oneof` configuration predicate (think `#[cfg(any(...))]`
-  and similars) to support exclusive features. This only makes it easier to have
-  conflicting features for cases where there's _no choice_, but features should
-  still be strictly additive.
+* https://github.com/rust-lang/rfcs/pull/2962[This now-closed RFC for the Rust
+  compiler] suggested adding the `oneof` configuration predicate (think
+  `#[cfg(any(...))]` and similars) to support exclusive features. This only
+  makes it easier to have conflicting features for cases where there's _no
+  choice_, but features should still be strictly additive.
 * The previous RFC started
   https://internals.rust-lang.org/t/pre-rfc-cargo-mutually-exclusive-features/13182/27[some
   discussion] in the context of allowing exclusive features in Cargo itself, and
   although it has some interesting info, it didn't go too far.
-* https://github.com/rust-lang/cargo/issues/2980[This issue in Cargo] explains
-  how additive features are impossible for the Windows API. The discussion
-  includes more examples and solution ideas, but none has made it to Cargo yet.
+* https://github.com/rust-lang/cargo/issues/2980[This issue in Cargo] explains a
+  similar case with the Windows API. The discussion includes more examples and
+  solution ideas, but none have made it to Cargo yet.
 * https://github.com/rust-lang/cargo/issues/4803[Another issue in Cargo] asks
   for a way to test/build with combinations of flags easily. If features are
   strictly additive, then `cargo test --all-features` will cover everything. But
@@ -423,7 +413,7 @@ might be interesting to read previous discussions about it:
   unofficially thanks to https://github.com/taiki-e/cargo-hack[`cargo-hack`].
 
 According to
-https://github.com/rust-lang/rfcs/pull/2962#issuecomment-664656377[this
+https://github.com/rust-lang/rfcs/pull/2962#issuecomment-664656377[this old
 comment], it's not something the Rust team has already discarded; it's still
 being discussed. But these threads are relatively recent, so there hasn't been
 much progress yet.
@@ -432,7 +422,7 @@ much progress yet.
 
 We currently have a choice to make between:
 
-* Ignoring the Cargo reference. We could assume that noone is going to use both
+* Ignoring the Cargo Reference. We could assume that noone is going to use both
   sync and async for Rspotify at the same time.
 * Fixing `maybe_async` and adding `_async` and `_sync` suffixes to each endpoint
   in our library.
