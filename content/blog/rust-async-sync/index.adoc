@@ -10,7 +10,7 @@ author: "Mario Ortiz Manero"
 tags: ["rust", "async", "macros", "procedural macros", "rspotify"]
 series: ["rspotify"]
 date: 2024-01-14
-GHissueID: 34
+GHissueID: 4
 ---
 
 == Introduction
