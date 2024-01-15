@@ -545,6 +545,14 @@ in case it doesn’t, the user has to run the command with multiple combinations
 of feature flags, which is quite cumbersome. This is already possible
 unofficially thanks to <a href="https://github.com/taiki-e/cargo-hack"><code>cargo-hack</code></a>.</p>
 </li>
+<li>
+<p>A completely different approach
+<a href="https://blog.rust-lang.org/inside-rust/2023/02/23/keyword-generics-progress-report-feb-2023.html">based
+on the Keyword Generics Initiative</a>. It seems to be the most recent take on
+solving this, but it’s in an “exploration” phase, and
+<a href="https://blog.rust-lang.org/inside-rust/2022/07/27/keyword-generics.html#q-is-there-an-rfc-available-to-read">no
+RFCs are available as of this writing</a>.</p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
