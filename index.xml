@@ -561,6 +561,12 @@ RFCs are available as of this writing</a>.</p>
 comment</a>, it’s not something the Rust team has already discarded; it’s still
 being discussed.</p>
 </div>
+<div class="paragraph">
+<p>Although unofficial, another interesting approach that could be explored further
+in Rust is <a href="https://sans-io.readthedocs.io/">“Sans I/O”</a>. This is a Python
+protocol that abstracts away the use of network protocols like HTTP in our case,
+thus maximizing reusability.</p>
+</div>
 </div>
 </div>
 </div>
@@ -746,6 +752,22 @@ You can leave a comment below if you like.</p>
 </li>
 <li>
 <p><a id="k8s-error"></a>[8] <a href="https://github.com/Arnavion/k8s-openapi/blob/v0.13.0/build.rs#L31">k8s-openapi/build.rs @ line 31 — GitHub</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_edits">Edits</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Jan 15, 2024: Added references to other possible solutions, such as
+<a href="https://www.reddit.com/r/rust/comments/197811x/the_bane_of_my_existence_supporting_both_async/khzh8as/">the
+Keyword Generics Initiative</a>, or
+<a href="https://www.reddit.com/r/rust/comments/197811x/the_bane_of_my_existence_supporting_both_async/khyvl53/">Sans
+I/O</a>.</p>
 </li>
 </ul>
 </div>
