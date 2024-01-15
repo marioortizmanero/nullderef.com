@@ -424,7 +424,8 @@ being discussed.
 Although unofficial, another interesting approach that could be explored further
 in Rust is https://sans-io.readthedocs.io/["`Sans I/O`"]. This is a Python
 protocol that abstracts away the use of network protocols like HTTP in our case,
-thus maximizing reusability.
+thus maximizing reusability. An existing example in Rust would be
+https://github.com/EmbarkStudios/tame-oidc[`tame-oidc`].
 
 == Conclusion
 
