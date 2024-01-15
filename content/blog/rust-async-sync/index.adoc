@@ -54,8 +54,8 @@ Well, this is _more or less_ what happened with the crate {{< crate rspotify
 >}}, which I used to maintain along with its creator
 https://github.com/ramsayleung/[Ramsay]. For those who don't know, it's a
 wrapper for the Spotify Web API. To clarify, I did get this working in the end,
-although not as cleanly as I was hoping. I'll try to explain the situation in
-this article.
+although not as cleanly as I was hoping; I'll try to explain the situation in
+this new article of the https://nullderef.com/series/rspotify[Rspotify series].
 
 == The first approaches
 

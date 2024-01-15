@@ -10,13 +10,14 @@ series: ["rspotify"]
 GHissueID: 2
 ---
 
-This article describes my journey of basically rewriting the entirety of
-https://github.com/ramsayleung/rspotify[RSpotify]; around 13 months of work (in
-my free time), starting at September 2020, up until October 2021. I think this
-has given me enough experience for an article regarding API design on Rust, and
-perhaps those who attempt the same in the future can take some ideas and save
-time. Specially considering how much I've gone in circles and how much time I've
-"`wasted`" implementing things that ended up being discarded.
+This article in https://nullderef.com/series/rspotify[the Rspotify series]
+describes my journey of basically rewriting the entirety of
+https://github.com/ramsayleung/rspotify[this Rust library]; around 13 months of
+work (in my free time), starting at September 2020, up until October 2021. I
+think this has given me enough experience for an article regarding API design on
+Rust, and perhaps those who attempt the same in the future can take some ideas
+and save time. Specially considering how much I've gone in circles and how much
+time I've "`wasted`" implementing things that ended up being discarded.
 
 == The story
 
