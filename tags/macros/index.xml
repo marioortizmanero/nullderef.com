@@ -71,8 +71,8 @@ anything fancy.</p>
 , which I used to maintain along with its creator
 <a href="https://github.com/ramsayleung/">Ramsay</a>. For those who don’t know, it’s a
 wrapper for the Spotify Web API. To clarify, I did get this working in the end,
-although not as cleanly as I was hoping. I’ll try to explain the situation in
-this article.</p>
+although not as cleanly as I was hoping; I’ll try to explain the situation in
+this new article of the <a href="https://nullderef.com/series/rspotify">Rspotify series</a>.</p>
 </div>
 </div>
 </div>
