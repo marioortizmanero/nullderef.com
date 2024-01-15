@@ -512,7 +512,7 @@ it appears more than once in a dependency tree in the first place.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_support_from_cargo">Support from Cargo</h3>
+<h3 id="_official_support">Official Support</h3>
 <div class="paragraph">
 <p>Rspotify is far from being the first who has been through this problem, so it
 might be interesting to read previous discussions about it:</p>
