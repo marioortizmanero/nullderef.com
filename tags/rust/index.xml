@@ -565,7 +565,8 @@ being discussed.</p>
 <p>Although unofficial, another interesting approach that could be explored further
 in Rust is <a href="https://sans-io.readthedocs.io/">“Sans I/O”</a>. This is a Python
 protocol that abstracts away the use of network protocols like HTTP in our case,
-thus maximizing reusability.</p>
+thus maximizing reusability. An existing example in Rust would be
+<a href="https://github.com/EmbarkStudios/tame-oidc"><code>tame-oidc</code></a>.</p>
 </div>
 </div>
 </div>
