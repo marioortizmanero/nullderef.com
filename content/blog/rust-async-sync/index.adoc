@@ -386,7 +386,7 @@ it appears more than once in a dependency tree in the first place.
 
 Perhaps we could ask the Cargo devs for help?
 
-=== Support from Cargo
+=== Official Support
 
 Rspotify is far from being the first who has been through this problem, so it
 might be interesting to read previous discussions about it:
