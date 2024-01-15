@@ -421,6 +421,11 @@ https://github.com/rust-lang/rfcs/pull/2962#issuecomment-664656377[this old
 comment], it's not something the Rust team has already discarded; it's still
 being discussed.
 
+Although unofficial, another interesting approach that could be explored further
+in Rust is https://sans-io.readthedocs.io/["`Sans I/O`"]. This is a Python
+protocol that abstracts away the use of network protocols like HTTP in our case,
+thus maximizing reusability.
+
 == Conclusion
 
 We currently have a choice to make between:
