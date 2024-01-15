@@ -757,22 +757,6 @@ You can leave a comment below if you like.</p>
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_edits">Edits</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>Jan 15, 2024: Added references to other possible solutions, such as
-<a href="https://www.reddit.com/r/rust/comments/197811x/the_bane_of_my_existence_supporting_both_async/khzh8as/">the
-Keyword Generics Initiative</a>, or
-<a href="https://www.reddit.com/r/rust/comments/197811x/the_bane_of_my_existence_supporting_both_async/khyvl53/">Sans
-I/O</a>.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
 ]]></content:encoded>
     </item>
     <item>
