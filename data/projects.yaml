@@ -5,7 +5,7 @@ list:
     description: An open-source event processing system written in Rust.
       My task was to implement a plugin system for it, and I have a whole series
       about it here.
-    date: Aug 2021 -- Present
+    date: 2021 -- 2022
     urls:
       - name: Website
         url: https://www.tremor.rs/
@@ -15,8 +15,8 @@ list:
     position: Maintainer
     logo: /projects/rspotify.png
     description: The most popular wrapper for the Spotify Web API in Rust. I
-      help improve its ergnonomics and safety.
-    date: Jul 2020 -- Present
+      helped improve its ergnonomics and safety.
+    date: 2020 -- 2022
     urls:
       - name: GitHub
         url: https://github.com/ramsayleung/rspotify
@@ -28,7 +28,7 @@ list:
     description: This site itself! It's open source and made with
       [Hugo](https://gohugo.io/). You don't truly understand something unless
       you can explain it to others :)
-    date: Apr 2021 -- Present
+    date: 2021 -- Present
     urls:
       - name: GitHub
         url: https://github.com/marioortizmanero/nullderef.com
@@ -37,16 +37,16 @@ list:
     logo: /projects/vidify.png
     description: Reproduces music videos for the music that's playing on your
       computer, in real time. Supports Desktop, and Android phones and TVs.
-    date: Jul 2019 -- Present
+    date: 2019 -- 2022
     urls:
       - name: Website
         url: https://vidify.org/
   - name: Meme Stickers for WhatsApp
     position: Founder
     logo: /projects/stickers.png
-    description: A very silly Android app that has reached 5 million downloads.
+    description: A very silly Android app that reached 5 million downloads.
       I wrote the first version, but I don't own it anymore.
-    date: Sep 2018 -- Mar 2019
+    date: 2018 -- 2019
     urls:
       - name: Play Store
-        url: https://play.google.com/store/apps/details?id=com.glowapps.memestickerswhatsapp&hl=es&gl=US
+        url: https://web.archive.org/web/20230218224454/https://play.google.com/store/apps/details?id=com.glowapps.memestickerswhatsapp
