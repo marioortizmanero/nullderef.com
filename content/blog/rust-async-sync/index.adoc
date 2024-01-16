@@ -7,7 +7,7 @@ the Rspotify library. I got it working in the end, but Cargo didn't quite like
 it."
 images: ["/blog/rust-async-sync/preview.jpg"]
 author: "Mario Ortiz Manero"
-tags: ["rust", "async", "macros", "procedural macros", "rspotify"]
+tags: ["rust", "rustlang", "async", "macros", "procedural macros", "rspotify"]
 series: ["rspotify"]
 date: 2024-01-14
 GHissueID: 4
