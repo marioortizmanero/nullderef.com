@@ -8,7 +8,18 @@ date: 2024-01-07
 GHissueID: TODO
 ---
 
-- Scale dehumanizes companies?
+* Scale dehumanizes companies?
+* Either directly about mental health, or donating all profits to it
+  * What things make the most money that could be invested?
+* How do nonprofits work
+* Look into OpenAI, Mozilla, the mind wellness platform from Lyft
+
+https://80000hours.org/career-reviews/software-engineering/
+
+Crazy ideas:
+
+- kebab-style sushi
+- bartender drink recommendation system
 
 == Jen-Hsun Huang -- NVIDIA
 
