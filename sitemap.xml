@@ -26,6 +26,9 @@
     <loc>https://nullderef.com/tags/rust/</loc>
     <lastmod>2024-01-14T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://nullderef.com/tags/rustlang/</loc>
+    <lastmod>2024-01-14T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/series/</loc>
     <lastmod>2024-01-14T00:00:00+00:00</lastmod>
   </url><url>
@@ -39,9 +42,6 @@
     <lastmod>2022-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/series/rust-plugins/</loc>
-    <lastmod>2022-10-18T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/rustlang/</loc>
     <lastmod>2022-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/talk/</loc>
