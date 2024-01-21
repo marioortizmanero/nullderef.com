@@ -1,0 +1,87 @@
+---
+title: "Founding a startup without going crazy"
+description: "Some investigation on how to found a startup in a sustainable way"
+author: "Mario Ortiz Manero"
+images: ["TODO"]
+tags: [TODO]
+date: 2024-01-07
+GHissueID: TODO
+draft: true
+---
+
+* Scale dehumanizes companies?
+* Either directly about mental health, or donating all profits to it
+  * What things make the most money that could be invested?
+* How do nonprofits work
+* Look into OpenAI, Mozilla, the mind wellness platform from Lyft
+
+https://80000hours.org/career-reviews/software-engineering/
+
+Crazy ideas:
+
+- kebab-style sushi
+- bartender drink recommendation system
+
+== Jen-Hsun Huang -- NVIDIA
+
+Original video: https://www.youtube.com/watch?v=Xn1EsFe7snQ
+
+- VC don't invest in business plans, it does in people and the market. The
+  latter isn't so important because it changes, and you need to reinvent
+  yourself. He started with $2M.
+- Initial plan was to build chips for 3D gaming; first in the market.
+- Perspective > vision. Everyone has it, just specific to yourself,
+  surroundings, tastes, etc. Perspective > ideas.
+- What's the essence of your business? What makes it work?
+- Ignored customers for 5Y to create the industry.
+- Why do you want to build a company? I hope it's not money.
+- Company growth -> you have to take the initiative to cannibalize your own
+  products. Otherwise, someone else will.
+- Fail to learn, but fail quickly, "intellectual honesty".
+- CEO skill: Become comfortable with ambiguity
+- Started at 30yo, no business classes prior
+- He learns from anybody (even kids)
+- Focus; do one thing well
+- Everything is torn apart & reinvented @ some point
+
+- Pending questions: relationships with kids, burnout, working too much?? He
+  only seems to work
+
+== Jason Fried -- 37 Signals (Basecamp)
+
+https://open.spotify.com/episode/2bOWmObaUPcx23lw0RDgs7?si=mj6KdaStRQ6COLkbEnLRgQ
+
+More info: https://37signals.com/
+
+Life motto: worry less 
+
+Made profit over 24y, over the last 10y $X0M, around 100k+ customers. 75 employees. Extremely opinionated towards efficiency and simplicity.
+
+Bootstrapping
+- VC when you need a big initial investment. Not so important for software. Also for big scale requirements like Airbnb or Uber (there needs to be one everywhere, note that they aren't pure software either)
+
+Efficiency
+- Only focus on a single product. No customization, customer support. Stick-Shift, bare business.
+- ShapeUp framework: New products built by 2 people, 1 programmer and 1 designer/product given 2-6 weeks. If it's more, give it 2 more days if almost there, or kill it. Long-term Business planning/promises is bad, such as "by EOY". You can't "Sprint" back to back (plus same thing all the time gets boring), so they do a 2w cool down cycle afterwards to freelance internally (fixing stuff, messing around with things, shaping up projects, etc).
+- Don't spend money on stuff you don't need.
+- success = wanting to do it again
+- not looking at profitability per product or more stats like OKR, growth targets, etc, just overall profitability 
+- no investors, board, intentions to sell
+
+- intuition driven instead of data. Experience over data or charts.
+- hard to apply for others in the company, so they ask themselves "how do you feel" or "what do you think" instead of "what do you know". We're not after certainty.
+- he applies the same on failure. Since they don't know what went wrong, he doesn't look back that much.
+- how to bootstrap people with not enough experience?
+- they pay interviewees to do project. He asks what they'd do with more time, so it's based on instinct.
+
+- large changes quickly are bad, such as migration to scale up directly.
+- he thought it'd be great to have one single project, but they actually had more ideas and also made Hey and Once.
+- doesn't like words for war for business like workforce, target customers, etc
+- to get started, stay as small as you can for as long as you can. Do it yourself. That way you can control your costs, which should be as low as possible.
+
+Once (idea, but not proven): non-SaaS products, you pay and install them, under $1000. No fees or subscription, and they still get updates and support. Costs are very low because there's no hosting. Opportunity: many alternatives for one product, by they still charge luxury prices.
+
+
+Recommended books: Finite and infinite games, several short sentences about writing, hell yeah or no, home-made contemporary Russian folk artifacts 
+
+* Remaining questions: personal life??
