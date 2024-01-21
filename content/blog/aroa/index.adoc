@@ -1,0 +1,18 @@
+---
+title: "Test"
+description: "TODO"
+author: "Mario Ortiz Manero"
+images: ["TODO"]
+tags: [TODO]
+date: 2024-01-14
+GHissueID: TODO
+draft: true
+---
+
+== test
+
+== References
+
+* https://en.m.wikipedia.org/wiki/Copycat_suicide
+* https://news.ycombinator.com/item?id=38935605
+* https://www.fortressofdoors.com/i-lost-my-son/
