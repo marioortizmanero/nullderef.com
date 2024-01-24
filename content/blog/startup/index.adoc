@@ -1,5 +1,5 @@
 ---
-title: "Founding a startup without going crazy"
+title: "The endless pursuit of building a business that doesn't suck"
 description: "Some investigation on how to found a startup in a sustainable way"
 author: "Mario Ortiz Manero"
 images: ["TODO"]
@@ -8,6 +8,11 @@ date: 2024-01-07
 GHissueID: TODO
 draft: true
 ---
+
+
+I'll preface this by saying that I have no idea what I'm talking about. The point, in fact, is to learn, and share my findings
+
+Ideas:
 
 * Scale dehumanizes companies?
 * Either directly about mental health, or donating all profits to it
@@ -88,4 +93,14 @@ Recommended books: Finite and infinite games, several short sentences about writ
 
 == Resources
 
+- https://twitter.com/m_ou_se/status/1438946869447692297
+- https://www.reddit.com/r/rust/comments/pub2mq
+- https://www.lunasec.io/docs/blog/how-to-build-an-open-source-business-in-2021-part-1/
+- https://vadimdemedes.com/posts/generating-income-from-open-source
+- https://typst.app/
+- https://kagi.com/
+- https://proton.me/
+- https://adoptaunabuelo.org/una-carta-para-un-abuelo/
+- https://www.linkedin.com/posts/lennyrachitsky_37signals-is-a-very-different-kind-of-company-activity-7142214613126840320-vo8F?utm_source=share&utm_medium=member_android
 - https://wavepaths.com/
+- https://codecodeship.com/blog/2023-04-14-mike-perham
