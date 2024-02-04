@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Tags on NullDeref</title>
     <link>https://nullderef.com/tags/</link>
@@ -20,7 +20,6 @@
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/async/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>macros</title>
@@ -28,7 +27,6 @@
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/macros/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>procedural macros</title>
@@ -36,7 +34,6 @@
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/procedural-macros/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>rspotify</title>
@@ -44,7 +41,6 @@
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/rspotify/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>rust</title>
@@ -52,7 +48,6 @@
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/rust/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>rustlang</title>
@@ -60,7 +55,6 @@
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/rustlang/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>talk</title>
@@ -68,7 +62,6 @@
       <pubDate>Tue, 18 Oct 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/talk/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>tremor</title>
@@ -76,7 +69,6 @@
       <pubDate>Tue, 18 Oct 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/tremor/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>benchmarking</title>
@@ -84,7 +76,6 @@
       <pubDate>Tue, 26 Jul 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/benchmarking/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>deployment</title>
@@ -92,7 +83,6 @@
       <pubDate>Tue, 26 Jul 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/deployment/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>plugin</title>
@@ -100,7 +90,6 @@
       <pubDate>Tue, 26 Jul 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/plugin/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>testing</title>
@@ -108,7 +97,6 @@
       <pubDate>Tue, 26 Jul 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/testing/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>abi</title>
@@ -116,7 +104,6 @@
       <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/abi/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>abi_stable</title>
@@ -124,7 +111,6 @@
       <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/abi_stable/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>dynamic-loading</title>
@@ -132,7 +118,6 @@
       <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/dynamic-loading/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>ffi</title>
@@ -140,7 +125,6 @@
       <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/ffi/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>prototyping</title>
@@ -148,7 +132,6 @@
       <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/prototyping/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>open-source</title>
@@ -156,7 +139,6 @@
       <pubDate>Wed, 13 Oct 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/open-source/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>programming</title>
@@ -164,7 +146,6 @@
       <pubDate>Wed, 13 Oct 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/programming/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>web-api</title>
@@ -172,7 +153,6 @@
       <pubDate>Wed, 13 Oct 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/web-api/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>bpf</title>
@@ -180,7 +160,6 @@
       <pubDate>Tue, 05 Oct 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/bpf/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>ebpf</title>
@@ -188,7 +167,6 @@
       <pubDate>Tue, 05 Oct 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/ebpf/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>beginners</title>
@@ -196,7 +174,6 @@
       <pubDate>Tue, 06 Jul 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/beginners/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>cargo</title>
@@ -204,7 +181,6 @@
       <pubDate>Tue, 06 Jul 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/cargo/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>guide</title>
@@ -212,7 +188,6 @@
       <pubDate>Tue, 06 Jul 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/guide/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>ipc</title>
@@ -220,7 +195,6 @@
       <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/ipc/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>scripting</title>
@@ -228,7 +202,6 @@
       <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/scripting/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>wasm</title>
@@ -236,7 +209,6 @@
       <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/wasm/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>webassembly</title>
@@ -244,7 +216,6 @@
       <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/webassembly/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
   </channel>
 </rss>

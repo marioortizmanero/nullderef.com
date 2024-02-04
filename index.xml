@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>NullDeref</title>
     <link>https://nullderef.com/</link>
@@ -12654,7 +12654,6 @@ errors or things that could be improved about the Rust code.</p>
       <description>&lt;div class=&#34;paragraph&#34;&gt;
 &lt;p&gt;Introducing myself&lt;/p&gt;
 &lt;/div&gt;</description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
     <item>
       <title>Series</title>
@@ -12662,7 +12661,6 @@ errors or things that could be improved about the Rust code.</p>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/series/</guid>
       <description></description>
-      <content:encoded><![CDATA[]]></content:encoded>
     </item>
   </channel>
 </rss>
