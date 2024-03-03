@@ -15,203 +15,238 @@
     <lastBuildDate>Sun, 14 Jan 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://nullderef.com/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>async</title>
+      <title>Async</title>
       <link>https://nullderef.com/tags/async/</link>
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/async/</guid>
       <description></description>
     </item>
     <item>
-      <title>macros</title>
+      <title>Contributor</title>
+      <link>https://nullderef.com/tags/contributor/</link>
+      <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/contributor/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Macros</title>
       <link>https://nullderef.com/tags/macros/</link>
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/macros/</guid>
       <description></description>
     </item>
     <item>
-      <title>procedural macros</title>
+      <title>Open Source</title>
+      <link>https://nullderef.com/tags/open-source/</link>
+      <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/open-source/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Procedural Macros</title>
       <link>https://nullderef.com/tags/procedural-macros/</link>
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/procedural-macros/</guid>
       <description></description>
     </item>
     <item>
-      <title>rspotify</title>
+      <title>Rspotify</title>
       <link>https://nullderef.com/tags/rspotify/</link>
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/rspotify/</guid>
       <description></description>
     </item>
     <item>
-      <title>rust</title>
+      <title>Rust</title>
       <link>https://nullderef.com/tags/rust/</link>
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/rust/</guid>
       <description></description>
     </item>
     <item>
-      <title>rustlang</title>
+      <title>Rustlang</title>
       <link>https://nullderef.com/tags/rustlang/</link>
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/rustlang/</guid>
       <description></description>
     </item>
     <item>
-      <title>talk</title>
+      <title>Spotify</title>
+      <link>https://nullderef.com/tags/spotify/</link>
+      <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/spotify/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Dynamic Loading</title>
+      <link>https://nullderef.com/tags/dynamic-loading/</link>
+      <pubDate>Tue, 18 Oct 2022 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/dynamic-loading/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Pdk</title>
+      <link>https://nullderef.com/tags/pdk/</link>
+      <pubDate>Tue, 18 Oct 2022 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/pdk/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Plugin System</title>
+      <link>https://nullderef.com/tags/plugin-system/</link>
+      <pubDate>Tue, 18 Oct 2022 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/plugin-system/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Plugins</title>
+      <link>https://nullderef.com/tags/plugins/</link>
+      <pubDate>Tue, 18 Oct 2022 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/plugins/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Talk</title>
       <link>https://nullderef.com/tags/talk/</link>
       <pubDate>Tue, 18 Oct 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/talk/</guid>
       <description></description>
     </item>
     <item>
-      <title>tremor</title>
+      <title>Tremor</title>
       <link>https://nullderef.com/tags/tremor/</link>
       <pubDate>Tue, 18 Oct 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/tremor/</guid>
       <description></description>
     </item>
     <item>
-      <title>benchmarking</title>
+      <title>Benchmarking</title>
       <link>https://nullderef.com/tags/benchmarking/</link>
       <pubDate>Tue, 26 Jul 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/benchmarking/</guid>
       <description></description>
     </item>
     <item>
-      <title>deployment</title>
+      <title>Deployment</title>
       <link>https://nullderef.com/tags/deployment/</link>
       <pubDate>Tue, 26 Jul 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/deployment/</guid>
       <description></description>
     </item>
     <item>
-      <title>plugin</title>
+      <title>Plugin</title>
       <link>https://nullderef.com/tags/plugin/</link>
       <pubDate>Tue, 26 Jul 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/plugin/</guid>
       <description></description>
     </item>
     <item>
-      <title>testing</title>
+      <title>Testing</title>
       <link>https://nullderef.com/tags/testing/</link>
       <pubDate>Tue, 26 Jul 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/testing/</guid>
       <description></description>
     </item>
     <item>
-      <title>abi</title>
+      <title>Abi</title>
       <link>https://nullderef.com/tags/abi/</link>
       <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/abi/</guid>
       <description></description>
     </item>
     <item>
-      <title>abi_stable</title>
+      <title>Abi_stable</title>
       <link>https://nullderef.com/tags/abi_stable/</link>
       <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/abi_stable/</guid>
       <description></description>
     </item>
     <item>
-      <title>dynamic-loading</title>
-      <link>https://nullderef.com/tags/dynamic-loading/</link>
-      <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/dynamic-loading/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>ffi</title>
+      <title>Ffi</title>
       <link>https://nullderef.com/tags/ffi/</link>
       <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/ffi/</guid>
       <description></description>
     </item>
     <item>
-      <title>prototyping</title>
+      <title>Prototyping</title>
       <link>https://nullderef.com/tags/prototyping/</link>
       <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/prototyping/</guid>
       <description></description>
     </item>
     <item>
-      <title>open-source</title>
-      <link>https://nullderef.com/tags/open-source/</link>
-      <pubDate>Wed, 13 Oct 2021 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/open-source/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>programming</title>
+      <title>Programming</title>
       <link>https://nullderef.com/tags/programming/</link>
       <pubDate>Wed, 13 Oct 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/programming/</guid>
       <description></description>
     </item>
     <item>
-      <title>web-api</title>
+      <title>Web-Api</title>
       <link>https://nullderef.com/tags/web-api/</link>
       <pubDate>Wed, 13 Oct 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/web-api/</guid>
       <description></description>
     </item>
     <item>
-      <title>bpf</title>
+      <title>Bpf</title>
       <link>https://nullderef.com/tags/bpf/</link>
       <pubDate>Tue, 05 Oct 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/bpf/</guid>
       <description></description>
     </item>
     <item>
-      <title>ebpf</title>
+      <title>Ebpf</title>
       <link>https://nullderef.com/tags/ebpf/</link>
       <pubDate>Tue, 05 Oct 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/ebpf/</guid>
       <description></description>
     </item>
     <item>
-      <title>beginners</title>
+      <title>Beginners</title>
       <link>https://nullderef.com/tags/beginners/</link>
       <pubDate>Tue, 06 Jul 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/beginners/</guid>
       <description></description>
     </item>
     <item>
-      <title>cargo</title>
+      <title>Cargo</title>
       <link>https://nullderef.com/tags/cargo/</link>
       <pubDate>Tue, 06 Jul 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/cargo/</guid>
       <description></description>
     </item>
     <item>
-      <title>guide</title>
+      <title>Guide</title>
       <link>https://nullderef.com/tags/guide/</link>
       <pubDate>Tue, 06 Jul 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/guide/</guid>
       <description></description>
     </item>
     <item>
-      <title>ipc</title>
+      <title>Ipc</title>
       <link>https://nullderef.com/tags/ipc/</link>
       <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/ipc/</guid>
       <description></description>
     </item>
     <item>
-      <title>scripting</title>
+      <title>Scripting</title>
       <link>https://nullderef.com/tags/scripting/</link>
       <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/scripting/</guid>
       <description></description>
     </item>
     <item>
-      <title>wasm</title>
+      <title>Wasm</title>
       <link>https://nullderef.com/tags/wasm/</link>
       <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/wasm/</guid>
       <description></description>
     </item>
     <item>
-      <title>webassembly</title>
+      <title>Webassembly</title>
       <link>https://nullderef.com/tags/webassembly/</link>
       <pubDate>Mon, 17 May 2021 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/webassembly/</guid>

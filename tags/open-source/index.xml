@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>open-source on NullDeref</title>
+    <title>Open Source on NullDeref</title>
     <link>https://nullderef.com/tags/open-source/</link>
-    <description>Recent content in open-source on NullDeref</description>
+    <description>Recent content in Open Source on NullDeref</description>
     <image>
       <title>NullDeref</title>
       <url>https://nullderef.com/logo-banner.png</url>
@@ -12,7 +12,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Wed, 13 Oct 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 14 Jan 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://nullderef.com/tags/open-source/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Designing an API Client in Rust: New RSpotify Version a Year Later</title>

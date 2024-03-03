@@ -8,10 +8,16 @@
     <loc>https://nullderef.com/blog/</loc>
     <lastmod>2024-01-14T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://nullderef.com/tags/contributor/</loc>
+    <lastmod>2024-01-14T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/tags/macros/</loc>
     <lastmod>2024-01-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/</loc>
+    <lastmod>2024-01-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/open-source/</loc>
     <lastmod>2024-01-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/procedural-macros/</loc>
@@ -29,7 +35,7 @@
     <loc>https://nullderef.com/tags/rustlang/</loc>
     <lastmod>2024-01-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/series/</loc>
+    <loc>https://nullderef.com/tags/spotify/</loc>
     <lastmod>2024-01-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/</loc>
@@ -42,6 +48,18 @@
     <lastmod>2022-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/series/rust-plugins/</loc>
+    <lastmod>2022-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/dynamic-loading/</loc>
+    <lastmod>2022-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/pdk/</loc>
+    <lastmod>2022-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/plugin-system/</loc>
+    <lastmod>2022-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/tags/plugins/</loc>
     <lastmod>2022-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/talk/</loc>
@@ -71,9 +89,6 @@
     <loc>https://nullderef.com/tags/abi_stable/</loc>
     <lastmod>2022-02-11T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/dynamic-loading/</loc>
-    <lastmod>2022-02-11T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/tags/ffi/</loc>
     <lastmod>2022-02-11T00:00:00+00:00</lastmod>
   </url><url>
@@ -87,9 +102,6 @@
     <lastmod>2021-11-08T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/web-api-client/</loc>
-    <lastmod>2021-10-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/open-source/</loc>
     <lastmod>2021-10-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/programming/</loc>
@@ -142,6 +154,8 @@
   </url><url>
     <loc>https://nullderef.com/blog/rust-parameters/</loc>
     <lastmod>2020-10-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/blog/camping/</loc>
   </url><url>
     <loc>https://nullderef.com/about/</loc>
   </url><url>

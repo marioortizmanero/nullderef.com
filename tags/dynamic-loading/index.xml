@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>dynamic-loading on NullDeref</title>
+    <title>Dynamic Loading on NullDeref</title>
     <link>https://nullderef.com/tags/dynamic-loading/</link>
-    <description>Recent content in dynamic-loading on NullDeref</description>
+    <description>Recent content in Dynamic Loading on NullDeref</description>
     <image>
       <title>NullDeref</title>
       <url>https://nullderef.com/logo-banner.png</url>
@@ -12,7 +12,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Fri, 11 Feb 2022 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 18 Oct 2022 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://nullderef.com/tags/dynamic-loading/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Plugins in Rust: Getting our Hands Dirty</title>

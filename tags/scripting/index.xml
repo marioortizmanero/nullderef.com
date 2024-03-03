@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>scripting on NullDeref</title>
+    <title>Scripting on NullDeref</title>
     <link>https://nullderef.com/tags/scripting/</link>
-    <description>Recent content in scripting on NullDeref</description>
+    <description>Recent content in Scripting on NullDeref</description>
     <image>
       <title>NullDeref</title>
       <url>https://nullderef.com/logo-banner.png</url>
