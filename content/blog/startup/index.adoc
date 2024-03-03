@@ -1,5 +1,5 @@
 ---
-title: "The endless pursuit of building a business that doesn't suck"
+title: "The Endless Pursuit of Building a Business that Doesn't Suck"
 description: "Some investigation on how to found a startup in a sustainable way"
 author: "Mario Ortiz Manero"
 images: ["TODO"]
@@ -9,12 +9,51 @@ GHissueID: TODO
 draft: true
 ---
 
+I'll preface this by saying that I have no idea what I'm talking about. The
+point, in fact, is to learn, think, and share my findings. This is a very
+personal life journey, but I'm sure everyone can relate to some parts and take
+something out of it.
 
-I'll preface this by saying that I have no idea what I'm talking about. The point, in fact, is to learn, and share my findings
+== Rationale
+
+This whole article stems from a feeling of not having a deeply rewarding
+professional life as a software engineer. From a technical standpoint, it does
+bring me immense joy; building systems makes passionate and engaged in my work.
+But there's always an itch on how I could be working on something that directly
+improves the world instead. And I'm lucky enough to be in an industry where I do
+have the choice. The market is good enough that if I wanted, I could be doing
+it. So what's stopping me?
+
+One thing to note is that this isn't something I've always been thinking about,
+but rather recent. Furthermore, I believe that achieving the expectations that
+I'm setting myself is one of the toughest things I'd do in my life. Doing it
+right would require abundant time and experience, so rather than being in a
+hurry, it's a very long term objective. I want to have time for experimentation
+and reasoning before jumping to anything, which is why there might be too much
+investigation instead of jumping into practice, which is what I would usually
+do.
+
+== Not sucking
+
+Why do I use the term "sucking"? Because setting a higher bar than that would be
+setting it too high, given the complexity of the problem. The only exception I'm
+making is the source of the problem: the ethics. In that case, "not sucking"
+would mean that my job would be neutral to the world, and I'm explicitly looking
+for something positive.
+
+=== From an ethical perspective
+
+At the same time, it's my impression that doing this could possibly take over my
+life. Even if I want to improve the world, I still have other aspirations that I
+don't want to lose: travelling, time with loved ones, and other interests. I've
+seen too many people trapped in their professional life, bleeding into the
+personal one.
+
+There are many things broken in the world to choose. In my case, personal
+livings make mental health the most interesting one to me.
 
 Ideas:
 
-* Scale dehumanizes companies?
 * Either directly about mental health, or donating all profits to it
   * What things make the most money that could be invested?
 * How do nonprofits work
@@ -24,10 +63,56 @@ https://80000hours.org/career-reviews/software-engineering/
 
 Crazy ideas:
 
-- kebab-style sushi
-- bartender drink recommendation system
+=== From an organizational perspective
 
-== Jen-Hsun Huang -- NVIDIA
+One of my worries is forcing myself to a passion that's not really mine just for
+this. Becoming a CEO is something that technically attracts me less, and that I
+feel less talented for. In order to truly be effective, I need to find something
+that fully utilizes my resources.
+
+=== From a personal perspective
+
+* Scale dehumanizes companies?
+* Keeping it small could make it more manageable?
+
+An alternative would be "Effective Altruism", where I just work for something
+lucrative that's not good for the world, but donate most of the earnings for a
+good cause.
+
+Unrelated fun business ideas:
+
+* kebab-style sushi
+* bartender drink recommendation system
+
+=== From a financial perspective
+
+Unfortunately, many major problems in the world aren't easy to fund.
+
+== Methods
+
+=== Starting with what you want to improve
+
+E.g., becoming an expert in something if you want to improve that. Aligns with
+"you're 2/3s of your best friends/environment".
+
+Downsides: you might not enjoy working in that area yourself.
+
+=== Career change
+
+Working on whatever to fund your basic expenses and work on something else that
+needs improvement but doesn't have that much funding.
+
+=== Effective Altruism
+
+Working on whatever and donating to a cause.
+
+There needs to be a combination of working on what you are most effective on,
+and doing so for a good cause. And sometimes, that just isn't there. TODO:
+example.
+
+== References
+
+=== Jen-Hsun Huang -- NVIDIA
 
 Original video: https://www.youtube.com/watch?v=Xn1EsFe7snQ
 
@@ -52,7 +137,7 @@ Original video: https://www.youtube.com/watch?v=Xn1EsFe7snQ
 - Pending questions: relationships with kids, burnout, working too much?? He
   only seems to work
 
-== Jason Fried -- 37 Signals (Basecamp)
+=== Jason Fried -- 37 Signals (Basecamp)
 
 https://open.spotify.com/episode/2bOWmObaUPcx23lw0RDgs7?si=mj6KdaStRQ6COLkbEnLRgQ
 
@@ -91,7 +176,7 @@ Recommended books: Finite and infinite games, several short sentences about writ
 
 * Remaining questions: personal life??
 
-== Resources
+=== Links
 
 - https://twitter.com/m_ou_se/status/1438946869447692297
 - https://www.reddit.com/r/rust/comments/pub2mq
