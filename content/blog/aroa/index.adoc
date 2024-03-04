@@ -9,6 +9,8 @@ GHissueID: TODO
 draft: true
 ---
 
+TODO: many kinds of therapy for everyone (horses, bars, hanging out)
+
 == What I've learned
 
 I recently heard a phrase from NVIDIA's founder Jen-Hsun Huang which struck with
