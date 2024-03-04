@@ -9,7 +9,7 @@ GHissueID: TODO
 draft: true
 ---
 
-TODO: many kinds of therapy for everyone (horses, bars, hanging out)
+TODO: many kinds of therapy for everyone (horses, bars, hanging out). you can feel bad in the short term.
 
 == What I've learned
 
