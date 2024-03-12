@@ -9,29 +9,42 @@ GHissueID: TODO
 draft: true
 ---
 
+Today, I want to convince you of how admirable my sister, Aroa, was.
+
+TODO: PICTURE
+
+In late 2022, her mental health started to decline. She had a panic attack,
+became more impulsive, and had trouble managing her strong feelings.
+
 == What I've learned
 
 I recently heard a phrase from NVIDIA's founder Jen-Hsun Huang which struck with
-me: "you need to be able to learn from everyone, even children". I think this is
-particularly interesting with your family. You don't get to choose your family,
-which means that what you get is completely random. If someone has a personality
-that doesn't match with you, or some aspects that you dislike, you can simply
-not be their friend. But unless it's harmful or excessive, you can't do the same
-with your family. You have to learn to live with things that you just didn't
-choose.
+me: "you need to be able to learn from everyone, even children". This is
+particularly interesting with your family; you don't get to choose it, what you
+get is completely random. If someone has a personality that doesn't match with
+you, or some aspects that you dislike, you can simply not be their friend. But
+unless it's harmful or excessive, you can't do the same with your family. You
+need to live with it, and since you're outside your comfort zone, you actually
+learn the most.
 
 And I've always learned a lot with her.
 
-=== Work doesn't define you
+=== Be yourself
 
-One of the sources of distress in my sister was a lack of purpose. She seemed to
-have fun in the short run, but didn't quite have plans for the counterpart.
+Aroa gave absolutely no fucks. She combined the weirdest clothing and yet made
+it look fabulous, without fail. Her expressions. Her personality was like a pink
+dense cloud that absorbed and impressed everyone.
+
+=== Don't let work define you
+
+One of the sources of distress in my sister was a lack of purpose. She was
+having fun in the short term, but didn't quite have plans for the counterpart.
 Being a waitress was a middle step for her, but at the same time she didn't know
 what that step after would be.
 
 She was extremely strong to try many things, because she couldn't find a
 'undeniable' passion. It was astronomy for a bit, and she even tried a semester
-of Geology. She signed up for an automotive worshop and even gave content
+of Geology. She signed up for an automotive workshop and later gave content
 creation a try for CBD companies.
 
 I believed I was able to help in this regard. We built her CV together, and I
@@ -48,31 +61,70 @@ to get caught in that. People are more than what they work for; it's important
 to try to find fulfillment outside of it if possible. Explore themselves, learn,
 create.
 
-Yes, I moved to Munich because of work. But also because of it, I had stopped
+Yes, I moved to Munich because of work. But also because of it, I stopped
 writing on my blog. I also didn't try to learn German for some time because I
 thought it would be too much. I was okay in the sense that I was having fun in
 life, and I was still learning. But it feels like a different kind of learning,
 where you learn about concepts and experiences but not about yourself and what
-you like. Make sure you have unproductiveness on every day of your life. And to
+you like. Make sure you have unproductiveness in every day of your life and to
 embrace boredom when possible.
 
-=== About mental health
+=== Let's raise awareness about mental health
 
-It sucks so very much how little the public knows about this. I wish you didn't
+It sucks so very much how little the public knows about it. I wish you didn't
 have to go through problems with mental health in order to learn about it. Which
 is how I think it works currently. Ideally, noone should know about it because
 it shouldn't happen to them. But it _will_ happen, even if not to you, to
-someone else. And knowing about it will make you comprehend them better and care
-for that person more.
+someone close to you. In that case, knowing more will make you comprehend them
+better and care for that person more.
 
-One particularly shocking part was the physical one. When I was told about it in
-the airplane, my arms literally went numb. It was completely disconcerting and
-unexpected to me. Similarly, I didn't know the concept of "somatization". After
-a couple of weeks, my physical strength took a nosedive. I got sick and then
+One particularly shocking part was the physical reaction. When I was told about
+it in the airplane, my arms literally went numb. It was completely disconcerting
+and unexpected to me. Similarly, I didn't know the concept of "somatization".
+After a couple of weeks, my physical strength took a nosedive. I got sick and
 experienced some of the worst back cramps of my life; I couldn't even leave bed
-for two days straight. I slowly improved, yet still felt extremely tired for
-weeks. Mentally, I was prepared to go swim for kilometers, but my body wasn't
-able to; it was very frustrating, and also unkown to me.
+for two days straight. I slowly improved, yet still felt exhausted for weeks.
+Mentally, I was prepared to go swim for kilometers, but my body wasn't able to;
+it was very frustrating, and also unkown to me.
+
+
+==== Therapy
+
+I always thought therapy was just sitting in a white neat room with someone
+asking you questions. And while the questions part remains true, I've found that
+the environment in which they are asked is essential to make it work. Some can
+find more comfort in sharing a beer with a laid-back therapist, while others can
+open up easily in nature or among horses.
+
+Talking with your patients in a bar sounds bad, but if that's the only way to
+have them stick to it, then it's better than nothing. I'm not sure how frowned
+upon it is in the field, but I hope it's more normalized, and that we see more
+adaptive methods.
+
+At the beginning, therapy may seem to make things worse. It's like getting all
+the shit outside and mixing it together. It stinks and makes you cry.
+
+My sister always had trouble sticking to therapy. She was let down by a
+deficient healthcare system that has much to work on. I'm mainly hoping to see
+improvements in the following two points:
+
+===== Resources
+
+The specialized public center in my city had a year-long queue.
+
+===== Care
+
+A surprising amount of urgent-care therapists showed a lack of care.
+Gut-wrenching stories of her being stuck for hours in a waiting room with
+suicidal intentions and screams.
+
+Importantly, this lack of care wasn't only towards the patient, but also for the
+family. None of us had absolutely any idea what we were getting into. Learning
+more about what she was going through was like trying to squeeze a drop of
+water from an empty bottle. No expectations whatsoever of how severe it was, nor
+indications of how to handle this at home.
+
+Even if the patient goes to therapy, most of their time is spent at home.
 
 == References
 
