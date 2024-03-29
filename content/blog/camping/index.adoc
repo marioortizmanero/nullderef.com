@@ -1,3 +1,14 @@
+---
+title: "Camping"
+description: "TODO"
+author: "Mario Ortiz Manero"
+images: ["TODO"]
+tags: [TODO]
+date: 2024-01-07
+GHissueID: TODO
+draft: true
+---
+
 == TODO
 
 Fee with regular card is 2.5%, with Wise it's 1%
