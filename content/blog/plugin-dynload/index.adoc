@@ -3,7 +3,7 @@ title: "Plugins in Rust: Diving into Dynamic Loading"
 description: "A closer look at dynamic loading in Rust"
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-dynload/diving.jpg"]
-tags: ["rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "abi_stable", "bpf", "ebpf"]
+tags: ["tech", "rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "abi_stable", "bpf", "ebpf"]
 series: ["rust-plugins"]
 date: 2021-10-05
 GHissueID: 3

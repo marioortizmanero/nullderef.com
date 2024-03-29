@@ -4,7 +4,7 @@ description: "Inspired by the RSpotify rewrite, a few tips on how to make a
 solid wrapper for most web API wrappers."
 author: "Mario Ortiz Manero"
 images: ["/blog/web-api-client/crate_hierarchy.png"]
-tags: ["rust", "rustlang", "open-source", "rspotify", "web-api", "programming"]
+tags: ["tech", "rust", "rustlang", "open-source", "rspotify", "web-api", "programming"]
 date: 2021-10-13
 series: ["rspotify"]
 GHissueID: 2

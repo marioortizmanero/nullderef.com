@@ -3,7 +3,7 @@ title: "The Endless Pursuit of Building a Business that Doesn't Suck"
 description: "Some investigation on how to found a startup in a sustainable way"
 author: "Mario Ortiz Manero"
 images: ["TODO"]
-tags: [TODO]
+tags: ["tech"]
 date: 2024-01-07
 GHissueID: TODO
 draft: true

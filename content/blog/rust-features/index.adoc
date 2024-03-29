@@ -3,7 +3,7 @@ title: "Why you shouldn't obsess about Rust \"features\""
 description: "Friendly reminder: you might not need conditional compilation"
 author: "Mario Ortiz Manero"
 images: ["/blog/rust-features/compiler-explorer.png"]
-tags: ["rust", "rustlang", "guide", "beginners", "cargo"]
+tags: ["tech", "rust", "rustlang", "guide", "beginners", "cargo"]
 date: 2021-07-06
 GHissueID: 6
 ---

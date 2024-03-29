@@ -3,7 +3,7 @@ title: "Surprised by Rust's Subtyping and Variance"
 description: "TODO"
 author: "Mario Ortiz Manero"
 images: ["TODO"]
-tags: ["programming", "rust", "rustlang", "variance", "subtyping", "abi_stable"]
+tags: ["tech", "programming", "rust", "rustlang", "variance", "subtyping", "abi_stable"]
 date: 2022-01-29
 GHissueID: TODO
 draft: true

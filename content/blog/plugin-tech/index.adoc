@@ -4,7 +4,7 @@ description: "A more in-depth look at Rust plugin systems"
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-tech/triangle.png"]
 images: ["/blog/plugin-tech/technologies.jpg"]
-tags: ["rust", "rustlang", "dynamic-loading", "ffi", "plugin", "wasm", "webassembly", "ipc", "scripting"]
+tags: ["tech", "rust", "rustlang", "dynamic-loading", "ffi", "plugin", "wasm", "webassembly", "ipc", "scripting"]
 series: ["rust-plugins"]
 date: 2021-05-17
 GHissueID: 9

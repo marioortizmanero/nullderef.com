@@ -4,7 +4,7 @@ description: "The talk I submitted for TremorCon 2022"
 author: "Mario Ortiz Manero"
 images: ["/blog/tremorcon22/party.jpg"]
 tags: ["rust", "rustlang", "tremor", "talk"]
-series: ["rust-plugins"]
+series: ["tech", "rust-plugins"]
 date: 2022-10-18
 GHissueID: 12
 ---
