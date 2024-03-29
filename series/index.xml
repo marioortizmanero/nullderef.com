@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Series on NullDeref</title>
+    <link>https://nullderef.com/series/</link>
+    <description>Recent content in Series on NullDeref</description>
+    <image>
+      <title>NullDeref</title>
+      <url>https://nullderef.com/logo-banner.png</url>
+      <link>https://nullderef.com/logo-banner.png</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
+    <lastBuildDate>Sun, 14 Jan 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://nullderef.com/series/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>RSpotify</title>
+      <link>https://nullderef.com/series/rspotify/</link>
+      <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/series/rspotify/</guid>
+      <description>I was a contributor to [the RSpotify library](https://github.com/ramsayleung/rspotify) to sharpen my Rust skills. This crate provides easy-to-use and complete bindings for [the Spotify web API](https://developer.spotify.com/documentation/web-api). I tried to improve it in all sorts of ways, such as reducing bloat, adding features, or improving its performance. You can read more about them in this series.</description>
+    </item>
+    <item>
+      <title>A Plugin System in Rust</title>
+      <link>https://nullderef.com/series/rust-plugins/</link>
+      <pubDate>Tue, 18 Oct 2022 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/series/rust-plugins/</guid>
+      <description>My [LFX mentorship](https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff) with [Tremor](https://www.tremor.rs/), in which I implement a Plugin System to maximize modularity and reduce Rust&amp;#39;s wild compilation times. This is done with [dynamic loading](https://en.wikipedia.org/wiki/Dynamic_loading), but its alternatives are also covered in detail in the first articles.</description>
+    </item>
+  </channel>
+</rss>
