@@ -1,6 +1,6 @@
 ---
-title: "The Endless Pursuit of Building a Business that Doesn't Suck"
-description: "Some investigation on how to found a startup in a sustainable way"
+title: "The Endless Pursuit of Building Companies that Don't Suck"
+description: "My research on founding startups in a sustainable way, from all the possible perspectives."
 author: "Mario Ortiz Manero"
 images: ["TODO"]
 tags: ["tech"]
@@ -9,100 +9,133 @@ GHissueID: TODO
 draft: true
 ---
 
-I'll preface this by saying that I have no idea what I'm talking about. The
+_I'll preface this by saying that I have no idea what I'm talking about. The
 point, in fact, is to learn, think, and share my findings. This is a very
 personal life journey, but I'm sure everyone can relate to some parts and take
-something out of it.
+something out of it._
+aas
 
-== Rationale
+== Not sucking...
 
-This whole article stems from a feeling of not having a deeply rewarding
-professional life as a software engineer. From a technical standpoint, it does
-bring me immense joy; building systems makes passionate and engaged in my work.
-But there's always an itch on how I could be working on something that directly
-improves the world instead. And I'm lucky enough to be in an industry where I do
-have the choice. The market is good enough that if I wanted, I could be doing
-it. So what's stopping me?
+I only use the term "not sucking" because setting a higher bar would be
+overreaching, given the complexity of the problem. Let's get into specifics:
 
-One thing to note is that this isn't something I've always been thinking about,
-but rather recent. Furthermore, I believe that achieving the expectations that
-I'm setting myself is one of the toughest things I'd do in my life. Doing it
-right would require abundant time and experience, so rather than being in a
-hurry, it's a very long term objective. I want to have time for experimentation
-and reasoning before jumping to anything, which is why there might be too much
-investigation instead of jumping into practice, which is what I would usually
-do.
+=== from an ethical perspective
 
-== Not sucking
+It's extremely objective to say how "good" or "bad" a company is. Of course, it
+should be at least "neutral" according to your beliefs. There must always be
+people keeping the world running, and one can find lots of personal satisfaction
+from a restaurant or even a SaaS.
 
-Why do I use the term "sucking"? Because setting a higher bar than that would be
-setting it too high, given the complexity of the problem. The only exception I'm
-making is the source of the problem: the ethics. In that case, "not sucking"
-would mean that my job would be neutral to the world, and I'm explicitly looking
-for something positive.
+You could go a step further and try to directly improve the world! There are
+many things broken, so you'll have plenty to choose from. Try to find your most
+relevant one: plastic waste, ocean biodiversity, mental health... It doesn't
+even need to be a brilliant idea because there's so much missing execution out
+there.
 
-=== From an ethical perspective
+=== from an organizational perspective
 
-At the same time, it's my impression that doing this could possibly take over my
-life. Even if I want to improve the world, I still have other aspirations that I
-don't want to lose: travelling, time with loved ones, and other interests. I've
-seen too many people trapped in their professional life, bleeding into the
-personal one.
+An open question I have is whether scale eventually dehumanizes companies. Most
+examples I've found so far are smaller ones. How do you prevent all of this from
+fading away as it starts to grow? I don't think this is important at the very
+beginning, though.
 
-There are many things broken in the world to choose. In my case, personal
-livings make mental health the most interesting one to me.
+=== from a personal perspective
 
-Ideas:
+Starting a company sounds like something that could take over your life. Even if
+you're fulfilled by your work, you don't want to lose other aspirations, such as
+travelling, time with loved ones, or hobbies. I've personally seen way too many
+people trapped by their profession, bleeding into their own life, and others'.
 
-* Either directly about mental health, or donating all profits to it
-  * What things make the most money that could be invested?
-* How do nonprofits work
-* Look into OpenAI, Mozilla, the mind wellness platform from Lyft
+=== from a financial perspective
 
-https://80000hours.org/career-reviews/software-engineering/
+Unfortunately, many major problems in the world aren't easy to fund.
 
-Crazy ideas:
+==== Startup accelerators
 
-=== From an organizational perspective
+Programs like Y Combinator provide a service that sounds like a "startup
+school". You get some funding from them and a ton of resources to actually get
+started. They even support nonprofits!
+
+However, much of the work here is related to external investing. Asking for
+money will increase the pressure on you to provide greater returns, which
+doesn't help. It may make you more stressed, or make your company deviate from
+its original purpose.
+
+Although required in many capital-intensive companies, it shouldn't be the
+"default choice". Funding in this can be like strapping a rocket to your
+company; it will grow immensely and then crash when it runs out of fuel.
+Ideally, we'd like something more linear that grows over time sustainably.
+
+==== Nonprofits
+
+A nonprofit's objective is to provide a collective, public or social benefit, as
+opposed to an entity that operates as a business aiming to generate a profit for
+its owners.
+
+In the US, there are many kinds of nonprofits: Public Charities (501(c)(3)),
+Social Welfare Organizations (501(c)(4)), Labor/Agricultural Organizations
+(501(c)(5)), Business Leagues (501(c)(6)), and Social Clubs (501(c)(7)). I'll be
+mostly focusing on Private Foundations (501(c)(3)).
+
+There's also the possibility of having a mixed structure like OpenAI's infamous
+one. They started as a 501(c)(3), but after only raising $150M out of their $1B
+goal, they switched to a "capped for-profit" structure. This introduced a new
+for-profit company that is fully owned by the non-profit, but that still can
+distribute equity. Investments whose returns exceed the 100x cap must be donated
+to their cause, which will supposedly be nothing compared to the profits an AGI
+would generate.
+
+==== Crowdfunding
+
+==== Social enterprises
+
+==== For-profits
+
+There are some ways in which a for-profit can try to prove they're sustainable.
+Some of these depend a lot on local laws, but I've included some examples from
+the US:
+
+* The "B Corporation" certificate is granted only to for-profit companies with a
+  good enough social impact and environment performance. The commitments must be
+  integrated into stakeholders and company-governing documents, and an annual
+  fee based on annual sales must be paid. Re-certification is necessary every
+  three years.
+* A "[benefit corporation](https://en.wikipedia.org/wiki/Benefit_corporation)"
+* There's also "[low-profit limited liability
+  companies](https://en.wikipedia.org/wiki/Low-profit_limited_liability_company)"
+  (L3C).
+* https://en.wikipedia.org/wiki/Social_purpose_corporation
+* https://en.wikipedia.org/wiki/Sustainable_business
+
+== My journey
+
+Software engineering has always brought me lots of joy from the technical
+standpoint. It's weird, but building and fixing systems is fun to me. Recently,
+though, I've started to have this itch that I need something which makes me
+proud of my work longer term. To me, working on your own thing is what really
+ensures you'll be proud of it, as you're not as controlled by other people's
+ideas. And sure, my systems are shiny and cool, but what's in it for the world?
+
+I'm lucky enough to believe I have the choice to do something about this. It
+feels like the hardest thing I'd do in my life and requires time and experience,
+though. So I need to take it slow, and continue to learn from working for
+others. In the meanwhile, I can try to learn a bit more about how I could ever
+do it.
+
+There's also paths to achieve this "long-term satisfaction about your work".
+It's important to consider them before, you know, incorporating a company.
+
+=== Side jobs
 
 One of my worries is forcing myself to a passion that's not really mine just for
 this. Becoming a CEO is something that technically attracts me less, and that I
 feel less talented for. In order to truly be effective, I need to find something
 that fully utilizes my resources.
 
-=== From a personal perspective
+Voluntary work.
 
-* Scale dehumanizes companies?
-* Keeping it small could make it more manageable?
-
-An alternative would be "Effective Altruism", where I just work for something
-lucrative that's not good for the world, but donate most of the earnings for a
-good cause.
-
-Unrelated fun business ideas:
-
-* kebab-style sushi
-* bartender drink recommendation system
-
-=== From a financial perspective
-
-Unfortunately, many major problems in the world aren't easy to fund.
-
-== Methods
-
-=== Starting with what you want to improve
-
-E.g., becoming an expert in something if you want to improve that. Aligns with
-"you're 2/3s of your best friends/environment".
-
-Downsides: you might not enjoy working in that area yourself.
-
-=== Career change
-
-Working on whatever to fund your basic expenses and work on something else that
-needs improvement but doesn't have that much funding.
-
-=== Effective Altruism
+=== Effective altruism
 
 Working on whatever and donating to a cause.
 
