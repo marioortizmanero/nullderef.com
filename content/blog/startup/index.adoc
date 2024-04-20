@@ -209,6 +209,14 @@ Recommended books: Finite and infinite games, several short sentences about writ
 
 * Remaining questions: personal life??
 
+=== It doesn't have to be crazy at work - Jason Fried
+
+Basecamp, 40h in winter and 32h in summer. Intentional decisions to make a calm company. Meetings only as the last resort, no late working, reasonable expectations/deadlines, no untilimited growth, funding comes from customers rather than VC.
+
+Open questions:
+- What to do w.r.t. funding if it's s capital-intensive business? Unlike Basecamp, which is full software
+- How to approach social live within work? No meetings means less business but also less interaction. Especially with a remote company.
+
 === Links
 
 - https://twitter.com/m_ou_se/status/1438946869447692297
