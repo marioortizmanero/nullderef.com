@@ -227,9 +227,13 @@ Trying to change the world with the company is unsustainable. It makes it easy t
 
 No personal attachment from employees ("we're a family") or founders ("X is our baby"). People have time with friends and family outside work anyway. The company should support that instead.
 
-Leadership has a huge influence on the team. They shouldn't be overworking.
+Leadership has a huge influence on the team. They shouldn't be overworking. They should also not expect people will reach out to them about issues. Instead, ask for feedback (and not easy one). Only do so when you're able to act on the feedback.
 
-Shopify's "trust battery": dictates whether a relationship between two people is well. Otherwise, it results in people exploding.
+As a leader, try to avoid making small suggestions or asking about stuff like "How is Instagram going?", because its importance will be overstated. It's another source of distraction.
+
+The further away you are from a "low-hanging fruit", the lower it looks.
+
+Shopify's "trust battery": dictates whether a relationship between two people is well. Otherwise, it results in people exploding. Human relationships also need to be maintained at work.
 
 Open questions:
 - What to do w.r.t. funding if it's s capital-intensive business? Unlike Basecamp, which is full software
