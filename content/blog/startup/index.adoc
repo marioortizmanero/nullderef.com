@@ -219,9 +219,17 @@ Apart from the two above, no goals. Leaving some money on the table is okay. Mor
 
 Short-term planning (e.g., every 6 weeks instead of "5 year plan") is more flexible. It also doesn't instill a fake sense of security.
 
-Employee attention and focus is most important. They don't have status meetings and instead share it async, for example. Don't be busy for the sake of it, either (getting obsessed with productivity). They rely on established office hours to answer questions or help (especially subject experts in the company). Can be from Tuesday afternoons to an hour. Most questions can wait. Scheduling time with someone is intentionally hard; calendars are set as private.
+Employee attention and focus is most important. They don't have status meetings and instead share it async, for example. Don't be busy for the sake of it, either (getting obsessed with productivity). The team lead sends a monthly update to the company ("Heartbeat"), only with details they need to know.
+
+They rely on established office hours to answer questions or help (especially subject experts in the company). Can be from Tuesday afternoons to an hour. Most questions can wait. Scheduling time with someone is intentionally hard; calendars are set as private. Availability isn't expected of anyone, because most things can wait anyway. Emergencies are 1% and shouldn't dictate the other 99.
 
 Trying to change the world with the company is unsustainable. It makes it easy to justify late meetings or bad practices. If you do change it, it's not because you said you would.
+
+No personal attachment from employees ("we're a family") or founders ("X is our baby"). People have time with friends and family outside work anyway. The company should support that instead.
+
+Leadership has a huge influence on the team. They shouldn't be overworking.
+
+Shopify's "trust battery": dictates whether a relationship between two people is well. Otherwise, it results in people exploding.
 
 Open questions:
 - What to do w.r.t. funding if it's s capital-intensive business? Unlike Basecamp, which is full software
