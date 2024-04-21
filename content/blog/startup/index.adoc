@@ -213,9 +213,20 @@ Recommended books: Finite and infinite games, several short sentences about writ
 
 Basecamp, 40h in winter and 32h in summer. Intentional decisions to make a calm company. Meetings only as the last resort, no late working, reasonable expectations/deadlines, no untilimited growth, funding comes from customers rather than VC.
 
+No fighting with other companies to win marketshare. In fact, not caring about marketshare, just profits > expenses, and some growth in profits if possible. Focus on the product.
+
+Apart from the two above, no goals. Leaving some money on the table is okay. More specific/quarterly goals are arbitrary and stressful. It also leads to companies compromising their morals when trying to achieve them.
+
+Short-term planning (e.g., every 6 weeks instead of "5 year plan") is more flexible. It also doesn't instill a fake sense of security.
+
+Employee attention and focus is most important. They don't have status meetings and instead share it async, for example. Don't be busy for the sake of it, either (getting obsessed with productivity). They rely on established office hours to answer questions or help (especially subject experts in the company). Can be from Tuesday afternoons to an hour. Most questions can wait. Scheduling time with someone is intentionally hard; calendars are set as private.
+
+Trying to change the world with the company is unsustainable. It makes it easy to justify late meetings or bad practices. If you do change it, it's not because you said you would.
+
 Open questions:
 - What to do w.r.t. funding if it's s capital-intensive business? Unlike Basecamp, which is full software
 - How to approach social live within work? No meetings means less business but also less interaction. Especially with a remote company.
+- Slow food movement?
 
 === Links
 
