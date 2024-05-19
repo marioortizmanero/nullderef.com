@@ -211,13 +211,13 @@ Recommended books: Finite and infinite games, several short sentences about writ
 
 === It doesn't have to be crazy at work - Jason Fried
 
-Basecamp, 40h in winter and 32h in summer. Intentional decisions to make a calm company. Meetings only as the last resort, no late working, reasonable expectations/deadlines, no untilimited growth, funding comes from customers rather than VC.
+Basecamp. Intentional decisions to make a calm company. Meetings only as the last resort, no late working, reasonable expectations/deadlines, no untilimited growth, funding comes from customers rather than VC.
 
 No fighting with other companies to win marketshare. In fact, not caring about marketshare, just profits > expenses, and some growth in profits if possible. Focus on the product.
 
 Apart from the two above, no goals. Leaving some money on the table is okay. More specific/quarterly goals are arbitrary and stressful. It also leads to companies compromising their morals when trying to achieve them.
 
-Short-term planning (e.g., every 6 weeks instead of "5 year plan") is more flexible. It also doesn't instill a fake sense of security.
+Short-term planning (e.g., every 6 weeks instead of "5 year plan") is more flexible. It also doesn't instill a fake sense of security. If a deadline won't be met, reduce scope. Don't ship on Fridays. But make it very strict to avoid stress and ambiguity. Feedback on new projects requires time and thought, rather than just reacting after a presentation about it.
 
 Employee attention and focus is most important. They don't have status meetings and instead share it async, for example. Don't be busy for the sake of it, either (getting obsessed with productivity). The team lead sends a monthly update to the company ("Heartbeat"), only with details they need to know.
 
@@ -235,10 +235,30 @@ The further away you are from a "low-hanging fruit", the lower it looks.
 
 Shopify's "trust battery": dictates whether a relationship between two people is well. Otherwise, it results in people exploding. Human relationships also need to be maintained at work.
 
+They hire people for their work, not their CV. Final candidates are hired for a week and given $1500 to actually see how they work. Company needs to be open about talent (location, diversity, studies), and employees need to be good persons. No expectation after hiring that they are super efficient.
+
+Fixed salary per level and role. Adjusted to be top 10% of industry. Raises based on that, no decreases. They use consulting to get the data. No bonuses and no stock options because of no intention of selling the company. And if they did, fixed percentage of sell price goes to employees. Fixed part of profits also go to employees, regardless of role.  Requirement to say why people leave to avoid assumptions and gossip.
+
+Benefits to keep people out of the office, not inside of it. Also, 3 weeks of vacations without being pending of work. Some flexibility if more are needed.
+- Fully paid vacation per year, $5000 per family
+- Three-day weekends in summer
+- 30d paid sabaticals every 3y
+- $1000/y for education, especially stuff outside work like instruments
+- $2000/y charity match
+- Monthly massage at spa
+- $100/no for fitness
+
+Office with library rules to avoid interruption and keep it quiet.
+
+Actively avoid bad situations (e.g., bad-calling other companies), don't let them slip. Otherwise they'll become the norm.
+
 Open questions:
 - What to do w.r.t. funding if it's s capital-intensive business? Unlike Basecamp, which is full software
 - How to approach social live within work? No meetings means less business but also less interaction. Especially with a remote company.
 - Slow food movement?
+- How to do onboarding if it's all async? What's the process?
+- What happens in emergencies during vacation?
+- How to deal with completely opposite timezones for async?
 
 === Links
 
