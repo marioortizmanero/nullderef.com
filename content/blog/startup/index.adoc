@@ -259,6 +259,7 @@ Open questions:
 - How to do onboarding if it's all async? What's the process?
 - What happens in emergencies during vacation?
 - How to deal with completely opposite timezones for async?
+- You require people to spend a week working on a paid project before hiring them. What if they already have a job?
 
 === Links
 
