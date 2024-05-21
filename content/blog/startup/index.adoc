@@ -260,6 +260,7 @@ Open questions:
 - What happens in emergencies during vacation?
 - How to deal with completely opposite timezones for async?
 - You require people to spend a week working on a paid project before hiring them. What if they already have a job?
+- How do you approach promotions and people only focusing on that (impact)?
 
 === Links
 
