@@ -266,6 +266,10 @@ Monotony can make work boring and people change jobs. By including a sense of se
 
 They don't prioritize big clients, instead flate monthly rate. That means no one can demand more features with more priority than others. It also splits up the company into focusing small businesses and big ones.
 
+No beta testing or surveys; everyone gets features at the same time. Until you ship, you'll never actually know if it works, and deliberating is very time-consuming.
+
+They don't make promises because they don't even have a road map in the first place. Let customers who don't want a feature not have it (invite, not demand), only enforce it for new customer.
+
 Open questions:
 - What to do w.r.t. funding if it's s capital-intensive business? Unlike Basecamp, which is full software
 - How to approach social live within work? No meetings means less business but also less interaction. Especially with a remote company.
