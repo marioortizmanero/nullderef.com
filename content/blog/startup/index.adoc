@@ -211,7 +211,7 @@ Recommended books: Finite and infinite games, several short sentences about writ
 
 === It doesn't have to be crazy at work - Jason Fried
 
-Basecamp. Intentional decisions to make a calm company. Meetings only as the last resort, no late working, reasonable expectations/deadlines, no untilimited growth, funding comes from customers rather than VC.
+Basecamp. Intentional decisions to make a calm company. Meetings only as the last resort, no late working, reasonable expectations/deadlines, no unlimited growth, funding comes from customers rather than VC.
 
 No fighting with other companies to win marketshare. In fact, not caring about marketshare, just profits > expenses, and some growth in profits if possible. Focus on the product.
 
@@ -251,6 +251,20 @@ Benefits to keep people out of the office, not inside of it. Also, 3 weeks of va
 Office with library rules to avoid interruption and keep it quiet.
 
 Actively avoid bad situations (e.g., bad-calling other companies), don't let them slip. Otherwise they'll become the norm.
+
+Don't start with bad habits because they're bad to change. Do it right since the beginning.
+
+They disagree and commit because reaching a consensus is time-consuming.
+
+Perfectionism is bad. And resist from extending the scope of projects, commit to the idea. Change isn't necessarily for good, make sure "doing nothing" is on the table. Know when it's enough. Saying no can also help have more time.
+
+Small teams are usually better (3). "You can do big things with small teams, but it's a hell of a lot harder to do small things with big teams".
+
+The sense of urgency to work on a new idea is bad. Give them time, and stick with what you're doing.
+
+Monotony can make work boring and people change jobs. By including a sense of seasonality (e.g., 32h/week in summer or other benefits) helps.
+
+They don't prioritize big clients, instead flate monthly rate. That means no one can demand more features with more priority than others. It also splits up the company into focusing small businesses and big ones.
 
 Open questions:
 - What to do w.r.t. funding if it's s capital-intensive business? Unlike Basecamp, which is full software
