@@ -4,6 +4,7 @@ description: "TODO"
 author: "Mario Ortiz Manero"
 images: ["TODO"]
 tags: ["tech"]
+series: ["dont-use-this-phone"]
 date: 2024-06-01
 GHissueID: TODO
 draft: true
@@ -55,16 +56,16 @@ The question arises: how in the world would you even manufacuture a phone? It
 sounds like the most daunting task, especially given that I don't know anything
 about hardware. Well, that's what I'll be doing some research about in this
 series! We'll cover topics like funding, studies about addiction, existing
-companies, phone manufacturing, and more. And I say we because my hope is to 
+companies, phone manufacturing, and more.
 
 == Looking at the current state
 
 I've been drawn to this space for some time, trying to learn from existing
-solutions and see what people are coming up with.
+solutions and see what people are coming up with:
 
 === Technology
 
-Firstly, taking a step back from "phones that shouldn't be used". Can we
+Firstly, let's take a step back from "phones that shouldn't be used". Can we
 generalize it to "tech that shouldn't be used"? Or rather, "tech that doesn't
 unnecessarily grab your attention"? Well, then you'd be onto something! That's
 precisely the definition of "https://en.wikipedia.org/wiki/Calm_technology[Calm
@@ -122,17 +123,24 @@ work well for some people, which is awesome.
 
 ==== Software
 
-Companies that focus on this topic need to build their own phones because of how
-painful it would be to implement these features without system access. There's
-already apps like https://timelimit.io/en/[TimeLimit.io], but you need to grant
-access to endless permissions, making you question if your phone's security will
-be at risk. It also doesn't work well on some phone brands.
+TODO: it's also harder to monetize
+
+Implementing features to reduce screen time can be painful without system
+access. Thus, companies usually try to build their own hardware.
+
+TODO: too many permissions makes you concerned about the phone's security
+
+There's https://timelimit.io/en/[TimeLimit.io], for example, which TODO.
+However, it starts with a step to grant permissions, which is one step too many
+to make it widespread. It also doesn't work well on some phone brands.
 
 ==== Custom Phones
 
-A common pattern seems to have to do with EInk. It turns out that its
+A common pattern is the usage of EInk displays. EInk is commonly seen on
+e-readers, as an alternative that TODO. And it turns out that its
 performance can be much better than your crappy Kindle, which takes 5 seconds to
-skip to the next page:
+skip to the next page. There's even now color EInk, with Kindle releasing its
+first version in 2014 [TODO: link].
 
 TODO: VIDEO
 
@@ -140,39 +148,6 @@ Some of the most popular brands are HiSense and Boox. However, they aren't that
 well marketed nor supported outside of Asia. There are also some new startups
 catching up releasing new devices, such as Mudita or Daylight, but they aren't
 quite there yet. Anyhow, I plan on diving deeper into this in a later article.
-
-== Founding principles
-
-=== Ethics
-
-I'm a big fan of bootstrapped companies instead of relying on VC money. I'm
-afraid, however, that for hardware manufacturing this would only be viable for
-billionaires. Here we'll need to pay for hardware (and a lot of it) before
-receiving a cent from customers.
-
-Even crowdfunding might not help, because it's 
-
-=== Technically-oriented
-
-=== Privacy
-
-In my experience, a big chunk of technically-oriented folks care about privacy.
-Of course, we wouldn't be doing anything intentionally evil, but collecting
-anonymous data can still be very helpful. The same way many companies run
-experiments on how to increase app usage with A/B testing and similars, we'd
-need something similar for the opposite. If we release this new feature, do
-people actually unlock their phones less frequently?
-
-"It doesn't have to be crazy at work"
-
-=== Selling point
-
-=== Strong community
-
-It's important to open up some space to create a healthy community to discuss
-these kind of things. It's a new-ish area, so people come in with lots of ideas.
-I could imagine a list of features based on community votes like Spotify
-(preferably, that's actually followed).
 
 == Wrapping up
 
