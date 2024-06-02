@@ -43,51 +43,112 @@ So what if we tried to find a middle point? There are two possible approaches:
 * A dumbphone trying to be a smartphone
 * Or a smartphone trying to be a dumbphone
 
-I'm a bigger fan of the latter, because most dumbphones don't run Android, and
-it ends up being impossible to support everyone's use-cases one by one. Your
-dumbphone's OS could add custom support for Uber, but there may be someone who
-won't buy the phone unless it has Spotify. And a password manager. And their
-banking app. After implementing all of these, someone will need a damned parking
-app for their apartment complex <<parking>>. The mobile ecosystem is so huge
-that it's very restrictive to start from nothing.
+I'm a bigger fan of the latter, because most dumbphones don't run Android. Given
+how huge the mobile ecosystem is, it ends up being very restrictive to support
+everyone's use-cases one by one. Your dumbphone's OS could add custom support
+for Uber, but there may be someone who won't buy the phone unless it has
+Spotify. And a password manager. And their banking app. And after implementing
+all of these, someone will need a damned parking app for their apartment complex
+<<parking>>.
 
-The question arises: how in the world would you manufacuture a phone? It sounds
-like the most daunting task, especially given that I don't know anything about
-hardware. Well, that's what I'll be doing some research about in this series! It
-will cover topics like funding, studies about addiction, existing companies,
-phone manufacturing, and more.
+The question arises: how in the world would you even manufacuture a phone? It
+sounds like the most daunting task, especially given that I don't know anything
+about hardware. Well, that's what I'll be doing some research about in this
+series! We'll cover topics like funding, studies about addiction, existing
+companies, phone manufacturing, and more. And I say we because my hope is to 
 
-== Existing ideologies
+== Looking at the current state
 
-Let's take a look at some similar projects and ideologies before anything else.
+I've been drawn to this space for some time, trying to learn from existing
+solutions and see what people are coming up with.
 
-=== Calm Tech
+=== Technology
 
-"https://en.wikipedia.org/wiki/Calm_technology[Calm Technology]" is a design
-concept that attempts to respect the user's attention.
+Firstly, taking a step back from "phones that shouldn't be used". Can we
+generalize it to "tech that shouldn't be used"? Or rather, "tech that doesn't
+unnecessarily grab your attention"? Well, then you'd be onto something! That's
+precisely the definition of "https://en.wikipedia.org/wiki/Calm_technology[Calm
+Technology]".
 
-=== Calm Companies
+This is very centered around _design_, but still very much in our area.
 
-I strongly believe that in order to fund a company that cares about people's
-mental health, the company itself must encourage the same for its workers. I
-learned a lot about this by reading "It doesn't have to be crazy at work" from
-the founders of Basecamp. It really makes you re-think
+=== Companies
 
-- It doesn't have to be crazy at work
-  - Even if you don't want to work for a "calm company" or build one yourself,
-    it'll teach you things.
+In order to start a company that cares about people's mental health, it's
+sensible to say that its workers shouldn't be crunching 60 hours per week. Most
+of my learnings here come from reading "It doesn't have to be crazy at work",
+written by the founders of Basecamp.
+
+The book makes you re-think many things you take for granted about how companies
+are built. Leadership, benefits, planning, hiring, funding... And in which ways
+one can make it more sane overall.
+
+If you start a company by thinking you'll
+change the world, the stakes will be higher from the start.
+
+"We won't get rich".
 
 Enterpreneurship is good for the world, so why not make it look better with
 this?
+
+I plan on another article just about this.
+
+=== Phones
+
+Most phones actually come with excellent features to minimize screen time. But
+they don't seem to be enough because of two reasons:
+
+1. They aren't well marketed; most people aren't aware of their existence.
+   Android calls them "https://www.android.com/digital-wellbeing/[Digital
+   Wellbeing]", but I personally receive more system notifications about new AI
+   features in my camera than things like this.
+2. They aren't first-party citizens; the tools are there, but they don't quite
+   integrate seamlessly. The most powerful feature on Android is "modes", which
+   allows one to configure parts of your phone based on triggers or manually.
+   For example, disable Instagram and set it to grayscale when your GPS is in
+   the library. Being so powerful, it's also complicated to configure, though.
+   If the company's goal was to reduce screen time, I'm sure we'd have lots of
+   ideas to improve its adoption.
+
+==== Accessories
+
+There are several devices you can use to disable apps requiring external
+hardware. This is to both make you more conscious about the decision to open
+Instagram, or to make it impossible to do if you leave the device at home. A
+couple of them I've found are https://getbrick.app/[Brick] and
+https://www.unpluq.com/[UnPluq]. The major caveats are that TODO, and UnPluq
+follows a subscription-based model for 70€ per year. Regardless, they seem to
+work well for some people, which is awesome.
+
+==== Software
+
+Companies that focus on this topic need to build their own phones because of how
+painful it would be to implement these features without system access. There's
+already apps like https://timelimit.io/en/[TimeLimit.io], but you need to grant
+access to endless permissions, making you question if your phone's security will
+be at risk. It also doesn't work well on some phone brands.
+
+==== Custom Phones
+
+A common pattern seems to have to do with EInk. It turns out that its
+performance can be much better than your crappy Kindle, which takes 5 seconds to
+skip to the next page:
+
+TODO: VIDEO
+
+Some of the most popular brands are HiSense and Boox. However, they aren't that
+well marketed nor supported outside of Asia. There are also some new startups
+catching up releasing new devices, such as Mudita or Daylight, but they aren't
+quite there yet. Anyhow, I plan on diving deeper into this in a later article.
 
 == Founding principles
 
 === Ethics
 
 I'm a big fan of bootstrapped companies instead of relying on VC money. I'm
-afraid, however, that since I'm no billionaire, this won't be possible here.
-Bootstrapping is doable if you're only working with software, but here we'll
-need to pay for hardware (and a lot of it) before
+afraid, however, that for hardware manufacturing this would only be viable for
+billionaires. Here we'll need to pay for hardware (and a lot of it) before
+receiving a cent from customers.
 
 Even crowdfunding might not help, because it's 
 

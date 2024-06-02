@@ -239,6 +239,8 @@ They hire people for their work, not their CV. Final candidates are hired for a 
 
 Fixed salary per level and role. Adjusted to be top 10% of industry. Raises based on that, no decreases. They use consulting to get the data. No bonuses and no stock options because of no intention of selling the company. And if they did, fixed percentage of sell price goes to employees. Fixed part of profits also go to employees, regardless of role.  Requirement to say why people leave to avoid assumptions and gossip.
 
+- Thought: people work crazy hours to get rich. Basecamp doesn't pretend to do so, and neither do their workers.
+
 Benefits to keep people out of the office, not inside of it. Also, 3 weeks of vacations without being pending of work. Some flexibility if more are needed.
 - Fully paid vacation per year, $5000 per family
 - Three-day weekends in summer
@@ -271,14 +273,14 @@ No beta testing or surveys; everyone gets features at the same time. Until you s
 They don't make promises because they don't even have a road map in the first place. Let customers who don't want a feature not have it (invite, not demand), only enforce it for new customer.
 
 Open questions:
-- What to do w.r.t. funding if it's s capital-intensive business? Unlike Basecamp, which is full software
-- How to approach social live within work? No meetings means less business but also less interaction. Especially with a remote company.
-- Slow food movement?
-- How to do onboarding if it's all async? What's the process?
-- What happens in emergencies during vacation?
-- How to deal with completely opposite timezones for async?
-- You require people to spend a week working on a paid project before hiring them. What if they already have a job?
-- How do you approach promotions and people only focusing on that (impact)? https://basecamp.com/handbook/making-a-career
+- [Asked] What to do w.r.t. funding if it's s capital-intensive business? Unlike Basecamp, which is full software
+- [Asked] How to approach social life within work? No meetings means less business but also less interaction. Especially with a remote company.
+- [Don't remember the context] Slow food movement?
+- [I imagine the response] How to do onboarding if it's all async? What's the process?
+- [Asked] What happens in emergencies during vacation?
+- [I imagine the response] How to deal with completely opposite timezones for async?
+- [Asked] You require people to spend a week working on a paid project before hiring them. What if they already have a job?
+- [Asked] How do you approach promotions and people only focusing on that (impact)? https://basecamp.com/handbook/making-a-career
 
 === Links
 
