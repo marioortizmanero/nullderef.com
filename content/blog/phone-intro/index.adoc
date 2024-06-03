@@ -7,7 +7,7 @@ tags: ["tech"]
 series: ["dont-use-this-phone"]
 date: 2024-06-01
 GHissueID: TODO
-draft: true
+// draft: true
 ---
 
 What if there was a company selling phones that, against all odds, optimized how
@@ -94,7 +94,7 @@ this?
 
 I plan on another article just about this.
 
-=== Phones
+=== Software
 
 Most phones actually come with excellent features to minimize screen time. But
 they don't seem to be enough because of two reasons:
@@ -106,35 +106,66 @@ they don't seem to be enough because of two reasons:
 2. They aren't first-party citizens; the tools are there, but they don't quite
    integrate seamlessly. The most powerful feature on Android is "modes", which
    allows one to configure parts of your phone based on triggers or manually.
-   For example, disable Instagram and set it to grayscale when your GPS is in
-   the library. Being so powerful, it's also complicated to configure, though.
-   If the company's goal was to reduce screen time, I'm sure we'd have lots of
-   ideas to improve its adoption.
-
-==== Accessories
-
-There are several devices you can use to disable apps requiring external
-hardware. This is to both make you more conscious about the decision to open
-Instagram, or to make it impossible to do if you leave the device at home. A
-couple of them I've found are https://getbrick.app/[Brick] and
-https://www.unpluq.com/[UnPluq]. The major caveats are that TODO, and UnPluq
-follows a subscription-based model for 70€ per year. Regardless, they seem to
-work well for some people, which is awesome.
-
-==== Software
-
-TODO: it's also harder to monetize
-
-Implementing features to reduce screen time can be painful without system
-access. Thus, companies usually try to build their own hardware.
+   For example, when your GPS is in the library, disable Instagram and set the
+   phone to grayscale. Being so powerful, it's also complicated to configure,
+   though. If the company's goal was to reduce screen time, I'm sure we'd have
+   lots of ideas to improve its adoption.
 
 TODO: too many permissions makes you concerned about the phone's security
 
-There's https://timelimit.io/en/[TimeLimit.io], for example, which TODO.
-However, it starts with a step to grant permissions, which is one step too many
-to make it widespread. It also doesn't work well on some phone brands.
+Pulling off a solution that's fully software-based can be complicated; it often
+needs cooperation with hardware. For instance, the open-source app
+https://timelimit.io/[TimeLimit.io] is an even more configurable alternative to
+"Digital Wellness". Unfortunately, it starts with a step to grant permissions,
+which is one step too many to make it widespread. I'd argue that even having to
+install it is too much.
 
-==== Custom Phones
+There are alternatives exceeding the million downloads and better usability,
+although their source code isn't available:
+
+* Digital control
+** [Android] https://play.google.com/store/apps/details?id=cz.mobilesoft.appblock[AppBlock]
+** [Android, iOS] https://play.google.com/store/apps/details?id=to.freedom.android2[Freedom]
+** [Android] https://play.google.com/store/apps/details?id=com.mindefy.phoneaddiction.mobilepe[YourHour]
+** [Android] https://play.google.com/store/apps/details?id=mrigapps.andriod.breakfree.deux[SPACE]
+** [Android] https://play.google.com/store/apps/details?id=com.urbandroid.ddc[Digital Detox]
+** [Android, iOS] https://play.google.com/store/apps/details?id=com.burockgames.timeclocker[StayFree] (iOS version might be crap)
+** [Android, iOS] https://play.google.com/store/apps/details?id=com.stayfocused[Stay Focused]
+** [Android] https://play.google.com/store/apps/details?id=com.app.floatingapptimer.com[StayOff]
+** [Android] https://play.google.com/store/apps/details?id=com.actiondash.playstore[ActionDash]
+** [iOS] https://apps.apple.com/us/app/clearspace-reduce-screen-time/id1572515807[ClearSpace]
+** [iOS] https://apps.apple.com/us/app/refocus-app-website-blocker/id1645639057[Refocus]
+** [iOS] https://apps.apple.com/us/app/opal-screen-time-for-focus/id1497465230[Opal]
+* Launchers
+** [Android] https://play.google.com/store/apps/details?id=com.qqlabs.minimalistlauncher[minimalist phone]
+** [Android] https://play.google.com/store/apps/details?id=com.indistractablelauncher.android[Indistract]
+** [iOS] https://apps.apple.com/us/app/blank-spaces-app/id1570856853[Blank Spaces]
+** [iOS]
+* Productivity timers: even gamified
+** [Android, iOS] https://play.google.com/store/apps/details?id=cc.forestapp[Forest]
+** [iOS] https://apps.apple.com/us/app/flora-green-focus/id1225155794[Flora]
+** [iOS] https://apps.apple.com/us/app/plantie-stay-focused/id1135988868[Plantie]
+
+I haven't used all of them, so comment your experiences!
+
+There's a conflict in monetizing this kind of software, where you'd need to
+serve ads or make purchasable content.
+
+TODO: it's also harder to monetize
+
+=== Accessories
+
+Some products make it possible to disable apps based on physical access to them.
+Requiring NFC to unblock apps can help you avoid the reflex of opening Instagram
+automatically, making it a conscious choice. There's also the option of blocking
+the apps and leaving the device at home to fully disconnect.
+
+A couple of them include https://getbrick.app/[Brick] and
+https://www.unpluq.com/[UnPluq]. They only solve part of the problem, though,
+and UnPluq follows a subscription-based model for 70€ per year. Regardless, they
+seem to work well for some people, which is awesome.
+
+=== Phones
 
 A common pattern is the usage of EInk displays. EInk is commonly seen on
 e-readers, as an alternative that TODO. And it turns out that its
