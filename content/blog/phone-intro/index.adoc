@@ -7,7 +7,7 @@ tags: ["tech"]
 series: ["dont-use-this-phone"]
 date: 2024-06-01
 GHissueID: TODO
-// draft: true
+draft: true
 ---
 
 What if there was a company selling phones that, against all odds, optimized how
