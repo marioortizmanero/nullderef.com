@@ -12,15 +12,8 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Sat, 01 Jun 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 14 Jan 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://nullderef.com/series/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Dont-Use-This-Phone</title>
-      <link>https://nullderef.com/series/dont-use-this-phone/</link>
-      <pubDate>Sat, 01 Jun 2024 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/series/dont-use-this-phone/</guid>
-      <description></description>
-    </item>
     <item>
       <title>RSpotify</title>
       <link>https://nullderef.com/series/rspotify/</link>

@@ -12,15 +12,8 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>See this site&#39;s source code [here](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Sat, 01 Jun 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 14 Jan 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://nullderef.com/tags/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Tech</title>
-      <link>https://nullderef.com/tags/tech/</link>
-      <pubDate>Sat, 01 Jun 2024 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/tech/</guid>
-      <description></description>
-    </item>
     <item>
       <title>Async</title>
       <link>https://nullderef.com/tags/async/</link>
@@ -82,6 +75,13 @@
       <link>https://nullderef.com/tags/spotify/</link>
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/spotify/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Tech</title>
+      <link>https://nullderef.com/tags/tech/</link>
+      <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/tech/</guid>
       <description></description>
     </item>
     <item>
