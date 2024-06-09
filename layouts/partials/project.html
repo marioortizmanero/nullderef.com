@@ -1,6 +1,6 @@
 <div class="project-entry">
   <header class="project-header">
-    <h3>{{ .name }}</h3>
+    <h3>{{ .name | markdownify }}</h3>
     {{ with .position }}<p>({{ . | markdownify }})</p>{{ end }}
   </header>
 
@@ -17,8 +17,4 @@
       </div>
     {{ end }}
   </div>
-
-  <footer class="project-footer">
-    <span>{{ .date | markdownify }}</span>
-  </footer>
 </div>

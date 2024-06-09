@@ -1,0 +1,19 @@
+.social-icons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.social-icons .subscribe-msg {
+  font-size: 17px;
+  padding: 0px;
+}
+
+.social-icons .subscribe-word {
+  padding: 0px;
+  font-weight: bold;
+  box-shadow: 0 1px 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  font-size: 17px;
+}

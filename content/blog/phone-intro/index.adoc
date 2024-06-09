@@ -10,6 +10,8 @@ GHissueID: TODO
 draft: true
 ---
 
+TODO: fill out description in series/dont-use-this-phone/_index.md
+
 What if there was a company selling phones that, against all odds, optimized how
 _little_ they were used? Given that every company is trying to get you hooked
 into their app, there's always so much more to be done here.
@@ -37,7 +39,8 @@ Don't get me wrong! I admire the Light Phone and all the work they do. This is
 such a small industry that anything helps. Lots of people out there are really
 happy with their minimal phones, and that's great. But there may be something
 that could become more mainstream; the lower the barrier of entry, the better.
-And as always, I'm just trying to scratch my own itches.
+To be clear, this approach will also miss a lot of use-cases; as always, I'm
+just trying to scratch my own itches.
 
 So what if we tried to find a middle point? There are two possible approaches:
 
@@ -56,7 +59,8 @@ The question arises: how in the world would you even manufacuture a phone? It
 sounds like the most daunting task, especially given that I don't know anything
 about hardware. Well, that's what I'll be doing some research about in this
 series! We'll cover topics like funding, studies about addiction, existing
-companies, phone manufacturing, and more.
+companies, phone manufacturing, and more. Let's see how far the internet can
+take us.
 
 == Looking at the current state
 
@@ -76,31 +80,34 @@ This is very centered around _design_, but still very much in our area.
 === Companies
 
 In order to start a company that cares about people's mental health, it's
-sensible to say that its workers shouldn't be crunching 60 hours per week. Most
-of my learnings here come from reading "It doesn't have to be crazy at work",
-written by the founders of Basecamp.
+sensible to say that its workers shouldn't be crunching 60 hours per week.
+Additionally, how can you keep the company from deviating from its original
+objective? I'm building on top of the naïve assumption that the less screen
+time, the better off the company is. There are many ways to create a company and
+to approach funding so that this doesn't happen... In theory.
 
-The book makes you re-think many things you take for granted about how companies
-are built. Leadership, benefits, planning, hiring, funding... And in which ways
-one can make it more sane overall.
+Most of my learnings here come from reading "It doesn't have to be crazy at
+work", written by the founders of Basecamp. The book makes you re-think many
+things you take for granted about how companies are built. Leadership, benefits,
+planning, hiring, funding... And in which ways one can make it more sane
+overall.
 
-If you start a company by thinking you'll
-change the world, the stakes will be higher from the start.
+I plan on writing a whole article about this, but some things that stood out to
+me are:
 
-"We won't get rich".
-
-This would build on top of the naïve assumption that the less screen time, the
-better off the company is.
+* If you start a company by thinking you'll change the world, the stakes will be
+  higher from the start. Similarly, if you start it thinking you'll become rich,
+  that's when the problems start to happen.
 
 Enterpreneurship is good for the world, so why not make it look better with
 this?
-
-I plan on another article just about this.
 
 === Software
 
 Most phones actually come with excellent features to minimize screen time. But
 they don't seem to be enough because of two reasons:
+
+// TODO: maybe too critical?
 
 1. They aren't well marketed; most people aren't aware of their existence.
    Android calls them "https://www.android.com/digital-wellbeing/[Digital

@@ -1,52 +1,32 @@
 list:
-  - name: Tremor
-    position: Mentee
+  - name: "[Tremor](https://www.tremor.rs/)"
+    position: Mentee, 2021 -- 2022
     logo: /projects/tremor.png
-    description: An open-source event processing system written in Rust.
-      My task was to implement a plugin system for it, and I have a whole series
-      about it here.
-    date: 2021 -- 2022
+    description: A high-performance Event Processing System. My task was to
+      rewrite its core into a plugin system, which can be tricky in Rust!
     urls:
-      - name: Website
-        url: https://www.tremor.rs/
-      - name: NullDeref's Series
+      - name: Read its series on NullDeref
         url: https://nullderef.com/series/rust-plugins/
-  - name: RSpotify
-    position: Maintainer
+  - name: "[RSpotify](https://github.com/ramsayleung/rspotify)"
+    position: Maintainer, 2020 - 2023
     logo: /projects/rspotify.png
-    description: The most popular wrapper for the Spotify Web API in Rust. I
-      helped improve its ergnonomics and safety.
-    date: 2020 -- 2022
+    description: The most popular Rust wrapper for Spotify's Web API. I
+      rethought its design, enhancing ergnonomics and safety.
     urls:
-      - name: GitHub
-        url: https://github.com/ramsayleung/rspotify
-      - name: NullDeref's Article
-        url: https://nullderef.com/blog/web-api-client/
-  - name: NullDeref
-    position: Founder
+      - name: Read its series on NullDeref
+        url: https://nullderef.com/series/rspotify/
+  - name: "[NullDeref](https://github.com/marioortizmanero/nullderef.com)"
+    position: Founder, 2021 -- Present
     logo: /logo-small.png
-    description: This site itself! It's open source and made with
-      [Hugo](https://gohugo.io/). You don't truly understand something unless
-      you can explain it to others :)
-    date: 2021 -- Present
-    urls:
-      - name: GitHub
-        url: https://github.com/marioortizmanero/nullderef.com
-  - name: Vidify
-    position: Founder
+    description: This site itself! It's open source and made with Hugo. You
+      don't truly understand something unless you can explain it to others :)
+  - name: "[Vidify](https://vidify.org/)"
+    position: Founder, 2019 -- 2022
     logo: /projects/vidify.png
-    description: Reproduces music videos for the music that's playing on your
-      computer, in real time. Supports Desktop, and Android phones and TVs.
-    date: 2019 -- 2022
-    urls:
-      - name: Website
-        url: https://vidify.org/
-  - name: Meme Stickers for WhatsApp
-    position: Founder
+    description: Reproduced music videos for the music that's playing on your
+      computer, in real time. Supported Desktop, and Android phones and TVs.
+  - name: "[Meme Stickers for WhatsApp](https://web.archive.org/web/20230218224454/https://play.google.com/store/apps/details?id=com.glowapps.memestickerswhatsapp)"
+    position: Founder, 2018 -- 2019
     logo: /projects/stickers.png
     description: A very silly Android app that reached 5 million downloads.
       I wrote the first version, but I don't own it anymore.
-    date: 2018 -- 2019
-    urls:
-      - name: Play Store
-        url: https://web.archive.org/web/20230218224454/https://play.google.com/store/apps/details?id=com.glowapps.memestickerswhatsapp
