@@ -53,7 +53,7 @@ params:
   ShowCodeCopyButtons: true
   ShowFullTextInRSS: true
   ShowShareButtons: true
-  ShowReadingTime: true
+  # ShowReadingTime: true
   # disableSpecial1stPost: true
   displayFullLangName: true
   ShowPostNavLinks: true
