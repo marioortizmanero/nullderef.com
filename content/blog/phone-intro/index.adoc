@@ -57,10 +57,10 @@ all of these, someone will need a damned parking app for their apartment complex
 
 The question arises: how in the world would you even manufacuture a phone? It
 sounds like the most daunting task, especially given that I don't know anything
-about hardware. Well, that's what I'll be doing some research about in this
-series! We'll cover topics like funding, studies about addiction or EInk,
-existing companies, phone manufacturing, and more. Let's see how far the
-internet can take us.
+about hardware. Well, that's what I'll be researching in this series! It will
+cover topics like studies about addiction, existing software and hardware for
+digital control, phone manufacturing, EInk, or funding. I'm no expert, so let's
+see how far the internet can take us.
 
 == Looking at the current state
 
@@ -77,9 +77,11 @@ Technology]".
 
 This is very centered around _design_, but still very much in our area.
 
-=== People
+=== Society
 
 Is the population aware of this being a problem? Is it even a problem to them?
+There are countless studies on how phone usage leads to isolation or TODO, but
+is anyone actually listening?
 
 === Companies
 
