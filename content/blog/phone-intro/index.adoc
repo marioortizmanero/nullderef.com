@@ -96,51 +96,41 @@ Most of my learnings here come from reading "It doesn't have to be crazy at
 work", written by the founders of Basecamp. The book makes you re-think many
 things you take for granted about how companies are built. Leadership, benefits,
 planning, hiring, funding... And in which ways one can make it more sane
-overall.
+overall. Other calm companies include Balsamiq, Transistor.fm, Wildbit, or
+Convertkit.
 
-I plan on writing a whole article about this, but some things that stood out to
-me are:
+If you start a company by thinking you'll change the world, the stakes will be
+higher from the start. Similarly, if you start it thinking you'll become rich,
+that's when the problems start to happen.
 
-* If you start a company by thinking you'll change the world, the stakes will be
-  higher from the start. Similarly, if you start it thinking you'll become rich,
-  that's when the problems start to happen.
+Bootstrapped companies are usually the best way to stick to your morals. But
+that only works for purely-software companies like Basecamp. Dealing with
+hardware means you will need money. _A lot_ of money. Light Phone 2 raised
+$3.3M; made up of an upfront expense for designing and planning, and the actual
+building ($2M).
 
-However, if your company isn't changing the world like every other, it may be a
-bit complicated to get funding. There's CalmFund and TODO for this, but the
-former recently paused operations, so I'll need to do more investigation.
+So how do you prevent VC from leading too much? OpenAI already failed to do so,
+allegedly because raising money was too hard [REFERENCE]. Nonprofits have it
+harder [TODO].
 
-Enterpreneurship is good for the world, so why not make it look better with
-this?
+A popular choice in this area is Crowdfunding. Bigme, Remarkable, Light Phone,
+Minimal Phone, Librem. They all started like this. Though for what I've learned,
+the money from the crowdfunding is actually only for the building costs, not so
+much the upfront design. The successful path seems to be VC funding to set up
+the team and build a prototype, and then crowdfunding to actually manufacture
+it. This is also when stuff starts to go wrong. There are always endless delays
+when crowdfunding, and if you don't design it well enough, your whole project
+will look like a scam. This has happened many times already.
 
-TODO general
+Likewise, if your company isn't changing the world like every other, it may be a
+bit complicated to get funding. There are two specialized firms: CalmFund, which
+recently https://calmfund.com/writing/pause[paused operations], and
+https://www.indie.vc/[indie.vc], which recently resumed theirs.
 
-- https://en.m.wikipedia.org/wiki/Douglas_Engelbart
-- https://news.ycombinator.com/item?id=32315701 (effective altruism)
-- https://www.breakneck.dev/blog/no-tech-cofounder and https://news.ycombinator.com/item?id=39904704
-- Calm Companies: Balsamiq, Transistor.fm, Wildbit, Convertkit
-- https://longform.asmartbear.com/avoid-blundering/
-- https://news.ycombinator.com/item?id=40654190
-- Funding: https://calmfund.com/writing/pause
-- https://www.outseta.com/posts/calm
-- https://www.indie.vc/ (had a similar model to Calm Fund, also shut down shop for a while due to capital constraints. They've since restarted the fund though)
-- https://newsletter.rhizomerd.com/p/when-to-design-for-emergence ("But what if someone does it before you"? There doesn't have to be a single solution to this. Especially considering how huge the opposing market (those who want you to be staring at the phone) is, and how many ways there are to avoid it.)
-
-TODO non-profits
-
-- https://adoptaunabuelo.org/una-carta-para-un-abuelo/
-
-TODO: open source
-
-- https://twitter.com/m_ou_se/status/1438946869447692297
-- https://www.reddit.com/r/rust/comments/pub2mq
-- https://www.lunasec.io/docs/blog/how-to-build-an-open-source-business-in-2021-part-1/
-- https://vadimdemedes.com/posts/generating-income-from-open-source
-- Inspiration: Typst, Kagi, Proton, Antithesis
-- Funding: OSS Capital
-- https://codecodeship.com/blog/2023-04-14-mike-perham
-- https://docs.emailengine.app/how-i-turned-my-open-source-project-into/
-- https://anonymoushash.vmbrasseur.com/2018/08/24/open-source-is-not-a-business-model-and-your-business-will-fail-if-you-think-that-it-is/
-- Note: Licensing is easy with B2B because piracy is much less popular
+There are certifications like
+https://en.m.wikipedia.org/wiki/B_Corporation_(certification)[B Corporation] or
+https://en.m.wikipedia.org/wiki/Social_enterprise[Social Enterprise], too
+[EXAMPLES]. I plan on doing a deep dive of this section soon, anyway.
 
 === Software
 
@@ -181,11 +171,10 @@ cool things I've seen while trying out Android apps <<apps>>:
 Not everything is limited to blocking apps; there are also minimal app launchers
 <<launchers>> or simpler productivity timers <<timers>>. {{< app
 name="minimalist phone" android="com.qqlabs.minimalistlauncher" >}} does well in
-the "seamless experience" department, taking over your app launcher and
-providing ways to control how you open them. I don't want to do an exhaustive
-analysis, but just looking for "digital control" or "block apps" will already
-return many results. It's worth downloading a few until you find your favorite
-anyway.
+the "seamless experience" department, taking over your launcher and providing
+ways to control how you open apps. I don't want to do an exhaustive analysis,
+but just looking for "digital control" or "block apps" will already return many
+results. It's worth downloading a few until you find your favorite anyway.
 
 Manufacturers have it much easier, though, given that they have full system
 access. For instance, the open-source app {{< app name="TimeLimit"
@@ -242,6 +231,9 @@ Some of the most popular brands are HiSense and Boox. However, they aren't that
 well marketed nor supported outside of Asia. There are also some new startups
 catching up releasing new devices, such as Mudita or Daylight, but they aren't
 quite there yet. Anyhow, I plan on diving deeper into this in a later article.
+
+A simpler approach is what GHOST does. Based on the Pixel, they make some
+modifications and resell it. No need to deal with manufacturers.
 
 == Wrapping up
 
