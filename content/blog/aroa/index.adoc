@@ -131,3 +131,4 @@ Even if the patient goes to therapy, most of their time is spent at home.
 * https://en.m.wikipedia.org/wiki/Copycat_suicide
 * https://news.ycombinator.com/item?id=38935605
 * https://www.fortressofdoors.com/i-lost-my-son/
+* https://news.ycombinator.com/item?id=40521963

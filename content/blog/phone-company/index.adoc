@@ -10,6 +10,8 @@ GHissueID: TODO
 draft: true
 ---
 
+TODO: merge with "startup/index.adoc"
+
 == Founding principles
 
 === Ethics
@@ -19,7 +21,7 @@ afraid, however, that for hardware manufacturing this would only be viable for
 billionaires. Here we'll need to pay for hardware (and a lot of it) before
 receiving a cent from customers.
 
-Even crowdfunding might not help, because it's 
+Even crowdfunding might not help, because it's
 
 === Technically-oriented
 

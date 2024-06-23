@@ -14,7 +14,7 @@ TODO: fill out description in series/dont-use-this-phone/_index.md
 
 What if there was a company selling phones that, against all odds, optimized how
 _little_ they were used? Given that every company is trying to get you hooked
-into their app, there's always so much more to be done here.
+into their app, there's so much that can be done here.
 
 We have "https://en.wikipedia.org/wiki/Feature_phone[dumbphones]", for example.
 These are phones whose functionality is intentionally locked down, with the
@@ -22,12 +22,12 @@ purest examples only supporting calls and SMS. On the other side of the
 spectrum, we have smartphones. It wouldn't be far-fetched to say that most
 people owning one use it more than they'd like.
 
-I've seen people around me trying to switch to a dumbphone. It's not a bad idea;
-it helps them reduce anxiety in the short term. But in the longer term, it turns
+I've seen people around me switching to a dumbphone. It's not a bad idea; it
+helps them reduce anxiety in the short term. But in the longer term, it turns
 out to be impossible. Firstly, because some apps like WhatsApp or Lyft can be
 indispensable for many. And secondly, because using most apps within reasonable
 means are an improvement in quality of life. A GPS can be of immense help
-getting around, or even watching Netflix to fight boredom in a plane.
+getting around, or even Netflix can be a great ally to fight boredom in a plane.
 
 And as a big fan of second-hand stuff, I'd rather give an old Motorola a second
 life than bring yet another phone to the world. Plus, it'd be really cool to
@@ -40,7 +40,7 @@ such a small industry that anything helps. Lots of people out there are really
 happy with their minimal phones, and that's great. But there may be something
 that could become more mainstream; the lower the barrier of entry, the better.
 To be clear, this approach will also miss a lot of use-cases; as always, I'm
-just trying to scratch my own itches.
+just scratching my own itches.
 
 So what if we tried to find a middle point? There are two possible approaches:
 
@@ -58,14 +58,14 @@ all of these, someone will need a damned parking app for their apartment complex
 The question arises: how in the world would you even manufacuture a phone? It
 sounds like the most daunting task, especially given that I don't know anything
 about hardware. Well, that's what I'll be doing some research about in this
-series! We'll cover topics like funding, studies about addiction, existing
-companies, phone manufacturing, and more. Let's see how far the internet can
-take us.
+series! We'll cover topics like funding, studies about addiction or EInk,
+existing companies, phone manufacturing, and more. Let's see how far the
+internet can take us.
 
 == Looking at the current state
 
-I've been drawn to this space for some time, trying to learn from existing
-solutions and see what people are coming up with:
+I've been https://xkcd.com/356/[+++<s>nerdsniped</s>+++] drawn to this space for
+some time, learning more about it from different perspectives:
 
 === Technology
 
@@ -76,6 +76,10 @@ precisely the definition of "https://en.wikipedia.org/wiki/Calm_technology[Calm
 Technology]".
 
 This is very centered around _design_, but still very much in our area.
+
+=== People
+
+Is the population aware of this being a problem? Is it even a problem to them?
 
 === Companies
 
@@ -99,81 +103,128 @@ me are:
   higher from the start. Similarly, if you start it thinking you'll become rich,
   that's when the problems start to happen.
 
+However, if your company isn't changing the world like every other, it may be a
+bit complicated to get funding. There's CalmFund and TODO for this, but the
+former recently paused operations, so I'll need to do more investigation.
+
 Enterpreneurship is good for the world, so why not make it look better with
 this?
 
+TODO general
+
+- https://en.m.wikipedia.org/wiki/Douglas_Engelbart
+- https://news.ycombinator.com/item?id=32315701 (effective altruism)
+- https://www.breakneck.dev/blog/no-tech-cofounder and https://news.ycombinator.com/item?id=39904704
+- Calm Companies: Balsamiq, Transistor.fm, Wildbit, Convertkit
+- https://longform.asmartbear.com/avoid-blundering/
+- https://news.ycombinator.com/item?id=40654190
+- Funding: https://calmfund.com/writing/pause
+- https://www.outseta.com/posts/calm
+- https://www.indie.vc/ (had a similar model to Calm Fund, also shut down shop for a while due to capital constraints. They've since restarted the fund though)
+- https://newsletter.rhizomerd.com/p/when-to-design-for-emergence ("But what if someone does it before you"? There doesn't have to be a single solution to this. Especially considering how huge the opposing market (those who want you to be staring at the phone) is, and how many ways there are to avoid it.)
+
+TODO non-profits
+
+- https://adoptaunabuelo.org/una-carta-para-un-abuelo/
+
+TODO: open source
+
+- https://twitter.com/m_ou_se/status/1438946869447692297
+- https://www.reddit.com/r/rust/comments/pub2mq
+- https://www.lunasec.io/docs/blog/how-to-build-an-open-source-business-in-2021-part-1/
+- https://vadimdemedes.com/posts/generating-income-from-open-source
+- Inspiration: Typst, Kagi, Proton, Antithesis
+- Funding: OSS Capital
+- https://codecodeship.com/blog/2023-04-14-mike-perham
+- https://docs.emailengine.app/how-i-turned-my-open-source-project-into/
+- https://anonymoushash.vmbrasseur.com/2018/08/24/open-source-is-not-a-business-model-and-your-business-will-fail-if-you-think-that-it-is/
+- Note: Licensing is easy with B2B because piracy is much less popular
+
 === Software
 
-Most phones actually come with excellent features to minimize screen time. But
-they don't seem to be enough because of two reasons:
+By default, phones actually come with solid features to block apps and minimize
+screen time in general. However, they don't seem to be good enough to gain
+adoption.
 
-// TODO: maybe too critical?
+Firstly, they aren't well marketed; most people aren't aware of their existence.
+Android calls the features "https://www.android.com/digital-wellbeing/[Digital
+Wellbeing]", but I personally receive more system notifications about new AI
+features in my camera than things like this.
 
-1. They aren't well marketed; most people aren't aware of their existence.
-   Android calls them "https://www.android.com/digital-wellbeing/[Digital
-   Wellbeing]", but I personally receive more system notifications about new AI
-   features in my camera than things like this.
-2. They aren't first-party citizens; the tools are there, but they don't quite
-   integrate seamlessly. The most powerful feature on Android is "modes", which
-   allows one to configure parts of your phone based on triggers or manually.
-   For example, when your GPS is in the library, disable Instagram and set the
-   phone to grayscale. Being so powerful, it's also complicated to configure,
-   though. If the company was optimizing for less screen time instead of ad
-   revenue, we'd surely have more ideas to improve its adoption.
+Secondly, they aren't first-party citizens; the tools are there, but they don't
+quite integrate seamlessly. The most powerful feature on Android is "modes",
+which allows you to switch between settings for different situations. For
+example: when your GPS is in the library, disable Instagram and set the phone to
+grayscale. Being so powerful, it's also complicated to configure (and to keep
+your setup up to date). If the company was optimizing for less screen time
+instead of ad revenue, we'd surely have more ideas to improve its adoption.
 
-TODO: too many permissions makes you concerned about the phone's security
+There are heaps of alternatives on the app marketplaces, although their source
+code may not be available, and most have in-app payments or ads. Here are some
+cool things I've seen while trying out Android apps <<apps>>:
 
-Pulling off a solution that's fully software-based can be complicated; it often
-needs cooperation with hardware. For instance, the open-source app
-https://timelimit.io/[TimeLimit.io] is an even more configurable alternative to
-"Digital Wellness". Unfortunately, it starts with a step to grant permissions,
-which is one step too many to make it widespread. I'd argue that even having to
-install it is too much.
+- fancy tutorials,
+- syncing across devices,
+- blocking websites (or even features inside an app, like YouTube Shorts),
+- blocking pre-bundled categories of apps and websites (such as shopping),
+- breathing exercises before opening apps (or having to read a book),
+- motivational quotes,
+- forums,
+- a floating timer indicating total usage on that day,
+- notification filtering and bundling,
+- gamification (competing against yourself or friends),
+- comprehensive statistics,
+- or having someone else to control your usage.
 
-There are alternatives exceeding the million downloads and better usability,
-although their source code isn't available:
+Not everything is limited to blocking apps; there are also minimal app launchers
+<<launchers>> or simpler productivity timers <<timers>>. {{< app
+name="minimalist phone" android="com.qqlabs.minimalistlauncher" >}} does well in
+the "seamless experience" department, taking over your app launcher and
+providing ways to control how you open them. I don't want to do an exhaustive
+analysis, but just looking for "digital control" or "block apps" will already
+return many results. It's worth downloading a few until you find your favorite
+anyway.
 
-* Digital control
-** [Android] https://play.google.com/store/apps/details?id=cz.mobilesoft.appblock[AppBlock]
-** [Android, iOS] https://play.google.com/store/apps/details?id=to.freedom.android2[Freedom]
-** [Android] https://play.google.com/store/apps/details?id=com.mindefy.phoneaddiction.mobilepe[YourHour]
-** [Android] https://play.google.com/store/apps/details?id=mrigapps.andriod.breakfree.deux[SPACE]
-** [Android] https://play.google.com/store/apps/details?id=com.urbandroid.ddc[Digital Detox]
-** [Android, iOS] https://play.google.com/store/apps/details?id=com.burockgames.timeclocker[StayFree] (iOS version might be crap)
-** [Android, iOS] https://play.google.com/store/apps/details?id=com.stayfocused[Stay Focused]
-** [Android] https://play.google.com/store/apps/details?id=com.app.floatingapptimer.com[StayOff]
-** [Android] https://play.google.com/store/apps/details?id=com.actiondash.playstore[ActionDash]
-** [iOS] https://apps.apple.com/us/app/clearspace-reduce-screen-time/id1572515807[ClearSpace]
-** [iOS] https://apps.apple.com/us/app/refocus-app-website-blocker/id1645639057[Refocus]
-** [iOS] https://apps.apple.com/us/app/opal-screen-time-for-focus/id1497465230[Opal]
-* Launchers
-** [Android] https://play.google.com/store/apps/details?id=com.qqlabs.minimalistlauncher[minimalist phone]
-** [Android] https://play.google.com/store/apps/details?id=com.indistractablelauncher.android[Indistract]
-** [iOS] https://apps.apple.com/us/app/blank-spaces-app/id1570856853[Blank Spaces]
-** [iOS]
-* Productivity timers: even gamified
-** [Android, iOS] https://play.google.com/store/apps/details?id=cc.forestapp[Forest]
-** [iOS] https://apps.apple.com/us/app/flora-green-focus/id1225155794[Flora]
-** [iOS] https://apps.apple.com/us/app/plantie-stay-focused/id1135988868[Plantie]
+Manufacturers have it much easier, though, given that they have full system
+access. For instance, the open-source app {{< app name="TimeLimit"
+android="io.timelimit.android.google.store" >}} is an even more configurable
+alternative to "Digital Wellness". But being external, it needs to start with a
+long (and worrying) step to grant permissions. This alone is one step too many
+to make it widespread -- I'd argue that even having to install it is too much.
 
-I haven't used all of them, so comment your experiences!
+To improve the user experience, some apps make emphasis on explaining how to use
+their features. Others avoid it by trying to be smarter; they have your current
+phone's usage data, so they already know which apps you use too much. One last
+approach is to be opinionated and only support a subset of features that may
+integrate better or have more impact. The Light Phone does this by only
+providing their limited list of apps and features; if you're missing one, maybe
+you'll get it, but maybe not.
 
-There's a conflict in monetizing this kind of software, where you'd need to
-serve ads or make purchasable content.
+Something else raising the barrier of entry is monetization. Although necessary,
+some subscription models can be too much. A particularly creative app I liked
+was {{< app name="Digital Detox" android="com.urbandroid.ddc" >}}, which makes
+you pay $2 upon failing to meet your goals.
 
-TODO: it's also harder to monetize
+It's just great to have so many options, and not being locked in to any of them.
+Different solutions for different people.
+
+// The issue is that phones are essential for emergencies. Urgencies aren't just
+// making a call, but also sending an important Slack message, making a
+// transaction, or taking a photo of something you need to remember. Otherwise,
+// it'd be super easy to just set a hard limit on how many hours you can spend, and
+// ensure people don't cheat.
 
 === Accessories
 
-Some products make it possible to disable apps based on physical access to them.
-Requiring NFC to unblock apps can help you avoid the reflex of opening Instagram
-automatically, making it a conscious choice. There's also the option of blocking
-the apps and leaving the device at home to fully disconnect.
+Some products allow you to disable apps based on physical access to the device.
+Requiring NFC to unlock apps can help break the habit of opening Instagram
+automatically, turning it into a conscious decision. You can also block the apps
+and leave the device at home to fully disconnect.
 
-A couple of them include https://getbrick.app/[Brick] and
-https://www.unpluq.com/[UnPluq]. They only solve part of the problem, though,
-and UnPluq follows a subscription-based model for 70€ per year. Regardless, they
-seem to work well for some people, which is awesome.
+A couple of options are https://getbrick.app/[Brick] and
+https://www.unpluq.com/[UnPluq]. They only solve part of the issue, though, and
+UnPluq follows a subscription-based model that costs 70€ per year. Still, they
+seem to work well for some folks, which is awesome.
 
 === Phones
 
@@ -192,12 +243,45 @@ quite there yet. Anyhow, I plan on diving deeper into this in a later article.
 
 == Wrapping up
 
-I hope this can eventually be "a thing". Just like there's conferences for
-"bootstrapped companies" or sustainability, there should also be for better
-digital control.
+I hope this can eventually be "a thing". Just like there are movements for
+"sustainability" or "diversity", there should also be for better digital
+control. To me, it has a strong relationship with mental health, and there's a
+lot to improve in that regard.
+
+Building something in this area would be exciting. Manufacturing a phone sounds
+like a crazy idea, but who knows where the future will take you :)
 
 [bibliography]
 == References
 
-- [[[light-phone-v1, 1]]] https://www.theverge.com/2019/9/4/20847717/light-phone-2-minimalist-features-design-keyboard-crowdfunding[The high hopes of the low-tech phone -- The Verge]
-- [[[parking,        2]]] https://www.reddit.com/r/dumbphones/comments/sjtkm2/i_have_to_use_an_app_to_open_my_apartment_complex/[I have to use an app to open my apartment complex parking gate, the app is called Gatewise. My lease does not mention anything about needing a smartphone or the use of any apps for garage access. Street parking is not an option. I just want technological equity -- Reddit]
+- [[[light-phone-v1, 1]]]
+  https://www.theverge.com/2019/9/4/20847717/light-phone-2-minimalist-features-design-keyboard-crowdfunding[The
+  high hopes of the low-tech phone -- The Verge]
+- [[[parking,        2]]]
+  https://www.reddit.com/r/dumbphones/comments/sjtkm2/i_have_to_use_an_app_to_open_my_apartment_complex/[I
+  have to use an app to open my apartment complex parking gate, the app is
+  called Gatewise. My lease does not mention anything about needing a smartphone
+  or the use of any apps for garage access. Street parking is not an option. I
+  just want technological equity -- r/dumbphones]
+- [[[apps,           3]]] Digital control:
+    {{< app name="AppBlock" android="cz.mobilesoft.appblock" >}},
+    {{< app name="Freedom" android="to.freedom.android2" ios="freedom-screen-time-control/id1269788228" >}},
+    {{< app name="YourHour" android="com.mindefy.phoneaddiction.mobilepe" >}},
+    {{< app name="Digital Detox" android="com.urbandroid.ddc" >}},
+    {{< app name="StayFree" android="com.burockgames.timeclocker" >}},
+    {{< app name="Stay Focused" android="com.stayfocused" >}},
+    {{< app name="StayOff" android="com.app.floatingapptimer.com" >}},
+    {{< app name="ActionDash" android="com.actiondash.playstore" >}},
+    {{< app name="ClearSpace" ios="clearspace-reduce-screen-time/id1572515807" >}},
+    {{< app name="Refocus" ios="refocus-app-website-blocker/id1645639057" >}},
+    {{< app name="Opal" ios="opal-screen-time-for-focus/id1497465230" >}}
+    {{< app name="Jomo" ios="jomo-screen-time-blocker/id1609960918" >}}
+- [[[launchers,      4]]] Launchers:
+    {{< app name="Olauncher" android="app.olauncher" >}},
+    {{< app name="minimalist phone" android="com.qqlabs.minimalistlauncher" >}},
+    {{< app name="Indistract" android="com.indistractablelauncher.android" >}},
+    {{< app name="Blank Spaces" ios="blank-spaces-app/id1570856853" >}}
+- [[[timers,         5]]] Productivity timers:
+    {{< app name="Forest" android="cc.forestapp" >}},
+    {{< app name="Flora" ios="flora-green-focus/id1225155794" >}},
+    {{< app name="Plantie" ios="plantie-stay-focused/id1135988868" >}}

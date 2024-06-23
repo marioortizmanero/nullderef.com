@@ -1,10 +1,8 @@
-/* Custom CSS for the GitHub shortcode */
-
+/* GitHub shortcode */
 .gh-reference {
   white-space: nowrap;
   word-wrap: break-word;
 }
-
 .gh-icon {
   display: inline-block;
   vertical-align: text-bottom;
@@ -12,12 +10,18 @@
   fill: #57ab5a;
   overflow: visible;
 }
-
 .gh-title {
   white-space: normal;
 }
-
 .gh-number {
   font-weight: 400;
   opacity: 70%;
+}
+
+/* App shortcode */
+.ios-icon {
+  fill: var(--primary);
+}
+.app-inline {
+  white-space: nowrap;
 }
