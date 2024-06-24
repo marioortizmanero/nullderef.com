@@ -62,7 +62,7 @@ cover topics like studies about addiction, existing software and hardware for
 digital control, phone manufacturing, EInk, or funding. I'm no expert, so let's
 see how far the internet can take us.
 
-== Looking at the current state
+== Looking at the state of things
 
 I've been https://xkcd.com/356/[+++<s>nerdsniped</s>+++] drawn to this space for
 some time, learning more about it from different perspectives:
@@ -88,49 +88,59 @@ is anyone actually listening?
 In order to start a company that cares about people's mental health, it's
 sensible to say that its workers shouldn't be crunching 60 hours per week.
 Additionally, how can you keep the company from deviating from its original
-objective? I'm building on top of the naïve assumption that the less screen
-time, the better off the company is. There are many ways to create a company and
-to approach funding so that this doesn't happen... In theory.
+objective?
 
 Most of my learnings here come from reading "It doesn't have to be crazy at
-work", written by the founders of Basecamp. The book makes you re-think many
-things you take for granted about how companies are built. Leadership, benefits,
-planning, hiring, funding... And in which ways one can make it more sane
-overall. Other calm companies include Balsamiq, Transistor.fm, Wildbit, or
-Convertkit.
+work", written by the founders of Basecamp. Other so-called Calm Companies
+include Balsamiq, Transistor.fm
+<<calm-transistor>><<build-your-saas>><<transistor-handbook>><<transistor-justin>>,
+Wildbit <<wildbit>>, or Convertkit <<convertkit>>, but Basecamp is the loudest
+about it.
 
-If you start a company by thinking you'll change the world, the stakes will be
-higher from the start. Similarly, if you start it thinking you'll become rich,
-that's when the problems start to happen.
+The book makes you re-think many things you take for granted about how companies
+are built. Leadership, benefits, planning, hiring, funding... And in which ways
+one can make it more sane overall. One of my takeaways was that if you start a
+company by thinking you'll change the world, the stakes will be higher from the
+start. Similarly, if you start it thinking you'll become rich, that's when the
+problems start to happen.
 
-Bootstrapped companies are usually the best way to stick to your morals. But
-that only works for purely-software companies like Basecamp. Dealing with
-hardware means you will need money. _A lot_ of money. Light Phone 2 raised
-$3.3M; made up of an upfront expense for designing and planning, and the actual
-building ($2M).
+However, a major question remains: funding. These companies are able to stick to
+their morals by bootstrapping and remaining private, essentially. Unfortunately,
+that only works for purely-software companies; dealing with hardware means you
+will need money. _A lot_ of money. Light Phone 2 raised $3.3M; made up of an
+upfront expense for designing and planning, and the actual building ($2M) [TODO
+REF].
+
+But startups achieve funding _precisely_ by asserting they will change the
+world. Their solution will blow the competition out of the water. Prepare to
+invest RIGHT NOW or miss the train. It's just FOMO for investors. How could this
+work in the context of a Calm Company?
+
+A popular choice for custom hardware is Crowdfunding. Bigme, Remarkable, Light
+Phone, Minimal Phone, Librem. They all started like this. Though for what I've
+learned, the money from the crowdfunding is actually only for the building
+costs, not so much the upfront design. The successful path seems to be VC
+funding to set up the team and build a prototype, and then crowdfunding to
+actually manufacture it. This is also when stuff starts to go wrong. There are
+always endless delays when crowdfunding, and if you don't design it well enough,
+your whole project will look like a scam. This has happened many times already.
+
+So, yes. It's hard to avoid VC funding. There are specialized firms, but it's a
+minority. CalmFund, which recently https://calmfund.com/writing/pause[paused
+operations], and https://www.indie.vc/[indie.vc], which recently resumed theirs.
+
+I'm building on top of the naïve assumption that the less screen time, the
+better off the company is.
 
 So how do you prevent VC from leading too much? OpenAI already failed to do so,
 allegedly because raising money was too hard [REFERENCE]. Nonprofits have it
-harder [TODO].
-
-A popular choice in this area is Crowdfunding. Bigme, Remarkable, Light Phone,
-Minimal Phone, Librem. They all started like this. Though for what I've learned,
-the money from the crowdfunding is actually only for the building costs, not so
-much the upfront design. The successful path seems to be VC funding to set up
-the team and build a prototype, and then crowdfunding to actually manufacture
-it. This is also when stuff starts to go wrong. There are always endless delays
-when crowdfunding, and if you don't design it well enough, your whole project
-will look like a scam. This has happened many times already.
-
-Likewise, if your company isn't changing the world like every other, it may be a
-bit complicated to get funding. There are two specialized firms: CalmFund, which
-recently https://calmfund.com/writing/pause[paused operations], and
-https://www.indie.vc/[indie.vc], which recently resumed theirs.
-
-There are certifications like
+harder [TODO]. There are certifications like
 https://en.m.wikipedia.org/wiki/B_Corporation_(certification)[B Corporation] or
 https://en.m.wikipedia.org/wiki/Social_enterprise[Social Enterprise], too
 [EXAMPLES]. I plan on doing a deep dive of this section soon, anyway.
+
+- https://www.onepercentfortheplanet.org/[One Percent for the Planet]
+- https://stripe.com/en-ca/climate[Stripe Climate]
 
 === Software
 
@@ -257,6 +267,20 @@ like a crazy idea, but who knows where the future will take you :)
   called Gatewise. My lease does not mention anything about needing a smartphone
   or the use of any apps for garage access. Street parking is not an option. I
   just want technological equity -- r/dumbphones]
+- [[[calm-transistor,3]]]
+  https://www.reddit.com/r/SaaS/comments/nrjsao/im_40_years_old_and_i_finally_bootstrapped_a_saas/[I'm
+  40 years old and I finally bootstrapped a SaaS, Transistor.fm, to millions in
+  revenue (with a co-founder!) -- r/SaaS]
+- [[[build-your-saas,4]]]
+  https://saas.transistor.fm/episodes[Build Your SaaS -- transistor.fm]
+- [[[transistor-handbook, 5]]]
+  https://github.com/TransistorFM/handbook/blob/master/values.md[What are our
+  values? -- GitHub TransistorFM/handbook]
+- [[[transistor-justin,  6]]] https://justinjackson.ca/[Justin Jackson
+  (co-founder of Transistor.fm)]
+- [[[wildbit,        6]]] https://wildbit.com/[Wildbit]
+- [[[convertkit,     7]]] https://convertkit.com/handbook[The ConvertKit Team
+  Handbook]
 - [[[apps,           3]]] Digital control:
     {{< app name="AppBlock" android="cz.mobilesoft.appblock" >}},
     {{< app name="Freedom" android="to.freedom.android2" ios="freedom-screen-time-control/id1269788228" >}},
