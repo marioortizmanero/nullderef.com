@@ -20,6 +20,9 @@
   {{ $prev = index $postsInThisSeries (sub $index 1) }}
   {{ $next = index $postsInThisSeries (add $index 1) }}
   {{ $thisSeriesPage := site.GetPage (printf "series/%s" $thisSeries | urlize) }}
+  {{ if eq $thisSeriesPage.Params.isFinished nil }}
+    {{ fmt.Errorf "The series \"%s\" doesn't have the `isFinished` attribute" $thisSeriesPage.Title }}
+  {{ end }}
   {{ $message = printf "This post is part of the series \"[%s](%s)\"" $thisSeriesPage.Title $thisSeriesPage.Permalink }}
   {{ if $thisSeriesPage.Params.isFinished }}
     {{ $message = printf "%s, which is currently finished." $message }}

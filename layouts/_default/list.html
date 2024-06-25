@@ -22,11 +22,25 @@
     {{- end }}
     {{- end }}
   </h1>
+
   {{- if .Description }}
   {{/* CUSTOM: `p` instead of `div` for consistency */}}
   <p class="post-description post-content">
     {{ .Description | markdownify }}
   </p>
+  {{- end }}
+
+  {{/* CUSTOM: finished series */}}
+  {{- if ne .Params.isFinished nil }}
+  {{- if .Params.isFinished }}
+  <p class="post-description post-content">
+    <i>This series is currently finished.</i>
+  </p>
+  {{- else }}
+  <p class="post-description post-content">
+    <i>This series is still being written. <a href="/subscribe">Subscribe</a> to keep up to date!</i>
+  </p>
+  {{- end }}
   {{- end }}
 </header>
 {{- end }}
