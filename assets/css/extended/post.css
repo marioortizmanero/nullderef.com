@@ -1,4 +1,9 @@
 /* Custom CSS for a single post */
+.post-description a {
+  box-shadow: 0 1px 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
 
 .series-indicator p {
   font-style: italic;
@@ -6,7 +11,22 @@
 }
 
 .series-indicator p a {
-    box-shadow: 0 1px 0;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
+  box-shadow: 0 1px 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.post-meta {
+  font-style: italic;
+  color: var(--primary);
+  opacity: 0.9;
+  font-size: 17px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.post-meta a {
+  box-shadow: 0 1px 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
