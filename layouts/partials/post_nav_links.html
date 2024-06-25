@@ -37,6 +37,7 @@
 </div>
 {{- end }}
 
+{{- if or $prev $next }}
 <nav class="paginav">
   {{- with $prev }}
   <a class="prev" href="{{ .Permalink }}">
@@ -55,4 +56,4 @@
   {{- end }}
 </nav>
 {{- end }}
-
+{{- end }}
