@@ -86,39 +86,43 @@ is anyone actually listening?
 === Companies
 
 In order to start a company that cares about people's mental health, it's
-sensible to say that its workers shouldn't be crunching 60 hours per week.
-Additionally, how can you keep the company from deviating from its original
-objective?
+sensible to say that its workers shouldn't be crunching 60 hours per week. I
+learned a lot about this by reading https://basecamp.com/books/calm["It doesn't
+have to be crazy at work"], written by the founders of Basecamp. Part of its
+contents are also available online
+<<basecamp>><<basecamp-handbook>><<signalvnoise>>. You don't have to agree with
+everything to admit it makes you re-think many things about how companies are
+built.
 
-Most of my learnings here come from reading "It doesn't have to be crazy at
-work", written by the founders of Basecamp. Other so-called Calm Companies
-include Balsamiq, Transistor.fm
+This includes leadership, benefits, planning, hiring, funding... And in which
+ways one can make them more sane. One takeaway is that if you start a company by
+thinking you'll change the world, the stakes will be too high from the start.
+Starting a company thinking you'll become rich will be the source of your
+problems.
+
+Other so-called Calm Companies with this mentality include Transistor.fm
 <<calm-transistor>><<build-your-saas>><<transistor-handbook>><<transistor-justin>>,
-Wildbit <<wildbit>>, or Convertkit <<convertkit>>, but Basecamp is the loudest
-about it.
+Wildbit (now ActiveCampaign) <<wildbit>>, or Convertkit <<convertkit>>, but
+Basecamp is the loudest about it.
 
-The book makes you re-think many things you take for granted about how companies
-are built. Leadership, benefits, planning, hiring, funding... And in which ways
-one can make it more sane overall. One of my takeaways was that if you start a
-company by thinking you'll change the world, the stakes will be higher from the
-start. Similarly, if you start it thinking you'll become rich, that's when the
-problems start to happen.
-
-However, a major question remains: funding. These companies are able to stick to
-their morals by bootstrapping and remaining private, essentially. Unfortunately,
-that only works for purely-software companies; dealing with hardware means you
-will need money. _A lot_ of money. Light Phone 2 raised $3.3M; made up of an
-upfront expense for designing and planning, and the actual building ($2M) [TODO
-REF].
+A cornerstone of this approach is ensuring the company stays true to its values.
+If it isn't able to stick to its morals in the long term, what's the point? In
+this case, that the less screen time, the better. Not that the more revenue, the
+better. Ownership of a company and its decisions is linked with who puts the
+money in. What Calm Companies often do is bootstrapping and remaining private.
+Unfortunately, that only works for purely-software companies; dealing with
+hardware means you will need money. _A lot_ of money. Light Phone 2 raised
+$3.3M; made up of an upfront expense for designing and planning, and the actual
+building ($2M) [TODO REF].
 
 But startups achieve funding _precisely_ by asserting they will change the
 world. Their solution will blow the competition out of the water. Prepare to
 invest RIGHT NOW or miss the train. It's just FOMO for investors. How could this
 work in the context of a Calm Company?
 
-A popular choice for custom hardware is Crowdfunding. Bigme, Remarkable, Light
+A popular choice for custom hardware is Crowdfunding. Bigme, reMarkable, Light
 Phone, Minimal Phone, Librem. They all started like this. Though for what I've
-learned, the money from the crowdfunding is actually only for the building
+learned, the money from the crowdfunding is actually only for the hardware
 costs, not so much the upfront design. The successful path seems to be VC
 funding to set up the team and build a prototype, and then crowdfunding to
 actually manufacture it. This is also when stuff starts to go wrong. There are
@@ -129,24 +133,18 @@ So, yes. It's hard to avoid VC funding. There are specialized firms, but it's a
 minority. CalmFund, which recently https://calmfund.com/writing/pause[paused
 operations], and https://www.indie.vc/[indie.vc], which recently resumed theirs.
 
-I'm building on top of the naïve assumption that the less screen time, the
-better off the company is.
-
-So how do you prevent VC from leading too much? OpenAI already failed to do so,
-allegedly because raising money was too hard [REFERENCE]. Nonprofits have it
-harder [TODO]. There are certifications like
+There are strategies in how you set up the company to ensure this. OpenAI
+famously failed to do so, allegedly because raising money was too hard
+[REFERENCE]. There are also certifications like
 https://en.m.wikipedia.org/wiki/B_Corporation_(certification)[B Corporation] or
-https://en.m.wikipedia.org/wiki/Social_enterprise[Social Enterprise], too
-[EXAMPLES]. I plan on doing a deep dive of this section soon, anyway.
-
-- https://www.onepercentfortheplanet.org/[One Percent for the Planet]
-- https://stripe.com/en-ca/climate[Stripe Climate]
+https://en.m.wikipedia.org/wiki/Social_enterprise[Social Enterprise], but I'm
+not sure how effective they are. This is all something I want to learn more
+about in future posts.
 
 === Software
 
 By default, phones actually come with solid features to block apps and minimize
-screen time in general. However, they don't seem to be good enough to gain
-adoption.
+screen time in general. But they don't seem to be good enough to gain adoption.
 
 Firstly, they aren't well marketed; most people aren't aware of their existence.
 Android calls the features "https://www.android.com/digital-wellbeing/[Digital
@@ -258,30 +256,38 @@ like a crazy idea, but who knows where the future will take you :)
 [bibliography]
 == References
 
-- [[[light-phone-v1, 1]]]
+- [[[basecamp,           1]]]
+  https://37signals.com/[37signals (the company that owns Basecamp)]
+- [[[basecamp-handbook,  2]]]
+  https://basecamp.com/handbook[The 37signals Employee Handbook]
+- [[[signalvnoise,        3]]]
+  https://signalvnoise.com/[Signal v. Noise (37signals' former blog)]
+- [[[light-phone-v1,      4]]]
   https://www.theverge.com/2019/9/4/20847717/light-phone-2-minimalist-features-design-keyboard-crowdfunding[The
   high hopes of the low-tech phone -- The Verge]
-- [[[parking,        2]]]
+- [[[parking,             5]]]
   https://www.reddit.com/r/dumbphones/comments/sjtkm2/i_have_to_use_an_app_to_open_my_apartment_complex/[I
   have to use an app to open my apartment complex parking gate, the app is
   called Gatewise. My lease does not mention anything about needing a smartphone
   or the use of any apps for garage access. Street parking is not an option. I
   just want technological equity -- r/dumbphones]
-- [[[calm-transistor,3]]]
+- [[[calm-transistor,     6]]]
   https://www.reddit.com/r/SaaS/comments/nrjsao/im_40_years_old_and_i_finally_bootstrapped_a_saas/[I'm
   40 years old and I finally bootstrapped a SaaS, Transistor.fm, to millions in
   revenue (with a co-founder!) -- r/SaaS]
-- [[[build-your-saas,4]]]
+- [[[build-your-saas,     7]]]
   https://saas.transistor.fm/episodes[Build Your SaaS -- transistor.fm]
-- [[[transistor-handbook, 5]]]
+- [[[transistor-handbook, 8]]]
   https://github.com/TransistorFM/handbook/blob/master/values.md[What are our
   values? -- GitHub TransistorFM/handbook]
-- [[[transistor-justin,  6]]] https://justinjackson.ca/[Justin Jackson
-  (co-founder of Transistor.fm)]
-- [[[wildbit,        6]]] https://wildbit.com/[Wildbit]
-- [[[convertkit,     7]]] https://convertkit.com/handbook[The ConvertKit Team
-  Handbook]
-- [[[apps,           3]]] Digital control:
+- [[[transistor-justin,   9]]]
+  https://justinjackson.ca/[Justin Jackson (co-founder of Transistor.fm)]
+- [[[wildbit,            10]]]
+  https://wildbit.com/[Wildbit]
+- [[[convertkit,         11]]]
+  https://convertkit.com/handbook[The ConvertKit Team Handbook]
+- [[[apps,               12]]]
+  Digital control:
     {{< app name="AppBlock" android="cz.mobilesoft.appblock" >}},
     {{< app name="Freedom" android="to.freedom.android2" ios="freedom-screen-time-control/id1269788228" >}},
     {{< app name="YourHour" android="com.mindefy.phoneaddiction.mobilepe" >}},
@@ -294,12 +300,14 @@ like a crazy idea, but who knows where the future will take you :)
     {{< app name="Refocus" ios="refocus-app-website-blocker/id1645639057" >}},
     {{< app name="Opal" ios="opal-screen-time-for-focus/id1497465230" >}}
     {{< app name="Jomo" ios="jomo-screen-time-blocker/id1609960918" >}}
-- [[[launchers,      4]]] Launchers:
+- [[[launchers,          13]]]
+  Launchers:
     {{< app name="Olauncher" android="app.olauncher" >}},
     {{< app name="minimalist phone" android="com.qqlabs.minimalistlauncher" >}},
     {{< app name="Indistract" android="com.indistractablelauncher.android" >}},
     {{< app name="Blank Spaces" ios="blank-spaces-app/id1570856853" >}}
-- [[[timers,         5]]] Productivity timers:
+- [[[timers,             14]]]
+  Productivity timers:
     {{< app name="Forest" android="cc.forestapp" >}},
     {{< app name="Flora" ios="flora-green-focus/id1225155794" >}},
     {{< app name="Plantie" ios="plantie-stay-focused/id1135988868" >}}

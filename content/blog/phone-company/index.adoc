@@ -24,6 +24,8 @@ TODO general
 - https://www.outseta.com/posts/calm
 - https://www.indie.vc/ (had a similar model to Calm Fund, also shut down shop for a while due to capital constraints. They've since restarted the fund though)
 - https://newsletter.rhizomerd.com/p/when-to-design-for-emergence ("But what if someone does it before you"? There doesn't have to be a single solution to this. Especially considering how huge the opposing market (those who want you to be staring at the phone) is, and how many ways there are to avoid it.)
+- https://www.onepercentfortheplanet.org/[One Percent for the Planet]
+- https://stripe.com/en-ca/climate[Stripe Climate]
 
 TODO non-profits
 
