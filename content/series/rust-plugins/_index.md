@@ -7,6 +7,7 @@ maximize modularity and reduce Rust's wild compilation times. This is done with
 [dynamic loading](https://en.wikipedia.org/wiki/Dynamic_loading), but its
 alternatives are also covered in detail in the first articles."
 numbered: true
+isFinished: true
 reverseOrder: true
 tags: ["rust", "rustlang", "dynamic loading", "plugins", "plugin system", "pdk"]
 ---

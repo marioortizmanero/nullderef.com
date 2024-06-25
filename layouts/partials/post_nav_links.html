@@ -1,0 +1,55 @@
+{{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- if and (gt (len $pages) 1) (in $pages .) }}
+{{- $prev := $pages.Prev . }}
+{{- $next := $pages.Next . }}
+{{- $message := "" }}
+
+{{- if .Params.series }}
+  {{ $thisPost := . }}
+  {{ $thisSeries := index .Params.series 0 }}
+  {{ $postsInThisSeries := index .Site.Taxonomies.series $thisSeries }}
+  {{ $postsInThisSeries = sort $postsInThisSeries "Date" "asc" }}
+
+  {{ $index := -1 }}
+  {{ range $i, $page := $postsInThisSeries }}
+      {{ if eq $page.Permalink $thisPost.Permalink }}
+          {{ $index = $i }}
+      {{ end }}
+  {{ end }}
+
+  {{ $prev = index $postsInThisSeries (sub $index 1) }}
+  {{ $next = index $postsInThisSeries (add $index 1) }}
+  {{ $thisSeriesPage := site.GetPage (printf "series/%s" $thisSeries | urlize) }}
+  {{ $message = printf "This post is part of the series \"[%s](%s)\"" $thisSeriesPage.Title $thisSeriesPage.Permalink }}
+  {{ if $thisSeriesPage.Params.isFinished }}
+    {{ $message = printf "%s, which is currently finished." $message }}
+  {{ else }}
+    {{ $message = printf "%s. It's still being written; [subscribe](/subscribe) to keep up to date." $message }}
+  {{ end }}
+{{ end }}
+
+{{- with $message }}
+<div class="series-indicator">
+  <p>{{ . | markdownify }}</p>
+</div>
+{{- end }}
+
+<nav class="paginav">
+  {{- with $prev }}
+  <a class="prev" href="{{ .Permalink }}">
+    <span class="title">« {{ i18n "prev_page" }}</span>
+    <br>
+    <span>{{- .Name -}}</span>
+  </a>
+  {{- end }}
+
+  {{- with $next }}
+  <a class="next" href="{{ .Permalink }}">
+    <span class="title">{{ i18n "next_page" }} »</span>
+    <br>
+    <span>{{- .Name -}}</span>
+  </a>
+  {{- end }}
+</nav>
+{{- end }}
+
