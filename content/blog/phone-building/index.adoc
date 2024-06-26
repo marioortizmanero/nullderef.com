@@ -1,0 +1,15 @@
+---
+title: "A phone designed not to be used: how to build one?"
+description: "TODO"
+author: "Mario Ortiz Manero"
+images: ["TODO"]
+tags: ["tech"]
+series: ["dont-use-this-phone"]
+date: 2024-06-01
+GHissueID: TODO
+draft: true
+---
+
+This is also when stuff starts to go wrong. There are
+always endless delays when crowdfunding, and if you don't design it well enough,
+your whole project will look like a scam. This has happened many times already.

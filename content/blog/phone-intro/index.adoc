@@ -94,11 +94,13 @@ contents are also available online
 everything to admit it makes you re-think many things about how companies are
 built.
 
-This includes leadership, benefits, planning, hiring, funding... And in which
-ways one can make them more sane. One takeaway is that if you start a company by
-thinking you'll change the world, the stakes will be too high from the start.
-Starting a company thinking you'll become rich will be the source of your
-problems.
+This includes leadership, benefits, planning, hiring, funding... and how to make
+them more reasonable. One takeaway is that if you start a business by trying to
+change the world, the stakes will be too high from the start. This thought of
+getting rich will be your justification for all-nighters and bad practices.
+Other examples include few meetings, no long-term planning, the same salary for
+everyone in the same level, a fixed portion of profits going to employees, or
+perks like 32-hour working weeks in the summer.
 
 Other so-called Calm Companies with this mentality include Transistor.fm
 <<calm-transistor>><<build-your-saas>><<transistor-handbook>><<transistor-justin>>,
@@ -106,40 +108,50 @@ Wildbit (now ActiveCampaign) <<wildbit>>, or Convertkit <<convertkit>>, but
 Basecamp is the loudest about it.
 
 A cornerstone of this approach is ensuring the company stays true to its values.
-If it isn't able to stick to its morals in the long term, what's the point? In
-this case, that the less screen time, the better. Not that the more revenue, the
-better. Ownership of a company and its decisions is linked with who puts the
-money in. What Calm Companies often do is bootstrapping and remaining private.
-Unfortunately, that only works for purely-software companies; dealing with
-hardware means you will need money. _A lot_ of money. Light Phone 2 raised
-$3.3M; made up of an upfront expense for designing and planning, and the actual
-building ($2M) [TODO REF].
+In this case, that the less screen time, the better (within profitable means).
+Not that the more revenue, the better. However, this is up to whoever has
+control over the company, which is often whoever puts the money in. What Calm
+Companies often do is bootstrapping and remaining private. Unfortunately, that
+only works for purely-software companies; dealing with hardware means you will
+need money. _A lot_ of money. The https://intl.nothing.tech/[Nothing company]
+spends $30 to $50 million for each new product they develop <<nothing-money>>.
+Or at "smaller" scale, the Light Phone 2 raised a total of $11.9 million in 2019
+<<light-phone-money>>.
 
-But startups achieve funding _precisely_ by asserting they will change the
+Nowadays, startups achieve funding _precisely_ by asserting they will change the
 world. Their solution will blow the competition out of the water. Prepare to
-invest RIGHT NOW or miss the train. It's just FOMO for investors. How could this
-work in the context of a Calm Company?
+invest RIGHT NOW or miss the train. It's just
+https://en.wikipedia.org/wiki/Fear_of_missing_out[FOMO] for investors. How could
+this work in the context of a Calm Company?
 
-A popular choice for custom hardware is Crowdfunding. Bigme, reMarkable, Light
+A popular choice for niche hardware is Crowdfunding. Bigme, reMarkable, Light
 Phone, Minimal Phone, Librem. They all started like this. Though for what I've
 learned, the money from the crowdfunding is actually only for the hardware
-costs, not so much the upfront design. The successful path seems to be VC
-funding to set up the team and build a prototype, and then crowdfunding to
-actually manufacture it. This is also when stuff starts to go wrong. There are
-always endless delays when crowdfunding, and if you don't design it well enough,
-your whole project will look like a scam. This has happened many times already.
+costs, not so much the upfront design and testing. The successful path seems to
+be VC funding to set up the team and build a prototype, and then crowdfunding to
+actually manufacture it. Going back to the Light Phone 2, they raised $3.5M on
+IndieGoGo <<light-phone-igg>>, but also $8.4M in seed funding
+<<light-phone-money>>. reMarkable also was able to secure $11M from presales,
+but required an essential $10M in seed funding <<remarkable-money>>.
 
-So, yes. It's hard to avoid VC funding. There are specialized firms, but it's a
-minority. CalmFund, which recently https://calmfund.com/writing/pause[paused
-operations], and https://www.indie.vc/[indie.vc], which recently resumed theirs.
+It's hard to avoid VC funding if you aren't already a billionaire. That would be
+the case of https://mudita.com/[Mudita], founded by the already successful
+Michał Kiciński, known for creating https://en.wikipedia.org/wiki/CD_Projekt[CD
+Projekt]. I don't believe it's an impossible task; there are funds that leave
+plenty of freedom to founders. There are also specialized firms for "Calm
+Companies", although not many: CalmFund recently
+https://calmfund.com/writing/pause[paused operations], and
+https://www.indie.vc/[indie.vc] recently resumed theirs.
 
-There are strategies in how you set up the company to ensure this. OpenAI
-famously failed to do so, allegedly because raising money was too hard
-[REFERENCE]. There are also certifications like
-https://en.m.wikipedia.org/wiki/B_Corporation_(certification)[B Corporation] or
-https://en.m.wikipedia.org/wiki/Social_enterprise[Social Enterprise], but I'm
-not sure how effective they are. This is all something I want to learn more
-about in future posts.
+There are also strategies in how you set up the company to ensure long-term
+TODO. OpenAI famously failed to do so, allegedly because raising money was too
+hard as just a nonprofit <<openai>>. There are also certifications like
+https://en.wikipedia.org/wiki/B_Corporation_(certification)[B Corporation] or
+https://en.wikipedia.org/wiki/Social_enterprise[Social Enterprise], but I'm not
+sure how effective they are.
+
+You can see how much there is to further research in this topic. This is all
+something I want to learn more about in future posts.
 
 === Software
 
@@ -311,3 +323,18 @@ like a crazy idea, but who knows where the future will take you :)
     {{< app name="Forest" android="cc.forestapp" >}},
     {{< app name="Flora" ios="flora-green-focus/id1225155794" >}},
     {{< app name="Plantie" ios="plantie-stay-focused/id1135988868" >}}
+- [[[nothing-money,      15]]]
+	https://youtu.be/dDI9h4ool-E?t=1549[Nothing CEO Carl Pei on the Phone 2 and
+	the future of gadgets | The Vergecast -- YouTube]
+- [[[light-phone-money,  16]]]
+	https://www.businessinsider.com/light-phone-2-dumb-phone-price-release-date-specs-2019-9[This
+	credit-card-size phone can do only 3 things and doesn't have any apps — and it
+	may be the key to freeing us from our smartphones -- Business Insider]
+- [[[light-phone-igg,    17]]]
+	https://www.indiegogo.com/projects/light-phone-2#/[Light Phone 2 -- IndieGoGo]
+- [[[remarkable-money,   18]]]
+	https://venturebeat.com/media/remarkable-raises-15-million-to-bring-its-e-paper-tablets-to-more-scribblers/[Remarkable
+	raises $15 million to bring its e-paper tablets to more scribblers --
+	VentureBeat]
+- [[[openai,             19]]]
+		https://openai.com/our-structure/[Our structure -- OpenAI]
