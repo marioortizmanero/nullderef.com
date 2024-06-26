@@ -252,23 +252,32 @@ seem to work well for some folks, which is awesome.
 
 === Phones
 
-What would a phone that tries to have you not use it look like?
+What would a phone minimizing screen time look like?
 
 A common pattern is the usage of e-paper displays. E-Paper is commonly seen on
-e-readers, as an alternative that TODO. And it turns out that its
-performance can be much better than your crappy Kindle, which takes 5 seconds to
-skip to the next page.
+e-readers, as an alternative that TODO. You can judge yourself:
 
-TODO: VIDEO
+++++
+<iframe width="1600" height="400" src="https://www.youtube.com/embed/IFgxUr26A8g" title="E ink phone | YouTube | Linus Tech Tips | Hisense A9" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+++++
+
+Hey, it's not a great experience for videos, but it doesn't take 5 seconds per
+refresh like your crappy 10-year-old Kindle. For a display moving physical
+particles <<epaper-physical>>, it's impressive. Here's another monitor that
+recently came out focusing on latency:
+
+++++
+<iframe width="1600" height="400" src="https://www.youtube.com/embed/pXn-bAwzNv4?start=183" title="Modos Paper Monitor Status Update" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+++++
 
 A common feature in e-paper is that it's grayscale. Not having colors is linked
 with reducing addiction [TODO link][TODO Carl pei talking about this], but it
-can be annoying sometimes. Trying to navigate the city with Google Maps in black
-and white can sometimes be annoying. The most annoying one has been coming
-across charts on your phone, which rely on color and the only way is to send
-them to the computer. One could argue that would also be a feature, making you
-use different devices for different purposes, and thus, separating a bit better
-your digital life use-cases.
+can be annoying sometimes. I've set my day-to-day phone to grayscale, and I know
+how confusing Google Maps can be without colors. If you come across a chart
+relying on colors, you'll need to watch it somewhere else. And I haven't even
+tried gaming. One could argue that this is a feature, making you use different
+devices for different purposes, and thus, separating a bit better your digital
+life use-cases.
 
 For this, there's now color e-paper, with Kindle releasing its first version in
 2014 [TODO: link]. It comes with drawbacks, such as having worse refresh rates
@@ -280,15 +289,23 @@ or Netflix, although one could argue that's a feature, not a bug. I've recently
 seen a wave of e-paper products focusing on fast refresh times [TODO
 sunlight][TODO oss project], so I'm positive that will improve.
 
-The most popular existing brands are HiSense and Boox. However, they aren't that
-well marketed nor supported outside of Asia. There are also some new startups
-catching up releasing new devices, such as Mudita or Daylight, but they aren't
-quite there yet. Anyhow, I plan on diving deeper into this in a later article.
+The most popular brands are HiSense and Boox, but they aren't well-supported in
+the west. Apps might not work sometimes, and connectivity only works with some
+providers, if at all <<hisense-review>><<boox-connectivity>>. Boox is known for
+violating the GPL, too <<boox-gpl>>. There are startups releasing similar
+devices, but they have a long road ahead. Mudita will announce a new phone soon
+<<mudita-release>>, and Daylight might work on a phone after their $729 tablet
+with different screen tech ships <<daylight-release>><<daylight-podcast>>.
 
-A simpler approach to consider is what GHOST does. Based on the Pixel, they make
-some modifications and resell it. No need to deal with manufacturers. I could
-see how depending on Google can backfire, given that they deprecate their
-products too often [or funny comparison].
+A simpler approach to consider is what https://ghostmode.us/[Ghost Mode] does.
+They lock down a Pixel 6a into a dumbphone, keep its nice camera, and resell it.
+No need to deal with manufacturers, and your software has system access. But
+costing $600, they have a pricy product, and being dependent on Google is often
+not a good idea.
+
+Anyhow, I plan on diving
+deeper into this in a later article; there's also a lot that can be done on the
+software to overcome the limitations of e-paper.
 
 == Wrapping up
 
@@ -364,7 +381,7 @@ like a crazy idea, but who knows where the future will take you :)
     {{< app name="Plantie" ios="plantie-stay-focused/id1135988868" >}}
 - [[[nothing-money,      15]]]
 	https://youtu.be/dDI9h4ool-E?t=1549[Nothing CEO Carl Pei on the Phone 2 and
-	the future of gadgets | The Vergecast -- YouTube]
+	the future of gadgets | The Vergecast -- YouTube] @ 25:49
 - [[[light-phone-money,  16]]]
 	https://www.businessinsider.com/light-phone-2-dumb-phone-price-release-date-specs-2019-9[This
 	credit-card-size phone can do only 3 things and doesn't have any apps — and it
@@ -389,3 +406,23 @@ like a crazy idea, but who knows where the future will take you :)
 	undermining the development of e-ink smartphones. Those are life savers for a
 	growing number of people like me who can no longer use regular screens. --
 	r/eink]
+- [[[boox-gpl,           23]]]
+	https://en.wikipedia.org/wiki/Onyx_Boox#GPL_Compliance[GPL Compliance, Onyx
+	Boox -- Wikipedia]
+- [[[mudita-release,     24]]]
+	https://mudita.com/community/blog/introducing-mudita-kompakt/[First glimpse of
+	Mudita Kompakt -- Mudita]
+- [[[daylight-release,   25]]]
+	https://www.theverge.com/2024/5/23/24163225/daylight-dc1-tablet-livepaper[The
+	Daylight DC1 is a $729 attempt to build a calmer computer -- The Verge]
+- [[[hisense-review,     26]]]
+	https://www.reddit.com/r/eink/comments/10hl3bv/hisense_a9_1_week_review/[Hisense
+	A9 - 1 Week Review -- r/eink]
+- [[[boox-connectivity,  27]]]
+	https://help.boox.com/hc/en-us/community/posts/15815361554068-Why-oh-why-no-SIM-card-mobile-data-support[Why
+	oh why no SIM-card / mobile data support? -- Boox Forums]
+- [[[daylight-podcast,   28]]] https://youtu.be/2Y1nogFltPY?t=2240[Episode #234:
+	Anjan Katta (Founder of Daylight Computer Co) -- YouTube] @ 37:20
+- [[[epaper-physical,    29]]]
+	https://en.wikipedia.org/wiki/Electronic_paper#Electrophoretic[Electrophoretic,
+	Electronic paper -- Wikipedia]
