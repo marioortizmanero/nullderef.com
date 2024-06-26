@@ -1,5 +1,5 @@
 ---
-title: "A phone designed not to be used: how to build one?"
+title: "A phone designed not to be used: how to manufacture one?"
 description: "TODO"
 author: "Mario Ortiz Manero"
 images: ["TODO"]

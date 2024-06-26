@@ -1,9 +1,12 @@
 ---
 title: "A phone designed not to be used: what would it take to build one?"
-description: "TODO"
+description: "What can be done about phone addiction? Would it be feasible to
+create a new phone brand? How could that even be done? I have more questions
+than answers, but I'm hoping this series helps a bit."
 author: "Mario Ortiz Manero"
 images: ["TODO"]
-tags: ["tech"]
+tags: ["tech", "phone addiction", "eink", "entrepreneurship", "calm companies",
+"dumbphones", "phone manufacturing"]
 series: ["dont-use-this-phone"]
 date: 2024-06-01
 GHissueID: TODO
@@ -79,9 +82,19 @@ This is very centered around _design_, but still very much in our area.
 
 === Society
 
-Is the population aware of this being a problem? Is it even a problem to them?
-There are countless studies on how phone usage leads to isolation or TODO, but
-is anyone actually listening?
+Is the population aware of
+https://en.wikipedia.org/wiki/Problematic_smartphone_use[problematic smartphone
+use]? Is it even a problem to them? There are countless studies on how phone
+usage leads to isolation or TODO, but is anyone actually listening?
+
+There are increasingly more stories about Hikikomori. But I don't want to focus
+only on the extreme cases; in my experience, a large chunk of the population
+thinks they use their phone too much. Other people are affected by the screens
+themselves
+<<light-sensitivity-1>><<light-sensitivity-2>><<light-sensitivity-3>>.
+
+There's also the topic of phones for kids, but that's another huge rabbithole.
+Or phones for elder.
 
 === Companies
 
@@ -239,21 +252,43 @@ seem to work well for some folks, which is awesome.
 
 === Phones
 
-A common pattern is the usage of EInk displays. EInk is commonly seen on
+What would a phone that tries to have you not use it look like?
+
+A common pattern is the usage of e-paper displays. E-Paper is commonly seen on
 e-readers, as an alternative that TODO. And it turns out that its
 performance can be much better than your crappy Kindle, which takes 5 seconds to
-skip to the next page. There's even now color EInk, with Kindle releasing its
-first version in 2014 [TODO: link].
+skip to the next page.
 
 TODO: VIDEO
 
-Some of the most popular brands are HiSense and Boox. However, they aren't that
+A common feature in e-paper is that it's grayscale. Not having colors is linked
+with reducing addiction [TODO link][TODO Carl pei talking about this], but it
+can be annoying sometimes. Trying to navigate the city with Google Maps in black
+and white can sometimes be annoying. The most annoying one has been coming
+across charts on your phone, which rely on color and the only way is to send
+them to the computer. One could argue that would also be a feature, making you
+use different devices for different purposes, and thus, separating a bit better
+your digital life use-cases.
+
+For this, there's now color e-paper, with Kindle releasing its first version in
+2014 [TODO: link]. It comes with drawbacks, such as having worse refresh rates
+or a lower contrast ratio.
+
+Another characteristic about e-paper is its refresh rate. Even if it has gotten
+more decent in recent generations, it makes it harder to watch videos on YouTube
+or Netflix, although one could argue that's a feature, not a bug. I've recently
+seen a wave of e-paper products focusing on fast refresh times [TODO
+sunlight][TODO oss project], so I'm positive that will improve.
+
+The most popular existing brands are HiSense and Boox. However, they aren't that
 well marketed nor supported outside of Asia. There are also some new startups
 catching up releasing new devices, such as Mudita or Daylight, but they aren't
 quite there yet. Anyhow, I plan on diving deeper into this in a later article.
 
-A simpler approach is what GHOST does. Based on the Pixel, they make some
-modifications and resell it. No need to deal with manufacturers.
+A simpler approach to consider is what GHOST does. Based on the Pixel, they make
+some modifications and resell it. No need to deal with manufacturers. I could
+see how depending on Google can backfire, given that they deprecate their
+products too often [or funny comparison].
 
 == Wrapping up
 
@@ -262,7 +297,11 @@ I hope this can eventually be "a thing". Just like there are movements for
 control. To me, it has a strong relationship with mental health, and there's a
 lot to improve in that regard.
 
-Building something in this area would be exciting. Manufacturing a phone sounds
+There is a lot more to research in each of these sections. I will try to split
+it up into multiple articles within
+https://nullderef.com/series/dont-use-this-phone/[the series]. You can
+https://nullderef.com/subscribe[subscribe] for free to keep up to date. Actually
+building something in this area would be exciting. Manufacturing a phone sounds
 like a crazy idea, but who knows where the future will take you :)
 
 [bibliography]
@@ -337,4 +376,16 @@ like a crazy idea, but who knows where the future will take you :)
 	raises $15 million to bring its e-paper tablets to more scribblers --
 	VentureBeat]
 - [[[openai,             19]]]
-		https://openai.com/our-structure/[Our structure -- OpenAI]
+  https://openai.com/our-structure/[Our structure -- OpenAI]
+- [[[light-sensitivity-1,20]]]
+  https://ledstrain.org/[LEDStrain Forum]
+- [[[light-sensitivity-2,21]]]
+	https://www.reddit.com/r/ChronicPain/comments/b936z9/has_anyone_here_been_diagnosed_with_central/[Has
+	anyone here been diagnosed with central sensitization and/or relate somehow
+	to my story? (36M, pain started at 33) -- r/ChronicPain]
+- [[[light-sensitivity-3,22]]]
+	https://www.reddit.com/r/eink/comments/g3kiki/an_open_letter_to_google_google_if_you_care_about/[An
+	open letter to Google : Google, if you care about accessibility, please stop
+	undermining the development of e-ink smartphones. Those are life savers for a
+	growing number of people like me who can no longer use regular screens. --
+	r/eink]
