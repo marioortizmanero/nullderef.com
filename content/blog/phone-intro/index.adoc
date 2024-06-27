@@ -87,14 +87,34 @@ https://en.wikipedia.org/wiki/Problematic_smartphone_use[problematic smartphone
 use]? Is it even a problem to them? There are countless studies on how phone
 usage leads to isolation or TODO, but is anyone actually listening?
 
-There are increasingly more stories about Hikikomori. But I don't want to focus
-only on the extreme cases; in my experience, a large chunk of the population
-thinks they use their phone too much. Other people are affected by the screens
-themselves
-<<light-sensitivity-1>><<light-sensitivity-2>><<light-sensitivity-3>>.
+There are increasingly more stories about
+https://en.wikipedia.org/wiki/Hikikomori[Hikikomori], described as "total
+withdrawal from society and seeking extreme degrees of social isolation and
+confinement". Some quotes from Wikipedia explain this:
 
-There's also the topic of phones for kids, but that's another huge rabbithole.
-Or phones for elder.
+[quote, Wikipedia]
+____
+Although the connection between modern communication technologies (such as the
+Internet, social media and video games) and the phenomenon is not conclusively
+established, those technologies are considered at least an exacerbating factor
+that can deepen and nurture withdrawal.
+____
+
+And specifically to this area:
+
+[quote, Wikipedia]
+____
+The emergence of mobile phones and then smartphones may also have deepened the
+issue, given that people can continue their addiction to gaming and online
+surfing anywhere, even in bed.
+____
+
+Other people are affected by the screens themselves; sometimes called "light
+sensitivity"
+<<light-sensitivity-1>><<light-sensitivity-2>><<light-sensitivity-3>>. There's
+also the topic of phones for kids or elder, but that's another huge rabbithole.
+And looking at the broader population, based on my experience, a large chunk
+thinks they use their phone too much.
 
 === Companies
 
@@ -261,7 +281,7 @@ e-readers, as an alternative that TODO. You can judge yourself:
 <iframe width="1600" height="400" src="https://www.youtube.com/embed/IFgxUr26A8g" title="E ink phone | YouTube | Linus Tech Tips | Hisense A9" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 ++++
 
-Hey, it's not a great experience for videos, but it doesn't take 5 seconds per
+Hey, it's not a good experience for videos, but it doesn't take 5 seconds per
 refresh like your crappy 10-year-old Kindle. For a display moving physical
 particles <<epaper-physical>>, it's impressive. Here's another monitor that
 recently came out focusing on latency:
@@ -320,6 +340,10 @@ https://nullderef.com/series/dont-use-this-phone/[the series]. You can
 https://nullderef.com/subscribe[subscribe] for free to keep up to date. Actually
 building something in this area would be exciting. Manufacturing a phone sounds
 like a crazy idea, but who knows where the future will take you :)
+
+_Disclaimer: I am not affiliated with any of the companies mentioned in this
+post. The opinions expressed are my own and are based on my personal experiences
+and research._
 
 [bibliography]
 == References
