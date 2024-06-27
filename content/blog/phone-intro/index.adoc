@@ -84,13 +84,18 @@ This is very centered around _design_, but still very much in our area.
 
 Is the population aware of
 https://en.wikipedia.org/wiki/Problematic_smartphone_use[problematic smartphone
-use]? Is it even a problem to them? There are countless studies on how phone
-usage leads to isolation or TODO, but is anyone actually listening?
+use]? Is it even a problem to them? There are studies on how phone usage leads
+to poorer psychological health. But it doesn't help that there's no medical
+consensus nor recognition; https://youtu.be/8B271L3NtAw[there's correlation, but
+not clear causation] <<phone-depression>>. It has affected how we interact, sometimes fiddling with
+the phone to avoid eye contact, or making it really hard to just be bored
+<<boredom>>.
 
 There are increasingly more stories about
 https://en.wikipedia.org/wiki/Hikikomori[Hikikomori], described as "total
 withdrawal from society and seeking extreme degrees of social isolation and
-confinement". Some quotes from Wikipedia explain this:
+confinement". It's not limited to Japan. Some quotes from Wikipedia showcase the
+influence of technology:
 
 [quote, Wikipedia]
 ____
@@ -100,7 +105,7 @@ established, those technologies are considered at least an exacerbating factor
 that can deepen and nurture withdrawal.
 ____
 
-And specifically to this area:
+And specifically about this area:
 
 [quote, Wikipedia]
 ____
@@ -112,9 +117,10 @@ ____
 Other people are affected by the screens themselves; sometimes called "light
 sensitivity"
 <<light-sensitivity-1>><<light-sensitivity-2>><<light-sensitivity-3>>. There's
-also the topic of phones for kids or elder, but that's another huge rabbithole.
-And looking at the broader population, based on my experience, a large chunk
-thinks they use their phone too much.
+also the topic of phones for children or the elderly, but that's another huge
+rabbit hole. If you look at the broader population, in my experience, a part of
+it thinks they use their phone too much. That surely means there's a need for
+such tools?
 
 === Companies
 
@@ -193,8 +199,10 @@ screen time in general. But they don't seem to be good enough to gain adoption.
 
 Firstly, they aren't well marketed; most people aren't aware of their existence.
 Android calls the features "https://www.android.com/digital-wellbeing/[Digital
-Wellbeing]", but I personally receive more system notifications about new AI
-features in my camera than things like this.
+Wellbeing]", and iOS
+https://support.apple.com/guide/iphone/get-started-with-screen-time-iphbfa595995/ios["Screen
+Time"]. But I personally receive more system notifications about new AI features
+in my camera than things like this.
 
 Secondly, they aren't first-party citizens; the tools are there, but they don't
 quite integrate seamlessly. The most powerful feature on Android is "modes",
@@ -232,7 +240,7 @@ results. It's worth downloading a few until you find your favorite anyway.
 Manufacturers have it much easier, though, given that they have full system
 access. For instance, the open-source app {{< app name="TimeLimit"
 android="io.timelimit.android.google.store" >}} is an even more configurable
-alternative to "Digital Wellness". But being external, it needs to start with a
+alternative to "Digital Wellbeing". But being external, it needs to start with a
 long (and worrying) step to grant permissions. This alone is one step too many
 to make it widespread -- I'd argue that even having to install it is too much.
 
@@ -274,8 +282,10 @@ seem to work well for some folks, which is awesome.
 
 What would a phone minimizing screen time look like?
 
-A common pattern is the usage of e-paper displays. E-Paper is commonly seen on
-e-readers, as an alternative that TODO. You can judge yourself:
+A common pattern is the usage of e-paper displays instead of LCD. They feel like
+real paper, are easier to see under sunlight, and are better for those with
+light sensitivity. It also has drawbacks, given that it works completely
+different; you can judge yourself:
 
 ++++
 <iframe width="1600" height="400" src="https://www.youtube.com/embed/IFgxUr26A8g" title="E ink phone | YouTube | Linus Tech Tips | Hisense A9" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -291,13 +301,13 @@ recently came out focusing on latency:
 ++++
 
 A common feature in e-paper is that it's grayscale. Not having colors is linked
-with reducing addiction [TODO link][TODO Carl pei talking about this], but it
-can be annoying sometimes. I've set my day-to-day phone to grayscale, and I know
-how confusing Google Maps can be without colors. If you come across a chart
-relying on colors, you'll need to watch it somewhere else. And I haven't even
-tried gaming. One could argue that this is a feature, making you use different
-devices for different purposes, and thus, separating a bit better your digital
-life use-cases.
+with reducing addiction <<grayscale-attention>>, but it can be annoying
+sometimes. I've set my day-to-day phone to grayscale, and I know how confusing
+Google Maps can be without colors. If you come across a chart relying on colors,
+you'll need to watch it somewhere else. And I haven't even tried gaming. One
+could argue that this is a feature, making you use different devices for
+different purposes, and thus, separating a bit better your digital life
+use-cases.
 
 For this, there's now color e-paper, with Kindle releasing its first version in
 2014 [TODO: link]. It comes with drawbacks, such as having worse refresh rates
@@ -306,8 +316,8 @@ or a lower contrast ratio.
 Another characteristic about e-paper is its refresh rate. Even if it has gotten
 more decent in recent generations, it makes it harder to watch videos on YouTube
 or Netflix, although one could argue that's a feature, not a bug. I've recently
-seen a wave of e-paper products focusing on fast refresh times [TODO
-sunlight][TODO oss project], so I'm positive that will improve.
+seen a wave of e-paper products focusing on fast refresh times
+<<daylight-zdnet>><<eink-glider>>, so I'm positive that will improve.
 
 The most popular brands are HiSense and Boox, but they aren't well-supported in
 the west. Apps might not work sometimes, and connectivity only works with some
@@ -445,8 +455,26 @@ and research._
 - [[[boox-connectivity,  27]]]
 	https://help.boox.com/hc/en-us/community/posts/15815361554068-Why-oh-why-no-SIM-card-mobile-data-support[Why
 	oh why no SIM-card / mobile data support? -- Boox Forums]
-- [[[daylight-podcast,   28]]] https://youtu.be/2Y1nogFltPY?t=2240[Episode #234:
-	Anjan Katta (Founder of Daylight Computer Co) -- YouTube] @ 37:20
+- [[[daylight-podcast,   28]]]
+	https://youtu.be/2Y1nogFltPY?t=2240[Episode #234: Anjan Katta (Founder of
+	Daylight Computer Co), by THE 2AM PODCAST -- YouTube] @ 37:20
 - [[[epaper-physical,    29]]]
 	https://en.wikipedia.org/wiki/Electronic_paper#Electrophoretic[Electrophoretic,
 	Electronic paper -- Wikipedia]
+- [[[boredom,            30]]]
+	https://www.youtube.com/watch?v=LKPwKFigF8U[Why Boredom is Good For You, by
+	Veritasium -- YouTube]
+- [[[phone-depression,   31]]]
+	https://www.wired.com/story/apple-investors-iphone-kids-depression-suicide-evidence/[Apple
+	investors say iPhones cause teen depression. Science doesn't -- Wired]
+- [[[grayscale-attention,32]]]
+	https://www.theguardian.com/technology/2017/jun/20/turning-smartphone-greyscale-attention-distraction-colour[Will
+	turning your phone to greyscale really do wonders for your attention? -- The
+	Guardian]
+- [[[eink-glider,        33]]]
+	https://github.com/Modos-Labs/Glider["Open-source Eink monitor with an
+	emphasis on low latency" -- GitHub Modos-Labs/Glider]
+- [[[daylight-zdnet,     34]]]
+	https://www.zdnet.com/article/daylight-debuts-worlds-first-blue-light-free-computer-with-a-120hz-livepaper-display/[
+	Daylight debuts world's first 'blue-light-free computer' with a 120Hz
+	LivePaper display -- ZDNET]
