@@ -17,7 +17,7 @@ TODO: fill out description in series/dont-use-this-phone/_index.md
 
 What if there was a company selling phones that, against all odds, optimized how
 _little_ they were used? Given that every company is trying to get you hooked
-into their app, there's so much that can be done here.
+on their app, there's a lot of potential here.
 
 We have "https://en.wikipedia.org/wiki/Feature_phone[dumbphones]", for example.
 These are phones whose functionality is intentionally locked down, with the
@@ -25,12 +25,13 @@ purest examples only supporting calls and SMS. On the other side of the
 spectrum, we have smartphones. It wouldn't be far-fetched to say that most
 people owning one use it more than they'd like.
 
-I've seen people around me switching to a dumbphone. It's not a bad idea; it
-helps them reduce anxiety in the short term. But in the longer term, it turns
-out to be impossible. Firstly, because some apps like WhatsApp or Lyft can be
-indispensable for many. And secondly, because using most apps within reasonable
-means are an improvement in quality of life. A GPS can be of immense help
-getting around, or even Netflix can be a great ally to fight boredom in a plane.
+I've seen people around me switching to a dumbphone. A _digital detox_ is not a
+bad idea; it helps reduce anxiety in the short term. But in the longer term,
+it's pretty much impossible. First, because some apps like WhatsApp or Google
+Maps can be indispensable for many. And second, because using most apps within
+reasonable means are an improvement in quality of life. TikTok can be incredibly
+addicting, but it's also a way for people to learn, relax, or connect with
+others.
 
 And as a big fan of second-hand stuff, I'd rather give an old Motorola a second
 life than bring yet another phone to the world. Plus, it'd be really cool to
@@ -41,9 +42,9 @@ them, and they have released a more featureful version <<light-phone-v1>>.
 Don't get me wrong! I admire the Light Phone and all the work they do. This is
 such a small industry that anything helps. Lots of people out there are really
 happy with their minimal phones, and that's great. But there may be something
-that could become more mainstream; the lower the barrier of entry, the better.
-To be clear, this approach will also miss a lot of use-cases; as always, I'm
-just scratching my own itches.
+that could become more mainstream. The lower the barrier of entry, the better.
+To be clear, it will also miss a lot of use-cases; as always, I'm just
+scratching my own itches.
 
 So what if we tried to find a middle point? There are two possible approaches:
 
@@ -56,13 +57,13 @@ everyone's use-cases one by one. Your dumbphone's OS could add custom support
 for Uber, but there may be someone who won't buy the phone unless it has
 Spotify. And a password manager. And their banking app. And after implementing
 all of these, someone will need a damned parking app for their apartment complex
-<<parking>>.
+(yes, really <<parking>>).
 
 The question arises: how in the world would you even manufacuture a phone? It
 sounds like the most daunting task, especially given that I don't know anything
 about hardware. Well, that's what I'll be researching in this series! It will
-cover topics like studies about addiction, existing software and hardware for
-digital control, phone manufacturing, EInk, or funding. I'm no expert, so let's
+cover topics like studies about addiction, software and hardware for digital
+control, phone manufacturing, EInk, or company funding. I'm no expert, so let's
 see how far the internet can take us.
 
 == Looking at the state of things
@@ -280,58 +281,62 @@ seem to work well for some folks, which is awesome.
 
 === Phones
 
-What would a phone minimizing screen time look like?
-
-A common pattern is the usage of e-paper displays instead of LCD. They feel like
-real paper, are easier to see under sunlight, and are better for those with
-light sensitivity. It also has drawbacks, given that it works completely
-different; you can judge yourself:
+What would a phone minimizing screen time look like? Many of these phones have
+https://en.wikipedia.org/wiki/Electronic_paper[_e-paper_ displays] instead of
+LCD, which is most commonly seen on e-readers. E-paper feels like real paper, is
+easier to see under sunlight, and works better for those with light sensitivity.
+It doesn't come without drawbacks, given that it works by moving physical
+particles in your screen instead of emitting light. You can judge yourself:
 
 ++++
 <iframe width="1600" height="400" src="https://www.youtube.com/embed/IFgxUr26A8g" title="E ink phone | YouTube | Linus Tech Tips | Hisense A9" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 ++++
 
 Hey, it's not a good experience for videos, but it doesn't take 5 seconds per
-refresh like your crappy 10-year-old Kindle. For a display moving physical
-particles <<epaper-physical>>, it's impressive. Here's another monitor that
-recently came out focusing on latency:
+refresh like your crappy 10-year-old Kindle. Knowing how it works under the
+hood, this sample is impressive. Here's another monitor that recently came out
+focusing on latency:
 
 ++++
 <iframe width="1600" height="400" src="https://www.youtube.com/embed/pXn-bAwzNv4?start=183" title="Modos Paper Monitor Status Update" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 ++++
 
-A common feature in e-paper is that it's grayscale. Not having colors is linked
-with reducing addiction <<grayscale-attention>>, but it can be annoying
-sometimes. I've set my day-to-day phone to grayscale, and I know how confusing
-Google Maps can be without colors. If you come across a chart relying on colors,
-you'll need to watch it somewhere else. And I haven't even tried gaming. One
-could argue that this is a feature, making you use different devices for
-different purposes, and thus, separating a bit better your digital life
-use-cases.
+A charasteristic of most e-paper screens is that they are grayscale. While the
+absence of colors is linked with reduced addiction <<grayscale-attention>>, it
+can also be frustrating. I've set my phone to grayscale, and I know how
+confusing Google Maps can sometimes be without colors. Additionally, charts that
+rely on color require you to view them on a different device. And I haven't even
+tried gaming. One could argue that this is intentional, to get you to use
+different devices for different purposes. Instead of playing Candy Crush on the
+train, you might read, and wait until you get home to use your PS4.
 
-For this, there's now color e-paper, with Kindle releasing its first version in
-2014 [TODO: link]. It comes with drawbacks, such as having worse refresh rates
-or a lower contrast ratio.
+There's now color e-paper, with Kobo having released its first models in 2024
+<<kobo-color-eink>>. But it does have downsides, such as worse refresh rates or
+lower contrast ratios. Personally, I believe in embracing the limitations of
+grayscale. Issues with essential apps like Google Maps could be resolved with
+custom software. Maybe a grayscale screen with a single color like red could
+help improve the user experience, though.
 
-Another characteristic about e-paper is its refresh rate. Even if it has gotten
-more decent in recent generations, it makes it harder to watch videos on YouTube
-or Netflix, although one could argue that's a feature, not a bug. I've recently
-seen a wave of e-paper products focusing on fast refresh times
-<<daylight-zdnet>><<eink-glider>>, so I'm positive that will improve.
+Another characteristic about e-paper is its refresh rate, which has always been
+bad. It's not just that videos are hard to watch, but that animations are
+sluggish, and that in turn worsens the user experience. Recently, there has been
+a wave of e-paper products focusing on fast refresh times
+<<daylight-zdnet>><<eink-glider>>, so I'm hoping that will improve.
 
-The most popular brands are HiSense and Boox, but they aren't well-supported in
-the west. Apps might not work sometimes, and connectivity only works with some
-providers, if at all <<hisense-review>><<boox-connectivity>>. Boox is known for
-violating the GPL, too <<boox-gpl>>. There are startups releasing similar
-devices, but they have a long road ahead. Mudita will announce a new phone soon
+Nowadays, the biggest brands that go beyond e-readers are HiSense and Boox.
+However, they aren't well-supported in the west. Apps might not work sometimes,
+and connectivity only works with some providers, if at all
+<<hisense-review>><<boox-connectivity>>. Boox is known for violating GPL
+compliance, too <<boox-gpl>>. There are startups releasing similar devices, but
+they have a long road ahead: Mudita will announce a new phone soon
 <<mudita-release>>, and Daylight might work on a phone after their $729 tablet
-with different screen tech ships <<daylight-release>><<daylight-podcast>>.
+ships <<daylight-release>><<daylight-podcast>>.
 
 A simpler approach to consider is what https://ghostmode.us/[Ghost Mode] does.
-They lock down a Pixel 6a into a dumbphone, keep its nice camera, and resell it.
-No need to deal with manufacturers, and your software has system access. But
-costing $600, they have a pricy product, and being dependent on Google is often
-not a good idea.
+They lock down a Pixel 6a into a dumbphone with a custom Operating System, keep
+its nice camera, and resell it. No need to deal with manufacturers, and your
+software has system access. But costing $600, they have a pricy product, and
+being dependent on Google is often not a good idea <<google-kills>>.
 
 Anyhow, I plan on diving
 deeper into this in a later article; there's also a lot that can be done on the
@@ -340,12 +345,12 @@ software to overcome the limitations of e-paper.
 == Wrapping up
 
 I hope this can eventually be "a thing". Just like there are movements for
-"sustainability" or "diversity", there should also be for better digital
+"sustainability" or "diversity", there should also be one for better digital
 control. To me, it has a strong relationship with mental health, and there's a
 lot to improve in that regard.
 
-There is a lot more to research in each of these sections. I will try to split
-it up into multiple articles within
+There is a lot more to research in each of the perspectives I introduced today.
+I will try to split it up into multiple articles within
 https://nullderef.com/series/dont-use-this-phone/[the series]. You can
 https://nullderef.com/subscribe[subscribe] for free to keep up to date. Actually
 building something in this area would be exciting. Manufacturing a phone sounds
@@ -458,9 +463,6 @@ and research._
 - [[[daylight-podcast,   28]]]
 	https://youtu.be/2Y1nogFltPY?t=2240[Episode #234: Anjan Katta (Founder of
 	Daylight Computer Co), by THE 2AM PODCAST -- YouTube] @ 37:20
-- [[[epaper-physical,    29]]]
-	https://en.wikipedia.org/wiki/Electronic_paper#Electrophoretic[Electrophoretic,
-	Electronic paper -- Wikipedia]
 - [[[boredom,            30]]]
 	https://www.youtube.com/watch?v=LKPwKFigF8U[Why Boredom is Good For You, by
 	Veritasium -- YouTube]
@@ -477,4 +479,11 @@ and research._
 - [[[daylight-zdnet,     34]]]
 	https://www.zdnet.com/article/daylight-debuts-worlds-first-blue-light-free-computer-with-a-120hz-livepaper-display/[
 	Daylight debuts world's first 'blue-light-free computer' with a 120Hz
-	LivePaper display -- ZDNET]
+	LivePaper display -- ZDNET] [_Note: Daylight uses a mix between conventional
+	electrophoretic e-paper and LCD. It feels slightly less like paper, but still
+	improves refresh rate._]
+- [[[kobo-color-eink,    35]]]
+	https://www.theverge.com/2024/4/10/24124411/kobo-libra-colour-clara-colour-e-reader-kindle-e-ink[Kobo
+	announces its first color e-readers -- The Verge]
+- [[[google-kills,       36]]]
+  https://killedbygoogle.com/[Killed by Google]
