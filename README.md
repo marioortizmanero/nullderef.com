@@ -13,8 +13,7 @@ to see all the comments in the articles.
 
 - [ ] Reorder, clean up, and archive biography
 - [ ] Create an issue in `nullderef-comments` for comments
-- [ ] Verify the preview text in the homepage
-- [ ] Verify the image in the homepage
+- [ ] Verify entry in homepage: preview text and image
 - [ ] Mark series as finished (optional)
 - [ ] Verify RSS email being automatically sent for subscribers
 - [ ] Share on social media (those listed in the homepage)
