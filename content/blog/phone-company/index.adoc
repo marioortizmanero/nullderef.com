@@ -1,5 +1,5 @@
 ---
-title: "A phone designed not to be used: how to set up the company?"
+title: "A phone meant not to be used: how to set up the company?"
 description: "TODO"
 author: "Mario Ortiz Manero"
 images: ["TODO"]
