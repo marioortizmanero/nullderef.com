@@ -366,16 +366,22 @@ in just developing the launcher, and they eventually ran out of money
 <<blloc-dead>>. Many employees have since moved to the
 https://intl.nothing.tech[the Nothing company]...
 
-One particularly cool middle ground was Yotaphone, which is also currently
-defunct <<yota-bankrupt>>. It had a regular screen, but its back was a black and
-white simplified interface.
+Another notable flop <<yota-bankrupt>> was the
+https://en.wikipedia.org/wiki/Yota[YotaPhone]. This unique phone featured an
+additional e-paper screen on the back, marketed for reading and basic tasks. As
+innovative as it was, you'd have to _really_ like reading to justify spending
+over $600 for a phone that was otherwise unimpressive <<yota-2-review>>.
+Unfortunately, it never gained popularity in Europe and was not released in the
+US <<yota-1-eu>><<yota-2-eu>><<yota-crowd-fail>><<yota-3-fail>>.
 
 A simpler approach to consider is what https://ghostmode.us/[Ghost Mode] does.
-They lock down a Pixel&nbsp;6a with their custom Operating System, and resell
-it. At the end, it's essentially as a dumbphone with nice camera. No need to
-deal with hardware or manufacturing, and your software still has system access
-for fancy features. But costing $600, they have a pricy product, and being
-dependent on Google is often not a good idea <<google-kills>>.
+They lock down a Pixel&nbsp;6a with their custom operating system and resell it.
+In the end, it's essentially a dumbphone with nice camera. They don't need to
+deal with hardware or manufacturing, and the software still has system access
+for advanced features. I'm only afraid that relying on Google might not be a
+good idea <<google-kills>>, but I'm sure they could go with a different phone.
+The reason under its popularity might also have to do with money: at $600, their
+product is pricey for a dumbphone.
 
 == Wrapping up
 
@@ -511,9 +517,9 @@ and research._
 - [[[daylight-zdnet,     34]]]
 	https://www.zdnet.com/article/daylight-debuts-worlds-first-blue-light-free-computer-with-a-120hz-livepaper-display/[
 	Daylight debuts world's first 'blue-light-free computer' with a 120Hz
-	LivePaper display -- ZDNET] [_Note: Daylight uses a mix between conventional
+	LivePaper display -- ZDNET] (_Note: Daylight uses a mix between conventional
 	electrophoretic e-paper and LCD. It feels slightly less like paper, but still
-	improves refresh rate._]
+	improves refresh rate._)
 - [[[kobo-color-eink,    35]]]
 	https://www.theverge.com/2024/4/10/24124411/kobo-libra-colour-clara-colour-e-reader-kindle-e-ink[Kobo
 	announces its first color e-readers -- The Verge]
@@ -537,3 +543,23 @@ and research._
 - [[[yota-bankrupt,      42]]]
   https://www.theverge.com/2019/4/19/18508418/yota-devices-bankrupt-yotaphone[The
 	company behind the dual-screen YotaPhone is bankrupt -- The Verge]
+- [[[yota-2-review,      43]]]
+  https://www.techradar.com/reviews/phones/mobile-phones/yotaphone-2-1228308/review[Yotaphone
+  2 review -- TechRadar]
+- [[[yota-1-eu,          44]]]
+  https://www.pcmag.com/news/dual-screen-yotaphone-launches-in-russia-europe[Dual-Screen
+  YotaPhone Launches in Russia, Europe -- PCMag] (_Release of first generation
+  only in EU, Russia, and Middle East_)
+- [[[yota-2-eu,          45]]]
+  https://www.pcmag.com/news/dual-screened-yotaphone-2-launches-in-europe[Dual-Screened
+  YotaPhone 2 Launches in Europe -- PCMag] (_Release of second generation only
+  in EU, Russia, and Middle East_)
+- [[[yota-crowd-fail,    46]]]
+  https://www.androidpolice.com/2015/07/31/supply-issues-force-cancellation-of-north-american-yotaphone-2-despite-successful-crowdfunding-campaign/[Supply
+  Issues Force Cancellation Of North American YotaPhone 2 Despite Successful
+  Crowdfunding Campaign -- Android Police] (_Release failure of second
+  generation in the US_)
+- [[[yota-3-fail,        47]]]
+  https://www.techradar.com/news/dual-screen-yotaphone-3-has-now-launched-and-its-as-odd-as-ever[Dual-screen
+  YotaPhone 3 is finally official and it's just as kooky as the last two --
+  TechRadar] (_Release of third and last generation only in China_)
