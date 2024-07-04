@@ -19,43 +19,44 @@ What if there was a company selling phones that, against all odds, optimized how
 _little_ they were used? Given that every company is trying to get you hooked
 on their app, there's a lot of potential here.
 
-We have "https://en.wikipedia.org/wiki/Feature_phone[dumbphones]", for example.
-These are new phones whose functionality is intentionally locked down, with the
-purest examples only supporting calls and SMS. On the other side of the
-spectrum, we have smartphones. It wouldn't be far-fetched to say that most
-people owning one use it more than they'd like.
+For this reason, some companies are releasing
+"https://en.wikipedia.org/wiki/Feature_phone[dumbphones]". These are phones
+whose functionality is intentionally locked down, with the purest examples only
+supporting calls and SMS. On the other side of the spectrum, we have
+smartphones. It wouldn't be far-fetched to say that most people owning one use
+it more than they'd like.
 
 I've seen people around me switching to a dumbphone. A _digital detox_ is not a
 bad idea; it helps reduce anxiety in the short term. But in the longer term,
-it's pretty much impossible. First, because some apps like WhatsApp or Google
-Maps can be indispensable for many. And second, because using most apps within
+it's pretty much impossible. First, because apps like WhatsApp or Google Maps
+can be indispensable for many. And second, because using most apps within
 reasonable means is an improvement in quality of life. TikTok can be incredibly
 addicting, but it's arguably a great way for people to learn, relax, or connect
 with others.
 
 Besides, as a big fan of second-hand stuff, I'd rather give an old Motorola a
-second life than bring yet another phone to the world. Plus, it'd be really cool
+second life than bring yet another phone to the world. It'd also be really cool
 to open and close a retro flip-phone (right???). Even the founders of the Light
 Phone -- arguably, the most popular dumbphone -- thought it was too much for
 them, and they have released a more featureful version <<light-phone-v1>>.
 
 Don't get me wrong! I admire the Light Phone and all the work they do. This is
 such a small industry that anything helps. Lots of people out there are really
-happy with their minimal phones, and that's great. But there may be something
+happy with their minimal phones, and that's awesome. But there may be something
 that could become more mainstream. The lower the barrier of entry, the better.
 
 So what if we tried to find a middle point? There are two possible approaches:
 
-* A dumbphone trying to be a smartphone
-* Or a smartphone trying to be a dumbphone
+. A dumbphone trying to be a smartphone
+. Or a smartphone trying to be a dumbphone
 
-I'm a bigger fan of the latter, because most dumbphones don't run Android. Given
-how huge the mobile ecosystem is, it ends up being very restrictive to support
-everyone's use-cases one by one. Your dumbphone's OS could add custom support
-for Uber, but there may be someone who won't buy the phone unless it has
-Spotify. And a password manager. And their banking app. And after implementing
-all of these, someone will need a damned parking app for their apartment complex
-(yes, really <<parking>>).
+I'm a bigger fan of the latter, because most dumbphones don't give you direct
+access to an app store. Given how huge the mobile ecosystem is, supporting
+everyone's use-cases one by one ends up being very restrictive. Your dumbphone's
+operating system could add custom support for Uber, but there may be someone who
+won't buy the phone unless it has Spotify. And a password manager. And their
+banking app. And after implementing all of these, someone will need a damned
+parking app for their apartment complex (yes, really <<parking>>).
 
 The question arises: how in the world would you even manufacuture a phone? It
 sounds like the most daunting task, especially given that I don't know anything
@@ -92,22 +93,27 @@ more minimalist life in general. A community for this is
 https://nosurf.net/[NoSurf], where they share a ton more resources
 <<nosurf-resources>>.
 
-=== Society
+=== Negative effects
 
 Is the population aware of
 https://en.wikipedia.org/wiki/Problematic_smartphone_use[problematic smartphone
-use]? Is it even a problem to them? There are studies on how phone usage leads
-to poorer psychological health. But it doesn't help that there's no medical
-consensus nor recognition; https://youtu.be/8B271L3NtAw[there's correlation, but
-not clear causation] <<phone-depression>>. It has affected how we interact,
-sometimes fiddling with the phone to avoid eye contact, or making it really hard
-to just https://www.youtube.com/watch?v=LKPwKFigF8U[be bored].
+use]? Is it even a problem to them? Certainly, there are studies on how phone
+usage leads to poorer psychological health. But it doesn't help that there's no
+medical consensus nor recognition; https://youtu.be/8B271L3NtAw[there's
+correlation, but not clear causation] <<phone-depression>>
+
+Phones have undoubtedly impacted our society. Some changes are good, others, not
+so much. We fiddle with the phone to avoid eye contact, social media worsens our
+self-esteem, and we have attention issues. It's just hard to be bored anymore,
+which is actually good for you <<bored>>. Phones also disrupt our sleep cycles
+<<phones-sleep-filter>>, and cars frequently crash because of them
+<<phones-crash>>. Nothing that you don't already know.
 
 There are increasingly more stories about
 https://en.wikipedia.org/wiki/Hikikomori[Hikikomori], described as "total
 withdrawal from society and seeking extreme degrees of social isolation and
-confinement". It's not limited to Japan. Some quotes from Wikipedia showcase the
-influence of technology:
+confinement". Of course, it's not limited to Japan. Wikipedia sheds light on the
+role of technology in this condition:
 
 [quote, Wikipedia]
 ____
@@ -117,7 +123,7 @@ established, those technologies are considered at least an exacerbating factor
 that can deepen and nurture withdrawal.
 ____
 
-And specifically about this area:
+It even specifically mentions our topic:
 
 [quote, Wikipedia]
 ____
@@ -126,13 +132,14 @@ issue, given that people can continue their addiction to gaming and online
 surfing anywhere, even in bed.
 ____
 
-Other people are affected by the screens themselves; sometimes called "light
-sensitivity"
+Some people suffering from with migraines or "light sensitivity" are affected by
+the screens themselves
 <<light-sensitivity-1>><<light-sensitivity-2>><<light-sensitivity-3>>. There's
-also the topic of phones for children or the elderly, but that's another huge
-rabbit hole. If you look at the broader population, in my experience, a part of
-it thinks they use their phone too much. That surely means there's a need for
-such tools?
+also the topic of phones for children or the elderly, but that's a huge rabbit
+hole. Looking at the broader population, nearly six in 10 U.S. smartphone users
+admit that they use it too much <<gallup-survey>>. The good news is that people
+are at least aware of it. That surely means there's a need for such tools,
+regardless of science?
 
 === Companies
 
@@ -388,7 +395,8 @@ product is pricey for a dumbphone.
 I hope this can eventually be "a thing". Just like there are movements for
 "sustainability" or "diversity", there should also be one for better digital
 control. To me, it has a strong relationship with mental health, and there's a
-lot to improve in that regard.
+lot to improve in that regard. I love the internet; being able to share this
+online is wonderful. But what can we do to reduce the bad parts?
 
 There is a lot more to research in each of the perspectives I introduced today.
 I will try to split it up into multiple articles within
@@ -563,3 +571,20 @@ and research._
   https://www.techradar.com/news/dual-screen-yotaphone-3-has-now-launched-and-its-as-odd-as-ever[Dual-screen
   YotaPhone 3 is finally official and it's just as kooky as the last two --
   TechRadar] (_Release of third and last generation only in China_)
+- [[[gallup-survey,      48]]]
+  https://news.gallup.com/poll/393785/americans-close-wary-bond-smartphone.aspx[Americans
+  Have Close but Wary Bond With Their Smartphone -- Gallup]
+- [[[phones-sleep-filter,51]]]
+	https://arstechnica.com/gadgets/2021/05/iphones-night-shift-feature-doesnt-help-you-sleep-better-study-finds/[Study:
+	Using Apple’s Night Shift to improve your sleep? Don’t bother -- arstechnica]
+	(_Quote: "it is important to think about what portion of that stimulation is
+	light emission versus other cognitive and psychological stimulations"_)
+- [[[phones-crash,       50]]]
+	https://www.nytimes.com/2024/01/26/health/cars-phones-accidents.html[Phones
+	Track Everything but Their Role in Car Wrecks -- The New York Times]
+	(_In summary, the exact number is unknown.
+	https://www.prnewswire.com/news-releases/national-safety-council-estimates-that-at-least-16-million-crashes-are-caused-each-year-by-drivers-using-cell-phones-and-texting-81252807.html[This
+	NSC report] estimates it to be 1.6 million crashes, but it's not precise and
+	from 2010_)
+- [[[bored,              51]]] https://www.youtube.com/watch?v=LKPwKFigF8U[Why
+	Boredom is Good For You -- Veritasium]
