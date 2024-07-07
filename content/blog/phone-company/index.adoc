@@ -26,6 +26,7 @@ TODO general
 - https://newsletter.rhizomerd.com/p/when-to-design-for-emergence ("But what if someone does it before you"? There doesn't have to be a single solution to this. Especially considering how huge the opposing market (those who want you to be staring at the phone) is, and how many ways there are to avoid it.)
 - https://www.onepercentfortheplanet.org/[One Percent for the Planet]
 - https://stripe.com/en-ca/climate[Stripe Climate]
+- https://en.wikipedia.org/wiki/2021_Facebook_leak
 
 TODO non-profits
 
