@@ -7,7 +7,7 @@ if (id) {
   let url = "https://github.com/marioortizmanero/nullderef.com-comments/".concat(id);
   let full_url = "https://github.com/marioortizmanero/nullderef.com-comments/issues/".concat(id);
   let api_url = "https://api.github.com/repos/marioortizmanero/nullderef.com-comments/issues/".concat(id, "/comments");
-  
+
   var commentsDiv = document.getElementById("comments");
 
   let xhr = new XMLHttpRequest();
@@ -21,7 +21,6 @@ if (id) {
     let errorText = document.createElement("p");
     errorText.innerHTML = "<i>".concat(msg, "</i>");
     commentsDiv.appendChild(errorText);
-    return;
   }
 
   xhr.onload = function() {
@@ -38,8 +37,6 @@ if (id) {
           showErrorMsg("Unable to show comments from GitHub.");
           break;
       }
-
-      return;
     }
 
     let comments = xhr.response;
@@ -52,7 +49,7 @@ if (id) {
     let issueLink = document.createElement("p");
     issueLink.innerHTML = "<i>You can leave a comment using this ".concat(issueHref, ".</i>");
     commentsDiv.appendChild(issueLink);
-    
+
     comments.forEach(function(comment) {
       let creationDate = new Date(comment.created_at);
 
@@ -82,3 +79,6 @@ if (id) {
   };
 }
 </script>
+<noscript>
+  <i>You can read the comments for this article <a href="https://github.com/marioortizmanero/nullderef.com-comments/{{ .Params.GHissueID }}" target="_blank" rel="noopener noreferrer me">here</a>.</i>
+</noscript>
