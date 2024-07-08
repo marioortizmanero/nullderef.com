@@ -1,6 +1,16 @@
+"""
+Quick script to automatically reorder and validate AsciiDoc references.
+"""
+
 import re
 import sys
 from dataclasses import dataclass
+
+
+REGEX_BIBLIOGRAPHY_ENTRY_MATCH_NAME = r'^- \[\[\[([a-zA-Z0-9-_]+),\s*(\d+)\]\]\]'
+REGEX_BIBLIOGRAPHY_ENTRY_REPLACE_NUM = r'^(- \[\[\[[a-zA-Z0-9-_]+,)\s*(\d+)(\]\]\].*)'
+REGEX_BIBLIOGRAPHY_REF = r'<<([a-zA-Z0-9-_]+)>>'
+BIBLIOGRAPHY_TAG = "[bibliography]"
 
 
 @dataclass
@@ -14,7 +24,7 @@ def deduplicate_maintaining_order[T](items: list[T]) -> list[T]:
 
 
 def find_references(content: str) -> list[str]:
-    references = re.findall(r'<<([a-zA-Z0-9-_]+)>>', content)
+    references = re.findall(REGEX_BIBLIOGRAPHY_REF, content)
     return deduplicate_maintaining_order(references)
 
 
@@ -23,17 +33,17 @@ def extract_bibliography(content: str) -> list[BibliographyEntry]:
 
     bibliography_start = None
     for i, line in enumerate(lines):
-        if line.strip() == r'[bibliography]':
+        if line.strip() == BIBLIOGRAPHY_TAG:
             bibliography_start = i
             break
-
     if bibliography_start is None:
         raise Exception("Couldn't find start of bibliography")
 
-    # We have a stack of entries
+    # We have a stack of entries. We will collect the contents of the current entry
+    # before the next one starts.
     entries = []
     for line in lines[bibliography_start:]:
-        entry_search = re.search(r'^- \[\[\[([a-zA-Z0-9-_]+),\s*(\d+)\]\]\]', line)
+        entry_search = re.search(REGEX_BIBLIOGRAPHY_ENTRY_MATCH_NAME, line)
 
         if entry_search:
             entry_name = entry_search.group(1)
@@ -66,7 +76,7 @@ def sort_bibliography(entries: list[BibliographyEntry], refs: list[str]) -> list
     # Then, updating the numbering
     for i, entry in enumerate(sorted_entries):
         entry.content[0] = re.sub(
-            r'^(- \[\[\[[a-zA-Z0-9-_]+,)\s*(\d+)(\]\]\].*)',
+            REGEX_BIBLIOGRAPHY_ENTRY_REPLACE_NUM,
             f"\\1 {i + 1}\\3",
             entry.content[0],
         )
