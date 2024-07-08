@@ -29,12 +29,15 @@ table p {
 /* Fixing alignment */
 .post-content .text-left {
   text-align: left;
+  text-justify: none;
 }
 .post-content .text-center {
   text-align: center;
+  text-justify: none;
 }
 .post-content .text-right {
   text-align: right;
+  text-justify: none;
 }
 .post-content .text-justify {
   text-align: justify;
@@ -103,7 +106,7 @@ blockquote, blockquote p {
  * with the table formatting
  */
 .admonitionblock td {
-    border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border);
 }
 
 /* Fix block margins */
