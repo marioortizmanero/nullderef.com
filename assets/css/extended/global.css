@@ -26,3 +26,10 @@ p {
 .entry-content {
   color: var(--primary);
 }
+
+/* Underline for menu items, too */
+#menu a span {
+  box-shadow: 0 1px 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
