@@ -11,7 +11,7 @@ to see all the comments in the articles.
 
 ### Checklist to release a new article
 
-- [ ] Reorder, clean up, and archive biography
+- [ ] Run `tools/clean-imports.py`
 - [ ] Create an issue in `nullderef-comments` for comments
 - [ ] Verify entry in homepage: preview text and image
 - [ ] Mark series as finished (optional)
