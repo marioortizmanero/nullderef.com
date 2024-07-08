@@ -11,7 +11,6 @@ GHissueID: 11
 ---
 
 :sectnums:
-:stem: latexmath
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 :repr-rust: pass:quotes[`#[repr(Rust)]`]
@@ -357,7 +356,7 @@ They seem to point out that, with the plugin system, {{< crate hashbrown >}}
 (the standard hash table) might actually be better than `halfbrown`. The JSON
 optimization I mentioned could possibly be worth removing now. But it's really
 hard to make a decision just out of this set of benchmarks because of the
-complexity of the change. 
+complexity of the change.
 
 This time, the experiment is only done for investigation. These results must
 only be taken as an indicator of something worth investigating more in depth; it
@@ -553,7 +552,7 @@ couldn't find an existing crate for that.
 +    if fallible_op_1()? && fallible_op_2()? {
 +        fallible_op_3()?;
      }
- 
+
      ROk(())
  }
 {{< /highlight >}}
@@ -601,7 +600,7 @@ I already opened an issue about this with more details for whoever wants to give
 it a try:
 
 [.text-center]
-{{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" >}} 
+{{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" >}}
 
 === Improve cross-platform support
 

@@ -7,6 +7,7 @@ tags: ["tech", "rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "a
 series: ["rust-plugins"]
 date: 2022-02-11
 GHissueID: 10
+hasMath: true
 ---
 
 :sectnums:

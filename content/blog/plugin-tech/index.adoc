@@ -10,7 +10,6 @@ date: 2021-05-17
 GHissueID: 9
 ---
 
-:stem: latexmath
 :sectnums:
 
 ////

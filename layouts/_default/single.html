@@ -66,6 +66,11 @@
   {{- if (.Param "comments") }}
   {{- partial "comments.html" . }}
   {{- end }}
+
+  {{/* Custom: only load math scripts when necessary */}}
+  {{- if eq .Params.hasMath true }}
+  {{- partial "math_support.html" }}
+  {{- end }}
 </article>
 
 {{- end }}{{/* end main */}}

@@ -8,6 +8,7 @@ tags: ["tech", "rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "a
 series: ["rust-plugins"]
 date: 2021-11-08
 GHissueID: 1
+hasMath: true
 ---
 
 :sectnums:
@@ -193,7 +194,7 @@ Unfortunately, it fails to run for the `abi_stable` crate:
 {{< highlight "text" >}}
 (...)
 WARN: Skip abi_stable::CONST - (...)
- 
+
 thread 'main' panicked at 'RResult has 2 params but is being instantiated with 1 values', src/bindgen/ir/enumeration.rs:596:9
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 {{< /highlight >}}
@@ -920,7 +921,7 @@ an idea of the performance hit we'll experience in Tremor. This is what we
 should expect once our system is polished and ready for deployment:
 
 * nginx reports 20% slower startup times and up to a 5% slowdown in their
-  execution times <<nginx-perf>>. 
+  execution times <<nginx-perf>>.
 * https://www.technovelty.org/linux/plt-and-got-the-key-to-code-sharing-and-dynamic-libraries.html[This
   article] explains that the only performance difference is saving the
   https://en.wikipedia.org/wiki/Position-independent_code[resolved address] of

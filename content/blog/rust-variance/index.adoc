@@ -10,7 +10,6 @@ draft: true
 ---
 
 :sectnums:
-:stem: latexmath
 
 :repr-c: pass:quotes[`#[repr\(C)]`]
 :repr-rust: pass:quotes[`#[repr(Rust)]`]
@@ -269,6 +268,6 @@ fn cmp_scow<'a, 'b>(left: &SCow<'a>, right: &SCow<'b>) -> bool {
 
 I would honestly say that the fact it took me so long to realize the error is
 Rust's fault. There were no indications in the errors about variance. I
-understand that there were 
+understand that there were
 
 Thanks a lot to {heinz} for the TODO help in this issue!
