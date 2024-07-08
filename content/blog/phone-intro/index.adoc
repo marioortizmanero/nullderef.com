@@ -186,12 +186,12 @@ they changed to a for-profit and started heading in the opposite direction,
 fueled by the need for monetization&nbsp;<<couch-end>>.
 
 What most Calm Companies do is _bootstrap_, meaning the founders use their own
-money. They promise to never go public, and Basecamp goes a step further by
+money. They promise never to go public, and Basecamp goes a step further by
 assuring they will never sell the company <<basecamp-basic>>. Unfortunately,
-that only works for purely-software companies; manufacturing hardware means you
-will need money: the https://intl.nothing.tech/[Nothing company] spends $30 to
-$50 million for each new product they develop <<nothing-money>>. Or on a
-"smaller" scale, the Light Phone 2 raised a total of $11.9 million in 2019
+that only works for purely software companies; manufacturing hardware means you
+will need money. The https://intl.nothing.tech/[Nothing company] spends $30 to
+$50 million for each new product they develop <<nothing-money>>. On a "smaller"
+scale, the Light Phone 2 raised a total of $11.9 million in 2019
 <<light-phone-money>>. You'd probably do fine with much less, but it shows how
 hard it'd be to save up that kind of money yourself.
 
@@ -204,7 +204,7 @@ this work in the context of a Calm Company?
 A popular choice for niche hardware is
 https://en.wikipedia.org/wiki/Crowdfunding[crowdfunding], where the money comes
 from a bunch of interested people on the internet. Bigme, reMarkable, Light
-Phone, Minimal Phone, Librem. They all started like this. But for what I've
+Phone, Minimal Phone, Librem. They all started like this. But from what I've
 learned, that money usually only covers the hardware costs, not so much the
 upfront design and testing. The successful path seems to be
 https://en.wikipedia.org/wiki/Venture_capital[Venture Capital (VC) funding] to
@@ -215,14 +215,14 @@ Going back to the Light Phone 2, they raised $3.5M from consumers on IndieGoGo
 <<light-phone-igg>> but also $8.4M in seed funding <<light-phone-money>>.
 Similarly, reMarkable was able to secure $11M from presales but required an
 essential $10M in seed funding <<remarkable-money>>. It's hard to avoid VC
-funding if you aren't already a billionaire, like the case of
+funding if you aren't already a billionaire, like in the case of
 https://mudita.com/[Mudita]. It was founded by Michał Kiciński, who had already
 succeeded with https://en.wikipedia.org/wiki/CD_Projekt[CD Projekt]
 <<mudita-funding>>.
 
 I don't believe it's impossible to raise the money, anyhow. There are funds that
 leave plenty of freedom to the founders. And a minority of them are specialized
-to "Calm Companies", such as CalmFund (which just
+in "Calm Companies", such as CalmFund (which just
 https://calmfund.com/writing/pause[paused operations]),
 https://www.indie.vc/[indie.vc], or https://tinyseed.com/[tinyseed].
 
@@ -235,7 +235,7 @@ https://en.wikipedia.org/wiki/B_Corporation_(certification)[B Corporation] or
 https://en.wikipedia.org/wiki/Social_enterprise[Social Enterprise], but I'm not
 sure how effective they are.
 
-You can see how much I can still research about this topic in future posts. And
+You can see how much more I can research about this topic in future posts. And
 we haven't even gotten to the phones section yet!
 
 === Software
@@ -307,12 +307,6 @@ you pay $2 upon failing to meet your phone usage goals.
 It's just great to have so many options, and not being locked in to any of them.
 Different solutions for different people.
 
-// The issue is that phones are essential for emergencies. Urgencies aren't just
-// making a call, but also sending an important Slack message, making a
-// transaction, or taking a photo of something you need to remember. Otherwise,
-// it'd be super easy to just set a hard limit on how many hours you can spend, and
-// ensure people don't cheat.
-
 === Accessories
 
 Some products allow you to disable apps based on physical access to the device.
@@ -359,7 +353,7 @@ train, you might read, and wait until you get home to use your PS4.
 
 There's now color e-paper, with Kobo having released its first models in 2024
 <<kobo-color-eink>>. But it does have downsides, such as worse refresh rates or
-lower contrast ratios. Personally, I believe in embracing the limitations of
+lower contrast ratios. Personally, I'd love to try to embrace the limitations of
 grayscale. Issues with essential apps like Google Maps could be resolved with
 custom software. And not having the best experience watching YouTube on your
 phone might be for good. It's possible that having a single color like red could
@@ -372,8 +366,8 @@ a wave of e-paper products focusing on fast refresh times
 <<daylight-zdnet>><<eink-glider>>, so I'm hoping that will improve.
 
 Nowadays, the biggest brands that go beyond e-readers are HiSense and Boox.
-However, they aren't well-supported in the west. Some apps might not work, and
-connectivity only works with some providers, if at all
+However, they aren't well-supported in the west. Some apps might refuse to open,
+and connectivity only works with some providers, if at all
 <<hisense-review>><<boox-connectivity>>. Boox is known for violating GPL
 compliance, too <<boox-gpl>>. There are startups releasing similar devices, but
 they have a long road ahead: Mudita will announce a new phone soon
@@ -415,15 +409,15 @@ product is pricey for a dumbphone.
 I hope this can eventually be "a thing". Just like there are movements for
 "sustainability" or "diversity", there should also be one for better digital
 control. To me, it has a strong relationship with mental health, and there's a
-lot to improve in that regard. I love the internet; being able to share this
-online is wonderful. But what can we do to reduce the bad parts?
+lot to improve in that regard. I love the internet: being able to share this
+post so easily is wonderful. But what can we do to reduce the bad parts?
 
 There is a lot more to research in each of the perspectives I introduced today.
 I will try to split it up into multiple articles within
 https://nullderef.com/series/dont-use-this-phone/[the series]. You can
 https://nullderef.com/subscribe[subscribe] for free to keep up to date. Actually
 building something in this area would be exciting. Manufacturing a phone sounds
-like a crazy idea, but who knows where the future will take you :)
+crazy, but who knows where the future will take you :)
 
 _Disclaimer: I am not affiliated with any of the companies mentioned in this
 post. The opinions expressed are my own and are based on my personal experiences
