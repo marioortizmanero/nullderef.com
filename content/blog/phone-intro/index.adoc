@@ -273,7 +273,7 @@ things I've seen while trying out Android apps <<apps>>:
 - a floating timer indicating total usage on that day,
 - notification filtering and bundling,
 - https://en.wikipedia.org/wiki/Gamification[gamification] (competing against
-	yourself or friends),
+  yourself or friends),
 - comprehensive statistics,
 - or having someone else to control your usage.
 
@@ -477,9 +477,9 @@ and research._
     {{< app name="Refocus" ios="refocus-app-website-blocker/id1645639057" >}},
     {{< app name="Opal" ios="opal-screen-time-for-focus/id1497465230" >}}
     {{< app name="Jomo" ios="jomo-screen-time-blocker/id1609960918" >}}
-		{{< app name="SocialFocus: Hide Distractions" ios=socialfocus-hide-distractions/id1661093205" >}}
-		{{< app name="UnTrap for YouTube" ios="untrap-for-youtube/id1637438059" >}}
-		{{< app name="BB - Screen Time & App Blocker" ios="bb-screen-time-app-blocker/id6443657745" >}}
+    {{< app name="SocialFocus: Hide Distractions" ios=socialfocus-hide-distractions/id1661093205" >}}
+    {{< app name="UnTrap for YouTube" ios="untrap-for-youtube/id1637438059" >}}
+    {{< app name="BB - Screen Time & App Blocker" ios="bb-screen-time-app-blocker/id6443657745" >}}
 - [[[launchers,          13]]]
   Launchers:
     {{< app name="Olauncher" android="app.olauncher" >}},
@@ -492,83 +492,83 @@ and research._
     {{< app name="Flora" ios="flora-green-focus/id1225155794" >}},
     {{< app name="Plantie" ios="plantie-stay-focused/id1135988868" >}}
 - [[[nothing-money,      15]]]
-	https://youtu.be/dDI9h4ool-E?t=1549[Nothing CEO Carl Pei on the Phone 2 and
-	the future of gadgets | The Vergecast -- YouTube] @ 25:49
+  https://youtu.be/dDI9h4ool-E?t=1549[Nothing CEO Carl Pei on the Phone 2 and
+  the future of gadgets | The Vergecast -- YouTube] @ 25:49
 - [[[light-phone-money,  16]]]
-	https://www.businessinsider.com/light-phone-2-dumb-phone-price-release-date-specs-2019-9[This
-	credit-card-size phone can do only 3 things and doesn't have any apps — and it
-	may be the key to freeing us from our smartphones -- Business Insider]
+  https://www.businessinsider.com/light-phone-2-dumb-phone-price-release-date-specs-2019-9[This
+  credit-card-size phone can do only 3 things and doesn't have any apps — and it
+  may be the key to freeing us from our smartphones -- Business Insider]
 - [[[light-phone-igg,    17]]]
-	https://www.indiegogo.com/projects/light-phone-2#/[Light Phone 2 -- IndieGoGo]
+  https://www.indiegogo.com/projects/light-phone-2#/[Light Phone 2 -- IndieGoGo]
 - [[[remarkable-money,   18]]]
-	https://venturebeat.com/media/remarkable-raises-15-million-to-bring-its-e-paper-tablets-to-more-scribblers/[Remarkable
-	raises $15 million to bring its e-paper tablets to more scribblers --
-	VentureBeat]
+  https://venturebeat.com/media/remarkable-raises-15-million-to-bring-its-e-paper-tablets-to-more-scribblers/[Remarkable
+  raises $15 million to bring its e-paper tablets to more scribblers --
+  VentureBeat]
 - [[[openai,             19]]]
   https://openai.com/our-structure/[Our structure -- OpenAI]
 - [[[light-sensitivity-1,20]]]
   https://ledstrain.org/[LEDStrain Forum]
 - [[[light-sensitivity-2,21]]]
-	https://www.reddit.com/r/ChronicPain/comments/b936z9/has_anyone_here_been_diagnosed_with_central/[Has
-	anyone here been diagnosed with central sensitization and/or relate somehow
-	to my story? (36M, pain started at 33) -- r/ChronicPain]
+  https://www.reddit.com/r/ChronicPain/comments/b936z9/has_anyone_here_been_diagnosed_with_central/[Has
+  anyone here been diagnosed with central sensitization and/or relate somehow
+  to my story? (36M, pain started at 33) -- r/ChronicPain]
 - [[[boox-gpl,           23]]]
-	https://en.wikipedia.org/wiki/Onyx_Boox#GPL_Compliance[GPL Compliance, Onyx
-	Boox -- Wikipedia]
+  https://en.wikipedia.org/wiki/Onyx_Boox#GPL_Compliance[GPL Compliance, Onyx
+  Boox -- Wikipedia]
 - [[[mudita-release,     24]]]
-	https://mudita.com/community/blog/introducing-mudita-kompakt/[First glimpse of
-	Mudita Kompakt -- Mudita]
+  https://mudita.com/community/blog/introducing-mudita-kompakt/[First glimpse of
+  Mudita Kompakt -- Mudita]
 - [[[daylight-release,   25]]]
-	https://www.theverge.com/2024/5/23/24163225/daylight-dc1-tablet-livepaper[The
-	Daylight DC1 is a $729 attempt to build a calmer computer -- The Verge]
+  https://www.theverge.com/2024/5/23/24163225/daylight-dc1-tablet-livepaper[The
+  Daylight DC1 is a $729 attempt to build a calmer computer -- The Verge]
 - [[[hisense-review,     26]]]
-	https://www.reddit.com/r/eink/comments/10hl3bv/hisense_a9_1_week_review/[Hisense
-	A9 - 1 Week Review -- r/eink]
+  https://www.reddit.com/r/eink/comments/10hl3bv/hisense_a9_1_week_review/[Hisense
+  A9 - 1 Week Review -- r/eink]
 - [[[boox-connectivity,  27]]]
-	https://help.boox.com/hc/en-us/community/posts/15815361554068-Why-oh-why-no-SIM-card-mobile-data-support[Why
-	oh why no SIM-card / mobile data support? -- Boox Forums]
+  https://help.boox.com/hc/en-us/community/posts/15815361554068-Why-oh-why-no-SIM-card-mobile-data-support[Why
+  oh why no SIM-card / mobile data support? -- Boox Forums]
 - [[[daylight-podcast,   28]]]
-	https://youtu.be/2Y1nogFltPY?t=2240[Episode #234: Anjan Katta (Founder of
-	Daylight Computer Co), by THE 2AM PODCAST -- YouTube] @ 37:20
+  https://youtu.be/2Y1nogFltPY?t=2240[Episode #234: Anjan Katta (Founder of
+  Daylight Computer Co), by THE 2AM PODCAST -- YouTube] @ 37:20
 - [[[phone-depression,   31]]]
-	https://www.wired.com/story/apple-investors-iphone-kids-depression-suicide-evidence/[Apple
-	investors say iPhones cause teen depression. Science doesn't -- Wired]
+  https://www.wired.com/story/apple-investors-iphone-kids-depression-suicide-evidence/[Apple
+  investors say iPhones cause teen depression. Science doesn't -- Wired]
 - [[[grayscale-attention,32]]]
-	https://www.theguardian.com/technology/2017/jun/20/turning-smartphone-greyscale-attention-distraction-colour[Will
-	turning your phone to greyscale really do wonders for your attention? -- The
-	Guardian]
+  https://www.theguardian.com/technology/2017/jun/20/turning-smartphone-greyscale-attention-distraction-colour[Will
+  turning your phone to greyscale really do wonders for your attention? -- The
+  Guardian]
 - [[[eink-glider,        33]]]
-	https://github.com/Modos-Labs/Glider["Open-source Eink monitor with an
-	emphasis on low latency" -- GitHub Modos-Labs/Glider]
+  https://github.com/Modos-Labs/Glider["Open-source Eink monitor with an
+  emphasis on low latency" -- GitHub Modos-Labs/Glider]
 - [[[daylight-zdnet,     34]]]
-	https://www.zdnet.com/article/daylight-debuts-worlds-first-blue-light-free-computer-with-a-120hz-livepaper-display/[
-	Daylight debuts world's first 'blue-light-free computer' with a 120Hz
-	LivePaper display -- ZDNET] (_Note: Daylight uses a mix between conventional
-	electrophoretic e-paper and LCD. It feels slightly less like paper, but still
-	improves refresh rate._)
+  https://www.zdnet.com/article/daylight-debuts-worlds-first-blue-light-free-computer-with-a-120hz-livepaper-display/[
+  Daylight debuts world's first 'blue-light-free computer' with a 120Hz
+  LivePaper display -- ZDNET] (_Note: Daylight uses a mix between conventional
+  electrophoretic e-paper and LCD. It feels slightly less like paper, but still
+  improves refresh rate._)
 - [[[kobo-color-eink,    35]]]
-	https://www.theverge.com/2024/4/10/24124411/kobo-libra-colour-clara-colour-e-reader-kindle-e-ink[Kobo
-	announces its first color e-readers -- The Verge]
+  https://www.theverge.com/2024/4/10/24124411/kobo-libra-colour-clara-colour-e-reader-kindle-e-ink[Kobo
+  announces its first color e-readers -- The Verge]
 - [[[google-kills,       36]]]
   https://killedbygoogle.com/[Killed by Google]
 - [[[blloc-dead,        37]]]
   https://discord.gg/NSJC3XcKaK[Blloc's Discord server] (more information in the
-	_announcements_ channel)
+  _announcements_ channel)
 - [[[blloc-review,       38]]]
-	https://www.youtube.com/watch?v=31FrND2oqys[Android in Monochrome? | Blloc
-	Zero 18 - exclusive first look]
+  https://www.youtube.com/watch?v=31FrND2oqys[Android in Monochrome? | Blloc
+  Zero 18 - exclusive first look]
 - [[[nosurf-resources,   39]]]
-	https://www.reddit.com/r/nosurf/comments/p73msh/digital_minimalism_reading_list/[Digital
-	Minimalism Reading List -- r/NoSurf]
+  https://www.reddit.com/r/nosurf/comments/p73msh/digital_minimalism_reading_list/[Digital
+  Minimalism Reading List -- r/NoSurf]
 - [[[basecamp-basic,     40]]]
   https://37signals.com/01[An obligation to independence -- 37signals (the
-	company that owns Basecamp)]
+  company that owns Basecamp)]
 - [[[mudita-funding,     41]]]
-	https://archive.ph/4FODk[Mudita new technology company co-founder of CD
-	Projekt -- eurogamer.pl (archive)]
+  https://archive.ph/4FODk[Mudita new technology company co-founder of CD
+  Projekt -- eurogamer.pl (archive)]
 - [[[yota-bankrupt,      42]]]
   https://www.theverge.com/2019/4/19/18508418/yota-devices-bankrupt-yotaphone[The
-	company behind the dual-screen YotaPhone is bankrupt -- The Verge]
+  company behind the dual-screen YotaPhone is bankrupt -- The Verge]
 - [[[yota-2-review,      43]]]
   https://www.techradar.com/reviews/phones/mobile-phones/yotaphone-2-1228308/review[Yotaphone
   2 review -- TechRadar]
@@ -593,25 +593,25 @@ and research._
   https://news.gallup.com/poll/393785/americans-close-wary-bond-smartphone.aspx[Americans
   Have Close but Wary Bond With Their Smartphone -- Gallup]
 - [[[phones-sleep-filter,51]]]
-	https://arstechnica.com/gadgets/2021/05/iphones-night-shift-feature-doesnt-help-you-sleep-better-study-finds/[Study:
-	Using Apple’s Night Shift to improve your sleep? Don’t bother -- arstechnica]
-	(_Quote: "it is important to think about what portion of that stimulation is
-	light emission versus other cognitive and psychological stimulations"_)
+  https://arstechnica.com/gadgets/2021/05/iphones-night-shift-feature-doesnt-help-you-sleep-better-study-finds/[Study:
+  Using Apple’s Night Shift to improve your sleep? Don’t bother -- arstechnica]
+  (_Quote: "it is important to think about what portion of that stimulation is
+  light emission versus other cognitive and psychological stimulations"_)
 - [[[phones-crash,       50]]]
-	https://www.nytimes.com/2024/01/26/health/cars-phones-accidents.html[Phones
-	Track Everything but Their Role in Car Wrecks -- The New York Times]
-	(_In summary, the exact number is unknown.
-	https://www.prnewswire.com/news-releases/national-safety-council-estimates-that-at-least-16-million-crashes-are-caused-each-year-by-drivers-using-cell-phones-and-texting-81252807.html[This
-	NSC report] estimates it to be 1.6 million crashes, but it's not precise and
-	from 2010_)
+  https://www.nytimes.com/2024/01/26/health/cars-phones-accidents.html[Phones
+  Track Everything but Their Role in Car Wrecks -- The New York Times]
+  (_In summary, the exact number is unknown.
+  https://www.prnewswire.com/news-releases/national-safety-council-estimates-that-at-least-16-million-crashes-are-caused-each-year-by-drivers-using-cell-phones-and-texting-81252807.html[This
+  NSC report] estimates it to be 1.6 million crashes, but it's not precise and
+  from 2010_)
 - [[[bored,              51]]] https://www.youtube.com/watch?v=LKPwKFigF8U[Why
-	Boredom is Good For You -- YouTube, Veritasium]
+  Boredom is Good For You -- YouTube, Veritasium]
 - [[[bored-2,            52]]]https://www.youtube.com/watch?v=uuCoyILqut8[Louis
-	CK Embrace Your Loneliness -- YouTube, The Impossible Conversation]
+  CK Embrace Your Loneliness -- YouTube, The Impossible Conversation]
 - [[[tristan-distraction,53]]]
-	https://www.youtube.com/watch?v=jT5rRh9AZf4[Distracted? Let's make technology
-	that helps us spend our time well | Tristan Harris | TEDxBrussels -- YouTube,
-	TEDx Talks]
+  https://www.youtube.com/watch?v=jT5rRh9AZf4[Distracted? Let's make technology
+  that helps us spend our time well | Tristan Harris | TEDxBrussels -- YouTube,
+  TEDx Talks]
 - [[[couch-end,          54]]]
-	https://www.inverse.com/input/features/rise-and-ruin-of-couchsurfing[Paradise
-	lost: The rise and ruin of Couchsurfing.com -- Input]
+  https://www.inverse.com/input/features/rise-and-ruin-of-couchsurfing[Paradise
+  lost: The rise and ruin of Couchsurfing.com -- Input]
