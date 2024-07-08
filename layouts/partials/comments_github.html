@@ -70,9 +70,10 @@ function loadComments(commentsDiv) {
       let commentContent = document.createElement("div");
 
       commentContent.setAttribute('class', 'gh-comment')
+      console.log(comment.user);
       commentContent.innerHTML = "".concat(
           "<div class='gh-header'>",
-            "<img src='", comment.user.avatar_url, "' />",
+            "<img loading='lazy' alt='avatar of ", comment.user.login ,"' src='", comment.user.avatar_url, "' />",
             "<div style='margin:auto 0;'>",
               "<b><a class='gh-username' href='", comment.user.html_url, "'>", comment.user.login, "</a></b>",
               " commented at <em>", creationDate.toLocaleString(), "</em>",
