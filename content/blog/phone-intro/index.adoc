@@ -4,7 +4,7 @@ description: "What can be done about phone dependency? Would it be feasible to
 create a new phone brand? How could that even be done? I have more questions
 than answers, but I'm hoping this series helps a bit."
 author: "Mario Ortiz Manero"
-images: ["TODO"]
+images: ["/blog/phone-intro/cover.jpg"]
 tags: ["tech", "phone dependency", "addiction", "eink", "entrepreneurship",
 "calm companies", "dumbphones", "phone manufacturing"]
 series: ["dont-use-this-phone"]
