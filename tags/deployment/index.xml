@@ -717,7 +717,7 @@ couldn’t find an existing crate for that.</p>
 </span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+    if fallible_op_1()? &amp;&amp; fallible_op_2()? {
 </span></span></span><span class="line"><span class="cl"><span class="gi">+        fallible_op_3()?;
 </span></span></span><span class="line"><span class="cl"><span class="gi"></span>     }
-</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">     ROk(())
 </span></span><span class="line"><span class="cl"> }
 </span></span></code></pre></div>

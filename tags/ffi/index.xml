@@ -1826,7 +1826,7 @@ Unfortunately, it fails to run for the <code>abi_stable</code> crate:</p>
 <div class="paragraph">
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">(...)
 </span></span><span class="line"><span class="cl">WARN: Skip abi_stable::CONST - (...)
-</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">thread &#39;main&#39; panicked at &#39;RResult has 2 params but is being instantiated with 1 values&#39;, src/bindgen/ir/enumeration.rs:596:9
 </span></span><span class="line"><span class="cl">note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace</span></span></code></pre></div>
 </div>
