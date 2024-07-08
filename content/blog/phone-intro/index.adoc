@@ -75,21 +75,21 @@ generalize it to "tech that shouldn't be used"? Or rather, "tech that doesn't
 unnecessarily grab your attention"? Now we're onto something! That's what
 https://en.wikipedia.org/wiki/Calm_technology["Calm Technology"] is all about, a
 concept coined by Mark Weiser and John Seely Brown at
-https://en.wikipedia.org/wiki/PARC_(company)[XEROX Parc] in the 90s.
+https://en.wikipedia.org/wiki/PARC_(company)[XEROX Parc] in the '90s.
 
-Calm Technology describes design principles that make a piece of technology
-inform the user, but not demand their attention. Anything from hammers to
-roombas can be considered "calm". Researcher Amber Case
-https://calmtech.com/[picked it up] and recently announced
+Calm Technology describes design principles that let a piece of technology
+_inform_ the user without _demanding_ their attention. Anything from hammers to
+Roombas can be considered "calm". Researcher Amber Case
+https://calmtech.com/[picked up on this] and recently announced
 https://www.calmtech.institute/[an institute] to certify products that meet
 these standards. Also inspired by Mark and John's original research, Jon
-Yablonski shares a lot of resources in his website
+Yablonski shares his take and more resources in his website
 https://humanebydesign.com/[Humane By Design].
 
 The https://www.humanetech.com/[Center for Humane Technology] is a more
 established organization on this topic. This non-profit aims to educate people
-and companies, raise awareness, and aid policymaking. It gained popularity in
-Neflix's hit-documentary https://www.thesocialdilemma.com/[_The Social
+and companies, raise awareness, and aid in policymaking. It gained popularity in
+Neflix's hit documentary https://www.thesocialdilemma.com/[_The Social
 Dilemma_], which focuses on social media. One of its founders, Tristan Harris,
 created http://www.minimizedistraction.com/[an internal presentation at Google]
 in 2013 that has aged like fine wine.
@@ -97,11 +97,11 @@ in 2013 that has aged like fine wine.
 On the flip side, Cal Newport writes about what _humans_ can do to stop their
 attention from being hijacked. He calls it
 https://www.goodreads.com/book/show/40672036-digital-minimalism["Digital
-Minimalism"], but also covers managing your attention span in
+Minimalism"] and also covers managing your attention span in
 https://www.goodreads.com/book/show/25744928-deep-work["Deep Work"], or living a
-more minimalist life in general. A community for this is
-https://nosurf.net/[NoSurf], where they share a ton more resources
-<<nosurf-resources>>.
+more minimalist life in general. This is also discussed on
+https://nosurf.net/[NoSurf], the biggest community on the topic I could find,
+with even more information <<nosurf-resources>>.
 
 === Negative effects
 
@@ -113,11 +113,11 @@ medical consensus nor recognition; https://youtu.be/8B271L3NtAw?t=10[there's
 correlation, but not clear causation] <<phone-depression>>
 
 Phones have undoubtedly impacted our society. Some changes are good, others, not
-so much. We fiddle with the phone to avoid eye contact, social media worsens our
-self-esteem, and we have attention issues. It's just hard to be bored anymore,
-which is actually good for you <<bored>><<bored-2>>. Phones also disrupt our
-sleep cycles <<phones-sleep-filter>>, and cars frequently crash because of them
-<<phones-crash>>. Nothing that you don't already know.
+so much. We fiddle with our phones to avoid eye contact, social media worsens
+our self-esteem, and we have attention issues. It's just hard to be bored
+anymore, which is actually good for you <<bored>><<bored-2>>. Phones also
+disrupt our sleep cycles <<phones-sleep-filter>>, and cars frequently crash
+because of them <<phones-crash>>. Nothing you don't already know.
 
 There are increasingly more stories about
 https://en.wikipedia.org/wiki/Hikikomori[Hikikomori], described as "total
@@ -142,13 +142,13 @@ issue, given that people can continue their addiction to gaming and online
 surfing anywhere, even in bed.
 ____
 
-Some people suffering from with migraines or "light sensitivity" are affected by
-the screens themselves <<light-sensitivity-1>><<light-sensitivity-2>>. There's
-also the topic of phones for children or the elderly, but that's a huge rabbit
-hole. Looking at the broader population, nearly six in 10 U.S. smartphone users
-admit that they use it too much <<gallup-survey>>. The good news is that people
-are at least aware of it. That surely means there's a need for such tools,
-regardless of science?
+Some people suffering from migraines or "light sensitivity" are affected by the
+screen itself <<light-sensitivity-1>><<light-sensitivity-2>>. There's also the
+topic of phones for children or the elderly, but that's a huge rabbit hole.
+Looking at the broader population, nearly six in 10 U.S. smartphone users admit
+that they use it too much <<gallup-survey>>. The good news is that people are at
+least aware of it. That surely means there's a need for such tools, regardless
+of science?
 
 === Companies
 
@@ -158,8 +158,7 @@ learned a lot about this by reading https://basecamp.com/books/calm["It doesn't
 have to be crazy at work"], written by the founders of Basecamp. Part of its
 contents are also available online
 <<basecamp>><<basecamp-handbook>><<signalvnoise>>. You don't have to agree with
-everything to admit it makes you re-think many things about how companies are
-built.
+everything to admit it makes you rethink how companies are built.
 
 This includes leadership, benefits, planning, hiring, funding... and how to make
 them more reasonable. One key idea is that starting a business with the goal of
@@ -179,13 +178,12 @@ which is often the person who provides the funding.
 We can learn this important lesson from
 https://en.wikipedia.org/wiki/CouchSurfing[CouchSurfing], a website that helps
 you find a couch at someone's home for a short stay. The company's goal wasn't
-limited to "connect hosts to guests", but rather "create lasting positive
-experiences and relationships between strangers". And it isn't all gibberish;
-their internal metric for success was "positive time had thanks to
-CouchSurfing" subtracted by "time spent on their website"
-<<tristan-distraction>>. But after a hectic story, they changed to a for-profit
-and started heading in the opposite direction, fueled by the need for
-monetization&nbsp;<<couch-end>>.
+just to "connect hosts to guests", but to "create lasting positive experiences
+and relationships between strangers". And it isn't all gibberish; their internal
+metric for success was "positive time had thanks to CouchSurfing" subtracted by
+"time spent on the website" <<tristan-distraction>>. But after a hectic story,
+they changed to a for-profit and started heading in the opposite direction,
+fueled by the need for monetization&nbsp;<<couch-end>>.
 
 What most Calm Companies do is _bootstrap_, meaning the founders use their own
 money. They promise to never go public, and Basecamp goes a step further by
@@ -224,14 +222,15 @@ succeeded with https://en.wikipedia.org/wiki/CD_Projekt[CD Projekt]
 
 I don't believe it's impossible to raise the money, anyhow. There are funds that
 leave plenty of freedom to the founders. And a minority of them are specialized
-to "Calm Companies", such as CalmFund, which just
-https://calmfund.com/writing/pause[paused operations],
+to "Calm Companies", such as CalmFund (which just
+https://calmfund.com/writing/pause[paused operations]),
 https://www.indie.vc/[indie.vc], or https://tinyseed.com/[tinyseed].
 
 Once you get over the necessity of raising money, there are other ways to have
-power over decision-making. OpenAI famously failed to do so as a pure non-profit, allegedly
-because raising money was too hard as just a nonprofit <<openai>>. So maybe we
-could take that as a learned lesson. Other ideas are certifications like
+power over decision-making. OpenAI famously failed to do so as a pure
+non-profit, allegedly because raising money was too hard as just a nonprofit
+<<openai>>. So maybe we could take that as a learned lesson. Other ideas are
+certifications like
 https://en.wikipedia.org/wiki/B_Corporation_(certification)[B Corporation] or
 https://en.wikipedia.org/wiki/Social_enterprise[Social Enterprise], but I'm not
 sure how effective they are.
