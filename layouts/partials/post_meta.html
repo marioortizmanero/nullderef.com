@@ -22,7 +22,7 @@
 {{- if .Params.series }}
 {{- $thisSeries := index .Params.series 0 }}
 {{- $thisSeriesPage := site.GetPage (printf "series/%s" $thisSeries | urlize) }}
-{{- $scratch.Add "meta" (printf "Part of the series \"[%s](%s)\". " $thisSeriesPage.Title $thisSeriesPage.Permalink | markdownify) }}
+{{- $scratch.Add "meta" (printf "Part of the series \"[%s](%s)\"" $thisSeriesPage.Title $thisSeriesPage.Permalink | markdownify) }}
 {{- end }}
 
 {{- with ($scratch.Get "meta") }}
