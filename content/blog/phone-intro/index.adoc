@@ -26,20 +26,21 @@ people owning one use it more than they'd like.
 I've seen people around me switching to a dumbphone. A _digital detox_ is not a
 bad idea; it helps reduce anxiety in the short term. But in the longer term,
 it's pretty much impossible. A few apps like WhatsApp or Google Maps can be
-indispensable, and the rest actually improve our lifes if used reasonably.
+indispensable, and the rest actually improve our lifes when used reasonably.
 TikTok can be incredibly addicting, but it's arguably a great way for people to
 learn, relax, or connect with others.
 
+Even the founders of the https://en.wikipedia.org/wiki/Light_Phone[Light Phone]
+-- the most popular dumbphone brand -- thought it was too restrictive for them,
+and they have released a more featureful version&nbsp;<<light-phone-v1>>. Don't
+get me wrong! I admire the company and all the work they do. This is such a
+small industry that anything helps; lots of people out there are really happy
+with their minimal phones, which is awesome. But I wonder if there's something
+that could become more mainstream.
+
 Besides, as a big fan of second-hand stuff, I'd rather give an old Motorola a
 second life than bring yet another phone to the world. It'd also be really cool
-to open and close a retro flip-phone (right???). Even the founders of the Light
-Phone -- arguably, the most popular dumbphone -- thought it was too much for
-them, and they have released a more featureful version <<light-phone-v1>>.
-
-Don't get me wrong! I admire the Light Phone and all the work they do. This is
-such a small industry that anything helps. Lots of people out there are really
-happy with their minimal phones, and that's awesome. But there may be something
-that could become more mainstream. The lower the barrier of entry, the better.
+to open and close a retro flip-phone (right???).
 
 So what if we tried to find a middle point? There are two possible approaches:
 
@@ -52,7 +53,7 @@ everyone's use-cases one by one ends up being very restrictive. Your dumbphone's
 operating system could add custom support for Uber, but there may be someone who
 won't buy the phone unless it has Spotify. And a password manager. And their
 banking app. And after implementing all of these, someone will need a damned
-parking app for their apartment complex (yes, really <<parking>>).
+parking app for their apartment complex (yes, really&nbsp;<<parking>>).
 
 The question arises: how in the world would you even manufacuture a phone? It
 sounds like the most daunting task, especially given that I don't know anything
@@ -99,7 +100,7 @@ Minimalism"] and also covers managing your attention span in
 https://www.goodreads.com/book/show/25744928-deep-work["Deep Work"], or living a
 more minimalist life in general. This is also discussed on
 https://nosurf.net/[NoSurf], the biggest community on the topic I could find,
-with even more information <<nosurf-resources>>.
+with even more information&nbsp;<<nosurf-resources>>.
 
 === Negative effects
 
@@ -108,14 +109,14 @@ https://en.wikipedia.org/wiki/Problematic_smartphone_use[problematic smartphone
 use]? Is it even a problem to them? Certainly, there are studies on how phone
 usage leads to poorer psychological health. But it doesn't help that there's no
 medical consensus nor recognition; https://youtu.be/8B271L3NtAw?t=10[there's
-correlation, but not clear causation] <<phone-depression>>
+correlation, but not clear causation]&nbsp;<<phone-depression>>
 
 Phones have undoubtedly impacted our society. Some changes are good, others, not
 so much. We fiddle with our phones to avoid eye contact, social media worsens
 our self-esteem, and we have attention issues. It's just hard to be bored
-anymore, which is actually good for you <<bored>><<bored-2>>. Phones also
-disrupt our sleep cycles <<phones-sleep-filter>>, and cars frequently crash
-because of them <<phones-crash>>. Nothing you don't already know.
+anymore, which is actually good for you&nbsp;<<bored>><<bored-2>>. Phones also
+disrupt our sleep cycles&nbsp;<<phones-sleep-filter>>, and cars frequently crash
+because of them&nbsp;<<phones-crash>>. Nothing you don't already know.
 
 There are increasingly more stories about
 https://en.wikipedia.org/wiki/Hikikomori[Hikikomori], described as "total
@@ -141,12 +142,12 @@ surfing anywhere, even in bed.
 ____
 
 Some people suffering from migraines or "light sensitivity" are affected by the
-screen itself <<light-sensitivity-1>><<light-sensitivity-2>>. There's also the
-topic of phones for children or the elderly, but that's a huge rabbit hole.
+screen itself&nbsp;<<light-sensitivity-1>><<light-sensitivity-2>>. There's also
+the topic of phones for children or the elderly, but that's a huge rabbit hole.
 Looking at the broader population, nearly six in 10 U.S. smartphone users admit
-that they use it too much <<gallup-survey>>. The good news is that people are at
-least aware of it. That surely means there's a need for such tools, regardless
-of science?
+that they use their phone too much&nbsp;<<gallup-survey>>. So the good news is
+that people are at least aware of the issue. That surely means there's a need
+for solutions, regardless of science?
 
 === Companies
 
@@ -154,44 +155,45 @@ In order to start a company that cares about people's mental health, it's
 sensible to say that its workers shouldn't be crunching 60 hours per week. I
 learned a lot about this by reading https://basecamp.com/books/calm["It doesn't
 have to be crazy at work"], written by the founders of Basecamp. Part of its
-contents are also available online
-<<basecamp>><<basecamp-handbook>><<signalvnoise>>. You don't have to agree with
-everything to admit it makes you rethink how companies are built.
+contents are also available
+online&nbsp;<<basecamp>><<basecamp-handbook>><<signalvnoise>>. You don't have to
+agree with everything to admit it makes you rethink how companies are built.
 
 This includes leadership, benefits, planning, hiring, funding... and how to make
 them more reasonable. One key idea is that starting a business with the goal of
 changing the world sets the stakes too high from the beginning. The desire to
 get rich becomes the justification for all-nighters and bad practices, which
 spreads from founders to employees. Other so-called "Calm Companies" that share
-this mindset include Transistor.fm
-<<calm-transistor>><<build-your-saas>><<transistor-handbook>><<transistor-justin>>,
-Wildbit (now ActiveCampaign) <<wildbit>>, or Convertkit <<convertkit>>, but
-Basecamp is the loudest about it.
+this mindset include
+Transistor.fm&nbsp;<<calm-transistor>><<build-your-saas>><<transistor-handbook>><<transistor-justin>>,
+Wildbit&nbsp;<<wildbit>>, or Convertkit&nbsp;<<convertkit>>, but Basecamp is the
+loudest about it.
 
-A caveat is that we must ensure the company stays true to its values. In this
-case, that the less screen time, the better (within profitable means). Not that
-the more revenue, the better. However, this depends on who controls the company,
-which is often the person who provides the funding.
+An important caveat is that we must ensure the company stays true to its values.
+In this case, that the less screen time, the better (within profitable means).
+Not that the more revenue, the better. However, this depends on who controls the
+company, which is often the person who provides the funding.
 
-We can learn this important lesson from
+We can learn this lesson from
 https://en.wikipedia.org/wiki/CouchSurfing[CouchSurfing], a website that helps
 you find a couch at someone's home for a short stay. The company's goal wasn't
 just to "connect hosts to guests", but to "create lasting positive experiences
-and relationships between strangers". And it isn't all gibberish; their internal
+and relationships between strangers". And it wasn't gibberish: their internal
 metric for success was "positive time had thanks to CouchSurfing" subtracted by
-"time spent on the website" <<tristan-distraction>>. But after a hectic story,
-they changed to a for-profit and started heading in the opposite direction,
-fueled by the need for monetization&nbsp;<<couch-end>>.
+"time spent on the website"&nbsp;<<tristan-distraction>>. But after a hectic
+story, they changed to a for-profit and started heading in the opposite
+direction, fueled by the need for monetization&nbsp;<<couch-end>>.
 
 What most Calm Companies do is _bootstrap_, meaning the founders use their own
 money. They promise never to go public, and Basecamp goes a step further by
-assuring they will never sell the company <<basecamp-basic>>. Unfortunately,
-that only works for purely software companies; manufacturing hardware means you
-will need money. The https://intl.nothing.tech/[Nothing company] spends $30 to
-$50 million for each new product they develop <<nothing-money>>. On a "smaller"
-scale, the Light Phone 2 raised a total of $11.9 million in 2019
-<<light-phone-money>>. You'd probably do fine with much less, but it shows how
-hard it'd be to save up that kind of money yourself.
+assuring they will never sell the company&nbsp;<<basecamp-basic>>.
+Unfortunately, that only works for purely software companies; manufacturing
+hardware means you will need money. The https://intl.nothing.tech/[Nothing
+company] spends $30 to $50 million for each new product they
+develop&nbsp;<<nothing-money>>. On a "smaller" scale, the Light Phone 2 raised a
+total of $11.9 million in 2019&nbsp;<<light-phone-money>>. You'd probably do fine
+with much less, but it shows how hard it'd be to save up that kind of money
+yourself.
 
 Nowadays, startups achieve funding _precisely_ by asserting they will change the
 world. Their solution will blow the competition out of the water. Prepare to
@@ -209,26 +211,26 @@ https://en.wikipedia.org/wiki/Venture_capital[Venture Capital (VC) funding] to
 set up the team and build a prototype, and then crowdfunding to actually
 manufacture it.
 
-Going back to the Light Phone 2, they raised $3.5M from consumers on IndieGoGo
-<<light-phone-igg>> but also $8.4M in seed funding <<light-phone-money>>.
-Similarly, reMarkable was able to secure $11M from presales but required an
-essential $10M in seed funding <<remarkable-money>>. It's hard to avoid VC
-funding if you aren't already a billionaire, like in the case of
-https://mudita.com/[Mudita]. It was founded by Michał Kiciński, who had already
-succeeded with https://en.wikipedia.org/wiki/CD_Projekt[CD Projekt]
-<<mudita-funding>>.
+Going back to the Light Phone 2, they raised $3.5M from consumers on
+IndieGoGo&nbsp;<<light-phone-igg>> but also $8.4M in seed
+funding&nbsp;<<light-phone-money>>. Similarly, reMarkable was able to secure
+$11M from presales but required an essential $10M in seed
+funding&nbsp;<<remarkable-money>>. It's hard to avoid VC funding if you aren't
+already a billionaire, like in the case of https://mudita.com/[Mudita]. This
+company was founded by Michał Kiciński, who had already succeeded with
+https://en.wikipedia.org/wiki/CD_Projekt[CD Projekt]&nbsp;<<mudita-funding>>.
 
-I don't believe it's impossible to raise the money, anyhow. There are funds that
+Anyhow, I don't believe it's impossible to raise the money. There are funds that
 leave plenty of freedom to the founders. And a minority of them are specialized
 in "Calm Companies", such as CalmFund (which just
 https://calmfund.com/writing/pause[paused operations]),
 https://www.indie.vc/[indie.vc], or https://tinyseed.com/[tinyseed].
 
-Once you get over the necessity of raising money, there are other ways to have
-power over decision-making. OpenAI famously failed to do so as a pure
-non-profit, allegedly because raising money was too hard as just a nonprofit
-<<openai>>. So maybe we could take that as a learned lesson. Other ideas are
-certifications like
+Once you get over the necessity of raising money, there are other ways to
+maintain power over decision-making. OpenAI famously failed to do so as a pure
+non-profit, allegedly because raising money was too hard as just a
+nonprofit&nbsp;<<openai>>. So maybe we could take that as a learned lesson.
+Other ideas are certifications like
 https://en.wikipedia.org/wiki/B_Corporation_(certification)[B Corporation] or
 https://en.wikipedia.org/wiki/Social_enterprise[Social Enterprise], but I'm not
 sure how effective they are.
@@ -258,7 +260,7 @@ instead of ad revenue, we'd surely have more ideas to improve its adoption.
 
 There are heaps of alternatives on the app marketplaces, although their source
 code may not be available, and most have in-app payments or ads. Here are some
-things I've seen while trying out Android apps <<apps>>:
+cool features I've seen while trying out Android apps&nbsp;<<apps>>:
 
 - fancy tutorials,
 - syncing across devices (including your laptop or tablet),
@@ -274,20 +276,22 @@ things I've seen while trying out Android apps <<apps>>:
 - comprehensive statistics,
 - or having someone else to control your usage.
 
-Not everything is limited to blocking apps; there are also minimal app launchers
-<<launchers>> or simpler productivity timers <<timers>>. {{< app
-name="minimalist phone" android="com.qqlabs.minimalistlauncher" >}} does well in
-the "seamless experience" department, taking over your launcher and providing
-ways to control how you open apps. I don't want to do an exhaustive analysis,
-but just looking for "digital control" or "block apps" will already return many
-results. It's worth downloading a few until you find your favorite anyway.
+Not everything is limited to blocking apps; there are also minimal app
+launchers&nbsp;<<launchers>> or simple productivity timers&nbsp;<<timers>>. {{<
+app name="minimalist phone" android="com.qqlabs.minimalistlauncher" >}} does
+well in the "seamless experience" department by filtering notifications and
+taking over your launcher to control how you open apps. I don't want to do an
+exhaustive analysis, but just looking for "digital control" or "block apps" will
+already return many results. It's worth downloading a few until you find your
+favorite anyway.
 
-Manufacturers have it much easier, though, given that they have full system
-access. For instance, the open-source app {{< app name="TimeLimit"
-android="io.timelimit.android.google.store" >}} is an even more configurable
-alternative to "Digital Wellbeing". But being external, it needs to start with a
-long (and worrying) step to grant permissions. This alone is one step too many
-to make it widespread -- I'd argue that even having to install it is too much.
+However, manufacturers have it much easier, given that they have full system
+access over your phone. For instance, the open-source app {{< app
+name="TimeLimit" android="io.timelimit.android.google.store" >}} is an even more
+configurable alternative to "Digital Wellbeing". But being external, it needs to
+start with a long (and worrying) step to grant permissions. This alone is one
+step too many to make it widespread -- I'd argue that even having to install an
+app is too much.
 
 To improve the user experience, some apps make emphasis on explaining how to use
 their features. Others avoid it by trying to be smarter; they have your current
@@ -302,15 +306,17 @@ some subscription models can be too much. A particularly creative app I liked
 was {{< app name="Digital Detox" android="com.urbandroid.ddc" >}}, which makes
 you pay $2 upon failing to meet your phone usage goals.
 
-It's just great to have so many options, and not being locked in to any of them.
+It's just great to have so many options and not being locked in to any of them.
 Different solutions for different people.
 
 === Accessories
 
-Some products allow you to disable apps based on physical access to the device.
-Requiring NFC to unlock apps can help break the habit of opening Instagram
-automatically, turning it into a conscious decision. You can also block the apps
-and leave the device at home to fully disconnect.
+Some products allow you to disable apps based on physical access. Imagine a
+keychain with an NFC chip that can restrict apps on your phone. Having to find
+it and hold it near your phone can help break the habit of opening Instagram
+automatically, turning it into a conscious decision. These tools can also help
+transform your phone into a dumbphone: simply block the apps and leave the
+device at home to fully disconnect.
 
 A couple of options are https://getbrick.app/[Brick] and
 https://www.unpluq.com/[UnPluq]. They only solve part of the issue, though, and
@@ -340,67 +346,68 @@ out focusing on latency:
 <iframe loading="lazy" width="1600" height="400" src="https://www.youtube.com/embed/pXn-bAwzNv4?start=183" title="Modos Paper Monitor Status Update" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 ++++
 
-A charasteristic of most e-paper screens is that they are grayscale. While the
-absence of colors is linked with reduced addiction <<grayscale-attention>>, it
-can also be frustrating. I've set my phone to grayscale, and I know how
-confusing Google Maps can sometimes be without colors. Additionally, charts that
-rely on color require you to view them on a different device. And I haven't even
-tried gaming. One could argue that this is intentional, to get you to use
-different devices for different purposes. Instead of playing Candy Crush on the
-train, you might read, and wait until you get home to use your PS4.
+E-paper has always had a poor refresh rate. The issue isn't just that videos are
+hard to watch -- you shouldn't do it often, anyway. The real problem is that
+sluggish animations worsen the user experience. Recently, a wave of e-paper
+products with faster refresh times&nbsp;<<daylight-zdnet>><<eink-glider>> has
+emerged, so I'm hoping that will improve.
 
-There's now color e-paper, with Kobo having released its first models in 2024
-<<kobo-color-eink>>. But it does have downsides, such as worse refresh rates or
-lower contrast ratios. Personally, I'd love to try to embrace the limitations of
-grayscale. Issues with essential apps like Google Maps could be resolved with
-custom software. And not having the best experience watching YouTube on your
-phone might be for good. It's possible that having a single color like red could
-improve the user experience by highlighting important items, though.
+Another charasteristic of most e-paper screens is that they are grayscale. While
+the absence of colors is linked with reduced
+addiction&nbsp;<<grayscale-attention>>, it can also be frustrating. I've set my
+phone to grayscale, and I know how confusing Google Maps can sometimes be
+without colors. Additionally, charts that rely on color require you to view them
+on a different device. And I haven't even tried gaming. One could argue that
+this is intentional, to get you to use different devices for different purposes.
+Instead of playing Candy Crush on the train, you might read and wait until you
+get home to use your PS4.
 
-Another characteristic about e-paper is its refresh rate, which has always been
-bad. It's not just that videos are hard to watch, but that animations are
-sluggish, and that in turn worsens the user experience. Recently, there has been
-a wave of e-paper products focusing on fast refresh times
-<<daylight-zdnet>><<eink-glider>>, so I'm hoping that will improve.
+There's now color e-paper, with Kobo having released its first e-readers in
+2024&nbsp;<<kobo-color-eink>>. But it does have downsides, such as worse refresh
+rates or lower contrast ratios. Personally, I'd love to try to embrace the
+limitations of grayscale. Issues with essential apps like Google Maps could be
+resolved with custom software. And not having the best experience watching
+YouTube on your phone might be for good. It's possible that having a single
+color like red could improve the user experience by highlighting important
+items, though.
 
 Nowadays, the biggest brands that go beyond e-readers are HiSense and Boox.
-However, they aren't well-supported in the west. Some apps might refuse to open,
-and connectivity only works with some providers, if at all
-<<hisense-review>><<boox-connectivity>>. Boox is known for violating GPL
-compliance, too <<boox-gpl>>. There are startups releasing similar devices, but
-they have a long road ahead: Mudita will announce a new phone soon
-<<mudita-release>>, and Daylight might work on a phone after their $729 tablet
-ships <<daylight-release>><<daylight-podcast>>.
+However, they aren't well-supported in the west. Some apps refuse to open, and
+connectivity only works with certain providers, if at
+all&nbsp;<<hisense-review>><<boox-connectivity>>. Boox is known for violating
+GPL compliance, too&nbsp;<<boox-gpl>>. There are startups releasing similar
+devices, but they have a long road ahead: Mudita will announce a new phone
+soon&nbsp;<<mudita-release>>, and Daylight might work on a phone if their $729
+tablet is successful&nbsp;<<daylight-release>><<daylight-podcast>>.
 
-For 360€, the https://www.blloc.com/[Blloc] Zero18 was one of the few phones
-that didn't use e-paper but that also wasn't a dumbphone. It balanced full
-functionality and customization with impressive features designed to prevent you
-from opening apps at all <<blloc-review>>. By default, its screen was grayscale,
-but tapping the fingerprint sensor would bring back the color. The homepage
-combined all your chats into a single feed, similar to
-https://www.beeper.com/[Beeper], and had interactive widgets for news, notes,
-playing music, or YouTube search. Unfortunately, as you can tell from my use of
-the past sense, they ended up ditching the phone. The company saw more benefit
-in just developing the launcher, and they eventually ran out of money
-<<blloc-dead>>. Many employees have since moved to the
-https://intl.nothing.tech[the Nothing company]...
+For 360€, the Blloc Zero18 was one of the few phones that didn't use e-paper but
+wasn't a dumbphone either. It balanced full functionality with impressive
+features designed to keep you from opening apps at all&nbsp;<<blloc-review>>. By
+default, its screen was grayscale, but tapping the fingerprint sensor would
+bring back the color. The homepage combined all your chats into a single feed,
+similar to https://www.beeper.com/[Beeper], and had interactive widgets for
+news, notes, playing music, or YouTube search. Unfortunately, as you can tell
+from my use of the past sense, they ended up ditching the phone. The company
+shifted focus to just developing the launcher, and they ended up running out of
+money&nbsp;<<blloc-dead>>. Many employees have since joined
+https://intl.nothing.tech[Nothing].
 
-Another notable flop <<yota-bankrupt>> was the
+Another notable flop&nbsp;<<yota-bankrupt>> was the
 https://en.wikipedia.org/wiki/Yota[YotaPhone]. This unique phone featured an
 additional e-paper screen on the back, marketed for reading and basic tasks. As
 innovative as it was, you'd have to _really_ like reading to justify spending
-over $600 for a phone that was otherwise unimpressive <<yota-2-review>>.
+over $600 for a phone that was otherwise unimpressive&nbsp;<<yota-2-review>>.
 Unfortunately, it never gained popularity in Europe and was not released in the
-US <<yota-1-eu>><<yota-2-eu>><<yota-crowd-fail>><<yota-3-fail>>.
+US&nbsp;<<yota-1-eu>><<yota-2-eu>><<yota-crowd-fail>><<yota-3-fail>>.
 
 A simpler approach to consider is what https://ghostmode.us/[Ghost Mode] does.
 They lock down a Pixel&nbsp;6a with their custom operating system and resell it.
-In the end, it's essentially a dumbphone with nice camera. They don't need to
+In the end, it's essentially a dumbphone with a nice camera. They don't need to
 deal with hardware or manufacturing, and the software still has system access
 for advanced features. I'm only afraid that relying on Google might not be a
-good idea <<google-kills>>, but I'm sure they could go with a different phone.
-The reason under its popularity might also have to do with money: at $600, their
-product is pricey for a dumbphone.
+good idea&nbsp;<<google-kills>>, but they could switch to a different base
+phone. Its unpopularity might have to do with money: at $600, it's pricey for a
+dumbphone.
 
 == Wrapping up
 
@@ -413,9 +420,10 @@ post so easily is wonderful. But what can we do to reduce the bad parts?
 There is a lot more to research in each of the perspectives I introduced today.
 I will try to split it up into multiple articles within
 https://nullderef.com/series/dont-use-this-phone/[the series]. You can
-https://nullderef.com/subscribe[subscribe] for free to keep up to date. Actually
-building something in this area would be exciting. Manufacturing a phone sounds
-crazy, but who knows where the future will take you :)
+https://nullderef.com/subscribe[subscribe] for free to keep up to date. It's
+hard to say yet, but I'd love to build something in this area in the future.
+Manufacturing a phone sounds crazy, but who knows where the future will take you
+:)
 
 _Disclaimer: I am not affiliated with any of the companies mentioned in this
 post. The opinions expressed are my own and are based on my personal experiences
