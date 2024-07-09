@@ -108,6 +108,7 @@
     </div>
     {{- end }}
     {{- if not (.Param "hideMeta") }}
+    {{ .Scratch.Set "hideAuthor" true }}
     <footer class="entry-footer">
       {{- partial "post_meta.html" . -}}
     </footer>
