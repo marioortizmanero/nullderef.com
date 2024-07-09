@@ -17,11 +17,11 @@ What if there was a company selling phones that, against all odds, optimized how
 _little_ they were used? There's a lot of potential here, given that every
 company is trying to get you hooked on their app.
 
-"https://en.wikipedia.org/wiki/Feature_phone[Dumbphones]" have emerged for this
-very reason. These are phones whose functionality is intentionally locked down,
-with the purest examples only supporting calls and SMS. On the other side of the
-spectrum, we have smartphones. It wouldn't be far-fetched to say that most
-people owning one use it more than they'd like.
+https://en.wikipedia.org/wiki/Feature_phone["`Dumbphones`"] have emerged for
+this very reason. These are phones whose functionality is intentionally locked
+down, with the purest examples only supporting calls and SMS. On the other side
+of the spectrum, we have smartphones. It wouldn't be far-fetched to say that
+most people owning one use it more than they'd like.
 
 I've seen people around me switching to a dumbphone. A _digital detox_ is not a
 bad idea; it helps reduce anxiety in the short term. But in the longer term,
@@ -69,16 +69,16 @@ some time, learning more about it from different perspectives:
 
 === Technology
 
-Firstly, let's take a step back from "phones that shouldn't be used". Can we
-generalize it to "tech that shouldn't be used"? Or rather, "tech that doesn't
-unnecessarily grab your attention"? Now we're onto something! That's what
-https://en.wikipedia.org/wiki/Calm_technology["Calm Technology"] is all about, a
-concept coined by Mark Weiser and John Seely Brown at
+Firstly, let's take a step back from "`phones that shouldn't be used`". Can we
+generalize it to "`tech that shouldn't be used`"? Or rather, "`tech that doesn't
+unnecessarily grab your attention`"? Now we're onto something! That's what
+https://en.wikipedia.org/wiki/Calm_technology["`Calm Technology`"] is all about,
+a concept coined by Mark Weiser and John Seely Brown at
 https://en.wikipedia.org/wiki/PARC_(company)[XEROX Parc] in the '90s.
 
 Calm Technology describes design principles that let a piece of technology
 _inform_ the user without _demanding_ their attention. Anything from hammers to
-Roombas can be considered "calm". Researcher Amber Case
+Roombas can be considered "`calm`". Researcher Amber Case
 https://calmtech.com/[picked up on this] and recently announced
 https://www.calmtech.institute/[an institute] to certify products that meet
 these standards. Also inspired by Mark and John's original research, Jon
@@ -95,10 +95,10 @@ in 2013 that has aged like fine wine.
 
 On the flip side, Cal Newport writes about what _humans_ can do to stop their
 attention from being hijacked. He calls it
-https://www.goodreads.com/book/show/40672036-digital-minimalism["Digital
-Minimalism"] and also covers managing your attention span in
-https://www.goodreads.com/book/show/25744928-deep-work["Deep Work"], or living a
-more minimalist life in general. This is also discussed on
+https://www.goodreads.com/book/show/40672036-digital-minimalism["`Digital
+Minimalism`"] and also covers managing your attention span in
+https://www.goodreads.com/book/show/25744928-deep-work["`Deep Work`"], or living
+a more minimalist life in general. This is also discussed on
 https://nosurf.net/[NoSurf], the biggest community on the topic I could find,
 with even more information&nbsp;<<nosurf-resources>>.
 
@@ -119,10 +119,10 @@ disrupt our sleep cycles&nbsp;<<phones-sleep-filter>>, and cars frequently crash
 because of them&nbsp;<<phones-crash>>. Nothing you don't already know.
 
 There are increasingly more stories about
-https://en.wikipedia.org/wiki/Hikikomori[Hikikomori], described as "total
+https://en.wikipedia.org/wiki/Hikikomori[Hikikomori], described as "`total
 withdrawal from society and seeking extreme degrees of social isolation and
-confinement". Of course, it's not limited to Japan. Wikipedia sheds light on the
-role of technology in this condition:
+confinement`". Of course, it's not limited to Japan. Wikipedia sheds light on
+the role of technology in this condition:
 
 [quote, Wikipedia]
 ____
@@ -141,20 +141,20 @@ issue, given that people can continue their addiction to gaming and online
 surfing anywhere, even in bed.
 ____
 
-Some people suffering from migraines or "light sensitivity" are affected by the
-screen itself&nbsp;<<light-sensitivity-1>><<light-sensitivity-2>>. There's also
-the topic of phones for children or the elderly, but that's a huge rabbit hole.
-Looking at the broader population, nearly six in 10 U.S. smartphone users admit
-that they use their phone too much&nbsp;<<gallup-survey>>. So the good news is
-that people are at least aware of the issue. That surely means there's a need
-for solutions, regardless of science?
+Some people suffering from migraines or "`light sensitivity`" are affected by
+the screen itself&nbsp;<<light-sensitivity-1>><<light-sensitivity-2>>. There's
+also the topic of phones for children or the elderly, but that's a huge rabbit
+hole. Looking at the broader population, nearly six in 10 U.S. smartphone users
+admit that they use their phone too much&nbsp;<<gallup-survey>>. So the good
+news is that people are at least aware of the issue. That surely means there's a
+need for solutions, regardless of science?
 
 === Companies
 
 In order to start a company that cares about people's mental health, it's
 sensible to say that its workers shouldn't be crunching 60 hours per week. I
-learned a lot about this by reading https://basecamp.com/books/calm["It doesn't
-have to be crazy at work"], written by the founders of Basecamp. Part of its
+learned a lot about this by reading https://basecamp.com/books/calm["`It doesn't
+have to be crazy at work`"], written by the founders of Basecamp. Part of its
 contents are also available
 online&nbsp;<<basecamp>><<basecamp-handbook>><<signalvnoise>>. You don't have to
 agree with everything to admit it makes you rethink how companies are built.
@@ -163,8 +163,8 @@ This includes leadership, benefits, planning, hiring, funding... and how to make
 them more reasonable. One key idea is that starting a business with the goal of
 changing the world sets the stakes too high from the beginning. The desire to
 get rich becomes the justification for all-nighters and bad practices, which
-spreads from founders to employees. Other so-called "Calm Companies" that share
-this mindset include
+spreads from founders to employees. Other so-called "`Calm Companies`" that
+share this mindset include
 Transistor.fm&nbsp;<<calm-transistor>><<build-your-saas>><<transistor-handbook>><<transistor-justin>>,
 Wildbit&nbsp;<<wildbit>>, or Convertkit&nbsp;<<convertkit>>, but Basecamp is the
 loudest about it.
@@ -177,12 +177,13 @@ company, which is often the person who provides the funding.
 We can learn this lesson from
 https://en.wikipedia.org/wiki/CouchSurfing[CouchSurfing], a website that helps
 you find a couch at someone's home for a short stay. The company's goal wasn't
-just to "connect hosts to guests", but to "create lasting positive experiences
-and relationships between strangers". And it wasn't gibberish: their internal
-metric for success was "positive time had thanks to CouchSurfing" subtracted by
-"time spent on the website"&nbsp;<<tristan-distraction>>. But after a hectic
-story, they changed to a for-profit and started heading in the opposite
-direction, fueled by the need for monetization&nbsp;<<couch-end>>.
+just to "`connect hosts to guests`", but to "`create lasting positive
+experiences and relationships between strangers`". And it wasn't gibberish:
+their internal metric for success was "`positive time had thanks to
+CouchSurfing`" subtracted by "`time spent on the
+website`"&nbsp;<<tristan-distraction>>. But after a hectic story, they changed
+to a for-profit and started heading in the opposite direction, fueled by the
+need for monetization&nbsp;<<couch-end>>.
 
 What most Calm Companies do is _bootstrap_, meaning the founders use their own
 money. They promise never to go public, and Basecamp goes a step further by
@@ -190,9 +191,9 @@ assuring they will never sell the company&nbsp;<<basecamp-basic>>.
 Unfortunately, that only works for purely software companies; manufacturing
 hardware means you will need money. The https://intl.nothing.tech/[Nothing
 company] spends $30 to $50 million for each new product they
-develop&nbsp;<<nothing-money>>. On a "smaller" scale, the Light Phone 2 raised a
-total of $11.9 million in 2019&nbsp;<<light-phone-money>>. You'd probably do fine
-with much less, but it shows how hard it'd be to save up that kind of money
+develop&nbsp;<<nothing-money>>. On a "`smaller`" scale, the Light Phone 2 raised
+a total of $11.9 million in 2019&nbsp;<<light-phone-money>>. You'd probably do
+fine with much less, but it shows how hard it'd be to save up that kind of money
 yourself.
 
 Nowadays, startups achieve funding _precisely_ by asserting they will change the
@@ -222,7 +223,7 @@ https://en.wikipedia.org/wiki/CD_Projekt[CD Projekt]&nbsp;<<mudita-funding>>.
 
 Anyhow, I don't believe it's impossible to raise the money. There are funds that
 leave plenty of freedom to the founders. And a minority of them are specialized
-in "Calm Companies", such as CalmFund (which just
+in "`Calm Companies`", such as CalmFund (which just
 https://calmfund.com/writing/pause[paused operations]),
 https://www.indie.vc/[indie.vc], or https://tinyseed.com/[tinyseed].
 
@@ -244,14 +245,14 @@ By default, phones actually come with solid features to block apps and minimize
 screen time in general. But they don't seem to be good enough to gain adoption.
 
 Firstly, they aren't well marketed; most people aren't aware of their existence.
-Android calls the features https://www.android.com/digital-wellbeing/["Digital
-Wellbeing"] and iOS
-https://support.apple.com/guide/iphone/get-started-with-screen-time-iphbfa595995/ios["Screen
-Time"]. Personally, I receive more system notifications about new AI features in
-my camera than things like this.
+Android calls the features https://www.android.com/digital-wellbeing/["`Digital
+Wellbeing`"] and iOS
+https://support.apple.com/guide/iphone/get-started-with-screen-time-iphbfa595995/ios["`Screen
+Time`"]. Personally, I receive more system notifications about new AI features
+in my camera than things like this.
 
 Secondly, they aren't first-party citizens; the tools are there, but they don't
-quite integrate seamlessly. The most powerful feature on Android is "modes",
+quite integrate seamlessly. The most powerful feature on Android is "`modes`",
 which allows you to switch between settings for different situations. For
 example: when your GPS is in the library, disable Instagram and set the phone to
 grayscale. Being so powerful, it's also complicated to configure (and to keep
@@ -279,17 +280,17 @@ cool features I've seen while trying out Android apps&nbsp;<<apps>>:
 Not everything is limited to blocking apps; there are also minimal app
 launchers&nbsp;<<launchers>> or simple productivity timers&nbsp;<<timers>>. {{<
 app name="minimalist phone" android="com.qqlabs.minimalistlauncher" >}} does
-well in the "seamless experience" department by filtering notifications and
+well in the "`seamless experience`" department by filtering notifications and
 taking over your launcher to control how you open apps. I don't want to do an
-exhaustive analysis, but just looking for "digital control" or "block apps" will
-already return many results. It's worth downloading a few until you find your
-favorite anyway.
+exhaustive analysis, but just looking for "`digital control`" or "`block apps`"
+will already return many results. It's worth downloading a few until you find
+your favorite anyway.
 
 However, manufacturers have it much easier, given that they have full system
 access over your phone. For instance, the open-source app {{< app
 name="TimeLimit" android="io.timelimit.android.google.store" >}} is an even more
-configurable alternative to "Digital Wellbeing". But being external, it needs to
-start with a long (and worrying) step to grant permissions. This alone is one
+configurable alternative to "`Digital Wellbeing`". But being external, it needs
+to start with a long (and worrying) step to grant permissions. This alone is one
 step too many to make it widespread -- I'd argue that even having to install an
 app is too much.
 
@@ -411,8 +412,8 @@ dumbphone.
 
 == Wrapping up
 
-I hope this can eventually be "a thing". Just like there are movements for
-"sustainability" or "diversity", there should also be one for better digital
+I hope this can eventually be "`a thing`". Just like there are movements for
+"`sustainability`" or "`diversity`", there should also be one for better digital
 control. To me, it has a strong relationship with mental health, and there's a
 lot to improve in that regard. I love the internet: being able to share this
 post so easily is wonderful. But what can we do to reduce the bad parts?
@@ -566,8 +567,8 @@ and research._
   electrophoretic e-paper and LCD. It feels slightly less like paper, but still
   improves refresh rate._)
 - [[[eink-glider, 36]]]
-  https://github.com/Modos-Labs/Glider["Open-source Eink monitor with an
-  emphasis on low latency" -- GitHub Modos-Labs/Glider]
+  https://github.com/Modos-Labs/Glider["`Open-source Eink monitor with an
+  emphasis on low latency`" -- GitHub Modos-Labs/Glider]
 - [[[hisense-review, 37]]]
   https://www.reddit.com/r/eink/comments/10hl3bv/hisense_a9_1_week_review/[Hisense
   A9 - 1 Week Review -- r/eink]
