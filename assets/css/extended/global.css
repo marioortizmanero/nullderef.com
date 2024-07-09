@@ -33,3 +33,8 @@ p {
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
+
+/* Fix color for metadata in home page */
+.entry-footer a {
+  color: var(--secondary);
+}
