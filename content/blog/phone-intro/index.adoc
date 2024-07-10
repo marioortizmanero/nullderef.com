@@ -9,7 +9,7 @@ tags: ["tech", "phone dependency", "addiction", "eink", "entrepreneurship",
 "calm companies", "dumbphones", "phone manufacturing"]
 series: ["dont-use-this-phone"]
 date: 2024-06-01
-GHissueID: TODO
+GHissueID: 13
 draft: true
 ---
 
