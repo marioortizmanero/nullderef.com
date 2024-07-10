@@ -423,8 +423,7 @@ I will try to split it up into multiple articles within
 https://nullderef.com/series/dont-use-this-phone/[the series]. You can
 https://nullderef.com/subscribe[subscribe] for free to keep up to date. It's
 hard to say yet, but I'd love to build something in this area in the future.
-Manufacturing a phone sounds crazy, but who knows where the future will take you
-:)
+Manufacturing a phone sounds crazy, but I'd love to see what can be done :)
 
 _Disclaimer: I am not affiliated with any of the companies mentioned in this
 post. The opinions expressed are my own and are based on my personal experiences
