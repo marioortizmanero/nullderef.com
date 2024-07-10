@@ -449,11 +449,11 @@ and research._
   https://www.wired.com/story/apple-investors-iphone-kids-depression-suicide-evidence/[Apple
   investors say iPhones cause teen depression. Science doesn't -- Wired]
 - [[[bored, 5]]]
-	https://www.youtube.com/watch?v=LKPwKFigF8U[Why Boredom is Good For You --
-	YouTube, Veritasium]
+  https://www.youtube.com/watch?v=LKPwKFigF8U[Why Boredom is Good For You --
+  YouTube, Veritasium]
 - [[[bored-2, 6]]]
-	https://www.youtube.com/watch?v=uuCoyILqut8[Louis CK Embrace Your Loneliness
-	-- YouTube, The Impossible Conversation]
+  https://www.youtube.com/watch?v=uuCoyILqut8[Louis CK Embrace Your Loneliness
+  -- YouTube, The Impossible Conversation]
 - [[[phones-sleep-filter, 7]]]
   https://arstechnica.com/gadgets/2021/05/iphones-night-shift-feature-doesnt-help-you-sleep-better-study-finds/[Study:
   Using Apple’s Night Shift to improve your sleep? Don’t bother -- arstechnica]
@@ -461,11 +461,11 @@ and research._
   light emission versus other cognitive and psychological stimulations"_)
 - [[[phones-crash, 8]]]
   https://www.nytimes.com/2024/01/26/health/cars-phones-accidents.html[Phones
-  Track Everything but Their Role in Car Wrecks -- The New York Times]
-  (_In summary, the exact number is unknown.
-  https://www.prnewswire.com/news-releases/national-safety-council-estimates-that-at-least-16-million-crashes-are-caused-each-year-by-drivers-using-cell-phones-and-texting-81252807.html[This
-  NSC report] estimates it to be 1.6 million crashes, but it's not precise and
-  from 2010_)
+  Track Everything but Their Role in Car Wrecks -- The New York Times] (_In
+  summary, the exact number is unknown.
+  https://www.prnewswire.com/news-releases/national-safety-council-estimates-that-at-least-16-million-crashes-are-caused-each-year-by-drivers-using-cell-phone
+  s-and-texting-81252807.html[This NSC report] estimates it to be 1.6 million
+  crashes, but it's not precise and from 2010_)
 - [[[light-sensitivity-1, 9]]]
   https://ledstrain.org/[LEDStrain Forum]
 - [[[light-sensitivity-2, 10]]]
@@ -552,22 +552,22 @@ and research._
     {{< app name="Forest" android="cc.forestapp" >}},
     {{< app name="Flora" ios="flora-green-focus/id1225155794" >}},
     {{< app name="Plantie" ios="plantie-stay-focused/id1135988868" >}}
-- [[[grayscale-attention, 33]]]
-  https://www.theguardian.com/technology/2017/jun/20/turning-smartphone-greyscale-attention-distraction-colour[Will
-  turning your phone to greyscale really do wonders for your attention? -- The
-  Guardian]
-- [[[kobo-color-eink, 34]]]
-  https://www.theverge.com/2024/4/10/24124411/kobo-libra-colour-clara-colour-e-reader-kindle-e-ink[Kobo
-  announces its first color e-readers -- The Verge]
-- [[[daylight-zdnet, 35]]]
+- [[[daylight-zdnet, 33]]]
   https://www.zdnet.com/article/daylight-debuts-worlds-first-blue-light-free-computer-with-a-120hz-livepaper-display/[
   Daylight debuts world's first 'blue-light-free computer' with a 120Hz
   LivePaper display -- ZDNET] (_Note: Daylight uses a mix between conventional
   electrophoretic e-paper and LCD. It feels slightly less like paper, but still
   improves refresh rate._)
-- [[[eink-glider, 36]]]
+- [[[eink-glider, 34]]]
   https://github.com/Modos-Labs/Glider["`Open-source Eink monitor with an
   emphasis on low latency`" -- GitHub Modos-Labs/Glider]
+- [[[grayscale-attention, 35]]]
+  https://www.theguardian.com/technology/2017/jun/20/turning-smartphone-greyscale-attention-distraction-colour[Will
+  turning your phone to greyscale really do wonders for your attention? -- The
+  Guardian]
+- [[[kobo-color-eink, 36]]]
+  https://www.theverge.com/2024/4/10/24124411/kobo-libra-colour-clara-colour-e-reader-kindle-e-ink[Kobo
+  announces its first color e-readers -- The Verge]
 - [[[hisense-review, 37]]]
   https://www.reddit.com/r/eink/comments/10hl3bv/hisense_a9_1_week_review/[Hisense
   A9 - 1 Week Review -- r/eink]
