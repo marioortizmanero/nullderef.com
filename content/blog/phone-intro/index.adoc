@@ -1,12 +1,12 @@
 ---
 title: "A phone meant not to be used: what would it take to build one?"
-description: "What can be done about phone dependency? Would it be feasible to
-create a new phone brand? How could that even be done? I have more questions
-than answers, but I'm hoping this series helps a bit."
+description: "Ever feel like your phone controls you? What if there was a phone
+that minimized how much you used it? I have more questions than answers, but I'm
+hoping this series helps a bit."
 author: "Mario Ortiz Manero"
 images: ["/blog/phone-intro/cover.jpg"]
-tags: ["tech", "phone dependency", "addiction", "eink", "entrepreneurship",
-"calm companies", "dumbphones", "phone manufacturing"]
+tags: ["tech", "phone dependency", "addiction", "eink", "calm companies",
+"dumbphones", "phone manufacturing"]
 series: ["dont-use-this-phone"]
 date: 2024-06-01
 GHissueID: 13
@@ -33,10 +33,9 @@ learn, relax, or connect with others.
 Even the founders of the https://en.wikipedia.org/wiki/Light_Phone[Light Phone]
 -- the most popular dumbphone brand -- thought it was too restrictive for them,
 and they have released a more featureful version&nbsp;<<light-phone-v1>>. Don't
-get me wrong! I admire the company and all the work they do. This is such a
-small industry that anything helps; lots of people out there are really happy
-with their minimal phones, which is awesome. But I wonder if there's something
-that could become more mainstream.
+get me wrong! I admire the company and all the work they do; this is such a
+small industry that anything helps. But I wonder if there's something that could
+become more mainstream.
 
 Besides, as a big fan of second-hand stuff, I'd rather give an old Motorola a
 second life than bring yet another phone to the world. It'd also be really cool
@@ -55,12 +54,11 @@ won't buy the phone unless it has Spotify. And a password manager. And their
 banking app. And after implementing all of these, someone will need a damned
 parking app for their apartment complex (yes, really&nbsp;<<parking>>).
 
-The question arises: how in the world would you even manufacuture a phone? It
-sounds like the most daunting task, especially given that I don't know anything
-about hardware. Well, that's what I'll be researching in this series! It will
-cover topics like studies about addiction, software and hardware for digital
-control, phone manufacturing, EInk, or company funding. I'm no expert, so let's
-see how far the internet can take us.
+The question arises: how in the world would you even manufacture a phone? It
+sounds like the most daunting task, so that's what I'll be researching in this
+series! We'll get started with broader topics like addiction, building
+companies, or existing solutions, and eventually get into more details. I'm no
+expert, so let's see how far the internet can take us.
 
 == Looking at the state of things
 
@@ -81,8 +79,8 @@ _inform_ the user without _demanding_ their attention. Anything from hammers to
 Roombas can be considered "`calm`". Researcher Amber Case
 https://calmtech.com/[picked up on this] and recently announced
 https://www.calmtech.institute/[an institute] to certify products that meet
-these standards. Also inspired by Mark and John's original research, Jon
-Yablonski shares his take and more resources in his website
+these standards. Also inspired by Mark and John's original work, Jon Yablonski
+shares his take and more resources in his website
 https://humanebydesign.com/[Humane By Design].
 
 The https://www.humanetech.com/[Center for Humane Technology] is a more
@@ -141,13 +139,13 @@ issue, given that people can continue their addiction to gaming and online
 surfing anywhere, even in bed.
 ____
 
-Some people suffering from migraines or "`light sensitivity`" are affected by
-the screen itself&nbsp;<<light-sensitivity-1>><<light-sensitivity-2>>. There's
-also the topic of phones for children or the elderly, but that's a huge rabbit
-hole. Looking at the broader population, nearly six in 10 U.S. smartphone users
-admit that they use their phone too much&nbsp;<<gallup-survey>>. So the good
-news is that people are at least aware of the issue. That surely means there's a
-need for solutions, regardless of science?
+Some people suffering from migraines or light sensitivity are affected by the
+screen itself&nbsp;<<light-sensitivity-1>><<light-sensitivity-2>>. There's also
+the topic of phones for children or the elderly, but that's a huge rabbit hole.
+Looking at the broader population, nearly six in 10 U.S. smartphone users admit
+that they use their phone too much&nbsp;<<gallup-survey>>. So the good news is
+that people are at least aware of the issue. That surely means there's a need
+for solutions, regardless of science?
 
 === Companies
 
@@ -196,12 +194,6 @@ a total of $11.9 million in 2019&nbsp;<<light-phone-money>>. You'd probably do
 fine with much less, but it shows how hard it'd be to save up that kind of money
 yourself.
 
-Nowadays, startups achieve funding _precisely_ by asserting they will change the
-world. Their solution will blow the competition out of the water. Prepare to
-invest RIGHT NOW or miss the train. It's just
-https://en.wikipedia.org/wiki/Fear_of_missing_out[FOMO] for investors. How could
-this work in the context of a Calm Company?
-
 A popular choice for niche hardware is
 https://en.wikipedia.org/wiki/Crowdfunding[crowdfunding], where the money comes
 from a bunch of interested people on the internet. Bigme, reMarkable, Light
@@ -221,14 +213,20 @@ already a billionaire, like in the case of https://mudita.com/[Mudita]. This
 company was founded by Michał Kiciński, who had already succeeded with
 https://en.wikipedia.org/wiki/CD_Projekt[CD Projekt]&nbsp;<<mudita-funding>>.
 
-Anyhow, I don't believe it's impossible to raise the money. There are funds that
-leave plenty of freedom to the founders. And a minority of them are specialized
-in "`Calm Companies`", such as CalmFund (which just
+Nowadays, startups raise VC money _precisely_ by asserting they will change the
+world. Their solution will blow the competition out of the water. Prepare to
+invest RIGHT NOW or miss the train. It's just
+https://en.wikipedia.org/wiki/Fear_of_missing_out[FOMO] for investors. How could
+this work in the context of a Calm Company?
+
+Although harder, I don't believe it's impossible. There are funds that leave
+plenty of freedom to the founders. And a minority of them are specialized in
+Calm Companies, such as CalmFund (which just
 https://calmfund.com/writing/pause[paused operations]),
 https://www.indie.vc/[indie.vc], or https://tinyseed.com/[tinyseed].
 
 Once you get over the necessity of raising money, there are other ways to
-maintain power over decision-making. OpenAI famously failed to do so as a pure
+preserve the company's ideals. OpenAI famously failed to do so as a pure
 non-profit, allegedly because raising money was too hard as just a
 nonprofit&nbsp;<<openai>>. So maybe we could take that as a learned lesson.
 Other ideas are certifications like
@@ -253,11 +251,11 @@ in my camera than things like this.
 
 Secondly, they aren't first-party citizens; the tools are there, but they don't
 quite integrate seamlessly. The most powerful feature on Android is "`modes`",
-which allows you to switch between settings for different situations. For
-example: when your GPS is in the library, disable Instagram and set the phone to
-grayscale. Being so powerful, it's also complicated to configure (and to keep
-your setup up to date). If the company was optimizing for less screen time
-instead of ad revenue, we'd surely have more ideas to improve its adoption.
+which allows you to switch settings for different situations. For example: when
+your GPS shows you're in the library, it can disable Instagram and set the
+screen to grayscale. Being so powerful, it's also complicated to configure (and
+to keep your setup up to date). If the company prioritized reducing screen time
+over ad revenue, we’d likely see more ideas to improve its adoption.
 
 There are heaps of alternatives on the app marketplaces, although their source
 code may not be available, and most have in-app payments or ads. Here are some
@@ -266,7 +264,7 @@ cool features I've seen while trying out Android apps&nbsp;<<apps>>:
 - fancy tutorials,
 - syncing across devices (including your laptop or tablet),
 - blocking websites (or even features inside an app, like YouTube Shorts),
-- blocking pre-bundled categories of apps and websites (such as shopping),
+- blocking pre-bundled categories of apps and websites (such as "`shopping`"),
 - breathing exercises before opening apps (or having to read a book),
 - motivational quotes,
 - forums,
@@ -282,9 +280,9 @@ launchers&nbsp;<<launchers>> or simple productivity timers&nbsp;<<timers>>. {{<
 app name="minimalist phone" android="com.qqlabs.minimalistlauncher" >}} does
 well in the "`seamless experience`" department by filtering notifications and
 taking over your launcher to control how you open apps. I don't want to do an
-exhaustive analysis, but just looking for "`digital control`" or "`block apps`"
-will already return many results. It's worth downloading a few until you find
-your favorite anyway.
+exhaustive analysis, but just searching "`screentime`" will already return many
+results on the app store. It's worth downloading a few until you find your
+favorite anyway.
 
 However, manufacturers have it much easier, given that they have full system
 access over your phone. For instance, the open-source app {{< app
@@ -298,9 +296,9 @@ To improve the user experience, some apps make emphasis on explaining how to use
 their features. Others avoid it by trying to be smarter; they have your current
 phone's usage data, so they already know which apps you use too much. One last
 approach is to be opinionated and only support a subset of features that may
-integrate better or have more impact. The Light Phone does this by only
-providing their limited list of apps and features; if you're missing one, maybe
-you'll get it, but maybe not.
+integrate better or have more impact. The Light Phone 2 does this by only
+providing their limited list of features; if you're missing one, maybe you'll
+get it, but maybe not.
 
 Something else raising the barrier of entry is monetization. Although necessary,
 some subscription models can be too much. A particularly creative app I liked
@@ -329,10 +327,9 @@ seem to work well for some folks, which is awesome.
 What would a phone minimizing screen time look like? Many of the popular ones
 have https://en.wikipedia.org/wiki/Electronic_paper[_e-paper_ displays] instead
 of LCD, which is most commonly seen on e-readers. E-paper feels like real paper,
-is easier to see under sunlight, may increase battery time, and works better for
-those with light sensitivity. It doesn't come without drawbacks, given that it
-literally moves physical particles in your screen instead of emitting light. You
-can judge yourself:
+is easier to see under sunlight, and may increase battery time. It doesn't come
+without drawbacks, given that it literally moves physical particles in your
+screen instead of emitting light. You can judge yourself:
 
 ++++
 <iframe loading="lazy" width="1600" height="400" src="https://www.youtube.com/embed/IFgxUr26A8g" title="E ink phone | YouTube | Linus Tech Tips | Hisense A9" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -387,9 +384,9 @@ features designed to keep you from opening apps at all&nbsp;<<blloc-review>>. By
 default, its screen was grayscale, but tapping the fingerprint sensor would
 bring back the color. The homepage combined all your chats into a single feed,
 similar to https://www.beeper.com/[Beeper], and had interactive widgets for
-news, notes, playing music, or YouTube search. Unfortunately, as you can tell
-from my use of the past sense, they ended up ditching the phone. The company
-shifted focus to just developing the launcher, and they ended up running out of
+news, notes, or YouTube search. As you can tell from my use of the past sense,
+though, they ended up ditching the phone. The company shifted focus to just
+developing the launcher, and they ended up running out of
 money&nbsp;<<blloc-dead>>. Many employees have since joined
 https://intl.nothing.tech[Nothing].
 
@@ -404,19 +401,20 @@ US&nbsp;<<yota-1-eu>><<yota-2-eu>><<yota-crowd-fail>><<yota-3-fail>>.
 A simpler approach to consider is what https://ghostmode.us/[Ghost Mode] does.
 They lock down a Pixel&nbsp;6a with their custom operating system and resell it.
 In the end, it's essentially a dumbphone with a nice camera. They don't need to
-deal with hardware or manufacturing, and the software still has system access
-for advanced features. I'm only afraid that relying on Google might not be a
-good idea&nbsp;<<google-kills>>, but they could switch to a different base
-phone. Its unpopularity might have to do with money: at $600, it's pricey for a
+deal with manufacturing, and the software still has system access for advanced
+features. I'm only afraid that relying on Google might not be a good
+idea&nbsp;<<google-kills>>, but they could switch to a different base phone. Its
+unpopularity might also have to do with money: at $600, it's pricey for a
 dumbphone.
 
 == Wrapping up
 
-I hope this can eventually be "`a thing`". Just like there are movements for
-"`sustainability`" or "`diversity`", there should also be one for better digital
-control. To me, it has a strong relationship with mental health, and there's a
-lot to improve in that regard. I love the internet: being able to share this
-post so easily is wonderful. But what can we do to reduce the bad parts?
+I hope this topic can eventually be "`a thing`". Just like there are movements
+for "`sustainability`" or "`diversity`", there should also be one for "`reduced
+screentime`". To me, it has a strong relationship with mental health, and
+there's a lot to improve in that regard. I love the internet: being able to
+share this post so easily is wonderful. But what can we do to reduce the bad
+parts?
 
 There is a lot more to research in each of the perspectives I introduced today.
 I will try to split it up into multiple articles within
