@@ -10,7 +10,6 @@ tags: ["tech", "phone dependency", "addiction", "eink", "calm companies",
 series: ["dont-use-this-phone"]
 date: 2024-06-01
 GHissueID: 13
-draft: true
 ---
 
 What if there was a company selling phones that, against all odds, optimized how
