@@ -38,8 +38,6 @@ function loadComments(commentsDiv) {
     return;
   }
 
-  let url = "https://github.com/marioortizmanero/nullderef.com-comments/".concat(id);
-  let full_url = "https://github.com/marioortizmanero/nullderef.com-comments/issues/".concat(id);
   let api_url = "https://api.github.com/repos/marioortizmanero/nullderef.com-comments/issues/".concat(id, "/comments");
 
   let xhr = new XMLHttpRequest();
@@ -89,5 +87,5 @@ function loadComments(commentsDiv) {
 }
 </script>
 <p>
-  <i>You can leave a comment for this article <a href="https://github.com/marioortizmanero/nullderef.com-comments/{{ .Params.GHissueID }}" target="_blank" rel="noopener noreferrer me">on GitHub</a>.</i>
+  <i>You can leave a comment for this article <a href="https://github.com/marioortizmanero/nullderef.com-comments/issues/{{ .Params.GHissueID }}" target="_blank" rel="noopener noreferrer me">on GitHub</a>.</i>
 </p>
