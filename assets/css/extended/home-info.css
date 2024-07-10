@@ -17,3 +17,8 @@
   -webkit-box-decoration-break: clone;
   font-size: 17px;
 }
+
+.social-icons a,
+.social-icons span {
+  color: var(--primary);
+}
