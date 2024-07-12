@@ -12,6 +12,7 @@
 {{- $scratch.Add "meta" (slice (i18n "words" .WordCount | default (printf "%d words" .WordCount))) }}
 {{- end }}
 
+{{/* CUSTOM: hide the author in the homepage */}}
 {{- if not (or (.Param "hideAuthor") (.Scratch.Get "hideAuthor")) -}}
 {{- with (partial "author.html" .) }}
 {{- $scratch.Add "meta" (slice .) }}
