@@ -1,8 +1,8 @@
 ---
-title: "A phone meant not to be used: what would it take to build one?"
-description: "Ever feel like your phone controls you? What if there was a phone
-that minimized how much you used it? I have more questions than answers, but I'm
-hoping this series helps a bit."
+title: "Beyond Dumbphones: Building a Minimalist Yet Functional Phone"
+description: "Ever feel like your phone controls you? What if there was a
+smartphone that minimized how much you used it? I have more questions than
+answers, but I'm hoping this series helps a bit."
 author: "Mario Ortiz Manero"
 images: ["/blog/phone-intro/cover.jpg"]
 tags: ["tech", "phone dependency", "addiction", "eink", "calm companies",
@@ -238,8 +238,8 @@ we haven't even gotten to the phones section yet!
 
 === Software
 
-By default, phones actually come with solid features to block apps and minimize
-screen time in general. But they don't seem to be good enough to gain adoption.
+Smartphones actually come with solid features to block apps and minimize screen
+time in general. However, they don't seem to be good enough to gain adoption.
 
 Firstly, they aren't well marketed; most people aren't aware of their existence.
 Android calls the features https://www.android.com/digital-wellbeing/["`Digital
@@ -415,8 +415,12 @@ there's a lot to improve in that regard. I love the internet: being able to
 share this post so easily is wonderful. But what can we do to reduce the bad
 parts?
 
-There is a lot more to research in each of the perspectives I introduced today.
-I will try to split it up into multiple articles within
+We still don't fully know what this hybrid between a smartphone and a dumbphone
+looks like. However, this research has taught us many essential things: the
+relevant organizations, its societal impact, how to build the company, existing
+software and hardware solutions, and some history.
+
+More details about the design will come later in
 https://nullderef.com/series/dont-use-this-phone/[the series]. You can
 https://nullderef.com/subscribe[subscribe] for free to keep up to date. It's
 hard to say yet, but I'd love to build something in this area in the future.
