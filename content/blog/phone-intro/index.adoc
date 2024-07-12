@@ -1,8 +1,7 @@
 ---
 title: "Beyond Dumbphones: Building a Minimalist Yet Functional Phone"
-description: "Ever feel like your phone controls you? What if there was a
-smartphone that minimized how much you used it? I have more questions than
-answers, but I'm hoping this series helps a bit."
+description: "Ever feel like your phone controls you? Can we design a smartphone
+that minimized how much you used it?"
 author: "Mario Ortiz Manero"
 images: ["/blog/phone-intro/cover.jpg"]
 tags: ["tech", "phone dependency", "addiction", "eink", "calm companies",
