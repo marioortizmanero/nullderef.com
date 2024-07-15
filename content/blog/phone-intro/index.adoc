@@ -5,7 +5,7 @@ that minimized how much you used it?"
 author: "Mario Ortiz Manero"
 images: ["/blog/phone-intro/cover.jpg"]
 tags: ["tech", "phone dependency", "addiction", "eink", "calm companies",
-"dumbphones", "phone manufacturing"]
+"dumbphones", "design"]
 series: ["dont-use-this-phone"]
 date: 2024-06-01
 GHissueID: 13
@@ -52,11 +52,11 @@ won't buy the phone unless it has Spotify. And a password manager. And their
 banking app. And after implementing all of these, someone will need a damned
 parking app for their apartment complex (yes, really&nbsp;<<parking>>).
 
-The question arises: how in the world would you even manufacture a phone? It
-sounds like the most daunting task, so that's what I'll be researching in this
-series! We'll get started with broader topics like addiction, building
-companies, or existing solutions, and eventually get into more details. I'm no
-expert, so let's see how far the internet can take us.
+The question arises: how in the world would you even design a phone? It sounds
+like the most daunting task, so that's what I'll be researching in this series!
+We'll get started with broader topics like addiction, building companies, or
+existing solutions, and eventually get into more details. I'm no expert, so
+let's see how far the internet can take us.
 
 == Looking at the state of things
 
