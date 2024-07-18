@@ -1,0 +1,13 @@
+---
+title: "How your phone affects you"
+description: "TODO"
+author: "Mario Ortiz Manero"
+images: ["TODO"]
+tags: ["tech"]
+series: ["dont-use-this-phone"]
+date: 2024-06-01
+GHissueID: TODO
+draft: true
+---
+
+https://psycnet.apa.org/doiLanding?doi=10.1037%2Fxhp0000100
