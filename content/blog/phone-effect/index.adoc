@@ -10,4 +10,5 @@ GHissueID: TODO
 draft: true
 ---
 
-https://psycnet.apa.org/doiLanding?doi=10.1037%2Fxhp0000100
+- Treating this as a symptom, not a condition of itself
+- https://psycnet.apa.org/doiLanding?doi=10.1037%2Fxhp0000100
