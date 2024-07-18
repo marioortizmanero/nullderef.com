@@ -1,8 +1,8 @@
 <div class="project-entry">
-  <header class="project-header">
+  <div class="project-header">
     <h3>{{ .name | markdownify }}</h3>
     {{ with .position }}<p>({{ . | markdownify }})</p>{{ end }}
-  </header>
+  </div>
 
   <img class="project-logo" loading="lazy" src="{{ .logo }}" alt="{{ .name }}">
 

@@ -12,3 +12,13 @@ draft: true
 
 - Treating this as a symptom, not a condition of itself
 - https://psycnet.apa.org/doiLanding?doi=10.1037%2Fxhp0000100
+
+Newsletters:
+- https://www.nirandfar.com/subscribe/
+- https://aliabdaal.com/newsletter/
+- https://attentionmaster.beehiiv.com/
+- https://ultraproductive.com/newsletter/
+- https://www.theguardian.com/lifeandstyle/2024/mar/19/reclaim-your-brain-readers-screen-time-reduced
+
+Test:
+- https://forms.gle/TZ2jdxZytY6sUh8o7
