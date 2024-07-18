@@ -42,7 +42,7 @@ languages:
 params:
   # to enable google analytics, opengraph, twitter-cards and schema.
   env: production
-  description: "Mario Ortiz Manero's personal blog, where he writes about his latest software projects."
+  description: "Mario Ortiz Manero's personal blog with his learnings about technology."
   author: Mario Ortiz Manero
   keywords: ["rust", "rustlang", "guides", "open-source", "programming", "software"]
   images: ["/logo-banner.png"]
