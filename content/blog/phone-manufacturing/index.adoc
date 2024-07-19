@@ -17,6 +17,7 @@ your whole project will look like a scam. This has happened many times already.
 Other phones:
 * Ubuntu Touch
 * Firefox OS
+* https://www.unihertz.com/en-de/products/jelly-2
 
 What's hard:
 * Patents (fake)
