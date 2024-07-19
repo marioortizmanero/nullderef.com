@@ -94,7 +94,6 @@ markup:
 
 minify:
     disableXML: true
-    minifyOutput: true
 
 assets:
     favicon: "/favicon.ico"
