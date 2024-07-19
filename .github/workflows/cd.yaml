@@ -29,7 +29,7 @@ jobs:
       - name: Run Hugo
         run: |
           alias asciidoctor="asciidoctor --attribute=experimental=true --attribute=icons=font"
-          hugo --minify --verbose --gc
+          hugo --minify --logLevel=info --gc
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
