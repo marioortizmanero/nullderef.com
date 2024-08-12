@@ -13470,19 +13470,5 @@ errors or things that could be improved about the Rust code.</p>
       <guid>https://nullderef.com/about/</guid>
       <description></description>
     </item>
-    <item>
-      <title>Subscribe to new posts</title>
-      <link>https://nullderef.com/subscribe/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/subscribe/</guid>
-      <description>Subscribe to new posts in the blog</description>
-    </item>
-    <item>
-      <title>Subscription confirmed</title>
-      <link>https://nullderef.com/confirm-subscription/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/confirm-subscription/</guid>
-      <description>Confirm your subscription to new posts in the blog</description>
-    </item>
   </channel>
 </rss>
