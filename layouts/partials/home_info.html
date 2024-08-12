@@ -2,16 +2,16 @@
 <article class="first-entry home-info">
     {{/* CUSTOM HEADER: support both light and dark theme logo */}}
     <header class="entry-header">
-        {{ with .Title }}
+        {{- with .Title }}
           <h1>{{ . | markdownify }}</h1>
-        {{ end }}
+        {{- end }}
         <div class="indexlogo">
-          {{ with .LogoLight }}
+          {{- with .LogoLight }}
             <img loading="lazy" alt="NullDeref" class="ligththeme" src="{{ . }}"/>
-          {{ end }}
-          {{ with .LogoDark }}
+          {{- end }}
+          {{- with .LogoDark }}
             <img loading="lazy" alt="NullDeref" class="darktheme" src="{{ . }}"/>
-          {{ end }}
+          {{- end }}
         </div>
     </header>
     <div class="entry-content">
