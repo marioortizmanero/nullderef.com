@@ -36,6 +36,9 @@ languages:
         - name: Search
           url: search/
           weight: 3
+        - name: Let's chat!
+          url: "https://calendar.app.google/Yqxs7tN1o1xYeR2j8"
+          weight: 4
     params:
       subtitle: "Yet Another Programming Blog"
 
