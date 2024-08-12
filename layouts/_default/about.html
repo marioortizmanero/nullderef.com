@@ -21,9 +21,9 @@
     </div>
 
     <div class="projects">
-      {{ range $.Site.Data.projects.list }}
-        {{ partial "project.html" . }}
-      {{ end }}
+      {{- range $.Site.Data.projects.list }}
+        {{- partial "project.html" . }}
+      {{- end }}
     </div>
 
     <p>
@@ -31,13 +31,13 @@
     </p>
 
     <p class="text-center">
-    {{ $social := where $.Site.Params.socialIcons "personal" "==" true }}
-    {{ $social = $social | append (dict "name" "Mail" "url" "mailto:marioortizmanero@gmail.com") }}
-    {{ $social = $social | append (dict "name" "PGP keys" "url" "https://nullderef.com/pgp_keys.asc") }}
-    {{ $last := sub (len $social) 1 }}
-    {{ range $i, $data := $social }}
+    {{- $social := where $.Site.Params.socialIcons "personal" "==" true }}
+    {{- $social = $social | append (dict "name" "Mail" "url" "mailto:marioortizmanero@gmail.com") }}
+    {{- $social = $social | append (dict "name" "PGP keys" "url" "https://nullderef.com/pgp_keys.asc") }}
+    {{- $last := sub (len $social) 1 }}
+    {{- range $i, $data := $social }}
       <a href="{{ $data.url }}" target="_blank" rel="noopener noreferrer me">{{ $data.name }}</a>{{ if ne $i $last }} · {{ end }}
-    {{ end }}
+    {{- end }}
     </p>
 
     <!-- WIP Some phrases that I stand for:
@@ -53,9 +53,9 @@
     <p>Here are some people that inspire me:</p>
 
     <ul>
-      {{ range $.Site.Data.other_blogs.list }}
+      {{- range $.Site.Data.other_blogs.list }}
         {{ partial "other_blogs.html" . }}
-      {{ end }}
+      {{- end }}
     </ul>
   </div>
 
