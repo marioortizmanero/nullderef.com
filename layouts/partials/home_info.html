@@ -1,6 +1,7 @@
 {{- with site.Params.homeInfoParams }}
-<article class="first-entry home-info">
-    {{/* CUSTOM HEADER: support both light and dark theme logo */}}
+{{- /* CUSTOM: replace `article` tag with `div` */}}
+<div class="first-entry home-info">
+    {{- /* CUSTOM: support both light and dark theme logo */}}
     <header class="entry-header">
         {{- with .Title }}
           <h1>{{ . | markdownify }}</h1>
@@ -20,5 +21,5 @@
     <footer class="entry-footer">
         {{ partial "social_icons.html" (dict "align" site.Params.homeInfoParams.AlignSocialIconsTo) }}
     </footer>
-</article>
+</div>
 {{- end -}}
