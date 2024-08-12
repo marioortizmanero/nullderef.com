@@ -65,7 +65,7 @@
     {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
     {{- end }}
     {{- range $pages }}
-    {{- /* CUSTOM: removing special pages */ -}}
+    {{- /* CUSTOM: removing special pages */}}
     {{- if and (ne .Layout `search`) (ne .Layout `archives`) (ne .Layout `series`) (ne .Layout `subscribe`) (ne .Layout `confirm-subscription`) }}
     <item>
       <title>{{ .Title }}</title>
