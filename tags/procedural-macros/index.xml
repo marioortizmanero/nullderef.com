@@ -442,34 +442,13 @@ LLVM, which are not compatible with eachother <a href="#inkwell-error">[7]</a>.<
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <p class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/fMeow/maybe-async-rs/issues/6" style="text-decoration: none;">async and sync in the same program
-  
     <span class="gh-number">fMeow/maybe-async-rs#6</span></a>
-  
 
 </p>
-
-
-
-
 
 </div>
 <div class="paragraph">
@@ -643,35 +622,14 @@ You can leave a comment below if you like.</p>
 <ul class="bibliography">
 <li>
 <p><a id="block-on-perf"></a>[1] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" width="16" height="16" viewBox="0 0 20 20" version="1.1" id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"> <defs id="defs1" /> <path d="M 3.25,15 C 1.4550746,15 0,13.544925 0,11.75 V 3.25 C 0,1.4550746 1.4550746,0 3.25,0 h 13.5 C 18.544925,0 20,1.4550746 20,3.25 v 8.5 C 20,13.544925 18.544925,15 16.75,15 H 11.012485 L 5.9986815,18.750679 C 5.4458514,19.164165 4.6624979,19.051204 4.2490125,18.498373 4.0873576,18.282241 4,18.019591 4,17.749906 L 3.9992143,15 Z m 7.263515,-1.5 H 16.75 c 0.966498,0 1.75,-0.783502 1.75,-1.75 V 3.25 C 18.5,2.2835017 17.716498,1.5 16.75,1.5 H 3.25 C 2.2835017,1.5 1.5,2.2835017 1.5,3.25 v 8.5 c 0,0.966498 0.7835017,1.75 1.75,1.75 H 5.4987857 L 5.499,14.249786 5.4998574,17.25057 Z" id="path1" /> </svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/112#issuecomment-683266508" style="text-decoration: none;">Cleaning up the <code>blocking</code> module
-  
     
     <span class="gh-number">ramsayleung/rspotify#112 <i>(comment)</i></span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
@@ -679,35 +637,14 @@ You can leave a comment below if you like.</p>
 </li>
 <li>
 <p><a id="block-on-reqwest"></a>[3] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" width="16" height="16" viewBox="0 0 20 20" version="1.1" id="svg1" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"> <defs id="defs1" /> <path d="M 3.25,15 C 1.4550746,15 0,13.544925 0,11.75 V 3.25 C 0,1.4550746 1.4550746,0 3.25,0 h 13.5 C 18.544925,0 20,1.4550746 20,3.25 v 8.5 C 20,13.544925 18.544925,15 16.75,15 H 11.012485 L 5.9986815,18.750679 C 5.4458514,19.164165 4.6624979,19.051204 4.2490125,18.498373 4.0873576,18.282241 4,18.019591 4,17.749906 L 3.9992143,15 Z m 7.263515,-1.5 H 16.75 c 0.966498,0 1.75,-0.783502 1.75,-1.75 V 3.25 C 18.5,2.2835017 17.716498,1.5 16.75,1.5 H 3.25 C 2.2835017,1.5 1.5,2.2835017 1.5,3.25 v 8.5 c 0,0.966498 0.7835017,1.75 1.75,1.75 H 5.4987857 L 5.499,14.249786 5.4998574,17.25057 Z" id="path1" /> </svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/112#issuecomment-683249563" style="text-decoration: none;">Cleaning up the <code>blocking</code> module
-  
     
     <span class="gh-number">ramsayleung/rspotify#112 <i>(comment)</i></span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
@@ -715,34 +652,13 @@ You can leave a comment below if you like.</p>
 </li>
 <li>
 <p><a id="arangors-error"></a>[5] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/fMeow/arangors/issues/37" style="text-decoration: none;">Proposal: Move <code>sync</code> and <code>async</code> features into seperate modules
-  
     <span class="gh-number">fMeow/arangors#37</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>

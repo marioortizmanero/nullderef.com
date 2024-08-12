@@ -867,34 +867,13 @@ in that case perform the re-authorization process automatically.</p>
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/223" style="text-decoration: none;">Implement cache token and refresh token
-  
     <span class="gh-number">ramsayleung/rspotify#223</span></a>
-  
 
 </span>
-
-
-
-
 
 </div>
 </div>
@@ -918,64 +897,22 @@ know its type, and that its contents are valid, so you’re ready to use it.</p>
 </div>
 <div class="paragraph text-center">
 <p>
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/161" style="text-decoration: none;">Initial id type proposal
-  
     <span class="gh-number">ramsayleung/rspotify#161</span></a>
-  
 
 </span>
-
-
-
-
  and
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/244" style="text-decoration: none;">Fix IDs v4
-  
     <span class="gh-number">ramsayleung/rspotify#244</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </div>
 </div>
@@ -998,34 +935,13 @@ async. The latter can be implemented easily in your crate thanks to <a href="htt
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/124" style="text-decoration: none;">Add unlimited endpoints
-  
     <span class="gh-number">ramsayleung/rspotify#124</span></a>
-  
 
 </span>
-
-
-
-
 
 </div>
 </div>
@@ -1069,34 +985,13 @@ and returning it to the user, you can just return that one field in the object:<
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/149" style="text-decoration: none;">The way to reduce wrapper object
-  
     <span class="gh-number">ramsayleung/rspotify#149</span></a>
-  
 
 </span>
-
-
-
-
 
 </div>
 </div>
@@ -1351,162 +1246,57 @@ An asynchronous Rust Spotify web API client - r/rust</a></p>
 </li>
 <li>
 <p><a id="spotipy-absent"></a>[2] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/plamere/spotipy/issues/387" style="text-decoration: none;">Is under development?
-  
     <span class="gh-number">plamere/spotipy#387</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
 <p><a id="gh-block-cleanup"></a>[3] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/112" style="text-decoration: none;">Cleaning up the blocking module
-  
     <span class="gh-number">ramsayleung/rspotify#112</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
 <p><a id="gh-meta"></a>[4] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/127" style="text-decoration: none;">Meta-Issue
-  
     <span class="gh-number">ramsayleung/rspotify#127</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
 <p><a id="gh-clients"></a>[5] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/129" style="text-decoration: none;">Multiple clients via features
-  
     <span class="gh-number">ramsayleung/rspotify#129</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
 <p><a id="gh-auth"></a>[6] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/173" style="text-decoration: none;">Restructure the authentication process
-  
     <span class="gh-number">ramsayleung/rspotify#173</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
@@ -1528,66 +1318,24 @@ definition? - StackOverFlow</a></p>
 </li>
 <li>
 <p><a id="gats"></a>[10] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rust-lang/rust/issues/4426" style="text-decoration: none;">Tracking issue for generic associated types (GAT)
-  
     <span class="gh-number">rust-lang/rust#4426</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
 <p><a id="gh-pkce"></a>[11] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/150" style="text-decoration: none;">Authorization Code Flow with Proof Key for Code Exchange (PKCE) is missing
-  
     <span class="gh-number">ramsayleung/rspotify#150</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
@@ -1597,194 +1345,68 @@ vs &amp;str in Rust functions - hermanradtke.com</a></p>
 </li>
 <li>
 <p><a id="gh-iterators"></a>[13] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/206" style="text-decoration: none;">Pass parameters by reference and use iterators wherever possible
-  
     <span class="gh-number">ramsayleung/rspotify#206</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
 <p><a id="gh-optional-params"></a>[14] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/134" style="text-decoration: none;">Optional parameters
-  
     <span class="gh-number">ramsayleung/rspotify#134</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
 <p><a id="gh-http-universal"></a>[15] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/234" style="text-decoration: none;">Use an external HTTP universal interface instead of <code>rspotify-http</code>
-  
     <span class="gh-number">ramsayleung/rspotify#234</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
 <p><a id="model-separation"></a>[16] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/191" style="text-decoration: none;">Move model into a separate rspotify-model crate
-  
     <span class="gh-number">ramsayleung/rspotify#191</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
 <p><a id="gh-aspotify-share"></a>[17] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/KaiJewson/aspotify/issues/14" style="text-decoration: none;">Sharing the model with rspotify-model
-  
     <span class="gh-number">KaiJewson/aspotify#14</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
 <p><a id="gh-macros"></a>[18] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/pull/202" style="text-decoration: none;">Remove RSpotify default parameters and add parameter macros
-  
     <span class="gh-number">ramsayleung/rspotify#202</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
@@ -1794,34 +1416,13 @@ hashmap constructor - @gmattozzi, Twitter</a></p>
 </li>
 <li>
 <p><a id="gh-cleanup"></a>[20] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/ramsayleung/rspotify/issues/108" style="text-decoration: none;">Reducing rspotify&rsquo;s core dependencies
-  
     <span class="gh-number">ramsayleung/rspotify#108</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 </ul>

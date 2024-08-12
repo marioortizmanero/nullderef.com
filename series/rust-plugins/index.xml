@@ -798,34 +798,13 @@ it a try:</p>
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/oxalica/async-ffi/issues/12" style="text-decoration: none;">Procedural macro for boilerplate
-  
     <span class="gh-number">oxalica/async-ffi#12</span></a>
-  
 
 </span>
-
-
-
-
 
 </div>
 </div>
@@ -1114,34 +1093,13 @@ Rust RFC Book</a></p>
 <li>
 <p><a id="dlopen-mutex"></a>[8]
 
-  
-  
-  
-  
-  
-  
-  
-    
-  
-  
-  
   <span class="gh-reference">
-  
-    
-    
       <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-    
   
     <a class="gh-title" href="https://github.com/szymonwieloch/rust-dlopen/issues/42" style="text-decoration: none;"><code>dlerror</code> <em>is</em> thread-safe on some platforms
-    
       <span class="gh-number">szymonwieloch/rust-dlopen#42</span></a>
-    
   
   </span>
-  
-  
-  
-  
 </p>
 </li>
 <li>
@@ -1203,1058 +1161,365 @@ problems with Git).</p>
 <ol class="arabic">
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rust-lang/nomicon/issues/338" style="text-decoration: none;">Subtyping and Variance - Trait variance not covered
-  
     <span class="gh-number">rust-lang/nomicon#338</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/szymonwieloch/rust-dlopen/issues/42" style="text-decoration: none;"><code>dlerror</code> <em>is</em> thread-safe on some platforms
-  
     <span class="gh-number">szymonwieloch/rust-dlopen#42</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/wasmerio/wasmer/issues/2539" style="text-decoration: none;">Add deprecation notice to the crate <code>wasmer-runtime</code>
-  
     <span class="gh-number">wasmerio/wasmer#2539</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/oxalica/async-ffi/pull/10" style="text-decoration: none;">Support for <code>abi_stable</code>
-  
     <span class="gh-number">oxalica/async-ffi#10</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/oxalica/async-ffi/pull/11" style="text-decoration: none;">Cbindgen support
-  
     <span class="gh-number">oxalica/async-ffi#11</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/oxalica/async-ffi/issues/12" style="text-decoration: none;">Procedural macro for boilerplate
-  
     <span class="gh-number">oxalica/async-ffi#12</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/issues/52" style="text-decoration: none;">Generating C bindings
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#52</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/issues/60" style="text-decoration: none;">Stable ABI for floating point numbers
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#60</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/55" style="text-decoration: none;">Fix &lsquo;carte&rsquo; typo
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#55</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/57" style="text-decoration: none;">Fix some more typos
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#57</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/58" style="text-decoration: none;">Add support for .keys() and .values() in RHashMap
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#58</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/59" style="text-decoration: none;">Implement <code>Index</code> for slices and vectors
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#59</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/61" style="text-decoration: none;">Support for <code>f32</code> and <code>f64</code>
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#61</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/68" style="text-decoration: none;">Implement <code>ROption::as_deref</code>
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#68</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/70" style="text-decoration: none;">Implement <code>RVec::append</code>
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#70</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/76" style="text-decoration: none;">Fix <code>R*</code> lifetimes
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#76</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/77" style="text-decoration: none;">Fix inconsistencies with <code>RVec</code> in respect to <code>Vec</code>
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#77</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/82" style="text-decoration: none;">Implement <code>ROption::{ok_or,ok_or_else}</code>
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#82</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/83" style="text-decoration: none;"><code>RHashMap::raw_entry[_mut]</code> support
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#83</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/85" style="text-decoration: none;">Fix hasher
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#85</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/88" style="text-decoration: none;">Only implement <code>Default</code> once
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#88</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/simd-lite/simd-json-derive/pull/9" style="text-decoration: none;">Support for <code>abi_stable</code>
-  
     <span class="gh-number">simd-lite/simd-json-derive#9</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/simd-lite/simd-json-derive/issues/10" style="text-decoration: none;">No docs for v0.3.0
-  
     <span class="gh-number">simd-lite/simd-json-derive#10</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/simd-lite/value-trait/pull/14" style="text-decoration: none;">Add support for StableAbi
-  
     <span class="gh-number">simd-lite/value-trait#14</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/simd-lite/value-trait/pull/16" style="text-decoration: none;">User friendliness for the win! (close #15)
-  
     <span class="gh-number">simd-lite/value-trait#16</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/simd-lite/value-trait/pull/18" style="text-decoration: none;">Update abi_stable after upstreamed changes
-  
     <span class="gh-number">simd-lite/value-trait#18</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/nagisa/rust_libloading/pull/94" style="text-decoration: none;">Small typo
-  
     <span class="gh-number">nagisa/rust_libloading#94</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/szymonwieloch/rust-dlopen/pull/40" style="text-decoration: none;">Fix typo
-  
     <span class="gh-number">szymonwieloch/rust-dlopen#40</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/Licenser/halfbrown/pull/13" style="text-decoration: none;">Implement <code>remove_entry</code>
-  
     <span class="gh-number">Licenser/halfbrown#13</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/Licenser/halfbrown/pull/14" style="text-decoration: none;">Implement <code>Clone</code> and <code>Debug</code> for <code>Iter</code>
-  
     <span class="gh-number">Licenser/halfbrown#14</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/Licenser/halfbrown/pull/16" style="text-decoration: none;">Relax constraints
-  
     <span class="gh-number">Licenser/halfbrown#16</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/Licenser/halfbrown/pull/17" style="text-decoration: none;">Same <code>Default</code> constraints
-  
     <span class="gh-number">Licenser/halfbrown#17</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/Licenser/halfbrown/pull/18" style="text-decoration: none;">Fix <code>Clone</code> requirements for <code>Iter</code>
-  
     <span class="gh-number">Licenser/halfbrown#18</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 </ol>
@@ -2270,482 +1535,167 @@ including those for the plugin system and other unrelated improvements:</p>
 <ol class="arabic">
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/pull/1434" style="text-decoration: none;">PDK support
-  
     <span class="gh-number">tremor-rs/tremor-runtime#1434</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/marioortizmanero/tremor-runtime/pull/11" style="text-decoration: none;">PDK with a single value
-  
     <span class="gh-number">marioortizmanero/tremor-runtime#11</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/pull/1447" style="text-decoration: none;">Fix <code>makefile bench</code>
-  
     <span class="gh-number">tremor-rs/tremor-runtime#1447</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 <p>
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/marioortizmanero/tremor-runtime/pull/2" style="text-decoration: none;">Adding <code>abi_stable</code> support for <code>tremor-script</code>
-  
     <span class="gh-number">marioortizmanero/tremor-runtime#2</span></a>
-  
 
 </span>
-
-
-
-
  (second attempt)</p>
 </li>
 <li>
 <p>
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/marioortizmanero/tremor-runtime/pull/1" style="text-decoration: none;">Adding <code>abi_stable</code> support for <code>tremor-runtime</code>
-  
     <span class="gh-number">marioortizmanero/tremor-runtime#1</span></a>
-  
 
 </span>
-
-
-
-
  (second attempt)</p>
 </li>
 <li>
 <p>
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/pull/1303" style="text-decoration: none;">Adding <code>abi_stable</code> support for <code>tremor-value</code>
-  
     <span class="gh-number">tremor-rs/tremor-runtime#1303</span></a>
-  
 
 </span>
-
-
-
-
  (second attempt)</p>
 </li>
 <li>
 <p>
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/pull/1287" style="text-decoration: none;">Plugin Development Kit: Connectors
-  
     <span class="gh-number">tremor-rs/tremor-runtime#1287</span></a>
-  
 
 </span>
-
-
-
-
  (first attempt)</p>
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/issues/1353" style="text-decoration: none;"><code>deny</code> statemements in <code>lib.rs</code> should be enforced in the CI rather than in the code
-  
     <span class="gh-number">tremor-rs/tremor-runtime#1353</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-runtime/issues/1812" style="text-decoration: none;"><code>KnownKey</code> relies on a deterministic hash builder
-  
     <span class="gh-number">tremor-rs/tremor-runtime#1812</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/pull/72" style="text-decoration: none;">Fix wrong links in getting started
-  
     <span class="gh-number">tremor-rs/tremor-www#72</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/issues/73" style="text-decoration: none;">Redirect <code>docs.tremor.rs</code> to <code>www.tremor.rs/docs</code>
-  
     <span class="gh-number">tremor-rs/tremor-www#73</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/pull/186" style="text-decoration: none;">Links pinned to 0.12 don&rsquo;t work
-  
     <span class="gh-number">tremor-rs/tremor-www#186</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/pull/187" style="text-decoration: none;">Small fix in code snippet
-  
     <span class="gh-number">tremor-rs/tremor-www#187</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/issues/195" style="text-decoration: none;">No margins in benchmark page
-  
     <span class="gh-number">tremor-rs/tremor-www#195</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 <li>
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/tremor-rs/tremor-www/pull/219" style="text-decoration: none;">Fix typos in benchmarks page
-  
     <span class="gh-number">tremor-rs/tremor-www#219</span></a>
-  
 
 </span>
-
-
-
-
 
 </li>
 </ol>
@@ -3217,34 +2167,13 @@ deriving <code>StableAbi</code> for those that don’t need the latter.</p>
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <p class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/simd-lite/value-trait/pull/14" style="text-decoration: none;">Add support for StableAbi
-  
     <span class="gh-number">simd-lite/value-trait#14</span></a>
-  
 
 </p>
-
-
-
-
 
 </div>
 </div>
@@ -3348,194 +2277,68 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/58" style="text-decoration: none;">Add support for .keys() and .values() in RHashMap
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#58</span></a>
-  
 
 </span>
-
-
-
-
 
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/59" style="text-decoration: none;">Implement <code>Index</code> for slices and vectors
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#59</span></a>
-  
 
 </span>
-
-
-
-
 
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/61" style="text-decoration: none;">Support for <code>f32</code> and <code>f64</code>
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#61</span></a>
-  
 
 </span>
 
-
-
-
-
 </div>
 <div class="paragraph text-center">
-
-
-
-
-
-
-
-
-  
-
-
 
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/68" style="text-decoration: none;">Implement <code>ROption::as_deref</code>
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#68</span></a>
-  
 
 </span>
-
-
-
-
 
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <p class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/70" style="text-decoration: none;">Implement RVec::append
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#70</span></a>
-  
 
 </p>
 
-
-
-
-
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/pull/82" style="text-decoration: none;">Implement <code>ROption::{ok_or,ok_or_else}</code>
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#82</span></a>
-  
 
 </span>
-
-
-
-
 
 </div>
 <div class="paragraph">
@@ -3840,34 +2643,13 @@ something that can be fixed with a procedural macro in the future:</p>
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <p class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/oxalica/async-ffi/issues/12" style="text-decoration: none;">Procedural macro for boilerplate
-  
     <span class="gh-number">oxalica/async-ffi#12</span></a>
-  
 
 </p>
-
-
-
-
 
 </div>
 <div class="paragraph">
@@ -3878,34 +2660,13 @@ to understand the crate, but it’s nothing a Pull Request can’t fix:</p>
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <p class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/oxalica/async-ffi/pull/10" style="text-decoration: none;">Support for <code>abi_stable</code>
-  
     <span class="gh-number">oxalica/async-ffi#10</span></a>
-  
 
 </p>
-
-
-
-
 
 </div>
 <div class="paragraph">
@@ -4292,34 +3053,13 @@ this issue in the meanwhile, and hope that you don’t run into it:</p>
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <p class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rodrimati1992/abi_stable_crates/issues/75" style="text-decoration: none;">lifetimes with R* types break compared to non R* types
-  
     <span class="gh-number">rodrimati1992/abi_stable_crates#75</span></a>
-  
 
 </p>
-
-
-
-
 
 </div>
 <div class="paragraph">
@@ -4331,34 +3071,13 @@ here:</p>
 </div>
 <div class="paragraph text-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <p class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/marioortizmanero/nullderef.com/issues/50" style="text-decoration: none;">Reorganize rust plugins series once I&rsquo;m done
-  
     <span class="gh-number">marioortizmanero/nullderef.com#50</span></a>
-  
 
 </p>
-
-
-
-
 
 </div>
 <div class="paragraph">
@@ -4377,34 +3096,13 @@ the whole experience has been so far, and what I’ve learned:</p>
 <ul class="bibliography">
 <li>
 <p><a id="hashbrown-merge"></a>[1] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rust-lang/rust/pull/58623" style="text-decoration: none;">Replace HashMap implementation with SwissTable (as an external crate)
-  
     <span class="gh-number">rust-lang/rust#58623</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
@@ -5231,34 +3929,13 @@ with <code>panic = &#34;abort&#34;</code>, it’s only available on nightly unti
 </div>
 <div class="paragraph align-center">
 
-
-
-
-
-
-
-
-  
-
-
-
 <p class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/rust-lang/rust/issues/32837" style="text-decoration: none;">Pluggable panic implementations (tracking issue for RFC 1513)
-  
     <span class="gh-number">rust-lang/rust#32837</span></a>
-  
 
 </p>
-
-
-
-
 
 </div>
 </div>
@@ -5639,34 +4316,13 @@ they can be approached.</p>
 <ul class="bibliography">
 <li>
 <p><a id="cglue-vs-sabi"></a>[1] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/h33p/cglue/issues/3" style="text-decoration: none;">A few questions about the library
-  
     <span class="gh-number">h33p/cglue#3</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
@@ -7790,34 +6446,13 @@ the build environment — Github rust-lang/miri</a></p>
 <li>
 <p><a id="wasmtime-inttyp"></a>[7]
 
-  
-  
-  
-  
-  
-  
-  
-    
-  
-  
-  
   <span class="gh-reference">
-  
-    
-    
       <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-    
   
     <a class="gh-title" href="https://github.com/bytecodealliance/wasmtime/issues/677" style="text-decoration: none;">Support for Interface Types in wasmtime API
-    
       <span class="gh-number">bytecodealliance/wasmtime#677</span></a>
-    
   
   </span>
-  
-  
-  
-  
 </p>
 </li>
 <li>
@@ -8837,34 +7472,13 @@ other libraries — dlopen v0.1.8</a></p>
 </li>
 <li>
 <p><a id="amethyst-fail"></a>[14] 
-
-
-
-
-
-
-
-  
-
-
-
 <span class="gh-reference">
-
-  
-  
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
-  
 
   <a class="gh-title" href="https://github.com/amethyst/amethyst/issues/1729" style="text-decoration: none;">[NEW FEATURE] WebAssembly scripting system
-  
     <span class="gh-number">amethyst/amethyst#1729</span></a>
-  
 
 </span>
-
-
-
-
 </p>
 </li>
 <li>
