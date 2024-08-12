@@ -43,10 +43,10 @@
   </div>
   {{- end }}
 
-  {{/* CUSTOM: support for subscription banners */}}
-  {{ partial "subscribe.html" }}
+  {{- /* CUSTOM: support for subscription banners */}}
+  {{- partial "subscribe.html" }}
 
-  {{/* CUSTOM: different order of elements */}}
+  {{- /* CUSTOM: different order of elements */}}
   <footer class="post-footer">
     {{- if (.Param "ShowPostNavLinks") }}
     {{- partial "post_nav_links.html" . }}
@@ -68,11 +68,10 @@
   {{- partial "comments.html" . }}
   {{- end }}
 
-  {{/* Custom: only load math scripts when necessary */}}
+  {{- /* CUSTOM: only load math scripts when necessary */}}
   {{- if eq .Params.hasMath true }}
   {{- partial "math_support.html" }}
   {{- end }}
 </article>
 
 {{- end }}{{/* end main */}}
-
