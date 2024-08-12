@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+errhandler() {
+    errorCode=$?
+    echo ">> Error $errorCode in line ${BASH_LINENO[0]}: $BASH_COMMAND"
+    exit $errorCode
+}
+trap errhandler ERR
+
 clone_url=$(git config --get remote.origin.url)
 tmp_dir=/tmp/nullderef-review-html
 original_dir=$PWD
@@ -19,7 +26,7 @@ git submodule init
 git submodule update
 hugo
 
-echo ">> Showing differences between $original_dir and $tmp_dir"
+echo ">> Showing differences between $tmp_dir and $original_dir"
 diff \
   --brief \
   --recursive \
