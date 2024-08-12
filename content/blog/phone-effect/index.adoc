@@ -22,3 +22,6 @@ Newsletters:
 
 Test:
 - https://forms.gle/TZ2jdxZytY6sUh8o7
+
+Companies optimizing time spent:
+- https://twitter.com/TechEmails/status/1815057842707341463
