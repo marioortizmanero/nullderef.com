@@ -5,6 +5,8 @@ author: "Mario Ortiz Manero"
 images: ["/blog/gsoc-proposal/logo.png"]
 tags: ["tech", "rust", "rustlang", "dynamic-loading"]
 hidden: true
+Sitemap:
+  Disable: true
 date: 2021-04-13
 GHissueID: 8
 ---
