@@ -21,7 +21,8 @@
     {{- end }}
     {{- if not (.Param "hideMeta") }}
     <div class="post-meta">
-      {{- partial "post_meta.html" . -}}
+      {{- /* CUSTOM: hide the author in the homepage only */ -}}
+      {{- partial "post_meta.html" (dict "Post" . "hideAuthor" false) -}}
       {{- partial "translation_list.html" . -}}
       {{- partial "edit_post.html" . -}}
       {{- partial "post_canonical.html" . -}}

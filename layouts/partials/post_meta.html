@@ -1,27 +1,28 @@
 {{- $scratch := newScratch }}
 
-{{- if not .Date.IsZero -}}
-{{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s</span>" (.Date) (.Date | time.Format (default "January 2, 2006" site.Params.DateFormat)))) }}
+{{- if not .Post.Date.IsZero -}}
+{{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s</span>" (.Post.Date) (.Post.Date | time.Format (default "January 2, 2006" site.Params.DateFormat)))) }}
 {{- end }}
 
-{{- if (.Param "ShowReadingTime") -}}
-{{- $scratch.Add "meta" (slice (i18n "read_time" .ReadingTime | default (printf "%d min" .ReadingTime))) }}
+{{- if (.Post.Param "ShowReadingTime") -}}
+{{- $scratch.Add "meta" (slice (i18n "read_time" .Post.ReadingTime | default (printf "%d min" .Post.ReadingTime))) }}
 {{- end }}
 
-{{- if (.Param "ShowWordCount") -}}
-{{- $scratch.Add "meta" (slice (i18n "words" .WordCount | default (printf "%d words" .WordCount))) }}
+{{- if (.Post.Param "ShowWordCount") -}}
+{{- $scratch.Add "meta" (slice (i18n "words" .Post.WordCount | default (printf "%d words" .Post.WordCount))) }}
 {{- end }}
 
-{{/* CUSTOM: hide the author in the homepage */}}
-{{- if not (or (.Param "hideAuthor") (.Scratch.Get "hideAuthor")) -}}
-{{- with (partial "author.html" .) }}
+{{- /* CUSTOM: hide the author in the homepage. This also requires updating
+       `.Params` to `.Post.Params` and so on * in the entire partial. */ -}}
+{{- if not (or (.Post.Param "hideAuthor") .hideAuthor) -}}
+{{- with (partial "author.html" .Post) }}
 {{- $scratch.Add "meta" (slice .) }}
 {{- end }}
 {{- end }}
 
-{{/* CUSTOM: simpler metadata, with support for series indicator */}}
-{{- if .Params.series }}
-{{- $thisSeries := index .Params.series 0 }}
+{{/* CUSTOM: simpler metadata, with support for series indicator. */}}
+{{- if .Post.Params.series }}
+{{- $thisSeries := index .Post.Params.series 0 }}
 {{- $thisSeriesPage := site.GetPage (printf "series/%s" $thisSeries | urlize) }}
 {{- $scratch.Add "meta" (printf "Part of the series [\"%s\"](%s)" $thisSeriesPage.Title $thisSeriesPage.Permalink | markdownify) }}
 {{- end }}
