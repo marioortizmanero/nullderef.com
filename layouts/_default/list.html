@@ -64,6 +64,7 @@
 
 {{- if and .IsHome site.Params.homeInfoParams (eq $paginator.PageNumber 1) }}
 {{- partial "home_info.html" . }}
+<h2 class="articles-header">Latest articles</h2>
 {{- end }}
 
 {{- $term := .Data.Term }}
