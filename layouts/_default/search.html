@@ -9,9 +9,9 @@
         </svg>
     </h1>
     {{- if .Description }}
-    {{/* CUSTOM: `p` instead of `div` for consistency */}}
+    {{- /* CUSTOM: `p` instead of `div` for consistency */}}
     <p class="post-description">
-      {{ .Description }}
+      {{- .Description -}}
     </p>
     {{- end }}
     {{- if not (.Param "hideMeta") }}
@@ -27,7 +27,7 @@
     <ul id="searchResults" aria-label="search results"></ul>
 </div>
 
-{{/* CUSTOM: combined search.html with terms.html */}}
+{{- /* CUSTOM: combined search.html with terms.html */}}
 <header class="page-header">
     <h1>Tags</h1>
 </header>
