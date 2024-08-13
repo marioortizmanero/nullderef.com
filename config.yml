@@ -37,7 +37,7 @@ languages:
           url: search/
           weight: 3
         - name: Let's chat!
-          url: "https://chat.nullderef.com"
+          url: "https://calendar.app.google/L45TFdjwgqJZemxo7"
           weight: 4
     params:
       subtitle: "Yet Another Programming Blog"
