@@ -60,6 +60,9 @@
 {{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true"  }}
 {{- end }}
 
+{{- /* CUSTOM: hidden articles */}}
+{{- $pages = where $pages "Params.hidden" "!=" "true" -}}
+
 {{- $paginator := .Paginate $pages }}
 
 {{- if and .IsHome site.Params.homeInfoParams (eq $paginator.PageNumber 1) }}
@@ -83,8 +86,6 @@
 {{- $class = "post-entry tag-entry" }}
 {{- end }}
 
-{{- /* CUSTOM: hidden articles */}}
-{{- if not .Params.hidden }}
 <article class="{{ $class }}">
   {{- /* CUSTOM: this adds post previews */}}
   {{- $isPreviewHidden := (site.Params.cover.hidden | default site.Params.cover.hiddenInList) }}
@@ -125,7 +126,6 @@
     <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
   </div>
 </article>
-{{- end }}
 {{- end }}
 
 {{- if gt $paginator.TotalPages 1 }}
