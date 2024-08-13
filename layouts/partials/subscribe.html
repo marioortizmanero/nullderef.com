@@ -31,7 +31,8 @@
       {{ $x_url := index (index (where $social "name" "==" "X") 0) "url" }}
       {{ $rss_url := index (index (where $social "name" "==" "RSS") 0) "url" }}
       {{ $mastodon_url := index (index (where $social "name" "==" "Mastodon") 0) "url" }}
-      <p><em>You can also subscribe via <a href="{{ $rss_url }}" target="_blank">RSS</a>, <a href="{{ $x_url }}" target="_blank">X</a>, or <a href="{{ $mastodon_url }}" target="_blank">Mastodon</a> :)</em></p>
+      <p><em>Free and without spam. You can also use my <a href="{{ $rss_url }}" target="_blank">RSS</a>, <a href="{{ $x_url }}" target="_blank">X</a>, or <a href="{{ $mastodon_url }}" target="_blank">Mastodon</a> :)</em></p>
+      <p style="opacity: 0.6;"><em>Powered by <a href="https://convertkit.com/" target="_black">ConvertKit</a></em></p>
     </div>
   </div>
   <style>
