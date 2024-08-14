@@ -70,10 +70,9 @@ params:
   socialIcons:
     - name: GitHub
       url: "https://github.com/marioortizmanero/"
-      # Personal means it will be included in the 'About' page
-      personal: true
     - name: LinkedIn
       url: "https://www.linkedin.com/in/marioortizmanero/"
+      # Personal means it will be included in the 'About' page
       personal: true
     - name: X
       url: "https://x.com/null_deref"
