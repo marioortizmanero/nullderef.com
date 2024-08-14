@@ -22,11 +22,6 @@ p {
     }
 }
 
-/* Fixing the color for the "slogan" under the logo */
-.entry-content {
-  color: var(--primary);
-}
-
 /* Underline for menu items, too */
 #menu a span {
   box-shadow: 0 1px 0;
@@ -34,7 +29,7 @@ p {
   -webkit-box-decoration-break: clone;
 }
 
-/* Fix color for metadata in home page */
+/* Fix color for metadata in post entries of the homepage */
 .entry-footer a {
   color: var(--secondary);
 }

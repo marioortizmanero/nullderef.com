@@ -1,14 +1,13 @@
+/* Align to right, support for subscription link */
 .social-icons {
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
-
 .social-icons .subscribe-msg {
   font-size: 17px;
   padding: 0px;
 }
-
 .social-icons .subscribe-word {
   padding: 0px;
   font-weight: bold;
@@ -18,15 +17,23 @@
   font-size: 17px;
 }
 
+/* Fixing the colors the header */
 .social-icons a,
 .social-icons span {
   color: var(--primary);
 }
+.entry-content {
+  color: var(--primary);
+}
 
+/* Fixing the header text */
 .first-entry {
   min-height: 150px;
 }
-
+.home-header {
+  margin: 14px 0;
+  font-size: 16px;
+}
 .home-quote {
   font-weight: normal;
 }
