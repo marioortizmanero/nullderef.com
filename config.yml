@@ -65,12 +65,6 @@ params:
   comments: true
 
   homeInfoParams:
-    LogoLight: /logo-light-theme.png
-    LogoDark: /logo-dark-theme.png
-    Content: >
-      Because learning without taking notes is like teaching a snail to breakdance: slow and frustrating.
-
-      _-- **Mario Ortiz Manero**_ 🐌
     SubscribeUrl: /subscribe
 
   socialIcons:

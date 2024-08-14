@@ -22,3 +22,11 @@
 .social-icons span {
   color: var(--primary);
 }
+
+.first-entry {
+  min-height: 150px;
+}
+
+.home-quote {
+  font-weight: normal;
+}
