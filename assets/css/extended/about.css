@@ -5,6 +5,8 @@
 }
 
 .about-intro img {
+  width: 150px;
+  height: 214px;
   float: right;
   margin: 0px 0px 5px 15px;
 }
