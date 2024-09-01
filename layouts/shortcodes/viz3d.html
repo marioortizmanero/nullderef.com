@@ -1,0 +1,38 @@
+{{- /*
+     * NOTE: using this shortcode requires calling `viz3d-setup` once
+     * beforehand.
+     *
+     * TODO: experiment with
+     * - `ar ar-placement="wall"`
+     * - environment-image
+     * - `touch-action="pan-y"`
+     * - doesn't work if javascript is disabled
+     * - loading bar should change colors based on theme, or make it more obvious
+     * This is lazy loaded by default
+     * TODO: set width that works for both 3D version and noscript, and mobile & pc
+     * The poster can be generated with the following:
+     *   https://modelviewer.dev/editor/
+     */}}
+
+{{- $src = .Get "src" }}
+{{- $poster = .Get "poster" }}
+{{- $alt = .Get "alt" }}
+
+<p>
+  <model-viewer
+    class="viz-3d"
+    alt="{{ $alt }}"
+    src="{{ $src }}"
+    ar
+    poster="{{ $poster }}"
+    shadow-intensity="1"
+    camera-controls
+  ></model-viewer>
+  <noscript>
+    <img
+      class="viz-3d"
+      src="{{ $poster }}"
+      alt="{{ $alt }}"
+    />
+  </noscript>
+</p>

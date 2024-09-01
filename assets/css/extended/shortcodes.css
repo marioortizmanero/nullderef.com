@@ -25,3 +25,16 @@
 .app-inline {
   white-space: nowrap;
 }
+
+/*
+ * Applies formatting to either the 3D visualizer or the default image in case
+ * JavaScript is disabled
+ */
+.viz-3d {
+  border: 1px;
+  border-style: solid;
+  border-color: var(--primary);
+  width: 90%;
+  height: 30em;
+  margin: 0 auto;
+}
