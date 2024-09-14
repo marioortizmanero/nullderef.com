@@ -9378,8 +9378,8 @@ simple WASM API layer using interface types and Wasmtime — radu’s blog</
       <guid>https://nullderef.com/blog/rust-features/</guid>
       <description>Friendly reminder: you might not need conditional compilation</description>
       <content:encoded><![CDATA[<div class="paragraph">
-<p>Rust makes it very easy to express conditional compilation, specially thanks to
-its <a href="https://doc.rust-lang.org/cargo/reference/features.html">“features”</a>.
+<p>Rust makes it very easy to express conditional compilation, especially thanks to
+Cargo <a href="https://doc.rust-lang.org/cargo/reference/features.html">“features”</a>.
 They’re well integrated into the language and are very easy to use. But one
 thing I’ve learned by maintaining
 <a href="https://github.com/ramsayleung/rspotify">RSpotify</a> (a library for the Spotify
@@ -9388,16 +9388,15 @@ used when it’s <em>the only way</em> to solve the problem, for a number of rea
 explain in this article.</p>
 </div>
 <div class="paragraph">
-<p>This might be obvious to some, but to me it wasn’t so clear back when I started
-using Rust. And even if you’re already aware, it might be an interesting
-reminder; maybe you forgot about it in your latest project and added an
-unnecessary feature.</p>
+<p>This might be obvious, but to me, it wasn’t so clear back when I started using
+Rust. Even if you’re already aware, it might be a good reminder — maybe you
+forgot about it in your latest project, and you added an unnecessary feature.</p>
 </div>
 <div class="paragraph">
-<p>Conditional compilation isn’t anything new either; C and C++ have been doing it
-for a long time now, for one. So the same thing can be applied in these cases.
-However, in my experience it’s much easier to work with conditional compilation
-in Rust, meaning that it’s more likely to be misused as well.</p>
+<p>Conditional compilation isn’t anything new; C and C++ have been doing it for a
+long time now. So this principle can also be applied in these cases. However, in
+my experience, it’s much easier to work with conditional compilation in Rust,
+meaning that it’s more likely to be misused.</p>
 </div>
 <div class="sect1">
 <h2 id="_the_problem">The Problem</h2>
@@ -9406,22 +9405,21 @@ in Rust, meaning that it’s more likely to be misused as well.</p>
 <p>I went through this dilemma when deciding how to configure cached tokens in
 <a href="https://github.com/ramsayleung/rspotify">RSpotify</a>. Said library gives you the
 possibility of persistently managing the authentication token via a JSON file.
-That way, when the program is launched again the token from the previous session
-can be reused without having to follow the full auth process again — that is,
-until the token expires.</p>
+That way, when the program is launched again, the token from the previous
+session can be reused. One doesn’t have to follow the full auth process again — that is, until the token expires.</p>
 </div>
 <div class="paragraph">
 <p>Originally, this was going to be a compile-time feature named <code>cached_token</code>. I
-didn’t really give it much thought; why would one need the code to save and read
+didn’t give it much thought; why would one need the code to save and read
 the token file if you just don’t need it? The easiest way to do that is using a
 feature you can just toggle in your <code>Cargo.toml</code>.</p>
 </div>
 <div class="paragraph">
-<p>However, I later needed another very similar feature, <code>refreshing_token</code>. When
+<p>I later worked on another very similar feature, <code>refreshing_token</code>. When
 optionally enabled, the client would automatically refresh expired tokens. As
-this pattern appeared more and more in the library I wanted to make sure its
-design was optimal. Once I took a deeper look I began to find the many
-inconveniences of features:</p>
+this pattern appeared more and more in the library, I wanted to make sure its
+design was optimal. Once I took a deeper look, I began to find the many
+inconveniences of Cargo features:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -9583,7 +9581,7 @@ use a variable instead of <code>const</code>. It looks better and gets the same 
 <div class="paragraph">
 <p>Even if the previous optimization wasn’t implemented, would the optional code
 cause any harm in the final binary, really? Are we overengineering the solution,
-as always? Truth is the optional code for cached/refreshing tokens isn’t even
+as always? Truth is, the optional code for cached/refreshing tokens isn’t even
 that much bloat.</p>
 </div>
 <div class="paragraph">
