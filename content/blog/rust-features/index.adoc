@@ -4,7 +4,7 @@ description: "Friendly reminder: you might not need conditional compilation"
 author: "Mario Ortiz Manero"
 images: ["/blog/rust-features/compiler-explorer.png"]
 tags: ["tech", "rust", "rustlang", "guide", "beginners", "cargo"]
-series: ["spotify"]
+series: ["rspotify"]
 date: 2021-07-06
 GHissueID: 6
 ---
