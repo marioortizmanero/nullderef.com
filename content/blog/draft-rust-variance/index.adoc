@@ -1,6 +1,7 @@
 ---
 title: "Surprised by Rust's Subtyping and Variance"
-description: "TODO"
+description: "One of the toughest bugs I've come across... Thanks to my good
+friends Subtyping and Variance."
 author: "Mario Ortiz Manero"
 images: ["TODO"]
 tags: ["tech", "programming", "rust", "rustlang", "variance", "subtyping", "abi_stable"]
@@ -63,19 +64,17 @@ purpose. Thanks to it, the task should be as easy as changing the `std` types in
 my enum with theirs -- theoretically.
 
 .Before (simplified)
-[source, rust]
-----
+{{< highlight "rust" >}}
 pub enum Value {
     String(String),
     Array(Vec<Value>),
     Object(Box<HashMap<String, Value>>),
     Bytes(Vec<u8>),
 }
-----
+{{< /highlight >}}
 
 .After (simplified)
-[source, rust]
-----
+{{< highlight "rust" >}}
 use abi_stable::std_types::{RString, RVec, RBox, RHashMap};
 
 #[repr(C)]
@@ -85,45 +84,34 @@ pub enum Value {
     Object(RBox<RHashMap<RString, Value>>),
     Bytes(RVec<u8>),
 }
-----
+{{< /highlight >}}
 
 Naturally, this brought up lots of compilation errors; the `Value` type was used
-a lot in the codebase, and its usage had changed. For whatever reason, some of
-these errors were related to lifetimes, and I didn't really know what was wrong.
-I chose to ignore these until the end and I spent the following hours fixing the
-simplest errors.
+a lot in the codebase, and its usage had changed. For whatever reason, 70 of
+these errors were related to lifetimes, which I hadn't changed at all...
 
-However, after being done with these, I was left with over 70 errors related to
-lifetimes. I still had absolutely no idea how to even approach them because they
-made no sense at all:
-
-// TODO picture or code snippet
-
-Now, this doesn't necessarily have to happen to you in the same context as mine.
-
-== Debugging the issue
+== Debugging
 
 {heinz}, my mentor, managed to reproduce the issue:
 
-[source, rust]
-----
+{{< highlight "rust" >}}
 use abi_stable::std_types::RCow;
 use std::borrow::Cow;
 
+// This works
 fn cmp_cow<'a, 'b>(left: &Cow<'a, ()>, right: &Cow<'b, ()>) -> bool {
     left == right
 }
 
-// This will fail to compile
+// This fails to compile
 fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
     left == right
 }
-----
+{{< /highlight >}}
 
-With the following error, again:
+With the following error:
 
-[source]
-----
+{{< highlight "text" >}}
 $ cargo b
    Compiling repro v0.1.0 (/home/mario/Downloads/repro)
 error[E0623]: lifetime mismatch
@@ -138,28 +126,17 @@ error[E0623]: lifetime mismatch
 
 For more information about this error, try `rustc --explain E0623`.
 error: could not compile `repro` due to previous error
-----
+{{< /highlight >}}
 
-At first sight, ``RCow``'s implementation of `PartialOrd` was the same as
-`Cow`'s:
+What? Why do lifetimes matter here, if it's just a comparison?
 
-.RCow
-[source, rust]
-----
-impl<'a, B> PartialOrd<RCow<'a, B>> for RCow<'a, B>
-where
-    B: PartialOrd + BorrowOwned<'a> + ?Sized,
-{
-    #[inline]
-    fn partial_cmp(&self, other: &RCow<'a, B>) -> Option<Ordering> {
-        PartialOrd::partial_cmp(&**self, &**other)
-    }
-}
-----
+This hinted that the issue was in the underlying library, not my code. `RCow` is
+supposed to be a drop-in replacement for `Cow`. It also had something to do with
+`PartialOrd`, which is the trait used for `==` here. The implementation of
+`PartialOrd` seemed equivalent in both cases, though:
 
 .Cow
-[source, rust]
-----
+{{< highlight "rust" >}}
 impl<'a, B: ?Sized> PartialOrd for Cow<'a, B>
 where
     B: PartialOrd + ToOwned,
@@ -169,73 +146,50 @@ where
         PartialOrd::partial_cmp(&**self, &**other)
     }
 }
-----
+{{< /highlight >}}
 
-== Trying to fix it
-
-I first fixed the PartialEq implementation by making it explicit that I want to
-be able to compare new lifetimes:
-
-.Before
-[source, rust]
-----
-impl<'a, B> PartialEq<RCow<'a, B>> for RCow<'a, B>
+.RCow
+{{< highlight "rust" >}}
+impl<'a, B> PartialOrd<RCow<'a, B>> for RCow<'a, B>
 where
-    B: PartialEq + BorrowOwned<'a> + ?Sized,
+    B: PartialOrd + BorrowOwned<'a> + ?Sized,
 {
-    fn eq(&self, other: &RCow<'a, B>) -> bool {
-        PartialEq::eq(&**self, &**other)
+    #[inline]
+    fn partial_cmp(&self, other: &RCow<'a, B>) -> Option<Ordering> {
+        PartialOrd::partial_cmp(&**self, &**other)
     }
 }
-----
+{{< /highlight >}}
 
-.After
-[source, rust]
-----
-impl<'a, 'b, B, C> PartialEq<RCow<'b, C>> for RCow<'a, B>
+There are definitely more libraries that provide drop-in replacements for `Cow`.
+And for example, {{< crate "beef" >}} managed to get it right, somehow. I wasn't
+able to reproduce the issue with their implementation... but why?
+
+.Beef's Cow
+{{< highlight "rust" >}}
+impl<A, B, U, V> PartialOrd<Cow<'_, B, V>> for Cow<'_, A, U>
 where
-    B: PartialEq<C> + BorrowOwned<'a> + ?Sized,
-    C: BorrowOwned<'b> + ?Sized,
+    A: Beef + ?Sized + PartialOrd<B>,
+    B: Beef + ?Sized,
+    U: Capacity,
+    V: Capacity,
 {
-    fn eq(&self, other: &RCow<'b, C>) -> bool {
-        PartialEq::eq(&**self, &**other)
+    #[inline]
+    fn partial_cmp(&self, other: &Cow<'_, B, V>) -> Option<Ordering> {
+        PartialOrd::partial_cmp(self.borrow(), other.borrow())
     }
 }
-----
+{{< /highlight >}}
 
-Then, I created an equivalent example and tried to compile it:
+== Some progress... or not?
 
-[source, rust]
-----
-use abi_stable::std_types::RCow;
-use std::borrow::Cow;
+Other traits like `PartialEq` also showed lifetime errors with a similar
+snippet. I was tempted to use `transmute` and call it a day, but I was afraid
+it'd backfire at some point. Here's what Heinz suggested (_trigger warning_) --
+and it actually worked! I'd just need to use the wrapper `SCow` instead of
+`RCow`:
 
-fn cmp_cow<'a, 'b>(left: &Cow<'a, ()>, right: &Cow<'b, ()>) -> bool {
-    left.eq(right)
-}
-
-fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
-    left.eq(right)
-}
-----
-
-Thanks to that, it now compiled! Time for `PartialOrd` (I had to do `PartialEq`
-first because `PartialOrd` requires it):
-
-[source, rust]
-----
-----
-
-Possible fixes:
-
-=== Removing the trait that binds the lifetime
-=== GATs?
-=== The scary `transmute`
-
-{heinz}'s idea:
-
-[source, rust]
-----
+{{< highlight "rust" >}}
 struct SCow<'a>(RCow<'a, ()>);
 impl<'a, 'b> PartialEq<SCow<'a>> for SCow<'b> {
     fn eq(&self, other: &SCow<'a>) -> bool {
@@ -245,21 +199,69 @@ impl<'a, 'b> PartialEq<SCow<'a>> for SCow<'b> {
         }
     }
 }
-----
+{{< /highlight >}}
 
-This will actually work now:
-
-[source, rust]
-----
+{{< highlight "rust" >}}
 fn cmp_cow<'a, 'b>(left: &Cow<'a, ()>, right: &Cow<'b, ()>) -> bool {
     left == right
 }
 fn cmp_scow<'a, 'b>(left: &SCow<'a>, right: &SCow<'b>) -> bool {
     left == right
 }
-----
+{{< /highlight >}}
 
-== The final solution
+But in this project, I already had too many things backfire. Traumatized, I
+continued my debugging, which led to actually fixing some traits! By introducing
+`'b`, I was making it clear that the comparison shouldn't care about lifetimes:
+
+{{< highlight "diff" >}}
+-impl<'a, B> PartialEq<RCow<'a, B>> for RCow<'a, B>
++impl<'a, 'b, B, C> PartialEq<RCow<'b, C>> for RCow<'a, B>
+ where
+     B: PartialEq + BorrowOwned<'a> + ?Sized,
++    C: BorrowOwned<'b> + ?Sized,
+ {
+-    fn eq(&self, other: &RCow<'a, B>) -> bool {
++    fn eq(&self, other: &RCow<'b, C>) -> bool {
+         PartialEq::eq(&**self, &**other)
+     }
+ }
+{{< /highlight >}}
+
+This gave me some hope, but it could never work for the trait `Ord`, which also
+failed. This is because this trait uses `Self` instead of another type, so I
+can't just introduce another lifetime.
+
+.Cow
+{{< highlight "rust" >}}
+impl<B: ?Sized> Ord for Cow<'_, B>
+where
+    B: Ord + ToOwned,
+{
+    #[inline]
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(&**self, &**other)
+    }
+}
+{{< /highlight >}}
+
+.RCow
+{{< highlight "rust" >}}
+impl<'a, B: ?Sized> Ord for RCow<'a, B>
+where
+    B: Ord + BorrowOwned<'a>,
+{
+    #[inline]
+    fn cmp(&self, other: &RCow<'a, B>) -> Ordering {
+        Ord::cmp(&**self, &**other)
+    }
+}
+{{< /highlight >}}
+
+== Discovering
+
+You can see the entire discussion in the following GitHub issue to understand
+all the details:
 
 [.text-center]
 {{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" "paragraph" >}}
