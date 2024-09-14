@@ -14,9 +14,9 @@ draft: true
 
 _Subtyping and variance_ is a concept that works in the background, making your
 life easier without you knowing about it. That is, until it starts making your
-life harder instead. It's a good idea to know its pitfalls in case you end up
-being an unlucky fool like me. So let's take a look at what went wrong, and how
-it was resolved.
+life harder instead. It's a good idea to know about it, in case you end up being
+a fool like me. So let's take a look at what went wrong, and how it was
+resolved.
 
 == The problem
 
@@ -64,8 +64,10 @@ and only if ownership or mutation is needed, the underlying value is cloned
 (https://www.reddit.com/r/rust/comments/v1z6bx/what_is_a_cow/iape1qq/[a better
 explanation can be found here]).
 
-https://twitter.com/heinz_gies/[Heinz], my mentor at Tremor, managed to
-reproduce the issue to `Cow` and its equivalent, `RCow`:
+https://mastodon.social/@heinz[Heinz], my mentor at Tremor, managed to reproduce
+the issue to `Cow` and its equivalent, `RCow`.
+https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=660f8633738fd0a8817cc8ee9bbddfa8[A
+Playground snippet can be found here].
 
 {{< highlight "rust" >}}
 use abi_stable::std_types::RCow;
@@ -82,7 +84,9 @@ fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
 }
 {{< /highlight >}}
 
-With the following error:
+It failed to compile with the following error, whose suggestions didn't help. In
+Rust 1.62.0, they actually improved it to explain what's going on (shown at the
+end of the article):
 
 {{< highlight "text" >}}
 $ cargo b
@@ -275,10 +279,9 @@ section in the Rust Developer Book] states that "traits with associated types
 must be invariant with respect to all of their inputs". So that still didn't
 help make our type covariant.
 
-Note I only found that statement in the book for developers of the compiler! And
-it's hard to debug type variances because they are implicit. I opened
-https://github.com/rust-lang/nomicon/issues/338[an issue about that in The
-Rustonomicon], and moved on to something else.
+Note I only found that statement in the book for developers of the compiler! I
+opened https://github.com/rust-lang/nomicon/issues/338[an issue about that in
+The Rustonomicon], and moved on to something else.
 
 === Attempt #2: `transmute`
 
@@ -384,19 +387,43 @@ type RCowSlice<'a, T> = RCow<RSlice<'a, T>, RVec<T>>;
 
 Rodri, the author of `abi_stable` ended up proposing
 https://github.com/rodrimati1992/abi_stable_crates/commit/0b048ecf07177d1aa664a65d3a78fe5a2aba421e[the
-fix that was merged] (you can find
-https://github.com/rodrimati1992/abi_stable_crates/issues/75#issuecomment-1043874752[the
-simplified version here]).
+fix that was merged]. You can find
+https://github.com/rodrimati1992/abi_stable_crates/issues/75#issuecomment-1043874752[a
+simplified version here].
 
 == Conclusion
 
-Honestly, I think that why it took me so long to realize the error is Rust's
-fault. There were no indications in the errors about variance. I understand that
-there were
+This showcased two gaps in the language:
 
-I was lucky to have such a great team at Tremor, and an OSS maintainer as smart
-as Rodri. You can find all the details of the discussion in the following GitHub
-issue:
+. There were no indications in the error message about the issue being related
+  to "variance". I had no idea what that was, and it wasn't covered in the book.
+. It was very hard to debug the variance of a type, given that they are
+  implicit.
+
+So it's amazing to hear that starting in Rust 1.62.0, you're even taken to the
+documentation. It will still be hard to understand the whole topic, but at least
+you know where to start!
+
+{{< highlight "text" >}}
+error: lifetime may not live long enough
+  --> src/main.rs:55:5
+   |
+54 | fn test2<'a, 'b>(left: &RCow<'a, u8>, right: &RCow<'b, u8>) -> Ordering {
+   |          --  -- lifetime `'b` defined here
+   |          |
+   |          lifetime `'a` defined here
+55 |     left.cmp(right)
+   |     ^^^^^^^^^^^^^^^ argument requires that `'a` must outlive `'b`
+   |
+   = help: consider adding the following bound: `'a: 'b`
+   = note: requirement occurs because of the type `RCow<'_, u8>`, which makes the generic argument `'_` invariant
+   = note: the enum `RCow<'a, B>` is invariant over the parameter `'a`
+   = help: see <https://doc.rust-lang.org/nomicon/subtyping.html> for more information about variance
+{{< /highlight >}}
+
+I was lucky to have such a great team at Tremor, and an OSS maintainer as
+helpful as Rodri. You can find all the details of the discussion in the
+original GitHub issue:
 
 [.text-center]
 {{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" "paragraph" >}}
