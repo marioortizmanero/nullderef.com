@@ -12,11 +12,6 @@ draft: true
 
 :sectnums:
 
-:repr-c: pass:quotes[`#[repr\(C)]`]
-:repr-rust: pass:quotes[`#[repr(Rust)]`]
-:work: pass:quotes["`just make it work`"]
-:heinz: https://twitter.com/heinz_gies/[Heinz]
-
 _Subtyping and variance_ is a concept that works in the background, making your
 life easier without you knowing about it. That is, until it starts making your
 life harder instead. It's a good idea to know its pitfalls in case you end up
@@ -26,17 +21,18 @@ it was resolved.
 == The problem
 
 As part of my https://nullderef.com/series/rust-plugins/[Plugin System in Rust]
-series, I was making one of https://www.tremor.rs/[Tremor]'s core types
-FFI-compatible (a.k.a. {repr-c}). This was possible thanks to the crate {{<
-crate abi_stable >}}, which includes re-implementations of the standard library
-that are {repr-c} for this exact purpose. Theoretically, the task should be as
+series, I was making one of https://www.tremor.rs/[Tremor]'s types
+FFI-compatible. Put simply, instead of using types from the standard library
+like `String`, we wanted custom types defined
+https://doc.rust-lang.org/nomicon/other-reprs.html#reprc[with `#[repr\(C)\]`].
+The crate {{< crate abi_stable >}} existed for this exact purpose, with an
+equivalent for the most important types. Theoretically, the task should be as
 easy as changing the `std` types in the core `enum` with theirs:
 
 .Before (simplified)
 {{< highlight "rust" >}}
 pub enum Value {
     String(String),
-    Array(Vec<Value>),
     Object(Box<HashMap<String, Value>>),
     Bytes(Vec<u8>),
 }
@@ -49,7 +45,6 @@ use abi_stable::std_types::{RString, RVec, RBox, RHashMap};
 #[repr(C)]
 pub enum Value {
     String(RString),
-    Array(RVec<Value>),
     Object(RBox<RHashMap<RString, Value>>),
     Bytes(RVec<u8>),
 }
@@ -61,7 +56,16 @@ related to lifetimes, which I hadn't changed at all...
 
 == Debugging
 
-{heinz}, my mentor at Tremor, managed to reproduce the issue:
+Instead of a `String` or `Vec`, we actually used
+https://doc.rust-lang.org/stable/alloc/borrow/enum.Cow.html[`Cow<'a>`] for
+performance reasons. `Cow<'a>` is a type that can hold either a borrowed or an
+owned value at runtime. The idea is to use the borrowed one as much as possible,
+and only if ownership or mutation is needed, the underlying value is cloned
+(https://www.reddit.com/r/rust/comments/v1z6bx/what_is_a_cow/iape1qq/[a better
+explanation can be found here]).
+
+https://twitter.com/heinz_gies/[Heinz], my mentor at Tremor, managed to
+reproduce the issue to `Cow` and its equivalent, `RCow`:
 
 {{< highlight "rust" >}}
 use abi_stable::std_types::RCow;
@@ -101,8 +105,8 @@ What? Why do lifetimes matter here if it's just a comparison?
 
 This hinted that the issue was in the underlying library, not my code. `RCow` is
 supposed to be a drop-in replacement for `Cow`. It also had something to do with
-`PartialOrd`, which is the trait used for `==` here. The implementation of
-`PartialOrd` seemed equivalent in both cases, though:
+`PartialOrd`, which is the trait used for `==` here. But I couldn't see a
+difference in its implementations:
 
 .Cow
 {{< highlight "rust" >}}
@@ -152,10 +156,10 @@ where
 
 == Some progress... or not?
 
-In reality, other traits like `PartialEq` also showed lifetime errors with a
-similar snippet. By introducing
-a new lifetime `'b` into the trait implementation, I was telling Rust that
-comparing objects with different lifetimes is okay:
+Other traits like `PartialEq` also caused similar lifetime errors. I was able to
+fix some by introducing a new lifetime `'b` into the trait implementation. This
+indicated the Rust compiler that comparing objects with different lifetimes is
+okay:
 
 {{< highlight "diff" >}}
 -impl<'a, B> PartialEq<RCow<'a, B>> for RCow<'a, B>
@@ -171,9 +175,9 @@ comparing objects with different lifetimes is okay:
  }
 {{< /highlight >}}
 
-I suddenly got a bit of hope. But this fix could never work for `Ord`, which
-also failed. This trait uses `Self` instead of another type, so I can't just
-introduce another lifetime:
+I suddenly got a bit of hope. But this could never work for `Ord`, which also
+failed. The `Ord` trait uses `Self` instead of another generic type, so I can't
+just introduce a new lifetime:
 
 .Cow
 {{< highlight "rust" >}}
@@ -204,40 +208,39 @@ where
 == Discovering the root cause
 
 Some wonderful people on the Rust Discord server helped me understand what was
-going on: "Subtyping and Variance". So I started to learn more about it.
+going on. So I started learning more about the so-called "Subtyping and
+Variance".
 
 image::discord.png[Discord discussion, width=100%, align=center]
 
-This topic isn't covered in the https://doc.rust-lang.org/book/[The Rust Book].
-We'll only find it in its more obscure, unsafer brother,
-https://doc.rust-lang.org/nomicon[The Rustonomicon]. It's actually incredibly
-well explained in there, so I will refrain from repeating myself. I'd suggest to
-check out yourself the following sources, as this article only covers the
-specific issue I faced:
+This topic isn't covered in https://doc.rust-lang.org/book/[The Rust Book].
+We'll only find it in its more obscure, unsafer brother, The Rustonomicon. This
+book explains it incredibly well, so I won't repeat it here. Here are some
+resources:
 
 . https://doc.rust-lang.org/nomicon/subtyping.html["`Subtyping and Variance`" --
-  The Rustonomicon]
+  The Rustonomicon] (_an explanation_)
 . https://doc.rust-lang.org/reference/subtyping.html["`Subtyping and Variance`"
-  -- The Rust Reference]
+  -- The Rust Reference] (_a cheatsheet_)
 . https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)["`Covariance
-  and contravariance`" -- Wikipedia]
+  and contravariance`" -- Wikipedia] (_the general term_)
 
-There are also a couple blog posts with a more practical approach, like
+A couple blog posts take a more practical approach, like
 https://medium.com/@orbitalK/rust-lifetime-subtype-variance-b58434fe36ed["`Rust
 Lifetime Subtype Variance`" -- Prolific K] or
 https://lcnr.de/blog/diving-deep-implied-bounds-and-variance/["`Diving Deep:
-implied bounds and variance`" -- lcnr.de]. If you're more of a visual learner,
-then https://www.youtube.com/watch?v=iVYWDIW71jk[this video from Jon Gjengset]
-might be best for you.
+implied bounds and variance`" -- lcnr.de]. Or if you're a visual learner,
+https://www.youtube.com/watch?v=iVYWDIW71jk[this video from Jon Gjengset] might
+be best for you.
 
 == Trying to fix it
 
 The difference between `RCow` and `Cow` was the `BorrowOwned<'a>` trait. For
 technical reasons, it was being used as a
 https://doc.rust-lang.org/rust-by-example/trait/supertraits.html[subtrait] of
-`ToOwned`. To add extra functionality, `BorrowOwned` had to bind to a lifetime
-`'a`. Ultimately, this meant that `RCow` was _invariant_, while `Cow` was
-_covariant_. We want `RCow` to be _covariant_ for this to work.
+`ToOwned`, and it had to bind to a lifetime `'a`. Ultimately, this made `RCow`
+_invariant_, while `Cow` was _covariant_. We want `RCow` to be _covariant_ for
+this to work.
 
 {{< highlight "diff" >}}
  impl<B: ?Sized> Ord for Cow<'a, B>
@@ -256,8 +259,8 @@ _covariant_. We want `RCow` to be _covariant_ for this to work.
 
 I had an idea of using
 https://blog.rust-lang.org/2022/10/28/gats-stabilization.html[Generic Associated
-Types (GATs)]. Instead of binding the lifetime as `BorrowOwned<'a>`, I could do
-so in an associated type. Then, I'd be able to use `BorrowOwned` instead of
+Types (GATs)]. Instead of binding the lifetime to the trait, I could do so to
+its associated type. Then, I'd be able to use `BorrowOwned` instead of
 `BorrowOwned<'a>`:
 
 {{< highlight "rust" >}}
@@ -272,9 +275,10 @@ section in the Rust Developer Book] states that "traits with associated types
 must be invariant with respect to all of their inputs". So that still didn't
 help make our type covariant.
 
-Note I only found that statement in the book for developers of the compiler! I
-opened https://github.com/rust-lang/nomicon/issues/338[an issue about that in
-The Rustonomicon], and moved on to something else.
+Note I only found that statement in the book for developers of the compiler! And
+it's hard to debug type variances because they are implicit. I opened
+https://github.com/rust-lang/nomicon/issues/338[an issue about that in The
+Rustonomicon], and moved on to something else.
 
 === Attempt #2: `transmute`
 
@@ -294,8 +298,8 @@ It worked! In theory, it's safe because both `'a` and `'b` will live for at
 least as long as the function does, and we're returning an owned type.
 
 Ideally, we'd abstract this away by writing a wrapper around `RCow` with the
-fix. However, that wouldn't help because invariant relationships are inherited,
-and the implementation of `Ord` would still use `BorrowOwned<'a>`.
+fix. But that wouldn't help because invariant relationships are inherited, and
+the wrapper's implementation of `Ord` would still use `BorrowOwned<'a>`.
 
 {{< highlight "rust" >}}
 struct SCow<'a>(RCow<'a, ()>);  // will still be invariant!
@@ -307,7 +311,82 @@ things backfire. Traumatized, I continued looking for a solution.
 
 === Attempt #3: getting rid of `BorrowOwned<'a>`
 
+The best way to not have problems with this trait is to get rid of it. The
+standard library has `ToOwned`, which links a borrowed type with its owned
+equivalent. For example, `&str` and `String`. So if `Cow<T>` requires `T:
+ToOwned`, its borrowed variant can be just `T` and the owned one `T::Owned`.
 
+`BorrowOwned<'a>` roughly did the same thing for types defined in `abi_stable`,
+such as `RStr` and `RString`:
+
+{{< highlight "rust" >}}
+// standard library
+let x: &str = "abc";
+let x_owned: String = x.to_owned();
+
+// abi_stable
+let x_ffi_safe: RStr<'_> = rstr!("abc");
+let x_owned: String = x.to_owned();
+let x_ffi_safe_owned: RString = x.r_to_owned();
+{{< /highlight >}}
+
+Note that we need a lifetime in `BorrowOwned` because the equivalent of `&'a
+str` is `RStr<'a>`. Which is not exactly the same. This is because `str` is a
+https://doc.rust-lang.org/nomicon/exotic-sizes.html#dynamically-sized-types-dsts[Dynamically
+Sized Type (DST)], but custom DSTs aren't supported by Rust.
+
+{{< highlight "rust" >}}
+impl ToOwned for str {  // okay
+    type Owned = String;
+    // `&self` is `&str`
+    fn to_owned(&self) -> String { ... }
+}
+
+impl ToOwned for RStr {
+    type Owned = RString;
+    // `&self` is `&RStr<'a>`, but we want `RStr<'a>`
+    fn to_owned(&self) -> RString { ... }
+}
+{{< /highlight >}}
+
+So instead of establishing this relationship through a trait, we can introduce a
+new generic paramter `O`. `B` would be the borrowed type, and `O` the owned
+one. This is similar to what the {{< crate "cervine" >}} crate does, which
+relaxes the constraints of `Cow`:
+
+.Before
+{{< highlight "rust" >}}
+#[repr(C)]
+enum RCow<'a, B>
+where
+    B: BorrowOwned<'a> + ?Sized,
+{
+    Borrowed(<B as BorrowOwned<'a>>::RBorrowed),
+    Owned(<B as BorrowOwned<'a>>::ROwned),
+}
+{{< /highlight >}}
+
+.After
+{{< highlight "rust" >}}
+#[repr(C)]
+enum RCow<B, O> {
+    Borrowed(B),
+    Owned(O),
+}
+
+/// Ffi-safe equivalent of `Cow<'a, T>`, either a `&T` or `T`.
+type RCowVal<'a, T> = RCow<&'a T, T>;
+/// Ffi-safe equivalent of `Cow<'a, str>`, either an `RStr` or `RString`.
+type RCowStr<'a> = RCow<RStr<'a>, RString>;
+/// Ffi-safe equivalent of `Cow<'a, [T]>`, either an `RSlice` or `RVec`.
+type RCowSlice<'a, T> = RCow<RSlice<'a, T>, RVec<T>>;
+{{< /highlight >}}
+
+Rodri, the author of `abi_stable` ended up proposing
+https://github.com/rodrimati1992/abi_stable_crates/commit/0b048ecf07177d1aa664a65d3a78fe5a2aba421e[the
+fix that was merged] (you can find
+https://github.com/rodrimati1992/abi_stable_crates/issues/75#issuecomment-1043874752[the
+simplified version here]).
 
 == Conclusion
 
