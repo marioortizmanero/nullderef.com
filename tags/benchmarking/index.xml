@@ -293,8 +293,7 @@ these results should be taken with a grain of salt.</p>
 <div class="paragraph">
 <p>Anyway, it all makes sense to some degree. Converting <code>Value</code> to an FFI-safe
 type requires using, among others, <code>RHashMap</code> instead of <code>HashMap</code> internally.
-Tremor’s original <code>HashMap</code> was taken from the <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
- crate,
+Tremor’s original <code>HashMap</code> was taken from the <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a> crate,
 which was more performant than the standard library version, and even more than
 <code>abi_stable</code>&#39;s. Converting between types temporarily for the FFI interface
 might actually be faster than using less performant types everywhere.</p>
@@ -480,7 +479,6 @@ multiple points of view:</p>
 </table>
 <div class="paragraph">
 <p>They seem to point out that, with the plugin system, <a href="https://crates.io/crates/hashbrown"><code>hashbrown</code></a>
-
 (the standard hash table) might actually be better than <code>halfbrown</code>. The JSON
 optimization I mentioned could possibly be worth removing now. But it’s really
 hard to make a decision just out of this set of benchmarks because of the
@@ -634,10 +632,8 @@ async runtimes themselves.</p>
 <div class="paragraph">
 <p>I also wonder what happens when the runtime and the plugin use different async
 runtimes, even if they are independent in the binaries. Tremor’s core is
-implemented with <a href="https://crates.io/crates/async_std"><code>async_std</code></a>
-, but an external plugin could freely
-use <a href="https://crates.io/crates/tokio"><code>tokio</code></a>
-, for example. I’ve heard that this could break in many
+implemented with <a href="https://crates.io/crates/async_std"><code>async_std</code></a>, but an external plugin could freely
+use <a href="https://crates.io/crates/tokio"><code>tokio</code></a>, for example. I’ve heard that this could break in many
 ways, since async runtimes heavily rely on global state.</p>
 </div>
 <div class="paragraph">
@@ -650,8 +646,7 @@ probably be hacky, as this is a somewhat obscure problem.</p>
 <div class="sect2">
 <h3 id="_benchmark_async_ffi">3.4. Benchmark <code>async_ffi</code></h3>
 <div class="paragraph">
-<p>Checking how much of a performance impact <a href="https://crates.io/crates/async_ffi"><code>async_ffi</code></a>
- causes sounds
+<p>Checking how much of a performance impact <a href="https://crates.io/crates/async_ffi"><code>async_ffi</code></a> causes sounds
 like a good idea. It’s actually a quite simple library; all it really does is
 implement opaque wrappers for the async-related types. But it’s used so often
 (once per call), that it may end up being noticeable.</p>
@@ -786,8 +781,7 @@ macOS, and Linux <a href="#thread-safe">[6]</a>. It will still compile on other 
 possibly with data races in the dynamic linking internals.</p>
 </div>
 <div class="paragraph">
-<p>Specifically, <a href="https://crates.io/crates/libloading"><code>libloading</code></a>
-, which is used by <code>abi_stable</code>, states
+<p>Specifically, <a href="https://crates.io/crates/libloading"><code>libloading</code></a>, which is used by <code>abi_stable</code>, states
 that its error handling isn’t fully thread-safe on some platforms
 <a href="#libloading-threadsafe">[7]</a>, such as <code>dlerror</code> on FreeBSD. Its only consequence
 should be garbage error messages, but I still wouldn’t risk it. There are two
@@ -810,8 +804,7 @@ ensure that its error handling for dynamic loading is thread-safe.</p>
 </li>
 <li>
 <p><strong>Proper fix</strong>: fix the data races upstream with an internal mutex. This is what
-the alternative <a href="https://crates.io/crates/dlopen"><code>dlopen</code></a>
- does, though in their case they <em>always</em>
+the alternative <a href="https://crates.io/crates/dlopen"><code>dlopen</code></a> does, though in their case they <em>always</em>
 have the mutex, which is unnecessary in some platforms <a href="#dlopen-mutex">[8]</a>.</p>
 </li>
 </ol>
@@ -885,8 +878,7 @@ most cases within the plugin system.</p>
 <h3 id="_try_raw_dynamic_loading">3.11. Try raw dynamic loading</h3>
 <div class="paragraph">
 <p>What I didn’t know at the beginning of this journey is that the hardest part
-would be making everything <code>#[repr(C)]</code>. Using <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
- is certainly
+would be making everything <code>#[repr(C)]</code>. Using <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a> is certainly
 very useful for types like <code>RVec</code> and to create custom types, but at times I
 find the library too much.</p>
 </div>

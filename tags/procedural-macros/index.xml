@@ -51,8 +51,7 @@ an issue:</p>
 <div class="paragraph">
 <p>My project doesn’t use async because it’s overly complex for what I need. I
 wanted to try your new library, but I’m not sure how to do it easily. I would
-rather not fill my code with <code>block_on(endpoint())</code>. I’ve seen crates like <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a>
- exporting a
+rather not fill my code with <code>block_on(endpoint())</code>. I’ve seen crates like <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a> exporting a
 <a href="https://docs.rs/reqwest/0.11.4/reqwest/blocking/index.html"><code>blocking</code> module</a>
 with the exact same functionality, could you perhaps do that as well?</p>
 </div>
@@ -60,15 +59,13 @@ with the exact same functionality, could you perhaps do that as well?</p>
 </div>
 <div class="paragraph">
 <p>Low-level wise, that sounds like a very complicated task. Having a common
-interface for both async code — which requires a runtime like <a href="https://crates.io/crates/tokio"><code>tokio</code></a>
-, awaiting futures, pinning, etc — and regular sync code? I mean, they asked
+interface for both async code — which requires a runtime like <a href="https://crates.io/crates/tokio"><code>tokio</code></a>, awaiting futures, pinning, etc — and regular sync code? I mean, they asked
 nicely, so maybe we can try. After all, the only difference in the code would be
 the occurrences of the <code>async</code> and <code>await</code> keywords because you aren’t doing
 anything fancy.</p>
 </div>
 <div class="paragraph">
-<p>Well, this is <em>more or less</em> what happened with the crate <a href="https://crates.io/crates/rspotify"><code>rspotify</code></a>
-, which I used to maintain along with its creator
+<p>Well, this is <em>more or less</em> what happened with the crate <a href="https://crates.io/crates/rspotify"><code>rspotify</code></a>, which I used to maintain along with its creator
 <a href="https://github.com/ramsayleung/">Ramsay</a>. For those who don’t know, it’s a
 wrapper for the Spotify Web API. To clarify, I did get this working in the end,
 although not as cleanly as I was hoping; I’ll try to explain the situation in
@@ -163,8 +160,7 @@ implementation is written once only:</p>
 </div>
 <div class="paragraph">
 <p>Note that in order to call <code>block_on</code>, you first have to create some kind of
-runtime in the endpoint method. For example, with <a href="https://crates.io/crates/tokio"><code>tokio</code></a>
-:</p>
+runtime in the endpoint method. For example, with <a href="https://crates.io/crates/tokio"><code>tokio</code></a>:</p>
 </div>
 <div class="paragraph">
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">runtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tokio</span>::<span class="n">runtime</span>::<span class="n">Builder</span>::<span class="n">new</span><span class="p">()</span><span class="w">
@@ -199,7 +195,6 @@ looks like this:</p>
 <div class="paragraph">
 <p>While the handle does make our blocking client faster <a href="#block-on-perf">[1]</a>, there
 is an even more performant way to do it. This is what <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a>
-
 itself does, in case you’re interested. In short, it spawns a thread that calls
 <code>block_on</code> waiting on a channel with jobs <a href="#block-on-channels">[2]</a>
 <a href="#block-on-reqwest">[3]</a>.</p>
@@ -212,8 +207,7 @@ cost at runtime, but also at compile time. It just feels wrong to me.</p>
 </div>
 <div class="paragraph">
 <p>And you still have a good amount of duplicate code, even if it’s just
-definitions, which can sum up. <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a>
- is a huge project and can
+definitions, which can sum up. <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a> is a huge project and can
 probably afford this for their <code>blocking</code> module. But for a less popular crate
 like <code>rspotify</code>, this is harder to pull off.</p>
 </div>
@@ -243,8 +237,7 @@ sounds completely out of scope.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="https://github.com/ramsayleung/rspotify/pull/129">The third attempt</a> is based on
-a crate called <a href="https://crates.io/crates/maybe_async"><code>maybe_async</code></a>
-. I remember foolishly thinking it was
+a crate called <a href="https://crates.io/crates/maybe_async"><code>maybe_async</code></a>. I remember foolishly thinking it was
 the perfect solution back when I discovered it.</p>
 </div>
 <div class="paragraph">
@@ -277,9 +270,7 @@ we’ve already been using it for Rspotify for a while now.</p>
 <div class="paragraph">
 <p>In fact, it worked so well that I made Rspotify <em>http-client agnostic</em>, which is
 even more flexible than being <em>async/sync agnostic</em>. This allows us to support
-multiple HTTP clients like <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a>
- and <a href="https://crates.io/crates/ureq"><code>ureq</code></a>
-,
+multiple HTTP clients like <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a> and <a href="https://crates.io/crates/ureq"><code>ureq</code></a>,
 independently of whether the client is asynchronous or synchronous.</p>
 </div>
 <div class="paragraph">
@@ -415,20 +406,16 @@ example of conflicting features, which breaks with any feature resolver.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://crates.io/crates/arangors"><code>arangors</code></a>
- and <a href="https://crates.io/crates/aragog"><code>aragog</code></a>
-: wrappers for ArangoDB. Both
+<p><a href="https://crates.io/crates/arangors"><code>arangors</code></a> and <a href="https://crates.io/crates/aragog"><code>aragog</code></a>: wrappers for ArangoDB. Both
 use <code>maybe_async</code> to switch between async and sync (<code>arangors</code>&#39;s author is
 the same person, in fact) <a href="#arangors-error">[5]</a> <a href="#aragog-error">[6]</a>.</p>
 </li>
 <li>
-<p><a href="https://crates.io/crates/inkwell"><code>inkwell</code></a>
-: a wrapper for LLVM. It supports multiple versions of
+<p><a href="https://crates.io/crates/inkwell"><code>inkwell</code></a>: a wrapper for LLVM. It supports multiple versions of
 LLVM, which are not compatible with eachother <a href="#inkwell-error">[7]</a>.</p>
 </li>
 <li>
-<p><a href="https://crates.io/crates/k8s-openapi"><code>k8s-openapi</code></a>
-: a wrapper for Kubernetes, with the same issue as
+<p><a href="https://crates.io/crates/k8s-openapi"><code>k8s-openapi</code></a>: a wrapper for Kubernetes, with the same issue as
 <code>inkwell</code> <a href="#k8s-error">[8]</a>.</p>
 </li>
 </ul>
@@ -586,11 +573,8 @@ it to synchronous for their own usage.</p>
 </div>
 <div class="paragraph">
 <p>After all, most API wrappers and the like only support either asynchronous or
-blocking code. <a href="https://crates.io/crates/serenity"><code>serenity</code></a>
- (Discord API), <a href="https://crates.io/crates/sqlx"><code>sqlx</code></a>
- (SQL
-toolkit) and <a href="https://crates.io/crates/teloxide"><code>teloxide</code></a>
- (Telegram API) are async-only, for example,
+blocking code. <a href="https://crates.io/crates/serenity"><code>serenity</code></a> (Discord API), <a href="https://crates.io/crates/sqlx"><code>sqlx</code></a> (SQL
+toolkit) and <a href="https://crates.io/crates/teloxide"><code>teloxide</code></a> (Telegram API) are async-only, for example,
 and they’re quite popular.</p>
 </div>
 </li>

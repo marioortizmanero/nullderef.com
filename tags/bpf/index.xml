@@ -112,15 +112,12 @@ trait</a>, is somewhat stable.</p>
 communication details should be left to the runtime, so that the plugin can be
 simplified to just exporting a number of synchronous functions. With this we can
 avoid passing some complex types (<code>async</code>, channels, etc) between the runtime
-and plugin, which can be impossible if you have to maintain ABI stability (<a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
- doesn’t even support <code>async</code>).</p>
+and plugin, which can be impossible if you have to maintain ABI stability (<a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a> doesn’t even support <code>async</code>).</p>
 </div>
 <div class="paragraph">
 <p>Once this lean plugin interface is defined, we can create some kind of wrapper
 in the runtime (a <em>manager</em>, in Tremor terms) that handles communication and
-other similar tasks. This exact same thing is done by other crates such as <a href="https://crates.io/crates/rdkafka"><code>rdkafka</code></a>
-, which is based on the C library <a href="https://crates.io/crates/rdkafka-sys"><code>rdkafka-sys</code></a>
-,
+other similar tasks. This exact same thing is done by other crates such as <a href="https://crates.io/crates/rdkafka"><code>rdkafka</code></a>, which is based on the C library <a href="https://crates.io/crates/rdkafka-sys"><code>rdkafka-sys</code></a>,
 and implements a higher-level asynchronous interface on top of it.</p>
 </div>
 </div>
@@ -226,13 +223,11 @@ lock-based synchronization).</p>
 </div>
 </div>
 <div class="paragraph">
-<p>It doesn’t use a language (e.g., Erlang) or framework (e.g., <a href="https://crates.io/crates/bastion"><code>bastion</code></a>
-, maybe in the future) that strictly follows the actor model, but it often
+<p>It doesn’t use a language (e.g., Erlang) or framework (e.g., <a href="https://crates.io/crates/bastion"><code>bastion</code></a>, maybe in the future) that strictly follows the actor model, but it often
 re-implements the same patterns manually. Tremor is currently implemented with
 <a href="https://en.wikipedia.org/wiki/Asynchrony_(computer_programming)">asynchronous
 programming</a>, which means that instead of threads we’ll be working with <em>tasks</em>,
-a higher level concept. From the <a href="https://crates.io/crates/async-std"><code>async-std</code></a>
- documentation:</p>
+a higher level concept. From the <a href="https://crates.io/crates/async-std"><code>async-std</code></a> documentation:</p>
 </div>
 <div class="quoteblock">
 <blockquote>
@@ -388,14 +383,9 @@ bytecode instructions that may be ran by a virtual machine anywhere, similarly
 to how Wasm works.</p>
 </div>
 <div class="paragraph">
-<p>There are multiple active crates for eBPF in Rust. <a href="https://crates.io/crates/libbpf_rs"><code>libbpf_rs</code></a>
-, <a href="https://crates.io/crates/redbpf"><code>redbpf</code></a>
- and <a href="https://crates.io/crates/aya"><code>aya</code></a>
- are specific to the Linux Kernel. <a href="https://crates.io/crates/solana_rbpf"><code>solana_rbpf</code></a>
- is a virtual machine, so it only works for user-space. The
+<p>There are multiple active crates for eBPF in Rust. <a href="https://crates.io/crates/libbpf_rs"><code>libbpf_rs</code></a>, <a href="https://crates.io/crates/redbpf"><code>redbpf</code></a> and <a href="https://crates.io/crates/aya"><code>aya</code></a> are specific to the Linux Kernel. <a href="https://crates.io/crates/solana_rbpf"><code>solana_rbpf</code></a> is a virtual machine, so it only works for user-space. The
 maintainers of the latter use it to <a href="https://solana.com/">safely run apps on the
-blockchain</a>, and their crate seems to be a fork of the now abandoned (?) <a href="https://crates.io/crates/rbpf"><code>rbpf</code></a>
-. <a href="https://www.youtube.com/watch?v=xj0PBFjLm1U&amp;t=8701s">This recent
+blockchain</a>, and their crate seems to be a fork of the now abandoned (?) <a href="https://crates.io/crates/rbpf"><code>rbpf</code></a>. <a href="https://www.youtube.com/watch?v=xj0PBFjLm1U&amp;t=8701s">This recent
 talk at LPC 2021</a> explains the situation of eBPF in Rust quite well (mainly for
 Aya, so it’s mostly related to the Linux Kernel).</p>
 </div>
@@ -648,8 +638,7 @@ loaded (for example with the CLI tool).</p>
 </li>
 <li>
 <p>Automatically: the runtime could detect whenever a new plugin is added to the
-list with a crate like <a href="https://crates.io/crates/notify"><code>notify</code></a>
-. Most Operating Systems have some
+list with a crate like <a href="https://crates.io/crates/notify"><code>notify</code></a>. Most Operating Systems have some
 way to get a notification whenever a file or directory changes. In case a new
 file was added to any of the configured directories, the runtime could try to
 load it. This way, it’d work with no user interaction, other than adding the
@@ -921,8 +910,7 @@ long as the base class is the first member in the struct, so this is sound.</p>
 <div class="paragraph">
 <p>This covers all of our necessities. The only remaining problem is that it’s
 still quite unsafe to use. Thankfully, we can avoid most user errors by using
-the crate <a href="https://crates.io/crates/thin_trait_object"><code>thin_trait_object</code></a>
-, which provides a very flexible
+the crate <a href="https://crates.io/crates/thin_trait_object"><code>thin_trait_object</code></a>, which provides a very flexible
 procedural macro to automatically write all the necessary boilerplate in Rust.</p>
 </div>
 </div>

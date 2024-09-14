@@ -29,8 +29,7 @@ system. Now that we know how to actually get started, we’ll implement it once
 and for all.</p>
 </div>
 <div class="paragraph">
-<p>I will personally use the crate <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
-, but the concepts
+<p>I will personally use the crate <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>, but the concepts
 should be roughly the same for any dynamic loading method. Similarly, some of my
 advice is related to modifying an already existing project of large size. If
 you’re starting from scratch with a plugin system in mind, it should be the
@@ -253,8 +252,7 @@ it’ll serve us as an initial list of things to work on.</p>
 </div>
 <div class="paragraph">
 <p>In my case, it first looked as follows. The specifics about how this works with
-<a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
- are explained in the
+<a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a> are explained in the
 <a href="https://nullderef.com/blog/plugin-abi-stable/">previous post</a>.</p>
 </div>
 <div class="paragraph">
@@ -312,8 +310,7 @@ errors everywhere, but that was OK. I would be working on them step by step
 until it compiled again.</p>
 </div>
 <div class="paragraph">
-<p>If you’re using <a href="https://crates.io/crates/libloading"><code>libloading</code></a>
- directly then you would be implementing
+<p>If you’re using <a href="https://crates.io/crates/libloading"><code>libloading</code></a> directly then you would be implementing
 the interface via a struct with function pointers instead, and you’d need to
 store metadata about the plugin with constants. But in the end, it boils down to
 the same thing; just with different amounts of boilerplate.</p>
@@ -331,8 +328,7 @@ each of these types hold, and so on…​</p>
 </div>
 <div class="paragraph">
 <p>It’s very likely that you’ll eventually find types without an FFI alternative in
-<a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
-. These will most likely be external types, but things
+<a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>. These will most likely be external types, but things
 like async are a bit complicated to deal with as well. In the case of Tremor,
 the most problematic part was the <code>Value</code> type. It’s used to represent a
 JSON-like payload; roughly defined as follows:</p>
@@ -374,7 +370,6 @@ JSON-like payload; roughly defined as follows:</p>
 <p>The first problem arises in the <code>Static</code> variant:
 <a href="https://docs.rs/value-trait/latest/value_trait/enum.StaticNode.html"><code>StaticNode</code></a>
 is a <code>#[repr(Rust)]</code> <em>external</em> type. It’s from our <a href="https://crates.io/crates/value_trait"><code>value_trait</code></a>
-
 dependency, and it may hold different basic types: numbers, booleans, or just
 nothing.</p>
 </div>
@@ -437,8 +432,7 @@ of the code that used it will now fail to compile in multiple ways:</p>
 </div>
 <div class="paragraph">
 <p>That’s the easiest one: we just need to change <code>Vec</code> to <code>RVec</code> and it should be
-fine. The types in <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
- are meant to be a drop-in
+fine. The types in <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a> are meant to be a drop-in
 replacement for the ones in <code>std</code>:</p>
 </div>
 <div class="paragraph">
@@ -511,14 +505,11 @@ on them.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>That was my first attempt at making <code>Value</code> FFI-compatible, and unfortunately,
-it didn’t end there. Converting from <code>std</code> to <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
- is a
+it didn’t end there. Converting from <code>std</code> to <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a> is a
 relatively painless experience; their usage intends to be the same. The only
 issue I found in that regard is that some methods from <code>std</code> weren’t available
-in <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
- yet because it’s not updated as regularly. Usually,
-you can just copy-paste the implementation from <code>std</code> into <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
-’s and create a new Pull Request, which is what I did a few times:</p>
+in <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a> yet because it’s not updated as regularly. Usually,
+you can just copy-paste the implementation from <code>std</code> into <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>’s and create a new Pull Request, which is what I did a few times:</p>
 </div>
 <div class="paragraph text-center">
 
@@ -588,11 +579,9 @@ you can just copy-paste the implementation from <code>std</code> into <a href="h
 </div>
 <div class="paragraph">
 <p>However, this stops being as “easy” when you have to convert from <em>an external
-library</em> to <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
-. I lied at the beginning of the article:
+library</em> to <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>. I lied at the beginning of the article:
 the <a href="#value_decl">declaration of <code>Value</code></a> was an oversimplification. For
-performance reasons, Tremor actually uses <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
-’s
+performance reasons, Tremor actually uses <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>’s
 implementation of a hash map instead of <code>std::collections::HashMap</code>.</p>
 </div>
 <div class="admonitionblock note">
@@ -602,9 +591,7 @@ implementation of a hash map instead of <code>std::collections::HashMap</code>.<
 <div class="title">Note</div>
 </td>
 <td class="content">
-<a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
- is based on <a href="https://crates.io/crates/hashbrown"><code>hashbrown</code></a>
-, which was, in
+<a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a> is based on <a href="https://crates.io/crates/hashbrown"><code>hashbrown</code></a>, which was, in
 fact, merged into the standard library at some point <a href="#hashbrown-merge">[1]</a>.
 Although with this plugin system we’re suffering the consequences of not having
 a stable ABI, seeing that it enables things like that makes me less bitter.
@@ -613,8 +600,7 @@ a stable ABI, seeing that it enables things like that makes me less bitter.
 </tbody></table>
 </div>
 <div class="paragraph">
-<p><a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
- has some additional functionality over <code>std</code>&#39;s
+<p><a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a> has some additional functionality over <code>std</code>&#39;s
 implementation. Some of it is actually available on Nightly, but for that reason
 it’s not meant to be in the stable <code>RHashMap</code> either. This extra functionality
 is used in Tremor for example with
@@ -625,8 +611,7 @@ of a known item in a map in order to access its value directly with it
 </div>
 <div class="paragraph">
 <p>Even if I managed to fix the hash map mess, the same story repeats itself for
-<code>Cow</code>. Tremor uses <a href="https://crates.io/crates/beef"><code>beef</code></a>
-’s
+<code>Cow</code>. Tremor uses <a href="https://crates.io/crates/beef"><code>beef</code></a>’s
 <a href="https://docs.rs/beef/latest/beef/generic/struct.Cow.html"><code>Cow</code></a> instead of
 <code>std::borrow::Cow</code> because it’s faster and more compact, at the cost of a
 slightly different usage.</p>
@@ -662,22 +647,16 @@ changes:</p>
 <div class="sect2">
 <h3 id="_implement_a_wrapper">5.2. Implement a wrapper</h3>
 <div class="paragraph">
-<p>Another possibility is to write a <em>wrapper</em> for <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
-. Opaque
+<p>Another possibility is to write a <em>wrapper</em> for <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>. Opaque
 types, for instance, may be used to wrap the functionality of an underlying type
-that’s not FFI-safe, as I covered in previous articles. This is what <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
- does in its <code>external_types</code> module for crates like <a href="https://crates.io/crates/crossbeam"><code>crossbeam</code></a>
- or <a href="https://crates.io/crates/parking_lot"><code>parking_lot</code></a>
-.</p>
+that’s not FFI-safe, as I covered in previous articles. This is what <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a> does in its <code>external_types</code> module for crates like <a href="https://crates.io/crates/crossbeam"><code>crossbeam</code></a> or <a href="https://crates.io/crates/parking_lot"><code>parking_lot</code></a>.</p>
 </div>
 <div class="paragraph">
 <p>However, as you may see with the
 <a href="https://github.com/rodrimati1992/abi_stable_crates/tree/edfb2a97a7b5d7ecbc29c1f9f115f61e26f42da6/abi_stable/src/external_types">already
 existing examples</a>, implementing wrappers can be quite a cumbersome task. And
 even after you’re done you’ll have to keep them up to date, so this will
-increase your maintainance burden. <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a>
- and <a href="https://crates.io/crates/beef"><code>beef</code></a>
- are somewhat complex libraries, so I decided this wasn’t the best choice at
+increase your maintainance burden. <a href="https://crates.io/crates/halfbrown"><code>halfbrown</code></a> and <a href="https://crates.io/crates/beef"><code>beef</code></a> are somewhat complex libraries, so I decided this wasn’t the best choice at
 that moment for <code>Value</code>. I did use this approach a lot in other cases, so I’ve
 included an example in a <a href="#opaque">later section</a>.</p>
 </div>
@@ -858,8 +837,7 @@ uses asynchronous programming heavily, which is the case of Tremor. Anyhow,
 turns out that using <code>async</code> in FFI isn’t that complicated!</p>
 </div>
 <div class="paragraph">
-<p>In the previous post I introduced the <a href="https://crates.io/crates/async_ffi"><code>async_ffi</code></a>
- crate, which
+<p>In the previous post I introduced the <a href="https://crates.io/crates/async_ffi"><code>async_ffi</code></a> crate, which
 exports FFI-compatible <code>Future</code>s. It’s quite easy to use:</p>
 </div>
 <div class="paragraph">
@@ -877,8 +855,7 @@ exports FFI-compatible <code>Future</code>s. It’s quite easy to use:</p>
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div>
 </div>
 <div class="paragraph">
-<p>The types in <a href="https://crates.io/crates/async_ffi"><code>async_ffi</code></a>
- implement <code>Future</code>, so invoking that
+<p>The types in <a href="https://crates.io/crates/async_ffi"><code>async_ffi</code></a> implement <code>Future</code>, so invoking that
 function is as easy as usual: just adding <code>.await</code> after the function call.</p>
 </div>
 <div class="paragraph">
@@ -899,8 +876,7 @@ something that can be fixed with a procedural macro in the future:</p>
 </div>
 <div class="paragraph">
 <p>The only problem I found was that the futures didn’t implement <code>StableAbi</code>, so
-it wasn’t possible to use them with <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>
-. It took me a while
+it wasn’t possible to use them with <a href="https://crates.io/crates/abi_stable"><code>abi_stable</code></a>. It took me a while
 to understand the crate, but it’s nothing a Pull Request can’t fix:</p>
 </div>
 <div class="paragraph text-center">
@@ -935,8 +911,7 @@ keep Tremor low-latency.</p>
 <div class="sect3">
 <h4 id="_use_abi_stables_alternatives">6.2.1. Use <code>abi_stable</code>&#39;s alternatives</h4>
 <div class="paragraph">
-<p>Turns out <code>abi_stable</code> includes an FFI-safe wrapper for <a href="https://crates.io/crates/crossbeam"><code>crossbeam</code></a>
-.
+<p>Turns out <code>abi_stable</code> includes an FFI-safe wrapper for <a href="https://crates.io/crates/crossbeam"><code>crossbeam</code></a>.
 We could just switch the usage of <code>Sender&lt;T&gt;</code> to
 <a href="https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html"><code>RSender&lt;T&gt;</code></a>
 and that’s it.</p>
@@ -1114,8 +1089,7 @@ directories are separated by colons.</p>
 </div>
 <div class="paragraph">
 <p>Once the runtime has a list of what directories may contain plugins, it can look
-for them recursively with the crate <a href="https://crates.io/crates/walkdir"><code>walkdir</code></a>
-. It’s highly
+for them recursively with the crate <a href="https://crates.io/crates/walkdir"><code>walkdir</code></a>. It’s highly
 customizable and remarkably easy to use:</p>
 </div>
 <div class="paragraph">

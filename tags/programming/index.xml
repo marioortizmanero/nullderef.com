@@ -40,9 +40,7 @@ rewrite is interesting for other open source maintainers in the same situation
 as me. This all started when I wanted to use a Rust Spotify API wrapper for one
 of my projects at that time, <a href="https://vidify.org/">Vidify</a>. I went to
 <a href="https://crates.io/">crates.io</a> and looked for “Spotify”, and all I found was
-<a href="https://crates.io/crates/rspotify"><code>rspotify</code></a>
- (the most popular one), <a href="https://crates.io/crates/aspotify"><code>aspotify</code></a>
- (an
+<a href="https://crates.io/crates/rspotify"><code>rspotify</code></a> (the most popular one), <a href="https://crates.io/crates/aspotify"><code>aspotify</code></a> (an
 asynchronous-only alternative), and a bunch of other outdated or incomplete
 libraries.</p>
 </div>
@@ -128,9 +126,7 @@ Design, and some tips for those writing one in Rust.</p>
 <div class="paragraph">
 <p>RSpotify is now HTTP-client agnostic, which means that it can work with
 whichever HTTP library the user configures without adding much overhead. For
-now, we support <a href="https://crates.io/crates/ureq"><code>ureq</code></a>
- and <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a>
- <a href="#gh-clients">[5]</a>. The
+now, we support <a href="https://crates.io/crates/ureq"><code>ureq</code></a> and <a href="https://crates.io/crates/reqwest"><code>reqwest</code></a> <a href="#gh-clients">[5]</a>. The
 non-trivial part about this is that the HTTP client can be either blocking
 (<code>ureq</code>) or asynchronous (<code>reqwest</code>).</p>
 </div>
@@ -138,8 +134,7 @@ non-trivial part about this is that the HTTP client can be either blocking
 <p>While it’s fully implemented in the new version, it’s the only part that isn’t
 finished yet and that’s subject to change. This has to do with the way we
 support both async and sync HTTP clients under the same trait. In order to have
-a common interface for both kinds of programming, we use the <a href="https://crates.io/crates/maybe_async"><code>maybe_async</code></a>
- crate, which lets us switch between them with a feature.</p>
+a common interface for both kinds of programming, we use the <a href="https://crates.io/crates/maybe_async"><code>maybe_async</code></a> crate, which lets us switch between them with a feature.</p>
 </div>
 <div class="paragraph">
 <p>The trait used as a base for any HTTP client is implemented with async. That
@@ -397,8 +392,7 @@ inheritance” principle:</p>
 <code>spotify.oauth().endpoint3()</code> to access the endpoints in their different groups.
 However, all of them have to share a single HTTP client and other information
 such as the config or the token, so we have to use something like <code>Rc</code>. We can
-improve this by taking ideas from <a href="https://crates.io/crates/aspotify"><code>aspotify</code></a>
-, another popular crate
+improve this by taking ideas from <a href="https://crates.io/crates/aspotify"><code>aspotify</code></a>, another popular crate
 for the Spotify API, which groups up the endpoints by categories. Their endpoint
 groups take a reference to the client itself instead, which is pretty neat and
 works just as well:</p>
@@ -496,8 +490,7 @@ they wanted to, they could just override the trait implementation.</p>
 Trait</code> in trait methods as of Rust 1.55 <a href="#trait-ret-impl">[9]</a>. We unfortunately
 need these, specially with asynchronous clients, because async trait methods are
 <code>-&gt; impl Future</code> after all. For now, we can work around it by erasing the types
-with the <a href="https://crates.io/crates/async-trait"><code>async-trait</code></a>
- crate. Supposedly, this will be temporary
+with the <a href="https://crates.io/crates/async-trait"><code>async-trait</code></a> crate. Supposedly, this will be temporary
 until GATs are implemented, which isn’t too far off <a href="#gats">[10]</a>.</p>
 </div>
 <div class="paragraph">
@@ -575,8 +568,7 @@ actually think about optimizing it.</p>
 <div class="paragraph">
 <p>One correct usage would be our new <code>cli</code> feature. We have some utilities for
 command-line programs, such as prompting for the user’s credentials. However,
-not everyone needs these, such as servers, and it introduced the <a href="https://crates.io/crates/webbrowser"><code>webbrowser</code></a>
- dependency and a few unnecessary functions. So we decided to move
+not everyone needs these, such as servers, and it introduced the <a href="https://crates.io/crates/webbrowser"><code>webbrowser</code></a> dependency and a few unnecessary functions. So we decided to move
 this into a separate feature for those interested, which is disabled by default.</p>
 </div>
 </div>
@@ -930,8 +922,7 @@ originally huge object.</p>
 <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html">iterators</a> in sync
 programs, and
 <a href="https://rust-lang.github.io/async-book/05_streams/01_chapter.html">streams</a> for
-async. The latter can be implemented easily in your crate thanks to <a href="https://crates.io/crates/async_stream"><code>async_stream</code></a>
-.</p>
+async. The latter can be implemented easily in your crate thanks to <a href="https://crates.io/crates/async_stream"><code>async_stream</code></a>.</p>
 </div>
 <div class="paragraph text-center">
 
@@ -962,7 +953,6 @@ async. The latter can be implemented easily in your crate thanks to <a href="htt
 </div>
 <div class="paragraph">
 <p>In that case, instead of just deserializing that object with <a href="https://crates.io/crates/serde"><code>serde</code></a>
-
 and returning it to the user, you can just return that one field in the object:</p>
 </div>
 <div class="paragraph">
@@ -1059,8 +1049,7 @@ up. In total, we have about 33% less lines to be maintained.</p>
 <p>The number of dependencies has decreased both by default and with all the
 features enabled. We cleaned up a lot of them and tried to keep the defaults
 leaner <a href="#gh-cleanup">[20]</a>. Since the new version adds more features such as PKCE, we
-even had to add new dependencies like <a href="https://crates.io/crates/sha2"><code>sha2</code></a>
-, but it’s still a clear
+even had to add new dependencies like <a href="https://crates.io/crates/sha2"><code>sha2</code></a>, but it’s still a clear
 win.</p>
 </div>
 </div>
