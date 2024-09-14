@@ -4,12 +4,13 @@ description: "Friendly reminder: you might not need conditional compilation"
 author: "Mario Ortiz Manero"
 images: ["/blog/rust-features/compiler-explorer.png"]
 tags: ["tech", "rust", "rustlang", "guide", "beginners", "cargo"]
+series: ["spotify"]
 date: 2021-07-06
 GHissueID: 6
 ---
 
-Rust makes it very easy to express conditional compilation, specially thanks to
-its https://doc.rust-lang.org/cargo/reference/features.html["`features`"].
+Rust makes it very easy to express conditional compilation, especially thanks to
+Cargo https://doc.rust-lang.org/cargo/reference/features.html["`features`"].
 They're well integrated into the language and are very easy to use. But one
 thing I've learned by maintaining
 https://github.com/ramsayleung/rspotify[RSpotify] (a library for the Spotify
@@ -17,35 +18,34 @@ API) is that one shouldn't obsess over them. Conditional compilation should be
 used when it's _the only way_ to solve the problem, for a number of reasons I'll
 explain in this article.
 
-This might be obvious to some, but to me it wasn't so clear back when I started
-using Rust. And even if you're already aware, it might be an interesting
-reminder; maybe you forgot about it in your latest project and added an
-unnecessary feature.
+This might be obvious, but to me, it wasn't so clear back when I started using
+Rust. Even if you're already aware, it might be a good reminder -- maybe you
+forgot about it in your latest project, and you added an unnecessary feature.
 
-Conditional compilation isn't anything new either; C and C++ have been doing it
-for a long time now, for one. So the same thing can be applied in these cases.
-However, in my experience it's much easier to work with conditional compilation
-in Rust, meaning that it's more likely to be misused as well.
+Conditional compilation isn't anything new; C and C++ have been doing it for a
+long time now. So this principle can also be applied in these cases. However, in
+my experience, it's much easier to work with conditional compilation in Rust,
+meaning that it's more likely to be misused.
 
 == The Problem
 
 I went through this dilemma when deciding how to configure cached tokens in
 https://github.com/ramsayleung/rspotify[RSpotify]. Said library gives you the
 possibility of persistently managing the authentication token via a JSON file.
-That way, when the program is launched again the token from the previous session
-can be reused without having to follow the full auth process again -- that is,
-until the token expires.
+That way, when the program is launched again, the token from the previous
+session can be reused. One doesn't have to follow the full auth process again --
+that is, until the token expires.
 
 Originally, this was going to be a compile-time feature named `cached_token`. I
-didn't really give it much thought; why would one need the code to save and read
+didn't give it much thought; why would one need the code to save and read
 the token file if you just don't need it? The easiest way to do that is using a
 feature you can just toggle in your `Cargo.toml`.
 
-However, I later needed another very similar feature, `refreshing_token`. When
+I later worked on another very similar feature, `refreshing_token`. When
 optionally enabled, the client would automatically refresh expired tokens. As
-this pattern appeared more and more in the library I wanted to make sure its
-design was optimal. Once I took a deeper look I began to find the many
-inconveniences of features:
+this pattern appeared more and more in the library, I wanted to make sure its
+design was optimal. Once I took a deeper look, I began to find the many
+inconveniences of Cargo features:
 
 . They're *inflexible*: you can't have a client with cached tokens and another
   without them in the same program. It's a library-wide thing, so you either
@@ -178,7 +178,7 @@ use a variable instead of `const`. It looks better and gets the same results.
 
 Even if the previous optimization wasn't implemented, would the optional code
 cause any harm in the final binary, really? Are we overengineering the solution,
-as always? Truth is the optional code for cached/refreshing tokens isn't even
+as always? Truth is, the optional code for cached/refreshing tokens isn't even
 that much bloat.
 
 It depends, of course, but binary bloat isn't that much of a problem for higher
