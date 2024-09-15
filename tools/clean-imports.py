@@ -1,7 +1,7 @@
-"""
-Quick script to automatically reorder and validate AsciiDoc references. The final list
-will be printed to stdout.
-"""
+#!/usr/bin/env python3
+#
+# Quick script to automatically reorder and validate AsciiDoc references. The final list
+# will be printed to stdout.
 
 from dataclasses import dataclass
 from typing import Optional
