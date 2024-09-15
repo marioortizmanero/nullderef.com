@@ -4,10 +4,9 @@ description: "One of the toughest bugs I've come across... Thanks to my good
 friends Subtyping and Variance."
 author: "Mario Ortiz Manero"
 images: ["/blog/rust-variance/preview.jpg"]
-tags: ["tech", "programming", "rust", "rustlang", "variance", "subtyping", "abi_stable"]
+tags: ["tech", "programming", "rust", "rustlang", "variance", "subtyping", "abi_stable", "ffi"]
 date: 2024-09-14
 GHissueID: 14
-draft: true
 ---
 
 :sectnums:
