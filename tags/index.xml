@@ -12,8 +12,64 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>See this site&#39;s source code [on GitHub](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Sat, 01 Jun 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 14 Sep 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://nullderef.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Abi_stable</title>
+      <link>https://nullderef.com/tags/abi_stable/</link>
+      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/abi_stable/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Ffi</title>
+      <link>https://nullderef.com/tags/ffi/</link>
+      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/ffi/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Programming</title>
+      <link>https://nullderef.com/tags/programming/</link>
+      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/programming/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Rust</title>
+      <link>https://nullderef.com/tags/rust/</link>
+      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/rust/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Rustlang</title>
+      <link>https://nullderef.com/tags/rustlang/</link>
+      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/rustlang/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Subtyping</title>
+      <link>https://nullderef.com/tags/subtyping/</link>
+      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/subtyping/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Tech</title>
+      <link>https://nullderef.com/tags/tech/</link>
+      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/tech/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Variance</title>
+      <link>https://nullderef.com/tags/variance/</link>
+      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/variance/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Addiction</title>
       <link>https://nullderef.com/tags/addiction/</link>
@@ -78,13 +134,6 @@
       <description></description>
     </item>
     <item>
-      <title>Tech</title>
-      <link>https://nullderef.com/tags/tech/</link>
-      <pubDate>Sat, 01 Jun 2024 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/tech/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Async</title>
       <link>https://nullderef.com/tags/async/</link>
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
@@ -124,20 +173,6 @@
       <link>https://nullderef.com/tags/rspotify/</link>
       <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/rspotify/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Rust</title>
-      <link>https://nullderef.com/tags/rust/</link>
-      <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/rust/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Rustlang</title>
-      <link>https://nullderef.com/tags/rustlang/</link>
-      <pubDate>Sun, 14 Jan 2024 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/rustlang/</guid>
       <description></description>
     </item>
     <item>
@@ -225,31 +260,10 @@
       <description></description>
     </item>
     <item>
-      <title>Abi_stable</title>
-      <link>https://nullderef.com/tags/abi_stable/</link>
-      <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/abi_stable/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Ffi</title>
-      <link>https://nullderef.com/tags/ffi/</link>
-      <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/ffi/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Prototyping</title>
       <link>https://nullderef.com/tags/prototyping/</link>
       <pubDate>Fri, 11 Feb 2022 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/prototyping/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Programming</title>
-      <link>https://nullderef.com/tags/programming/</link>
-      <pubDate>Wed, 13 Oct 2021 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/programming/</guid>
       <description></description>
     </item>
     <item>
