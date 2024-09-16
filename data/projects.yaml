@@ -3,7 +3,7 @@ list:
     position: Mentee, 2021 -- 2022
     logo: /projects/tremor.png
     description: A high-performance Event Processing System. My task was to
-      rewrite its core into a plugin system, which can be tricky in Rust!
+      rewrite its core into a plugin system, which is quite tricky in Rust!
     urls:
       - name: Read its series on NullDeref
         url: https://nullderef.com/series/rust-plugins/
@@ -29,4 +29,4 @@ list:
     position: Founder, 2018 -- 2019
     logo: /projects/stickers.png
     description: A very silly Android app that reached 5 million downloads.
-      I wrote the first version, but I don't own it anymore.
+      I wrote the first version and later on sold it.
