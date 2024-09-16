@@ -8,7 +8,7 @@ it."
 images: ["/blog/rust-async-sync/preview.jpg"]
 author: "Mario Ortiz Manero"
 tags: ["tech", "programming", "rust", "open source"]
-keywords: ["tech", "programming", "rust", "rustlang", "async", "macros", "procedural macros", "rspotify"]
+keywords: ["tech", "programming", "rust", "rustlang", "async", "sync", "macros", "procedural macros", "rspotify", "synchronous", "asynchronous", "blocking", "tokio", "abstraction"]
 series: ["rspotify"]
 date: 2024-01-14
 GHissueID: 4

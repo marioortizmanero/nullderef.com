@@ -9,5 +9,5 @@ performance. You can read more about them in this series."
 numbered: true
 isFinished: true
 reverseOrder: true
-keywords: ["tech", "programming", "rust", "rustlang", "spotify", "rspotify", "open source", "contributor"]
+keywords: ["tech", "programming", "rust", "rustlang", "spotify", "rspotify", "open source", "contributor", "web api", "rest", "client"]
 ---

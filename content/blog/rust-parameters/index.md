@@ -4,7 +4,7 @@ description: "Analyzing different approaches for optional parameters in Rust"
 author: "Mario Ortiz Manero"
 images: ["/blog/rust-parameters/ferris.jpg"]
 tags: ["tech", "programming", "rust", "beginners"]
-keywords: ["tech", "programming", "rust", "rustlang", "guide", "beginners"]
+keywords: ["tech", "programming", "rust", "rustlang", "guide", "beginners", "generics", "optional parameters", "default parameters", "api client", "optional params", "default params", "client architecture"]
 date: 2020-10-10
 GHissueID: 7
 ---
@@ -308,10 +308,9 @@ reference to the client.
 * Still relatively verbose, might not be compatible with some APIs.
 * Slight builder pattern overhead, and can also fail to construct the value.
 
-## F) Hybrid derive pattern
-Back to the client-oriented API. We can remove some of the disadvantages of the
-builder pattern by using a different approach and possibly a custom
-implementation instead of just using `derive_builder`.
+## F) Hybrid derive pattern Back to the client-oriented API. We can remove some
+disadvantages of the builder pattern by using a different approach and possibly
+a custom implementation instead of just using `derive_builder`.
 
 The client will now have a method that calls `ApproachBuilder::default()` and
 whatever is necessary to start building the endpoint. Mandatory parameters are
@@ -482,11 +481,10 @@ definitely sounds like a fun challenge, if it's still possible to implement.
 
 ## Conclusion
 Whew! That took more than I expected. Some of these endpoints might be
-unnecessarily complicated or straight up weird, but I hope this was as a good
+unnecessarily complicated or straight up weird. But I hope this was as a good
 showcase of the different ways optional parameters can be approached in Rust,
 and that reading this served as a learning experience. I look forward to seeing
-new crates in the future that help make some of the approaches easier to
-implement.
+new crates in the future that simplify these approaches.
 
 The code for the different approaches can be found
 [here](https://github.com/marioortizmanero/rust-optional-params). Bear in mind
@@ -494,9 +492,5 @@ that there are a lot of different ways to implement the approaches, as I
 explained in this post. You can discuss it at the [reddit
 thread](https://www.reddit.com/r/rust/comments/j8p6fx/optional_parameters_in_rust).
 
-This was one of my first blog posts, so please let me know what you think about
-the writing, the structure and just your overall rating, or if you found any
-errors or things that could be improved about the Rust code.
-
 *Disclaimer: this post was originally in
-https://vidify.org/blog/rust-parameters/.*
+https://vidify.org/blog/rust-parameters/. I've moved it to my personal blog.*

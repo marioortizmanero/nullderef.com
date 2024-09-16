@@ -5,7 +5,7 @@ that minimized how much you used it?"
 author: "Mario Ortiz Manero"
 images: ["/blog/phone-intro/cover.jpg"]
 tags: ["tech", "entrepreneurship", "research", "phone dependency"]
-keywords: ["tech", "phone dependency", "addiction", "eink", "calm companies", "dumbphones", "design"]
+keywords: ["tech", "phone dependency", "phone addiction", "eink", "calm companies", "dumbphones", "design"]
 series: ["dont-use-this-phone"]
 date: 2024-06-01
 GHissueID: 13
