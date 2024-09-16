@@ -33,8 +33,17 @@
 </header>
 
 <ul class="terms-tags">
-    {{- range $name, $taxonomy := site.Taxonomies.tags }}
-    {{- $count := .Count }}
+    {{- /* CUSTOM: sort by frequency. Sorting convert maps into lists, thus
+         * losing the keys. So we convert the tags into a list with the keys, and
+         * then sort. */}}
+    {{- $tags := slice }}
+    {{- range $name, $values := site.Taxonomies.tags }}
+      {{- $tags = $tags | append (dict "name" $name "count" .Count) }}
+    {{- end }}
+
+    {{- range sort $tags "count" "desc" }}
+    {{- $name := .name }}
+    {{- $count := .count }}
     {{- with site.GetPage (printf "/tags/%s" $name) }}
     <li>
         <a href="{{ .Permalink }}">{{ $name }} <sup><strong><sup>{{ $count }}</sup></strong></sup> </a>
