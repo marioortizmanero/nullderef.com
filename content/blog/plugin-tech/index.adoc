@@ -5,7 +5,7 @@ author: "Mario Ortiz Manero"
 images: ["/blog/plugin-tech/triangle.png"]
 images: ["/blog/plugin-tech/technologies.jpg"]
 tags: ["tech", "programming", "rust", "open source"]
-keywords: ["tech", "programming", "rust", "rustlang", "dynamic-loading", "ffi", "plugin", "wasm", "webassembly", "ipc", "scripting"]
+keywords: ["tech", "programming", "rust", "rustlang", "dynamic loading", "ffi", "plugin", "wasm", "webassembly", "ipc", "scripting"]
 series: ["rust-plugins"]
 date: 2021-05-17
 GHissueID: 9

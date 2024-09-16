@@ -1,5 +1,5 @@
 ---
-title: "RSpotify"
+title: "Maintaining RSpotify"
 description: "I was a contributor to [the RSpotify
 library](https://github.com/ramsayleung/rspotify) to sharpen my Rust skills.
 This crate provides easy-to-use and complete bindings for [the Spotify web
