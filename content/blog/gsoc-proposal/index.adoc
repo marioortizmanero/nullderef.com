@@ -3,7 +3,8 @@ title: "GSoC Proposal: Implementing a Plugin Development Kit for Tremor"
 description: "My proposal for 2021's GSoC"
 author: "Mario Ortiz Manero"
 images: ["/blog/gsoc-proposal/logo.png"]
-tags: ["tech", "rust", "rustlang", "dynamic-loading"]
+# tags: ["tech", "programming", "rust", "open source"]
+# keywords: ["tech", "programming", "rust", "rustlang", "dynamic loading", "google summer of code"]
 hidden: true
 Sitemap:
   Disable: true

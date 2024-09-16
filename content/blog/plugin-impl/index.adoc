@@ -3,7 +3,8 @@ title: "Plugins in Rust: Getting our Hands Dirty"
 description: "Finally implementing the plugin system!"
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-impl/dirty.jpg"]
-tags: ["tech", "rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "abi_stable", "prototyping"]
+tags: ["tech", "programming", "rust", "open source"]
+keywords: ["tech", "programming", "rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "abi_stable", "prototyping"]
 series: ["rust-plugins"]
 date: 2022-02-11
 GHissueID: 10

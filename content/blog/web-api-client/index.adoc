@@ -4,7 +4,8 @@ description: "Inspired by the RSpotify rewrite, a few tips on how to make a
 solid wrapper for most web API wrappers."
 author: "Mario Ortiz Manero"
 images: ["/blog/web-api-client/crate_hierarchy.png"]
-tags: ["tech", "rust", "rustlang", "open-source", "rspotify", "web-api", "programming"]
+tags: ["tech", "programming", "rust", "open source"]
+keywords: ["programming", "rust", "rustlang", "open source", "rspotify", "web api"]
 date: 2021-10-13
 series: ["rspotify"]
 GHissueID: 2
@@ -143,7 +144,7 @@ pub trait HttpClient: Send + Default {
         headers: Option<&Headers>,
         payload: &Value,
     ) -> Result<String, Self::Error>;
-    
+
     // etc
 }
 {{< /highlight >}}
@@ -714,7 +715,7 @@ Before making a request, self-refreshing tokens check if they are expired, and
 in that case perform the re-authorization process automatically.
 
 [.text-center]
-{{< gh issue "ramsayleung/rspotify" 223 "Implement cache token and refresh token" >}} 
+{{< gh issue "ramsayleung/rspotify" 223 "Implement cache token and refresh token" >}}
 
 === Type-safe wrappers for ID types
 

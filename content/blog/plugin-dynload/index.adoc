@@ -3,7 +3,8 @@ title: "Plugins in Rust: Diving into Dynamic Loading"
 description: "A closer look at dynamic loading in Rust"
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-dynload/diving.jpg"]
-tags: ["tech", "rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "abi_stable", "bpf", "ebpf"]
+tags: ["tech", "programming", "rust", "open source"]
+keywords: ["tech", "programming", "rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "abi_stable", "bpf", "ebpf"]
 series: ["rust-plugins"]
 date: 2021-10-05
 GHissueID: 3
@@ -168,7 +169,7 @@ incredibly helpful.
 
   cd tremor-cli
   tremor test bench tests
-  
+
   (or)
 
   ./bench/run.sh <name>
@@ -205,7 +206,7 @@ computation. In response to a message it receives, an actor can: make local
 decisions, create more actors, send more messages, and determine how to respond
 to the next message received. Actors may modify their own private state, but can
 only affect each other indirectly through messaging (removing the need for
-lock-based synchronization). 
+lock-based synchronization).
 ____
 
 It doesn't use a language (e.g., Erlang) or framework (e.g., {{< crate bastion
@@ -934,7 +935,7 @@ line of `unsafe`.
 
 In my opinion, although `abi_stable` is a very large crate and somewhat hard to
 learn, most of the problems this post exposes are greatly simplified thanks to
-it. In the next article I'll see the differences between both approaches. 
+it. In the next article I'll see the differences between both approaches.
 
 [bibliography]
 == References

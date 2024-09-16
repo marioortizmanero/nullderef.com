@@ -4,7 +4,8 @@ description: "Taking a look at the state of dynamic loading in the Rust
 ecosystem"
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-abi-stable/cratesio.jpg"]
-tags: ["tech", "rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "abi_stable"]
+tags: ["tech", "programming", "rust", "open source"]
+keywords: ["tech", "programming", "rust", "rustlang", "dynamic-loading", "plugin", "ffi", "abi", "abi_stable"]
 series: ["rust-plugins"]
 date: 2021-11-08
 GHissueID: 1

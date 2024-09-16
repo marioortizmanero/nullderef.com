@@ -9,5 +9,5 @@ alternatives are also covered in detail in the first articles."
 numbered: true
 isFinished: true
 reverseOrder: true
-tags: ["rust", "rustlang", "dynamic loading", "plugins", "plugin system", "pdk"]
+keywords: ["tech", "programming", "rust", "rustlang", "dynamic loading", "plugins", "plugin system", "ffi", "abi_stable"]
 ---

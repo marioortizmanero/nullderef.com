@@ -4,7 +4,8 @@ description: "The last finishing touches and ideas before our plugin system
 reaches production."
 author: "Mario Ortiz Manero"
 images: ["/blog/plugin-end/wrap.jpg"]
-tags: ["tech", "rust", "rustlang", "plugin", "benchmarking", "testing", "deployment"]
+tags: ["tech", "programming", "rust", "open source"]
+keywords: ["tech", "programming", "rust", "rustlang", "plugin", "benchmarking", "testing", "deployment"]
 series: ["rust-plugins"]
 date: 2022-07-26
 GHissueID: 11
