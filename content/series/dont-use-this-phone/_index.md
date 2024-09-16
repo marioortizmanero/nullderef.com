@@ -7,5 +7,5 @@ actually trying to build anything :)"
 numbered: true
 isFinished: false
 reverseOrder: true
-keywords: ["tech", "phone addiction", "eink", "entrepreneurship", "calm companies", "dumbphones", "phone manufacturing"]
+keywords: ["tech", "phone addiction", "eink", "entrepreneurship", "calm companies", "dumbphones", "phone manufacturing", "smartphone", "epaper"]
 ---

@@ -1,5 +1,5 @@
 ---
-title: "A Plugin System in Rust"
+title: "Writing A Plugin System in Rust"
 description: "My [LFX
 mentorship](https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff)
 with [Tremor](https://www.tremor.rs/), in which I implement a Plugin System to
