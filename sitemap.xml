@@ -2,19 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://nullderef.com/tags/abi_stable/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/blog/rust-variance/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/ffi/</loc>
+    <loc>https://nullderef.com/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/</loc>
+    <loc>https://nullderef.com/tags/open-source/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/programming/</loc>
@@ -23,79 +20,31 @@
     <loc>https://nullderef.com/tags/rust/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/rustlang/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/subtyping/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/tags/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/tech/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/variance/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/series/dont-use-this-phone/</loc>
-    <lastmod>2024-06-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/addiction/</loc>
     <lastmod>2024-06-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/phone-intro/</loc>
     <lastmod>2024-06-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/calm-companies/</loc>
-    <lastmod>2024-06-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/design/</loc>
-    <lastmod>2024-06-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/dumbphones/</loc>
-    <lastmod>2024-06-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/eink/</loc>
-    <lastmod>2024-06-01T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/tags/entrepreneurship/</loc>
-    <lastmod>2024-06-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/phone-addiction/</loc>
     <lastmod>2024-06-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/phone-dependency/</loc>
     <lastmod>2024-06-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/phone-manufacturing/</loc>
+    <loc>https://nullderef.com/tags/research/</loc>
     <lastmod>2024-06-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/series/</loc>
     <lastmod>2024-06-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/async/</loc>
-    <lastmod>2024-01-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/contributor/</loc>
-    <lastmod>2024-01-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/macros/</loc>
-    <lastmod>2024-01-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/open-source/</loc>
-    <lastmod>2024-01-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/procedural-macros/</loc>
-    <lastmod>2024-01-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/rspotify/</loc>
-    <lastmod>2024-01-14T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/series/rspotify/</loc>
-    <lastmod>2024-01-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/spotify/</loc>
     <lastmod>2024-01-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/rust-async-sync/</loc>
@@ -107,46 +56,13 @@
     <loc>https://nullderef.com/series/rust-plugins/</loc>
     <lastmod>2022-10-18T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/dynamic-loading/</loc>
-    <lastmod>2022-10-18T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/pdk/</loc>
-    <lastmod>2022-10-18T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/plugin-system/</loc>
-    <lastmod>2022-10-18T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/plugins/</loc>
-    <lastmod>2022-10-18T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/tags/talk/</loc>
     <lastmod>2022-10-18T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/tremor/</loc>
-    <lastmod>2022-10-18T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/benchmarking/</loc>
-    <lastmod>2022-07-26T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/deployment/</loc>
-    <lastmod>2022-07-26T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/plugin/</loc>
-    <lastmod>2022-07-26T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/plugin-end/</loc>
     <lastmod>2022-07-26T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/testing/</loc>
-    <lastmod>2022-07-26T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/abi/</loc>
-    <lastmod>2022-02-11T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/blog/plugin-impl/</loc>
-    <lastmod>2022-02-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/prototyping/</loc>
     <lastmod>2022-02-11T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/plugin-abi-stable/</loc>
@@ -154,15 +70,6 @@
   </url><url>
     <loc>https://nullderef.com/blog/web-api-client/</loc>
     <lastmod>2021-10-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/web-api/</loc>
-    <lastmod>2021-10-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/bpf/</loc>
-    <lastmod>2021-10-05T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/ebpf/</loc>
-    <lastmod>2021-10-05T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/plugin-dynload/</loc>
     <lastmod>2021-10-05T00:00:00+00:00</lastmod>
@@ -173,28 +80,10 @@
     <loc>https://nullderef.com/tags/beginners/</loc>
     <lastmod>2021-07-06T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/cargo/</loc>
-    <lastmod>2021-07-06T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/guide/</loc>
-    <lastmod>2021-07-06T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/blog/rust-features/</loc>
     <lastmod>2021-07-06T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/tags/ipc/</loc>
-    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/blog/plugin-tech/</loc>
-    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/scripting/</loc>
-    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/wasm/</loc>
-    <lastmod>2021-05-17T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/tags/webassembly/</loc>
     <lastmod>2021-05-17T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/rust-parameters/</loc>
