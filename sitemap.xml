@@ -20,10 +20,16 @@
     <loc>https://nullderef.com/tags/rust/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://nullderef.com/series/</loc>
+    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/tags/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/tech/</loc>
+    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://nullderef.com/series/rust-plugins/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/series/dont-use-this-phone/</loc>
@@ -41,9 +47,6 @@
     <loc>https://nullderef.com/tags/research/</loc>
     <lastmod>2024-06-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://nullderef.com/series/</loc>
-    <lastmod>2024-06-01T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://nullderef.com/series/rspotify/</loc>
     <lastmod>2024-01-14T00:00:00+00:00</lastmod>
   </url><url>
@@ -54,9 +57,6 @@
     <lastmod>2022-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/talk/</loc>
-    <lastmod>2022-10-18T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/series/rust-plugins/</loc>
     <lastmod>2022-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/plugin-end/</loc>
