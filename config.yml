@@ -47,7 +47,7 @@ params:
   env: production
   description: "Mario Ortiz Manero's personal blog with his learnings about technology."
   author: Mario Ortiz Manero
-  keywords: ["rust", "rustlang", "guides", "open-source", "programming", "software"]
+  keywords: ["tech", "programming", "entrepeneurship", "rust", "rustlang", "open source", "blog"]
   images: ["/logo-banner.png"]
 
   # light/dark/auto

@@ -6,6 +6,7 @@ author: "Mario Ortiz Manero"
 images: ["/blog/rust-variance/preview.jpg"]
 tags: ["tech", "programming", "rust", "open source"]
 keywords: ["tech", "programming", "rust", "rustlang", "variance", "subtyping", "invariant", "covariant", "abi_stable", "ffi"]
+series: ["rust-plugins"]
 date: 2024-09-14
 GHissueID: 14
 ---
