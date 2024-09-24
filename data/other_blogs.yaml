@@ -1,4 +1,4 @@
-list: 
+list:
   - name: Rafał Pastuszak
     url: https://sonnet.io/
     description: >
@@ -7,9 +7,9 @@ list:
     url: https://gwern.net/
     description: >
       homemade experimentation and impeccable writing combined.
-  - name: fasterthanlime
-    url: https://fasterthanli.me/
-    description: thorough posts about computers in a very fun way.
+  - name: Michael Lynch
+    url: https://mtlynch.io/
+    description: a big-tech engineer turned to running cool small businesses.
   - name: matklad
     url: https://matklad.github.io/
     description: >
