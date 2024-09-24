@@ -1,7 +1,11 @@
 {{- $scratch := newScratch }}
 
 {{- if not .Post.Date.IsZero -}}
-{{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s</span>" (.Post.Date) (.Post.Date | time.Format (default "Jan 2006" site.Params.DateFormat)))) }}
+{{- $format := "January 1, 2006" }}
+{{- if .simplified }}
+{{- $format = "Jan 2006" }}
+{{- end }}
+{{- $scratch.Add "meta" (slice (printf "<span title='%s'>%s</span>" (.Post.Date) (.Post.Date | time.Format (default $format site.Params.DateFormat)))) }}
 {{- end }}
 
 {{- if (.Post.Param "ShowReadingTime") -}}
@@ -13,8 +17,8 @@
 {{- end }}
 
 {{- /* CUSTOM: hide the author in the homepage. This also requires updating
-       `.Params` to `.Post.Params` and so on * in the entire partial. */ -}}
-{{- if not (or (.Post.Param "hideAuthor") .hideAuthor) -}}
+       `.Params` to `.Post.Params` and so on in the entire partial. */ -}}
+{{- if not (or (.Post.Param "hideAuthor") .simplified) -}}
 {{- with (partial "author.html" .Post) }}
 {{- $scratch.Add "meta" (slice .) }}
 {{- end }}
@@ -22,9 +26,13 @@
 
 {{/* CUSTOM: simpler metadata, with support for series indicator. */}}
 {{- if .Post.Params.series }}
+{{- $prefix := "From the series" }}
+{{- if .simplified }}
+{{- $prefix = "From" }}
+{{- end }}
 {{- $thisSeries := index .Post.Params.series 0 }}
 {{- $thisSeriesPage := site.GetPage (printf "series/%s" $thisSeries | urlize) }}
-{{- $scratch.Add "meta" (printf "From [\"%s\"](%s)" $thisSeriesPage.Title $thisSeriesPage.Permalink | markdownify) }}
+{{- $scratch.Add "meta" (printf "%s [\"%s\"](%s)" $prefix $thisSeriesPage.Title $thisSeriesPage.Permalink | markdownify) }}
 {{- end }}
 
 {{- with ($scratch.Get "meta") }}
