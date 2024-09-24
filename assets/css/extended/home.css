@@ -1,4 +1,4 @@
-/* Align to right, support for subscription link */
+/* Align social icons to right and add subscription link */
 .social-icons {
   display: flex;
   align-items: center;
@@ -17,7 +17,7 @@
   font-size: 17px;
 }
 
-/* Fixing the colors the header */
+/* Removing secondary color where possible */
 .social-icons a,
 .social-icons span {
   color: var(--primary);
@@ -25,8 +25,13 @@
 .entry-content {
   color: var(--primary);
 }
+.entry-footer,
+.entry-footer a {
+  color: var(--primary);
+  font-style: italic;
+}
 
-/* Fixing the header text */
+/* Using a quote at the top */
 .first-entry {
   min-height: 150px;
 }
