@@ -22,7 +22,7 @@
       <description>My [LFX mentorship](https://mentorship.lfx.linuxfoundation.org/project/b90f7174-fc53-40bc-b9e2-9905f88c38ff) with [Tremor](https://www.tremor.rs/), in which I implement a Plugin System to maximize modularity and reduce Rust&amp;#39;s wild compilation times. This is done with [dynamic loading](https://en.wikipedia.org/wiki/Dynamic_loading), but its alternatives are also covered in detail in the first articles.</description>
     </item>
     <item>
-      <title>A phone meant not to be used</title>
+      <title>Get off your phone!</title>
       <link>https://nullderef.com/series/dont-use-this-phone/</link>
       <pubDate>Sat, 01 Jun 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/series/dont-use-this-phone/</guid>
