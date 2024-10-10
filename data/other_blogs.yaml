@@ -3,13 +3,13 @@ list:
     url: https://sonnet.io/
     description: >
       an important reminder to keep discovering yourself in life.
+  - name: Michael Lynch
+    url: https://mtlynch.io/
+    description: a big-tech engineer turned to running cool small businesses.
   - name: Gwern
     url: https://gwern.net/
     description: >
       homemade experimentation and impeccable writing combined.
-  - name: Michael Lynch
-    url: https://mtlynch.io/
-    description: a big-tech engineer turned to running cool small businesses.
   - name: matklad
     url: https://matklad.github.io/
     description: >

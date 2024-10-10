@@ -1,0 +1,80 @@
+---
+title: "I quit my job to get you off your phone"
+description: ""
+summary: ""
+images: [""]
+author: "Mario Ortiz Manero"
+tags: []
+keywords: []
+series: ["dont-use-this-phone"]
+date: 2024-10-10
+GHissueID: TODO
+draft: true
+---
+
+:linkedin:
+:x: TODO
+:mastodon: TODO
+:email: mailto:marioortizmanero@gmail.com
+
+I never expected that quitting my first job would be so hard! My time at Lyft
+was awesome. I met smart people from very different teams and learned a lot
+about the industry. The technical challenges were fun and endless. Most
+recently, I was dealing with a complex C++/Go/Python stack for
+https://www.lyft.com/blog/posts/lyfts-secret-plan-to-take-control-of-its-maps-and-its-future[routing].
+
+TODO: drawing of a map with a route, very wide. It could be me, wondering where
+my next destination is.
+
+But after two years, I realized my job just wasn't making me happy. There was a
+disconnect with the product I couldn't overcome. And I was looking for something
+more fulfilling.
+
+I've always aspired to build a company. This seemed like the right moment to try
+-- now or never. So here I am, soon to be jobless, contemplating life, yet
+excited about what's next.
+
+Maybe it will fail (in fact, the odds are against me). But I'll have tried and
+learned! That makes me feel I'm making the best out of life, and it frees me of
+regrets. Mostly. It's still pretty insane that I quit.
+
+It's early in my journey, but I can't stop myself from exploring my area of
+interest: phones. Or rather, phonesn't. Not having had the best year of my life,
+I found myself on my phone too much. The negative effects became obvious, and I
+want to do something about it.
+
+It's an incredibly complex challenge. There are many ways to overuse your phone.
+You have big companies _optimizing_ their app to get you stuck on it. And often,
+overuse is a symptom of a deeper problem, so you'd be better off directly fixing
+that.
+
+Yet, it's such a huge issue that I'm confident I can build something valuable.
+There are a thousand ideas out there -- even
+https://nullderef.com/blog/phone-intro/[building your own phone]. I'm thinking
+the best way to get started is an app to control screentime. It's frustrating
+that no existing apps have gone mainstream -- let's make it fun to use your
+phone less.
+
+// Source:
+//   https://docs.google.com/forms/d/1CBfDTJTn9Vm6Wola8KIJyMIs7OLGK9p3EjuLO8Qclww/edit
+++++
+<p>
+  <iframe
+    loading="lazy"
+    src="https://docs.google.com/forms/d/e/1FAIpQLSeBH5uuC0SobGZemcapCMxcKkHgL49l0wvtYTQjG3M-puAMew/viewform?embedded=true"
+    width="100%"
+    height="410"
+    frameborder="0"
+    marginheight="0"
+    marginwidth="0">Loading…</iframe>
+</p>
+++++
+
+If this is interesting to you in any way, please reach out!
+https://calendar.app.google/L45TFdjwgqJZemxo7[I'd love to have a chat]. You can
+also send me a message on {{< social-media "LinkedIn" >}}, {{< social-media "X"
+>}}, {{< social-media "Mastodon" >}}, or by
+mailto:marioortizmanero@gmail.com[email]. We could even work together.
+
+I feel extremely lucky to be in a position to make this decision. Thank you to
+everyone for your support!
