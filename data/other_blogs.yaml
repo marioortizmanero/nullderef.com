@@ -6,15 +6,15 @@ list:
   - name: Michael Lynch
     url: https://mtlynch.io/
     description: a big-tech engineer turned to running cool small businesses.
+  - name: Matt Lakeman
+    url: https://mattlakeman.org/
+    description: >
+      the definition of pure adventure.
+  - name: Kalzumeus
+    url: https://www.kalzumeus.com/
+    description: >
+      endless knowledge about the internet and businesses.
   - name: Gwern
     url: https://gwern.net/
     description: >
       homemade experimentation and impeccable writing combined.
-  - name: matklad
-    url: https://matklad.github.io/
-    description: >
-      technical blog posts from the development leader of [Rust
-      Analyzer](https://github.com/rust-analyzer/rust-analyzer).
-  - name: Baby Steps
-    url: https://smallcultfollowing.com/babysteps/
-    description: Niko Matsakis's blog, one of Rust's best known developers.
