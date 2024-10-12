@@ -23,8 +23,7 @@ about the industry. The technical challenges were fun and endless. Most
 recently, I was dealing with a complex C++/Go/Python stack for
 https://www.lyft.com/blog/posts/lyfts-secret-plan-to-take-control-of-its-maps-and-its-future[routing].
 
-TODO: drawing of a map with a route, very wide. It could be me, wondering where
-my next destination is.
+image::/blog/draft-quit-job/map.png[]
 
 But after two years, I realized my job just wasn't making me happy. There was a
 disconnect with the product I couldn't overcome. And I was looking for something
