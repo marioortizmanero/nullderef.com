@@ -2,7 +2,7 @@
 title: "I've quit my job to get you off your phone"
 description: ""
 author: "Mario Ortiz Manero"
-images: ["/blog/draft-quit-job-2024/map.png"]
+images: ["/blog/quit-job-2024/preview.jpg"]
 tags: ["tech", "entrepreneurship", "personal", "phone dependency"]
 keywords: ["tech", "phone dependency", "phone addiction", "eink", "calm companies", "dumbphones", "design"]
 series: ["dont-use-this-phone"]
@@ -10,14 +10,6 @@ date: 2024-10-14
 GHissueID: 15
 draft: true
 ---
-
-// FEEDBACK:
-// Maybe too much 'I', 'me', and 'my'?
-// Lower down on 'really', 'very', 'super', 'some', 'kind of', 'a lot', 'make
-// sure'
-// Upgrade vocabulary?
-// Long sentences?
-// Less technical?
 
 :email: mailto:marioortizmanero@gmail.com
 
@@ -37,7 +29,7 @@ I've always aspired to build a company, and this was a good moment in life to
 try. Now or never. So here I am, soon to be jobless, contemplating life, yet
 excited about what's next.
 
-image::/blog/draft-quit-job-2024/map.png[]
+image::/blog/quit-job-2024/map.png[]
 
 My company might fail (in fact, the odds are against me). But I'll have tried
 and learned! This decision reassures me I'm making the best out of life, and it
