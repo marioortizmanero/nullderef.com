@@ -4,11 +4,10 @@ description: ""
 author: "Mario Ortiz Manero"
 images: ["/blog/quit-job-2024/preview.jpg"]
 tags: ["tech", "entrepreneurship", "personal", "phone dependency"]
-keywords: ["tech", "phone dependency", "phone addiction", "eink", "calm companies", "dumbphones", "design"]
+keywords: ["tech", "career", "phone dependency", "phone addiction", "quitting a job", "entrepreneurship"]
 series: ["dont-use-this-phone"]
 date: 2024-10-14
 GHissueID: 15
-draft: true
 ---
 
 :email: mailto:marioortizmanero@gmail.com
