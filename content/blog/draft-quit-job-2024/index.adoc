@@ -11,6 +11,14 @@ GHissueID: 15
 draft: true
 ---
 
+// FEEDBACK:
+// Maybe too much 'I', 'me', and 'my'?
+// Lower down on 'really', 'very', 'super', 'some', 'kind of', 'a lot', 'make
+// sure'
+// Upgrade vocabulary?
+// Long sentences?
+// Less technical?
+
 :email: mailto:marioortizmanero@gmail.com
 
 I never expected quitting a job to be so hard! My time at Lyft has been an
@@ -22,10 +30,10 @@ routing].
 
 But after two years, I've realized that it just wasn't making me happy. My
 disconnect with the product was too big, and so much remote work didn't help,
-either. I wanted to explore -- maybe something else could bring me more
-fulfillment.
+either. The desire to explore grew, with the hope that something else could
+bring more fulfillment.
 
-I've always aspired to build a company, and this seemed like the right moment to
+I've always aspired to build a company, and this was a good moment in life to
 try. Now or never. So here I am, soon to be jobless, contemplating life, yet
 excited about what's next.
 
@@ -35,10 +43,10 @@ My company might fail (in fact, the odds are against me). But I'll have tried
 and learned! This decision reassures me I'm making the best out of life, and it
 frees me of regrets. Mostly. It's still pretty insane that I quit.
 
-It's early in my journey, but I can't stop myself from exploring my area of
-interest: phones. Or rather, phonesn't. Not having had the best year of my life,
-I found myself on my phone too much. The negative effects became obvious, and I
-want to do something about it.
+It's early in my journey, but I can't stop exploring my area of interest:
+phones. Or rather, phonesn't. Not having had the best year of my life, I found
+myself on the phone too much. The negative effects became obvious, and I want to
+do something about it.
 
 This space is quite a challenge. Everyone overuses their phone in their own way.
 You have big companies _optimizing_ their app to get you stuck on it. And often,
