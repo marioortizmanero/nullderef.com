@@ -12,8 +12,92 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>See this site&#39;s source code [on GitHub](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Sat, 01 Jun 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 14 Oct 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://nullderef.com/tags/phone-dependency/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>I&#39;ve quit my job to get you off your phone</title>
+      <link>https://nullderef.com/blog/quit-job-2024/</link>
+      <pubDate>Mon, 14 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/blog/quit-job-2024/</guid>
+      <description>&lt;div class=&#34;paragraph&#34;&gt;
+&lt;p&gt;I never expected quitting a job to be so hard! My time at Lyft has been an
+enriching journey. Tons of smart people at three very different teams, where
+I’ve learned how the industry works. The technical challenges were endless: from
+user-facing features in the app to improving the safety of
+&lt;a href=&#34;https://www.lyft.com/blog/posts/lyfts-secret-plan-to-take-control-of-its-maps-and-its-future&#34;&gt;our
+routing&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&#34;paragraph&#34;&gt;
+&lt;p&gt;But after two years, I’ve realized that it just wasn’t making me happy. My
+disconnect with the product was too big, and so much remote work didn’t help,
+either. The desire to explore grew, with the hope that something else could
+bring more fulfillment.&lt;/p&gt;
+&lt;/div&gt;</description>
+      <content:encoded><![CDATA[<div class="paragraph">
+<p>I never expected quitting a job to be so hard! My time at Lyft has been an
+enriching journey. Tons of smart people at three very different teams, where
+I’ve learned how the industry works. The technical challenges were endless: from
+user-facing features in the app to improving the safety of
+<a href="https://www.lyft.com/blog/posts/lyfts-secret-plan-to-take-control-of-its-maps-and-its-future">our
+routing</a>.</p>
+</div>
+<div class="paragraph">
+<p>But after two years, I’ve realized that it just wasn’t making me happy. My
+disconnect with the product was too big, and so much remote work didn’t help,
+either. The desire to explore grew, with the hope that something else could
+bring more fulfillment.</p>
+</div>
+<div class="paragraph">
+<p>I’ve always aspired to build a company, and this was a good moment in life to
+try. Now or never. So here I am, soon to be jobless, contemplating life, yet
+excited about what’s next.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="/blog/quit-job-2024/map.png" alt="map"/>
+</div>
+</div>
+<div class="paragraph">
+<p>My company might fail (in fact, the odds are against me). But I’ll have tried
+and learned! This decision reassures me I’m making the best out of life, and it
+frees me of regrets. Mostly. It’s still pretty insane that I quit.</p>
+</div>
+<div class="paragraph">
+<p>It’s early in my journey, but I can’t stop exploring my area of interest:
+phones. Or rather, phonesn’t. Not having had the best year of my life, I found
+myself on the phone too much. The negative effects became obvious, and I want to
+do something about it.</p>
+</div>
+<div class="paragraph">
+<p>This space is quite a challenge. Everyone overuses their phone in their own way.
+You have big companies <em>optimizing</em> their app to get you stuck on it. And often,
+overuse is a symptom of a deeper problem, where you’d be better off directly
+fixing that.</p>
+</div>
+<div class="paragraph">
+<p>Yet, it’s such a huge issue that I’m confident I can build something valuable.
+You don’t need to be completely addicted to your phone to want to use it less.
+Among the thousand possible ideas — even
+<a href="https://nullderef.com/blog/phone-intro/">manufacturing your own phone</a> —, I
+might get started with an innovative app to control screentime. It’s frustrating
+that no existing apps have gone mainstream. Let’s make it fun to reduce your
+usage.</p>
+</div>
+<p>
+  <iframe loading="lazy" src="https://docs.google.com/forms/d/e/1FAIpQLSeBH5uuC0SobGZemcapCMxcKkHgL49l0wvtYTQjG3M-puAMew/viewform?embedded=true" width="100%" height="410" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+</p>
+<div class="paragraph">
+<p>If this is interesting to you in any way, please reach out!
+<a href="https://calendar.app.google/L45TFdjwgqJZemxo7">Schedule a chat with me</a> or send
+me a message on <a target="_blank" rel="noopener noreferrer" href=https://www.linkedin.com/in/marioortizmanero/>LinkedIn</a>, <a target="_blank" rel="noopener noreferrer" href=https://x.com/null_deref>X</a>, <a target="_blank" rel="noopener noreferrer" href=https://mstdn.social/@nullderef>Mastodon</a>, or by <a href="mailto:marioortizmanero@gmail.com">email</a>. You
+can vent about how much your phone controls you, or we could even work together.</p>
+</div>
+<div class="paragraph">
+<p>I feel extremely lucky to be in a position to make this decision. Thank you to
+everyone for your support!</p>
+</div>
+]]></content:encoded>
+    </item>
     <item>
       <title>Beyond Dumbphones: Building a Minimalist Yet Functional Phone</title>
       <link>https://nullderef.com/blog/phone-intro/</link>

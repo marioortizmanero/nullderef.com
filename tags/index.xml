@@ -12,8 +12,36 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>See this site&#39;s source code [on GitHub](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·</copyright>
-    <lastBuildDate>Sat, 14 Sep 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 14 Oct 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://nullderef.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Entrepreneurship</title>
+      <link>https://nullderef.com/tags/entrepreneurship/</link>
+      <pubDate>Mon, 14 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/entrepreneurship/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Personal</title>
+      <link>https://nullderef.com/tags/personal/</link>
+      <pubDate>Mon, 14 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/personal/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Phone Dependency</title>
+      <link>https://nullderef.com/tags/phone-dependency/</link>
+      <pubDate>Mon, 14 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/phone-dependency/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Tech</title>
+      <link>https://nullderef.com/tags/tech/</link>
+      <pubDate>Mon, 14 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>https://nullderef.com/tags/tech/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Open Source</title>
       <link>https://nullderef.com/tags/open-source/</link>
@@ -33,27 +61,6 @@
       <link>https://nullderef.com/tags/rust/</link>
       <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
       <guid>https://nullderef.com/tags/rust/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Tech</title>
-      <link>https://nullderef.com/tags/tech/</link>
-      <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/tech/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Entrepreneurship</title>
-      <link>https://nullderef.com/tags/entrepreneurship/</link>
-      <pubDate>Sat, 01 Jun 2024 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/entrepreneurship/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Phone Dependency</title>
-      <link>https://nullderef.com/tags/phone-dependency/</link>
-      <pubDate>Sat, 01 Jun 2024 00:00:00 +0000</pubDate>
-      <guid>https://nullderef.com/tags/phone-dependency/</guid>
       <description></description>
     </item>
     <item>
