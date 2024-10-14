@@ -12,17 +12,14 @@ GHissueID: TODO
 draft: true
 ---
 
-:linkedin:
-:x: TODO
-:mastodon: TODO
 :email: mailto:marioortizmanero@gmail.com
 
 I never expected that quitting my first job would be so hard! My time at Lyft
 has been awesome. Tons of smart people at three very different teams, where I've
-learned how the industry works. The technical challenges were fun and endless.
-Most recently, I was dealing with a complex C++/Go/Python stack for
-https://www.lyft.com/blog/posts/lyfts-secret-plan-to-take-control-of-its-maps-and-its-future[the
-routing of our drivers].
+learned how the industry works. The technical challenges were fun and endless:
+from user-facing features in the app to improving the safety of
+https://www.lyft.com/blog/posts/lyfts-secret-plan-to-take-control-of-its-maps-and-its-future[our
+routing stack].
 
 image::/blog/draft-quit-job/map.png[]
 
