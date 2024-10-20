@@ -1,7 +1,7 @@
 <div class="project-entry">
   <div class="project-header">
     <h3>{{ .name | markdownify }}</h3>
-    {{ with .position }}<p>({{ . | markdownify }})</p>{{ end }}
+    {{ with .position }}<p>{{ . | markdownify }}</p>{{ end }}
   </div>
 
   <img class="project-logo" loading="lazy" src="{{ .logo }}" alt="{{ .name }}">
