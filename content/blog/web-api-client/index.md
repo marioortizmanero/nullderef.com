@@ -13,9 +13,10 @@ GHissueID: 2
 
 This article in [the Rspotify series](https://nullderef.com/series/rspotify) describes my journey of basically rewriting the entirety of [this Rust library](https://github.com/ramsayleung/rspotify); around 13 months of work (in my free time), starting at September 2020, up until October 2021. I think this has given me enough experience for an article regarding API design on Rust, and perhaps those who attempt the same in the future can take some ideas and save time. Specially considering how much I've gone in circles and how much time I've "wasted" implementing things that ended up being discarded.
 
+<a name="_the_story"></a>
 ## The story
 
-If you don't care about RSpotify's specific story, you can jump to the "[Making the API HTTP-client agnostic](#making-the-api-http-client-agnostic)" section, but I think knowing a bit the motives for this rewrite is interesting for other open source maintainers in the same situation as me. This all started when I wanted to use a Rust Spotify API wrapper for one of my projects at that time, [Vidify](https://vidify.org/). I went to [crates.io](https://crates.io/) and looked for "Spotify", and all I found was {{< crate rspotify >}} (the most popular one), {{< crate aspotify >}} (an asynchronous-only alternative), and a bunch of other outdated or incomplete libraries.
+If you don't care about RSpotify's specific story, you can jump to the "[Making the API HTTP-client agnostic](#actual_start)" section, but I think knowing a bit the motives for this rewrite is interesting for other open source maintainers in the same situation as me. This all started when I wanted to use a Rust Spotify API wrapper for one of my projects at that time, [Vidify](https://vidify.org/). I went to [crates.io](https://crates.io/) and looked for "Spotify", and all I found was {{< crate rspotify >}} (the most popular one), {{< crate aspotify >}} (an asynchronous-only alternative), and a bunch of other outdated or incomplete libraries.
 
 The author of `aspotify` had made a brand-new library from scratch, because as he commented in [its release](https://www.reddit.com/r/rust/comments/ehz66s/aspotify_an_asynchronous_rust_spotify_web_api/), "[rspotify's] API in general I found hard to use and confusing". Honestly, depending on the state of the original library this is the easiest choice because you don't have to worry about backwards compatibility or old code.
 
@@ -35,6 +36,7 @@ Also, note that I am in no way associated with Spotify (though open to offers :P
 
 Now that most of the stuff I talk about in this article is finished, you can read about the changes in detail [in the CHANGELOG](https://github.com/ramsayleung/rspotify/blob/master/CHANGELOG.md). The following sections will talk about what I learned about API Design, and some tips for those writing one in Rust.
 
+<a name="actual_start"></a>
 ## Making the API HTTP-client agnostic
 
 RSpotify is now HTTP-client agnostic, which means that it can work with whichever HTTP library the user configures without adding much overhead. For now, we support {{< crate ureq >}} and {{< crate reqwest >}}[^gh-clients]. The non-trivial part about this is that the HTTP client can be either blocking (`ureq`) or asynchronous (`reqwest`).
@@ -119,6 +121,7 @@ Beware that this introduces a good amount of additional complexity which is prob
 
 We implement all of this in the crate [`rspotify-http`](https://github.com/ramsayleung/rspotify/tree/master/rspotify-http), which I plan on [moving into a separate crate](https://github.com/ramsayleung/rspotify/issues/234) for the whole community to use once it's working as I want it to. I think this is a pretty neat feature for an API client that will hopefully become easier to implement in the future (and first of all work properly).
 
+<a name="_finding_a_more_robust_architecture"></a>
 ## Finding a more robust architecture
 
 Another key refactor I worked on for RSpotify was its architecture. The Spotify API in particular has [multiple authorization methods](https://developer.spotify.com/documentation/general/guides/authorization-guide/) that give you access to a different set of endpoints. For example, if you're using _client credentials_ (the most basic one), then you can't access an endpoint to modify the user's data; you need [OAuth information](https://en.wikipedia.org/wiki/OAuth). This used to work with the [_builder pattern_](https://doc.rust-lang.org/1.0.0/style/ownership/builders.html), following this structure (though not exactly the same):
@@ -302,8 +305,10 @@ So yeah, there are no _perfect_ solutions, but these are two of the best ones I 
 
 ![diagram](/blog/web-api-client/trait_hierarchy.png)
 
+<a name="_configuration"></a>
 ## Configuration
 
+<a name="_runtime_over_compile_time"></a>
 ### Runtime over compile-time
 
 There are a few parts of the Spotify client that can be customized by the user. Previously, these were just fields of the main client, but since we now have multiple clients, it might be worth moving into a separate struct to avoid duplication.
@@ -327,6 +332,7 @@ Even though it's basic, I keep forgetting about this: don't get obsessed with pe
 
 One correct usage would be our new `cli` feature. We have some utilities for command-line programs, such as prompting for the user's credentials. However, not everyone needs these, such as servers, and it introduced the {{< crate webbrowser >}} dependency and a few unnecessary functions. So we decided to move this into a separate feature for those interested, which is disabled by default.
 
+<a name="_sane_defaults"></a>
 ### Sane defaults
 
 On the topic of configuration, it's important to have sane defaults as well. This is highly subjective, but I prefer to do as little as possible under the hood _without the user knowing about it_. When initializing a client we used to automatically try to read from the environment variables. If that didn't work then we tried to use the default values or we just panicked in the builder:
@@ -349,16 +355,20 @@ let creds = SpotifyClientCredentials::from_env() // this reads the env variables
     .unwrap();
 ```
 
+<a name="_flexibility"></a>
 ## Flexibility
 
+<a name="_taking_borrowedgeneric_parameters"></a>
 ### Taking borrowed/generic parameters
 
 Friendly reminder: generally, it's better to take a `&str` than a `String` in a function[^str-param][^gh-iterators]. The same thing applies to the owned type `Vec<T>`; it's probably a better idea to take a `&[T]` instead, or the even more fancy `impl IntoIterator<Item = T>`. The last option makes it possible to pass iterators to the function without requiring a `collect`, which not only is more user-friendly, but also avoids a memory allocation. Its only downside is that the function signatures become a bit uglier, and all the consequences of using generics. Either of these options are fine, really, so it's up to you.
 
+<a name="_optional_parameters"></a>
 ### Optional parameters
 
 Similarly, if the functions in your library frequently include optional parameters (i.e., of type `Option<T>`), you might want to consider other ways to handle them. In our case, we were using generics with `Into<Option<T>>` in order to not have to wrap the parameters in `Some` when passing them to the function, but it wasn't consistent. We finally agreed that using plain `Option<T>` was good enough because it simplifies the function definition in the docs and it's less magic[^gh-optional-params]. But the important part is that we made it _consistent_; the decision itself between `Into<Option<T>>` or `Option<T>` wasn't that important. After doing research about this topic, I wrote up an article with more details [here](https://nullderef.com/blog/rust-parameters/), in case you want to learn more.
 
+<a name="_splitting_up_into_multiple_crates"></a>
 ### Splitting up into multiple crates
 
 Another cool idea that promotes flexibility is separating the wrapper into multiple crates. In RSpotify, we now have a total of four of them (credits to Ramsay for the diagram):
@@ -372,8 +382,10 @@ Another cool idea that promotes flexibility is separating the wrapper into multi
 
 The most important one here is splitting up the wrapper into the model and the clients. The model is generic enough that it can be used by any client, even outside RSpotify. Some users have to implement their own custom clients for different reasons, and pulling our model helps to avoid lots of complexity and maintainance work[^model-separation]. It can also be shared with other public crates, such as `aspotify`, and join forces in keeping the model up to date[^gh-aspotify-share].
 
+<a name="_documentation"></a>
 ## Documentation
 
+<a name="_introducing_how_to_use_the_crate"></a>
 ### Introducing how to use the crate
 
 This might be obvious to some, but it isn't enough to document every single public item in your library. You also have to introduce the user how to work with it in the top-level documentation. Some ideas:
@@ -384,6 +396,7 @@ This might be obvious to some, but it isn't enough to document every single publ
 * Explain the Cargo features in your crate and how to use them.
 * Make sure you have a few examples working. It's the easiest way to get started, in my opinion.
 
+<a name="_helping_users_upgrade"></a>
 ### Helping users upgrade
 
 Since this change was going to break so much code, I wanted to make sure that the upgrade is as less painful as possible. This can be achieved in many ways:
@@ -393,6 +406,7 @@ Since this change was going to break so much code, I wanted to make sure that th
 * It might be a good idea to [create an issue in your repository](https://github.com/ramsayleung/rspotify/issues/218) where you provide help directly to those who try to upgrade and
   have problems with it.
 
+<a name="_macros"></a>
 ## Macros
 
 Macros in Rust are pretty cool! But you don't want to overdo them either. In `rspotify` we frequently had to build hashmaps or JSON objects; at least once per endpoint. Some of the parameters in the endpoints were mandatory, and others optional (passed as an `Option`):
@@ -452,10 +466,12 @@ HashMap::from([
 ]);
 ```
 
+<a name="_other_goodies"></a>
 ## Other goodies
 
 Some new features we added to RSpotify that might be of interest specifically for other web API wrappers:
 
+<a name="_cached_and_self_refreshing_tokens"></a>
 ### Cached and self-refreshing tokens
 
 Cached tokens are automatically saved into a file, encoded for example in JSON, and then attempted to be loaded again when restarting the application.
@@ -466,6 +482,7 @@ Before making a request, self-refreshing tokens check if they are expired, and i
     {{< gh issue "ramsayleung/rspotify" 223 "Implement cache token and refresh token" >}}
 </div>
 
+<a name="_type_safe_wrappers_for_id_types"></a>
 ### Type-safe wrappers for ID types
 
 In the Spotify API, items such as artists or tracks are identified by a unique ID string. The URI is the ID, but prefixed by its type, for example `spotify:track:4cOdK2wGLETKBW3PvgPWqT`.
@@ -480,6 +497,7 @@ Instead, we now have an `Id` trait and structs that implement it, like `ArtistId
     {{< gh pr "ramsayleung/rspotify" 244 "Fix IDs v4" >}}
 </div>
 
+<a name="_automatic_pagination"></a>
 ### Automatic pagination
 
 Many API servers have paginated replies for large lists. Instead of sending a huge object, it splits it up into multiple packets, and sends them one by one along with an index to the position in the list. Then, the user can stop requesting them at any time and potentially only end up using a portion of that originally huge object.
@@ -490,6 +508,7 @@ In Rust, this can be abstracted away very naturally with [iterators](https://doc
     {{< gh issue "ramsayleung/rspotify" 124 "Add unlimited endpoints" >}}
 </div>
 
+<a name="_simplify_wrapper_model_objects"></a>
 ### Simplify wrapper model objects
 
 Due to how JSON works, sometimes an object will always have a single field:
@@ -530,12 +549,14 @@ fn endpoint() -> Result<Vec<Artists>> {
     {{< gh issue "ramsayleung/rspotify" 149 "The way to reduce wrapper object" >}}
 </div>
 
+<a name="_measuring_the_changes"></a>
 ## Measuring the changes
 
 Since this release changed so much stuff and took so long, I wanted to get a detailed comparison between v0.10 and v0.11 for different aspects of the library -- not just performance.
 
 The full source for these benchmarks is available at the [marioortizmanero/rspotify-bench](https://github.com/marioortizmanero/rspotify-bench) repository. Note that I had to apply a small patch to the v0.10 version because by now it didn't work correctly.
 
+<a name="_statistics"></a>
 ### Statistics
 
 Some parts of RSpotify can be analyzed statically, such as the lines of code
@@ -551,6 +572,7 @@ The Lines of Code in the old version were quite bloated because of the `blocking
 
 The number of dependencies has decreased both by default and with all the features enabled. [We cleaned up a lot of them](https://github.com/ramsayleung/rspotify/issues/108) and tried to keep the defaults leaner. Since the new version adds more features such as PKCE, we even had to add new dependencies like {{< crate sha2 >}}, but it's still a clear win.
 
+<a name="_execution_time"></a>
 ### Execution time
 
 The execution benchmarks use [Criterion](https://github.com/bheisler/criterion.rs), with a total of 100 iterations on my Dell Vostro 5481 laptop, or more specifically, Intel i5-8265U (8) @ 3.900GHz. The full reports are available in the `report` directory of each benchmark.
@@ -576,6 +598,7 @@ In terms of execution time, I didn't expect it to be any better. Even though the
 
 The cleanup and all these dependencies we removed mean that the resulting binary is also smaller, and by a lot: there's a 23% decrease in its size.
 
+<a name="_special_thanks"></a>
 ## Special thanks
 
 This release has been possible thanks to [@ramsayleung](https://github.com/ramsayleung), [@kstep](https://github.com/kstep), [@hellbound22](https://github.com/hellbound22), [@Qluxzz](https://github.com/Qluxzz), [@icewind1991](https://github.com/icewind1991), [@aramperes](https://github.com/aramperes), [@Sydpy](https://github.com/Sydpy), [@arlyon](https://github.com/arlyon), [@flip1995](https://github.com/flip1995), and [@Rigellute](https://github.com/Rigellute).
