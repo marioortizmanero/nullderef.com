@@ -84,6 +84,9 @@ params:
       url: "https://nullderef.com/index.xml"
 
 markup:
+  goldmark:
+    renderer:
+      unsafe: true
   highlight:
     # Required to enable syntax highlighting
     noClasses: false

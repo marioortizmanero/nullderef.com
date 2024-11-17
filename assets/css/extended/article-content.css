@@ -1,0 +1,13 @@
+/* Better formatting for footnotes, taken from
+ * https://geekthis.net/post/hugo-footnotes-and-citations */
+.post-content a.footnote-ref::before {
+  content: '[';
+}
+.post-content a.footnote-ref::after {
+  content: ']';
+}
+
+/* Centering images by default */
+.post-content img {
+  margin: 0 auto;
+}
