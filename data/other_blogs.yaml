@@ -5,7 +5,8 @@ list:
       an important reminder to keep discovering yourself in life.
   - name: Michael Lynch
     url: https://mtlynch.io/
-    description: a big-tech engineer turned to running cool small businesses.
+    description: >
+      a big-tech engineer turned to running cool small businesses.
   - name: Matt Lakeman
     url: https://mattlakeman.org/
     description: >
@@ -18,3 +19,7 @@ list:
     url: https://gwern.net/
     description: >
       homemade experimentation and impeccable writing combined.
+  - name: Nicolas Bouliane
+    url: https://nicolasbouliane.com/
+    description: >
+      the legend behind allaboutberlin.com, who shares his precious life learnings.

@@ -18,10 +18,6 @@ jobs:
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
-        with:
-          # Temporarily pinned:
-          #   https://github.com/adityatelange/hugo-PaperMod/issues/1573
-          hugo-version: '0.135.0'
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
