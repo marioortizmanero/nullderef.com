@@ -1,143 +1,342 @@
 ---
-title: "Why you shouldn't obsess about Rust \"features\""
-description: "Friendly reminder: you might not need conditional compilation"
+title: "Blindsided by Rust's Subtyping and Variance"
+description: "One of the toughest bugs I've come across... Thanks to my good friends Subtyping and Variance."
 author: "Mario Ortiz Manero"
-images: ["/blog/rust-features/compiler-explorer.png"]
-tags: ["tech", "programming", "rust", "beginners"]
-keywords: ["tech", "programming", "rust", "rustlang", "guide", "beginners", "cargo", "conditional compilation", "cargo features"]
-series: ["rspotify"]
-date: 2021-07-06
-GHissueID: 6
+images: ["/blog/rust-variance/preview.jpg"]
+tags: ["tech", "programming", "rust", "open source"]
+keywords: ["tech", "programming", "rust", "rustlang", "variance", "subtyping", "invariant", "covariant", "abi_stable", "ffi"]
+series: ["rust-plugins"]
+date: 2024-09-14
+GHissueID: 14
 ---
 
-Rust makes it very easy to express conditional compilation, especially thanks to [Cargo features](https://doc.rust-lang.org/cargo/reference/features.html). They're well integrated into the language and are very easy to use. But one thing I've learned by maintaining [RSpotify](https://github.com/ramsayleung/rspotify) (a library for the Spotify API) is that one shouldn't obsess over them. Conditional compilation should be used when it's _the only way_ to solve the problem, for several reasons I'll explain in this article.
+Subtyping and variance is a concept that works in the background, making your life easier without you knowing about it. That is, until it starts making your life harder instead. It's a good idea to know about it, in case you end up being a fool like me. So let's take a look at what went wrong, and how it was resolved.
 
-This might be obvious, but to me, it wasn't so clear back when I started using Rust. Even if you're already aware, it might be a good reminder — maybe you forgot about it in your latest project, and you added an unnecessary feature.
+## The problem
 
-Conditional compilation isn't anything new; C and C++ have been doing it for a long time. So this principle can also be applied in these cases. However, in my experience, it's much easier to work with conditional compilation in Rust, meaning that it's more likely to be misused.
+As part of my [Plugin System in Rust](https://nullderef.com/series/rust-plugins/) series, I was making one of [Tremor](https://www.tremor.rs/)'s types FFI-compatible. Put simply, instead of using types from the standard library like `String`, we wanted custom types defined [with `#[repr(C)]`](https://doc.rust-lang.org/nomicon/other-reprs.html#reprc). The crate [`abi_stable`](https://crates.io/crates/abi_stable) exists for this exact purpose, with an equivalent for the most important types. Theoretically, the task should be as easy as changing the `std` types in our core `enum` with theirs:
 
-## The Problem
-
-I went through this dilemma when deciding how to configure cached tokens in [RSpotify](https://github.com/ramsayleung/rspotify). Said library gives you the possibility of persistently managing the authentication token via a JSON file. That way, when the program is launched again, the token from the previous session can be reused. One doesn't have to follow the full auth process again — that is, until the token expires.
-
-Originally, this was going to be a compile-time feature named `cached_token`. I didn't give it much thought; why would one need the code to save and read the token file if you just don't need it? The easiest way to do that is using a feature you can just toggle in your `Cargo.toml`.
-
-I later worked on another very similar feature, `refreshing_token`. When optionally enabled, the client would automatically refresh expired tokens. As this pattern appeared more and more in the library, I wanted to make sure its design was optimal. Once I took a deeper look, I began to find the many inconveniences of Cargo features:
-
-- They're **inflexible**: you can't have a client with cached tokens and another without them in the same program. It's a library-wide thing, so you either enable them or you don't. Obviously, they're not configurable at runtime either; a user might want to choose what kind of behavior to follow _while_ the program is running.
-- They're **ugly**: writing `#[cfg(feature = "cached_token")]` is much more verbose and awkward than a plain `if cached_token`.
-- They're **messy**: features are hard to manage in the codebase. You can find yourself in the Rust equivalent of an [`#ifdef` hell](https://www.cqse.eu/en/news/blog/living-in-the-ifdef-hell/) very easily.
-- They're **hard to document and test**: Rust doesn't provide a way to expose the features of a library. All you can do is list them manually in the main page of the docs. Testing is also harder because you have to figure out what combinations of features to use to cover the entire codebase and apply them whenever you want to run the tests.
-
-All of these are supposedly outweighed by just being guaranteed that the binary won't have code you don't need. But how true is that, really? And how important is it?
-
-## An Alternative
-
-One of the simplest optimizations a compiler can implement is the propagation of constants. This, in combination with the removal of dead code, can result in the same effect as features, but in a more natural way. Instead of adding features to configure the behavior of your program, you can do the same with a `Config` struct. You may not even need a struct if it's just a single option to be configured, but that way it's future-proof. For example:
-
+### Before (simplified)
 ```rust
-#[derive(Default)]
-struct Config {
-    cached_token: bool,
-    refreshing_token: bool,
+pub enum Value {
+    String(String),
+    Object(Box<HashMap<String, Value>>),
+    Bytes(Vec<u8>),
 }
 ```
 
-You can then modify your client to optionally take the `Config` struct:
+### After (simplified)
+```rust
+use abi_stable::std_types::{RString, RVec, RBox, RHashMap};
+
+#[repr(C)]
+pub enum Value {
+    String(RString),
+    Object(RBox<RHashMap<RString, Value>>),
+    Bytes(RVec<u8>),
+}
+```
+
+The `Value` type is used a lot in the codebase, so this breaking change brought up lots of compilation errors. But for whatever reason, 70 of these errors were related to lifetimes, which I hadn't changed at all...
+
+## Debugging
+
+Instead of a `String` or `Vec`, we actually used [`Cow<'a>`](https://doc.rust-lang.org/stable/alloc/borrow/enum.Cow.html) for performance reasons. `Cow<'a>` is a type that can hold either a borrowed or an owned value at runtime. The idea is to use the borrowed one as much as possible, and only if ownership or mutation is needed, the underlying value is cloned ([a better explanation can be found here](https://www.reddit.com/r/rust/comments/v1z6bx/what_is_a_cow/iape1qq/)).
+
+[Heinz](https://mastodon.social/@heinz), my mentor at Tremor, managed to reproduce the issue to `Cow` and its equivalent, `RCow`. [A Playground snippet can be found here](https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=660f8633738fd0a8817cc8ee9bbddfa8).
 
 ```rust
-struct Client {
-    config: Config
+use abi_stable::std_types::RCow;
+use std::borrow::Cow;
+
+// This works
+fn cmp_cow<'a, 'b>(left: &Cow<'a, ()>, right: &Cow<'b, ()>) -> bool {
+    left == right
 }
 
-impl Client {
-    /// Uses the default configuration for the initialization
-    fn new() -> Client {
-        Client {
-            config: Config::default(),
-        }
-    }
+// This fails to compile
+fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
+    left == right
+}
+```
 
-    /// Uses a custom configuration for the initialization
-    fn with_config(config: Config) -> Client {
-        Client {
-            config,
-        }
-    }
+It failed to compile with the following error, which didn't help much. In Rust 1.62.0, they actually improved it to explain what's going on (shown at the end of the article):
 
-    fn do_request(&self) {
-        if self.config.cached_token {
-            println!("Saving cache token to the file!");
-        }
-        // The previous block used to be equivalent to:
-        //
-        // #[cfg(feature = "cached_token")]
-        // {
-        //     println!("Saving cache token to the file!");
-        // }
+```text
+$ cargo b
+   Compiling repro v0.1.0 (/home/mario/Downloads/repro)
+error[E0623]: lifetime mismatch
+  --> src/lib.rs:10:10
+   |
+9  | fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
+   |                            ------------          ------------
+   |                            |
+   |                            these two types are declared with different lifetimes...
+10 |     left == right
+   |          ^^ ...but data from `left` flows into `right` here
 
-        if self.config.refreshing_token {
-            println!("Refreshing token!");
-        }
+For more information about this error, try `rustc --explain E0623`.
+error: could not compile `repro` due to previous error
+```
 
-        println!("Performing request!");
+What? Why do lifetimes matter here if it's just a comparison?
+
+This hinted that the issue was in the underlying library, not my code. `RCow` is supposed to be a drop-in replacement for `Cow`. It also had something to do with `PartialOrd`, which is the trait used for `==` here. But I couldn't see a difference in its implementations:
+
+### Cow
+```rust
+impl<'a, B: ?Sized> PartialOrd for Cow<'a, B>
+where
+    B: PartialOrd + ToOwned,
+{
+    #[inline]
+    fn partial_cmp(&self, other: &Cow<'a, B>) -> Option<Ordering> {
+        PartialOrd::partial_cmp(&**self, &**other)
     }
 }
 ```
 
-Finally, the user can customize the client however they want in the code itself in a very natural way:
-
+### RCow
 ```rust
-fn main() {
-    // Option A
-    let client = Client::new();
-
-    // Option B
-    let config = Config {
-        cached_token: true,
-        ..Default::default()
-    };
-    let client = Client::with_config(config);
+impl<'a, B> PartialOrd<RCow<'a, B>> for RCow<'a, B>
+where
+    B: PartialOrd + BorrowOwned<'a> + ?Sized,
+{
+    #[inline]
+    fn partial_cmp(&self, other: &RCow<'a, B>) -> Option<Ordering> {
+        PartialOrd::partial_cmp(&**self, &**other)
+    }
 }
 ```
 
-### Proving that you end up with the same code
+There are more libraries providing drop-in replacements for `Cow`. And for example, [`beef`](https://crates.io/crates/beef) managed to get it right, somehow. I wasn't able to reproduce the issue with their version... but why?
 
-Thanks to the awesome [Compiler Explorer](https://godbolt.org), we can make sure this compiles as expected with [this snippet](https://godbolt.org/z/Kr9GP6Gqz):
+### Beef's Cow
+```rust
+impl<A, B, U, V> PartialOrd<Cow<'_, B, V>> for Cow<'_, A, U>
+where
+    A: Beef + ?Sized + PartialOrd<B>,
+    B: Beef + ?Sized,
+    U: Capacity,
+    V: Capacity,
+{
+    #[inline]
+    fn partial_cmp(&self, other: &Cow<'_, B, V>) -> Option<Ordering> {
+        PartialOrd::partial_cmp(self.borrow(), other.borrow())
+    }
+}
+```
 
-![Assembly comparison](/blog/rust-features/compiler-explorer.png)
+## Some progress... or not?
 
-It seems that as of Rust 1.53, for values of `opt-level` greater or equal than 2, the code for the deactivated features doesn't even appear in the assembly (it's easy to see by taking a look at the strings at the end). `cargo build --release` configures `opt-level` to 3 [[1]](https://doc.rust-lang.org/cargo/reference/profiles.html#release), so it shouldn't be a problem for production binaries.
+Other traits like `PartialEq` also caused similar lifetime errors. I was able to fix some by introducing a new lifetime `'b` into the trait implementation. This indicated to the Rust compiler that comparing objects with different lifetimes is okay:
 
-And we aren't even using `const`! I wonder what will happen in that case. With [this slightly modified snippet](https://godbolt.org/z/f1xTaWzdc):
+```diff
+-impl<'a, B> PartialEq<RCow<'a, B>> for RCow<'a, B>
++impl<'a, 'b, B, C> PartialEq<RCow<'b, C>> for RCow<'a, B>
+ where
+     B: PartialEq + BorrowOwned<'a> + ?Sized,
++    C: BorrowOwned<'b> + ?Sized,
+ {
+-    fn eq(&self, other: &RCow<'a, B>) -> bool {
++    fn eq(&self, other: &RCow<'b, C>) -> bool {
+         PartialEq::eq(&**self, &**other)
+     }
+ }
+```
 
-![Assembly comparison with const](/blog/rust-features/compiler-explorer-const.png)
+I suddenly got a bit of hope. But this could never work for `Ord`, which also failed. The `Ord` trait uses `Self` instead of another generic type, so I can't just introduce a new lifetime:
 
-Hmm. We actually get the same results. The generated assembly is exactly the same, and the optional code is optimized away only starting at `opt-level=2`.
+### Cow
+```rust
+impl<B: ?Sized> Ord for Cow<'_, B>
+where
+    B: Ord + ToOwned,
+{
+    #[inline]
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(&**self, &**other)
+    }
+}
+```
 
-The thing is that `const` just means that its value _may_ (and not must) be inlined [[2]](https://doc.rust-lang.org/std/keyword.const.html) [[3]](https://doc.rust-lang.org/reference/const_eval.html). Nothing else. So we still don't have anything guaranteed, and inlining isn't enough to simplify the code _inside the function_.
+### RCow
+```rust
+impl<'a, B: ?Sized> Ord for RCow<'a, B>
+where
+    B: Ord + BorrowOwned<'a>,
+{
+    #[inline]
+    fn cmp(&self, other: &Self) -> Ordering {
+        Ord::cmp(&**self, &**other)
+    }
+}
+```
 
-### You can probably afford the overhead anyway
+## Discovering the root cause
 
-Even if the previous optimization wasn't implemented, would the optional code cause any harm in the final binary, really? Are we overengineering the solution, as always? Truth is, the optional code for cached/refreshing tokens isn't even that much bloat.
+Some wonderful people on the Rust Discord server helped me understand what was going on. So I started learning more about the so-called "Subtyping and Variance."
 
-It depends, of course, but binary bloat isn't that much of a problem for higher-level binaries, in my opinion. Rust already statically embeds its standard library, its runtime, and a ton of debug info in each binary, which sums up to around 3 MB. And the only overhead you may get at runtime is a branch.
+![Discord discussion](image::discord.png)
+
+This topic isn't covered in [The Rust Book](https://doc.rust-lang.org/book/). We'll only find it in its more obscure, unsafer brother, The Rustonomicon. This book explains it incredibly well, so I won't repeat it here. Here are some resources:
+
+- ["Subtyping and Variance" -- The Rustonomicon](https://doc.rust-lang.org/nomicon/subtyping.html) (_an explanation_)
+- ["Subtyping and Variance" -- The Rust Reference](https://doc.rust-lang.org/reference/subtyping.html) (_a cheatsheet_)
+- ["Covariance and contravariance" -- Wikipedia](https://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)) (_the general term_)
+
+A couple blog posts take a more practical approach, like ["Rust Lifetime Subtype Variance" -- Prolific K](https://medium.com/@orbitalK/rust-lifetime-subtype-variance-b58434fe36ed) or ["Diving Deep: implied bounds and variance" -- lcnr.de](https://lcnr.de/blog/diving-deep-implied-bounds-and-variance/). Or if you're a visual learner, [this video from Jon Gjengset](https://www.youtube.com/watch?v=iVYWDIW71jk) might be best for you.
+
+## Trying to fix it
+
+The difference between `RCow` and `Cow` was the `BorrowOwned<'a>` trait. For technical reasons, it was being used as a [subtrait](https://doc.rust-lang.org/rust-by-example/trait/supertraits.html) of `ToOwned`, and it had to bind to a lifetime `'a`. Ultimately, this made `RCow` _invariant_ over `'a`, while `Cow` was _covariant_. We want `RCow` to be _covariant_ for this to work.
+
+```diff
+ impl<B: ?Sized> Ord for Cow<'a, B>
+ where
+-    B: Ord + ToOwned,  // in Cow
++    B: Ord + BorrowOwned<'a>,  // in RCow
+ {
+     #[inline]
+     fn cmp(&self, other: &Self) -> Ordering {
+         Ord::cmp(&**self, &**other)
+     }
+ }
+```
+
+### Attempt #1: GATs
+
+I had an idea of using [Generic Associated Types (GATs)](https://blog.rust-lang.org/2022/10/28/gats-stabilization.html). Instead of binding the lifetime to the trait, I could do so to its associated type. Then, I'd be able to use `BorrowOwned` instead of `BorrowOwned<'a>`:
+
+```rust
+impl<T> BorrowOwned for T {
+    type RBorrowed<'a> where T: 'a = &'a T;
+}
+```
+
+But [a section in the Rust Developer Book](https://rustc-dev-guide.rust-lang.org/variance.html#variance-and-associated-types) states that "traits with associated types must be invariant with respect to all of their inputs." So that still didn't help make our type covariant.
+
+Note I only found that statement in the book for developers of the compiler! I [opened an issue](https://github.com/rust-lang/nomicon/issues/338) about that in The Rustonomicon, and moved on to something else.
+
+### Attempt #2: `transmute`
+
+After many wasted hours, I was tempted to use `transmute` and call it a day. Here's what Heinz suggested (*trigger warning*):
+
+```rust
+fn compare<'a, 'b>(left: &RCow<'a, str>, right: &RCow<'b, str>) -> Ordering {
+    unsafe {
+        let right: &RCow<'a, str> = std::mem::transmute(right);
+        left.cmp(right)
+    }
+}
+```
+
+It worked! In theory, it's safe because both `'a` and `'b` will live for at least as long as the function does, and we're returning an owned type.
+
+Ideally, we'd abstract it away by writing a wrapper around `RCow` with the fix. But that wouldn't help because invariant relationships are inherited, and the wrapper's implementation of `Ord` would still use `BorrowOwned<'a>`.
+
+```rust
+struct SCow<'a>(RCow<'a, ()>);  // will still be invariant!
+```
+
+One workaround would be to hide `RCow` under a `*const ()`. Then, I can pointer-cast back and forth from it. But in this project, I already had too many things backfire. Traumatized, I continued looking for a solution.
+
+### Attempt #3: getting rid of `BorrowOwned<'a>`
+
+The best way to not have problems with this trait is to get rid of it. The standard library has `ToOwned`, which links a borrowed type with its owned counterpart. For example, `&str` and `String`. If `Cow<B>` requires `B: ToOwned`, then the `Cow::Borrowed` variant can just hold `&B` and `Cow::Owned` can hold `B::Owned`.
+
+`BorrowOwned<'a>` roughly did the same thing for types defined in `abi_stable`, such as `RStr` and `RString`:
+
+```rust
+// standard library
+let x: &str = "abc";
+let x_owned: String = x.to_owned();
+
+// abi_stable
+let x_ffi_safe: RStr<'_> = rstr!("abc");
+let x_owned: String = x.to_owned();
+let x_ffi_safe_owned: RString = x.r_to_owned();
+```
+
+Note that we need a lifetime in `BorrowOwned` because the equivalent of `&'a str` is `RStr<'a>`. Which is not exactly the same. This is because `str` is a [Dynamically Sized Type (DST)](https://doc.rust-lang.org/nomicon/exotic-sizes.html#dynamically-sized-types-dsts), but custom DSTs aren't supported by Rust.
+
+```rust
+impl ToOwned for str {  // okay
+    type Owned = String;
+    // `&self` is `&str`
+    fn to_owned(&self) -> String { ... }
+}
+
+impl ToOwned for RStr {
+    type Owned = RString;
+    // `&self` is `&RStr<'a>`, but we want `RStr<'a>`
+    // So we can't quite use `ToOwned` here
+    fn to_owned(&self) -> RString { ... }
+}
+```
+
+### A New Approach: Introducing a Generic Parameter
+
+Instead of establishing this relationship through a trait, we can introduce a new generic parameter `O`. `B` would be the borrowed type, and `O` the owned one. This is similar to what the [`cervine`](https://crates.io/crates/cervine) crate does, which relaxes the constraints of `Cow`:
+
+#### Before
+```rust
+#[repr(C)]
+enum RCow<'a, B>
+where
+    B: BorrowOwned<'a> + ?Sized,
+{
+    Borrowed(<B as BorrowOwned<'a>>::RBorrowed),
+    Owned(<B as BorrowOwned<'a>>::ROwned),
+}
+```
+
+#### After
+```rust
+#[repr(C)]
+enum RCow<B, O> {
+    Borrowed(B),
+    Owned(O),
+}
+
+/// Ffi-safe equivalent of `Cow<'a, T>`, either a `&T` or `T`.
+type RCowVal<'a, T> = RCow<&'a T, T>;
+/// Ffi-safe equivalent of `Cow<'a, str>`, either an `RStr` or `RString`.
+type RCowStr<'a> = RCow<RStr<'a>, RString>;
+/// Ffi-safe equivalent of `Cow<'a, [T]>`, either an `RSlice` or `RVec`.
+type RCowSlice<'a, T> = RCow<RSlice<'a, T>, RVec<T>>;
+```
+
+Without the `BorrowOwned` trait, our struct was now covariant over `'a`, and the errors disappeared. [Rodri](https://github.com/rodrimati1992), the author of `abi_stable`, ended up proposing [a fix](https://github.com/rodrimati1992/abi_stable_crates/commit/0b048ecf07177d1aa664a65d3a78fe5a2aba421e) that was merged. You can find [a simplified version here](https://github.com/rodrimati1992/abi_stable_crates/issues/75#issuecomment-1043874752).
+
+---
 
 ## Conclusion
 
-Sometimes you just _have_ to use conditional compilation; there's no way around it. You might be dealing with platform-specific code or want to reduce the number of dependencies of your crate, in which cases features are super helpful.
+This showcased two gaps in the language:
 
-But that wasn't RSpotify's case; conditional compilation was definitely not the way to go. When you're about to introduce a new feature to your crate, think to yourself, "Do I really need conditional compilation for this?"
+1. There were no indications in the error message about the issue being related to "variance." I had no idea what that was, and it wasn't covered in the book.
+2. It was very hard to debug the variance of a type, given that they are implicit.
 
-Neither `cached_token` nor `refreshing_token` follow the usual reasoning as to why a feature might be added. They don't give access to new functions/modules. They don't help get rid of optional dependencies. And they certainly aren't platform-specific features. They just configure the behavior of the library.
+It’s amazing to hear that starting in Rust 1.62.0, the error messages now guide you to the documentation. While it’s still challenging to understand the whole topic, at least you know where to start!
 
-In order to avoid this, perhaps the naming for features could have been different? Enabling support for cached tokens certainly sounds like a "feature," while OS-specific code doesn't really seem like one. I also find it confusing sometimes, and Google agrees with me. Looking for information related to Rust features might return completely unrelated stuff just because the result has the word "feature" but meaning "an attribute or aspect of the program." Kind of like how you have to google "golang X" instead of "go X" because otherwise it doesn't make sense. But whatever, it's too late for my opinion anyway.
+```text
+error: lifetime may not live long enough
+  --> src/main.rs:55:5
+   |
+54 | fn test2<'a, 'b>(left: &RCow<'a, u8>, right: &RCow<'b, u8>) -> Ordering {
+   |          --  -- lifetime `'b` defined here
+   |          |
+   |          lifetime `'a` defined here
+55 |     left.cmp(right)
+   |     ^^^^^^^^^^^^^^^ argument requires that `'a` must outlive `'b`
+   |
+   = help: consider adding the following bound: `'a: 'b`
+   = note: requirement occurs because of the type `RCow<'_, u8>`, which makes the generic argument `'_` invariant
+   = note: the enum `RCow<'a, B>` is invariant over the parameter `'a`
+   = help: see <https://doc.rust-lang.org/nomicon/subtyping.html> for more information about variance
+```
 
-Anyhow, I hope you learned something new, or that this was at least a good reminder! If you have any suggestions, please leave them in the section below :)
+I was lucky to have such a great team at Tremor, and an OSS maintainer as helpful as Rodri. You can find all the details of the discussion in the original GitHub issue:
 
----
-
-### References
-
-1. [Rust Cargo Profiles: Release](https://doc.rust-lang.org/cargo/reference/profiles.html#release)
-2. [Rust Const Keyword](https://doc.rust-lang.org/std/
+[**lifetimes with R* types break compared to non R* types**](https://github.com/rodrimati1992/abi_stable_crates/issues/75)
