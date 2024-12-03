@@ -45,40 +45,24 @@ TODO: open source
 - https://anonymoushash.vmbrasseur.com/2018/08/24/open-source-is-not-a-business-model-and-your-business-will-fail-if-you-think-that-it-is/
 - Note: Licensing is easy with B2B because piracy is much less popular
 
-== Founding principles
+## Founding principles
 
-=== Ethics
+### Ethics
 
-I'm a big fan of bootstrapped companies instead of relying on VC money. I'm
-afraid, however, that for hardware manufacturing this would only be viable for
-billionaires. Here we'll need to pay for hardware (and a lot of it) before
-receiving a cent from customers.
+I'm a big fan of bootstrapped companies instead of relying on VC money. I'm afraid, however, that for hardware manufacturing this would only be viable for billionaires. Here we'll need to pay for hardware (and a lot of it) before receiving a cent from customers.
 
 Even crowdfunding might not help, because it's
 
-=== Technically-oriented
+### Technically-oriented
 
-=== Privacy
+### Privacy
 
-In my experience, a big chunk of technically-oriented folks care about privacy.
-Of course, we wouldn't be doing anything intentionally evil, but collecting
-anonymous data can still be very helpful. The same way many companies run
-experiments on how to increase app usage with A/B testing and similars, we'd
-need something similar for the opposite. If we release this new feature, do
-people actually unlock their phones less frequently?
+In my experience, a big chunk of technically-oriented folks care about privacy. Of course, we wouldn't be doing anything intentionally evil, but collecting anonymous data can still be very helpful. The same way many companies run experiments on how to increase app usage with A/B testing and similars, we'd need something similar for the opposite. If we release this new feature, do people actually unlock their phones less frequently?
 
 "It doesn't have to be crazy at work"
 
-=== Selling point
+### Selling point
 
-=== Strong community
+### Strong community
 
-It's important to open up some space to create a healthy community to discuss
-these kind of things. It's a new-ish area, so people come in with lots of ideas.
-I could imagine a list of features based on community votes like Spotify
-(preferably, that's actually followed).
-
-[bibliography]
-== References
-
-- [[[TODO, 1]]] TODO
+It's important to open up some space to create a healthy community to discuss these kind of things. It's a new-ish area, so people come in with lots of ideas. I could imagine a list of features based on community votes like Spotify (preferably, that's actually followed).
