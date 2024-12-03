@@ -16,11 +16,6 @@ googleAnalytics: G-MVVGNX70LX
 
 paginate: 50
 
-security:
-  exec:
-    allow:
-      - asciidoctor
-
 languages:
   en:
     languageName: "English"
