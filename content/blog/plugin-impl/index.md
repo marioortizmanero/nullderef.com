@@ -302,7 +302,7 @@ That was my first attempt at making `Value` FFI-compatible, and unfortunately, i
   </div>
 
   <div style="text-align:center;">
-    {{< gh pr "rodrimati1992/abi_stable_crates" 68 "Implement `ROption::as_deref" >}}
+    {{< gh pr "rodrimati1992/abi_stable_crates" 68 "Implement `ROption::as_deref`" >}}
   </div>
 
   <div style="text-align:center;">
@@ -491,7 +491,7 @@ It's admittedly a bit ugly to use `async move { }.into_ffi()` everywhere, specia
 The only problem I found was that the futures didn't implement `StableAbi`, so it wasn't possible to use them with {{< crate abi_stable >}}. It took me a while to understand the crate, but it's nothing a Pull Request can't fix:
 
 <div style="text-align:center;">
-  {{< gh pr "oxalica/async-ffi" 10 "Support for `abi_stable" "paragraph" >}}
+  {{< gh pr "oxalica/async-ffi" 10 "Support for `abi_stable`" "paragraph" >}}
 </div>
 
 One concern here may be performance. I imagine that it's not a huge problem because the crate is actualy quite small and only introduces some pointer juggling. I will confirm this in the next post with some benchmarks, though.

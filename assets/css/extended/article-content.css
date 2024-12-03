@@ -11,3 +11,8 @@
 .post-content img {
   margin: 0 auto;
 }
+
+/* Fixing tables */
+table {
+  display: table;
+}
