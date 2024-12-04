@@ -29,7 +29,7 @@
     If you want to contact me, just <a href="https://calendar.app.google/L45TFdjwgqJZemxo7" target="_blank" rel="noopener noreferrer me">schedule a chat</a> or use any of these links:
     </p>
 
-    <p class="text-center">
+    <p style="text-align: center;">
     {{- $social := where $.Site.Params.socialIcons "personal" "==" true }}
     {{- $social = $social | append (dict "name" "Mail" "url" "mailto:marioortizmanero@gmail.com") }}
     {{- $social = $social | append (dict "name" "PGP keys" "url" "https://nullderef.com/pgp_keys.asc") }}
