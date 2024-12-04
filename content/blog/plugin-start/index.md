@@ -396,6 +396,6 @@ I hope you enjoyed reading this post and that you learned something from it! You
 [^miri-compiler]: [Miri --- Guide to Rustc Development](https://rustc-dev-guide.rust-lang.org/miri.html)
 [^miri-unstable]: [Preparing the build environment --- Github rust-lang/miri](https://github.com/rust-lang/miri/blob/master/CONTRIBUTING.md#preparing-the-build-environment)
 [^wasmer-types]: [`WasmExternType` --- Wasmer v0.17.1](https://docs.rs/wasmer-runtime-core/0.17.1/wasmer_runtime_core/types/trait.WasmExternType.html)
-[^witx]: [Know your `witx` --- GitHub WebAssembly/WASI](https://github.com/WebAssembly/WASI/blob/main/tools/witx-docs.md)
+[^witx]: [Know your `witx` --- GitHub WebAssembly/WASI](https://github.com/WebAssembly/WASI/blob/4ab96a8e051f6c0c921549b5bf7dfa47cccef1ed/docs/witx.md)
 [^witx-example]: [Defining language-neutral interfaces like WASI (revisited) --- GitHub WebAssembly/interface-types](https://github.com/WebAssembly/interface-types/blob/master/proposals/interface-types/Explainer.md#defining-language-neutral-interfaces-like-wasi-revisited)
 [^witx-guide]: [Writing a simple WASM API layer using interface types and Wasmtime --- radu's blog](https://radu-matei.com/blog/wasm-api-witx/)

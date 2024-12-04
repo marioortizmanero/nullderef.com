@@ -12,10 +12,9 @@ import sys
 import time
 
 
-REGEX_BIBLIOGRAPHY_ENTRY_MATCH_NAME = r'^- \[\[\[([a-zA-Z0-9-_]+),\s*(\d+)\]\]\]'
-REGEX_BIBLIOGRAPHY_ENTRY_MATCH_LINK =  r'(https://.*)\['
-REGEX_BIBLIOGRAPHY_ENTRY_REPLACE_NUM = r'^(- \[\[\[[a-zA-Z0-9-_]+,)\s*(\d+)(\]\]\].*)'
-REGEX_BIBLIOGRAPHY_REF = r'<<([a-zA-Z0-9-_]+)>>'
+REGEX_BIBLIOGRAPHY_DECL = r'^\[\^([a-zA-Z0-9-_]+)\]:'
+REGEX_BIBLIOGRAPHY_DECL_LINK = r'\[.*\]\((.*)\)'
+REGEX_BIBLIOGRAPHY_REF = r'\[\^([a-zA-Z0-9-_]+)\]'
 BIBLIOGRAPHY_TAG = "[bibliography]"
 CHECK_LINK_HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:126.0) Gecko/20100101 Firefox/126.0",
@@ -38,7 +37,7 @@ logging.basicConfig(format="[%(levelname)s] %(message)s", level=logging.INFO)
 @dataclass
 class BibliographyEntry:
     name: str
-    content: list[str]
+    content: str
     link: str | None = None
 
 
@@ -58,30 +57,22 @@ def extract_bibliography(content: str) -> list[BibliographyEntry]:
     logger.info("Extracting bibliography entries")
     lines = content.splitlines()
 
-    bibliography_start = None
-    for i, line in enumerate(lines):
-        if line.strip() == BIBLIOGRAPHY_TAG:
-            bibliography_start = i
-            break
-    if bibliography_start is None:
-        raise Exception("Couldn't find start of bibliography")
-
-    # We have a stack of entries. We will collect the contents of the current entry
-    # before the next one starts.
     entries = []
-    for line in lines[bibliography_start:]:
-        entry_search = re.search(REGEX_BIBLIOGRAPHY_ENTRY_MATCH_NAME, line)
+    for line in lines:
+        entry_search = re.search(REGEX_BIBLIOGRAPHY_DECL, line)
+        if not entry_search:
+            continue
+        entry_name = entry_search.group(1)
 
-        if entry_search:
-            entry_name = entry_search.group(1)
-            entry = BibliographyEntry(name=entry_name, content=[line])
-            entries.append(entry)
-        elif len(entries) > 0: # Preceding lines to the first entry are ignored
-            entries[-1].content.append(line)
+        link_search = re.search(REGEX_BIBLIOGRAPHY_DECL_LINK, line)
+        link = link_search.group(1) if link_search else None
 
-        link_search = re.search(REGEX_BIBLIOGRAPHY_ENTRY_MATCH_LINK, line)
-        if len(entries) > 0 and link_search:
-            entries[-1].link = link_search.group(1)
+        entry = BibliographyEntry(
+            name=entry_name,
+            content=line,
+            link=link
+        )
+        entries.append(entry)
 
     logger.info(f"Found {len(entries)} entries")
     return entries
@@ -99,7 +90,7 @@ def check_bibliography_links_exist(bibliography: list[BibliographyEntry]) -> Non
         try:
             r.raise_for_status()
         except Exception as e:
-            logger.error(f"Failure, please check manually: {e}")
+            logger.warning(f"Failure, please check manually: {e}")
 
     logger.info("Checked existence of all bibliography links")
 
@@ -109,28 +100,30 @@ def check_bibliography_links_have_archive(
 ) -> None:
     logger.info("Checking archives of bibliography links")
     for i, entry in enumerate(bibliography):
+        count = f"[{i + 1}/{len(bibliography)}]"
+
         if entry.link is None:
-            logger.warning(f"Link not found for entry: {entry.name}")
+            logger.warning(f"{count} Link not found for entry: {entry.name}")
             continue
 
-        logger.info(f"[{i + 1}/{len(bibliography)}] {entry.link}")
+        logger.info(f"{count} {entry.link}")
         # Archive.org's API doesn't seem to work right now
         #r = requests.get("https://archive.org/wayback/available", params={
         #    "url": entry.link,
         #})
         #if not r.json()["archived_snapshots"]["closest"]["available"]:
-        #    logger.error("No archive found")
+        #    logger.warning("No archive found")
         r = requests.get(f"https://archive.is/newest/{entry.link}", headers=CHECK_LINK_HEADERS)
         try:
             r.raise_for_status()
         except Exception as e:
-            logger.error(f"No archive found: {e}")
+            logger.warning(f"No archive found: {e}")
 
     logger.info("Checked archives of all bibliography links")
 
 
-def sort_bibliography(entries: list[BibliographyEntry], refs: list[str]) -> list[str]:
-    logger.info("Sorting bibliography")
+def check_bibliography(entries: list[BibliographyEntry], refs: list[str]) -> list[str]:
+    logger.info("Checking bibliography")
 
     # No missing keys in either collection.
     # We use two exceptions for better error messages.
@@ -142,20 +135,10 @@ def sort_bibliography(entries: list[BibliographyEntry], refs: list[str]) -> list
     if len(missing_refs) > 0:
         raise Exception(f"References without entries found: {missing_refs}")
 
-    # First sorting the order itself
-    ref_order = {ref: idx for idx, ref in enumerate(refs)}
-    sorted_entries = sorted(entries, key=lambda entry: ref_order[entry.name])
+    check_bibliography_links_have_archive(entries)
+    check_bibliography_links_exist(entries)
 
-    # Then, updating the numbering
-    for i, entry in enumerate(sorted_entries):
-        entry.content[0] = re.sub(
-            REGEX_BIBLIOGRAPHY_ENTRY_REPLACE_NUM,
-            f"\\1 {i + 1}\\3",
-            entry.content[0],
-        )
-
-    logger.info("Sorted bibliography")
-    return sorted_entries
+    logger.info("Checked bibliography")
 
 
 def main(file_path):
@@ -164,13 +147,9 @@ def main(file_path):
 
     references = find_references(content)
     bibliography = extract_bibliography(content)
-    check_bibliography_links_have_archive(bibliography)
-    check_bibliography_links_exist(bibliography)
-    sorted_bibliography = sort_bibliography(bibliography, references)
+    check_bibliography(bibliography, references)
 
-    for entry in sorted_bibliography:
-        for line in entry.content:
-            print(line)
+    logger.info("All checks done! See the logs above for more")
 
 
 if __name__ == "__main__":
