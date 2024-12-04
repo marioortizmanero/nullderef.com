@@ -497,17 +497,17 @@ One concern here may be performance. I imagine that it's not a huge problem beca
 
 Tremor also needs channels for asynchronous communication. For example, a connector may need to indicate the runtime that the connection has been lost at any point of its execution. We can't delay that until the next synchronous call from the runtime because we don't know when that might happen, and we want to keep Tremor low-latency.
 
-We have a few options here:
+We have three options here:
 
 <a name="_use_abi_stables_alternatives"></a>
-#### Use ``abi_stable``'s alternatives
+#### Option 1: Use ``abi_stable``'s alternatives
 
 Turns out `abi_stable` includes an FFI-safe wrapper for {{< crate crossbeam >}}. We could just switch the usage of `Sender<T>` to [`RSender<T>`](https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html) and that's it.
 
 Problem: Tremor actually uses asynchronous channels, such as [`async_std::channel`](https://docs.rs/async-std/latest/async_std/channel/index.html), so it wasn't as easy as changing to `crossbeam`. We want to be able to poll for events without blocking the thread.
 
 <a name="_callbacks"></a>
-#### Callbacks
+#### Option 2: Callbacks
 
 If your use-case is simple enough, callbacks might be sufficient. I [experimented a bit](https://github.com/marioortizmanero/pdk-experiments/tree/master/callbacks) with them and it's a good alternative if you:
 
@@ -586,7 +586,7 @@ impl<T> Sender<T> {
 However, the use-cases for this are very limited. If you don't really need to access anything in the runtime you might as well just have a regular function in the shared crate. And if you need more complex functionality you might be better off with a regular channel.
 
 <a name="opaque"></a>
-#### Opaque types
+#### Option 3: Opaque types
 
 We can resort to opaque types for anything we can't remove or simplify. This is what I did in order to have asynchronous channels available on the plugins.
 

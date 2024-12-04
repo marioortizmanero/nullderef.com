@@ -308,10 +308,10 @@ I've opened an [issue](https://github.com/wasmerio/wasmer/issues/2539) upstream 
 <a name="_more_complex_types"></a>
 ### More complex types
 
-The WebAssembly specification only defines integers and floating point as its supported types[^wasmer-types]. There are a few ways to handle non-trivial types like structs or enums:
+The WebAssembly specification only defines integers and floating point as its supported types[^wasmer-types]. There are three ways to handle non-trivial types like structs or enums:
 
 <a name="_the_interface_types_proposal"></a>
-#### The Interface Types Proposal
+#### Option 1: The Interface Types Proposal
 
 [This proposal for WebAssembly](https://github.com/webassembly/interface-types) defines the binary format for encoding and decoding the newly supported types, and specifies a set of instructions to transform the data between WebAssembly and the outside world. Note that this proposal is not meant to define a fixed representation of e.g., a string in Wasm, it attempts to allow representation-agnostic high-level value types.
 
@@ -353,7 +353,7 @@ The main problem is that this proposal is still at [Phase 1](https://github.com/
 In the end I wasn't able to get Interface Types working, nor I considered them worth my time, as it's still too early.
 
 <a name="_the_hacky_but_working_way"></a>
-#### The hacky-but-working way
+#### Option 2: The hacky-but-working way
 
 Via pointers and a shared [memory](https://docs.wasmer.io/integrations/examples/memory). The user has to first construct and serialize the complex types, and then save them into Wasm's memory, which can be accessed directly by the runtime or the plugin with [pointers](https://docs.wasmer.io/integrations/examples/memory-pointers). This is what [Feather](https://github.com/feather-rs/feather/tree/main/quill) or [Veloren](https://book.veloren.net/contributors/developers/codebase-structure.html#plugins) do, in case you want more details.
 
@@ -362,7 +362,7 @@ Not only does this require a serialization and deserialization step and writing/
 I did try this and got it working by following [Free Masen's guide](https://freemasen.com/blog/wasmer-plugin-pt-1/), but it wasn't worth exploring in depth because it requires a [de]serialization step Tremor can't afford.
 
 <a name="_separate_executables"></a>
-#### Separate executables
+#### Option 3: Separate executables
 
 Another way I've seen to work around this is by using Wasm as an executable instead of a library. [Zellij](https://github.com/zellij-org/zellij) does this, and communicates with the plugins via the standard input and standard output streams.
 

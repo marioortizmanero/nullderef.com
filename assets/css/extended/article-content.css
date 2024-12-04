@@ -12,6 +12,12 @@
   margin: 0 auto;
 }
 
+/* The header size should be at least the same as the content.
+ * h5 and h6 aren't overridden because they shouldn't even be used. */
+.post-content h4 {
+  font-size: 18px !important;
+}
+
 /* Fixing tables */
 table {
   display: table;

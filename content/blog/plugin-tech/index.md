@@ -134,12 +134,12 @@ Still, it's a pretty interesting option for new projects, as you have ABI stabil
 
 Another possibility for plugins is to define a protocol for Inter-Process Communication, turning your program into a server that extends its capabilities by connecting to external plugins. For instance, most text editors use this method to support the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/), which uses JSON-RPC.
 
-There are of course multiple ways to do IPC, which I'll briefly list below. Performance-wise, this graph shows a comparison of the overhead of each of them[^ipc-wisc]:
+There are three ways to do IPC, which I'll briefly list below. Performance-wise, this graph shows a comparison of the overhead of each of them[^ipc-wisc]:
 
 <img alt="IPC comparison" src="ipc-comparison.png" width="60%">
 
 <a name="sockets"></a>
-#### Based on Sockets
+#### Option 1: Based on Sockets
 
 Sockets are the "worst"-performing alternative in the previous chart, but they're so common and easy to use in most languages that it's worth taking a look at. Using relatively lightweight protocols like [Protocol Buffers](https://developers.google.com/protocol-buffers), the performance would be close to passing raw structs, but with improved backwards/forwards compatibility[^protobuf-perf]. JSON would probably not make that big of a difference in terms of performance either. This would make it possible to write a plugin in any language as well --- including Rust --- as long as there's an implementation of the protocol available. But there's still noticeable overhead when communicating via sockets; sending and receiving the messages can be much costlier than just calling a function, even if this happens on localhost.
 
@@ -157,7 +157,7 @@ Overall, I consider this a very solid solution, with its main drawback being per
 6. <strong class="green white-background txt-margin-right txt-round">5/5</strong> **Ease of porting existing implementations**
 
 <a name="pipes"></a>
-#### Based on Pipes
+#### Option 2: Based on Pipes
 
 Pipes have always been fairly popular specifically on Unix systems, and enable Inter-Process Communication with less overhead than sockets. They are made to be ran on the same machine, which is exactly what we need. The terminal file manager [nnn](https://github.com/jarun/nnn) uses this approach: plugins can read from a FIFO (Named Pipe) to receive selections from nnn (lists of files or directories) and act accordingly.
 
@@ -171,7 +171,7 @@ The rest is basically the same as with [Sockets](#sockets), maybe with extra poi
 6. <strong class="green white-background txt-margin-right txt-round">5/5</strong> **Ease of porting existing implementations**
 
 <a name="memory-sharing"></a>
-#### Based on Memory Sharing
+#### Option 3: Based on Memory Sharing
 
 Knowing that the plugins are intended to be on the same machine as the core of Tremor, there's no need to actually send and receive messages. One can share memory between multiple processes and send notifications to receive updates. The performance is comparable to using FFI, since the only overhead is the initial cost from setting up the shared pages, having regular memory access afterwards[^memory-share-so].
 
