@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #
-# Quick script to automatically reorder and validate AsciiDoc references. The final list
-# will be printed to stdout.
+# Quick script to automatically reorder and validate Markdown footnotes.
 
 from dataclasses import dataclass
 from typing import Optional
