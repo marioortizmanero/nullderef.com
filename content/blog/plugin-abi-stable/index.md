@@ -493,9 +493,9 @@ zsh: abort (core dumped)  cargo r -q
 
 This is sound because the entire program's execution ends before reaching the FFI boundary. The problem is that cleaning up will never happen, and that although there's [a hack you can use in your `common` library](https://stackoverflow.com/questions/51860663/is-it-possible-to-check-if-panic-is-set-to-abort-while-a-library-is-compilin) to make sure the plugin is compiled with `panic = "abort", it's only available on nightly until this is merged:
 
-<div style="text-align:center;">
-  {{< gh issue "rust-lang/rust" 32837 "Pluggable panic implementations (tracking issue for RFC 1513)" paragraph >}}
-</div>
+<p style="text-align:center;">
+  {{< gh issue "rust-lang/rust" 32837 "Pluggable panic implementations (tracking issue for RFC 1513)" >}}
+</p>
 
 <a name="_c_unwind"></a>
 ### `C-unwind`

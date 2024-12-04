@@ -339,6 +339,6 @@ error: lifetime may not live long enough
 
 I was lucky to have such a great team at Tremor, and an OSS maintainer as helpful as Rodri. You can find all the details of the discussion in the original GitHub issue:
 
-<div style="text-align:center;">
-  {{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" "paragraph" >}}
-</div>
+<p style="text-align:center;">
+  {{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" >}}
+</p>

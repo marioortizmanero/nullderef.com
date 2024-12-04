@@ -2,7 +2,6 @@
 {{- $repo := .Get 1 -}}
 {{- $reference := .Get 2 -}}
 {{- $title := .Get 3 -}}
-{{- $html := .Get 4 -}}
 
 {{- $url_type := "" -}}
 {{- if or (eq $type "issue") (eq $type "issue-comment") -}}
@@ -13,11 +12,7 @@
   {{- errorf "Invalid GitHub type (issue/pr/issue-comment/pr-comment): %q" $type -}}
 {{- end -}}
 
-{{- if eq $html "paragraph" }}
-<p class="gh-reference">
-{{- else }}
 <span class="gh-reference">
-{{- end }}
   {{- /* Icons taken from https://github.com/primer/octicons */}}
   {{- if eq $type "issue" }}
     <svg class="gh-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/></svg>
@@ -34,12 +29,7 @@
   {{- else }}
     <span class="gh-number">{{ $repo }}#{{ $reference }}</span></a>
   {{- end }}
-{{ if eq $html "paragraph" }}
-</p>
-{{- else }}
 </span>
-{{- end }}
-
 
 {{- /*
 #!/usr/bin/env python3

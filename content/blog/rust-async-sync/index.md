@@ -221,9 +221,9 @@ There were a few crates that also had this problem:
 
 Once the crate started to gain popularity, this issue was opened in `maybe_async`, which explains the situation and showcases a fix:
 
-<div style="text-align:center;">
-  {{< gh issue "fMeow/maybe-async-rs" 6 "async and sync in the same program" "paragraph" >}}
-</div>
+<p style="text-align:center;">
+  {{< gh issue "fMeow/maybe-async-rs" 6 "async and sync in the same program" >}}
+</p>
 
 `maybe_async` would now have two feature flags: `is_sync` and `is_async`. The crate would generate the functions in the same way, but with a `_sync` or `_async` suffix appended to the identifier so that they wouldn't be conflicting. For example:
 

@@ -237,9 +237,9 @@ pub enum StaticNode {
 
 Since it's an external library, we'll have to make a Pull Request and hope that the author is okay with the changes. `abi_stable` should be optional so that this change is applied only to those that actually need `#[repr(C)]` in the library. You could also go a step further and differentiate between enabling `#[repr(C)]` and deriving `StableAbi` for those that don't need the latter.
 
-<div style="text-align:center;">
-  {{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" "paragraph" >}}
-</div>
+<p style="text-align:center;">
+  {{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" >}}
+</p>
 
 <a name="_overcoming_problems_with_reprc"></a>
 ## Overcoming problems with `#[repr(C)]`
@@ -484,15 +484,15 @@ The types in {{< crate async_ffi >}} implement `Future`, so invoking that functi
 
 It's admittedly a bit ugly to use `async move { }.into_ffi()` everywhere, specially because it increases the indentation in one level. But that's something that can be fixed with a procedural macro in the future:
 
-<div style="text-align:center;">
-  {{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" "paragraph" >}}
-</div>
+<p style="text-align:center;">
+  {{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" >}}
+</p>
 
 The only problem I found was that the futures didn't implement `StableAbi`, so it wasn't possible to use them with {{< crate abi_stable >}}. It took me a while to understand the crate, but it's nothing a Pull Request can't fix:
 
-<div style="text-align:center;">
-  {{< gh pr "oxalica/async-ffi" 10 "Support for `abi_stable`" "paragraph" >}}
-</div>
+<p style="text-align:center;">
+  {{< gh pr "oxalica/async-ffi" 10 "Support for `abi_stable`" >}}
+</p>
 
 One concern here may be performance. I imagine that it's not a huge problem because the crate is actualy quite small and only introduces some pointer juggling. I will confirm this in the next post with some benchmarks, though.
 
@@ -738,15 +738,15 @@ This has been my road to implementing the first version of Tremor's plugin syste
 
 I will also work on properly making `Value` `#[repr(C)]`, instead of also having `PdkValue`. In retrospect, creating `PdkValue` was a great decision at that point: these 120 errors I got when trying to make `Value` `#[repr(C)]` were related to a nasty bug in ``RCow``'s implementation. Changing from `Cow` to `RCow` is broken in some cases because `RCow` is _invariant_. For those that don't know what that means, don't worry, as I will be releasing another article that explains everything once it's been fixed. If you're interested, you can follow this issue in the meanwhile, and hope that you don't run into it:
 
-<div style="text-align:center;">
-  {{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" "paragraph" >}}
-</div>
+<p style="text-align:center;">
+  {{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" >}}
+</p>
 
 After I'm fully done I will also reorganize this series a bit and make it an easier read. I have been writing these articles _as I learned how the plugin system could be implemented_, so there might be some outdated or repetitive statements in previous articles. If you have any suggestions you can leave them here:
 
-<div style="text-align:center;">
-  {{< gh issue "marioortizmanero/nullderef.com" 50 "Reorganize rust plugins series once I'm done" "paragraph" >}}
-</div>
+<p style="text-align:center;">
+  {{< gh issue "marioortizmanero/nullderef.com" 50 "Reorganize rust plugins series once I'm done" >}}
+</p>
 
 For those interested, I recently gave a quick talk about the whole project in the 2022 LFX Mentorship Showcase. Unfortunately, it was just a 15 minutes presentation, so I couldn't get into many technical details, but it covers how the whole experience has been so far, and what I've learned:
 
