@@ -32,6 +32,9 @@
     <loc>https://nullderef.com/tags/tech/</loc>
     <lastmod>2024-10-14T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://nullderef.com/series/rust-plugins/</loc>
+    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://nullderef.com/blog/rust-variance/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
@@ -42,9 +45,6 @@
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/tags/rust/</loc>
-    <lastmod>2024-09-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://nullderef.com/series/rust-plugins/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://nullderef.com/blog/phone-intro/</loc>
