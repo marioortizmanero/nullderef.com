@@ -80,8 +80,20 @@ params:
 
 markup:
   goldmark:
+    extensions:
+      passthrough:
+        delimiters:
+          block:
+            - - \[
+              - \]
+          inline:
+            - - $
+              - $
+        enable: true
     renderer:
       unsafe: true
+    params:
+      math: true
   highlight:
     # Required to enable syntax highlighting
     noClasses: false

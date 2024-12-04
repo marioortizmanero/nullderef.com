@@ -561,7 +561,7 @@ Something that complicates this whole thing considerably is the concept of _exce
 <a name="_type_conversions"></a>
 ## Type conversions
 
-It's important to know the complexity of conversions from and to `abi_stable` types. If `Vec<T>` -> `RVec<T>` wasn't $O(n)$ it might be worth avoiding it altogether.
+It's important to know the complexity of conversions from and to `abi_stable` types. If `Vec<T>` → `RVec<T>` wasn't $O(n)$ it might be worth avoiding it altogether.
 
 This means that I should spend at least a bit of my time on understanding how the `abi_stable` types are implemented and making sure this isn't the case. In `std`, the definition of `Vec` is actually quite simple if we remove most of the noise:
 

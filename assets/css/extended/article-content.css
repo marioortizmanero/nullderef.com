@@ -16,3 +16,19 @@
 table {
   display: table;
 }
+
+/* Fixing margins */
+.post-content img, .post-content .highlight {
+  margin-bottom: var(--content-gap) !important;
+}
+.post-content li > p {
+  margin-top: 5px;
+}
+
+/* Removing the shadow in the MathJax contextual menu */
+.CtxtMenu_ContextMenu {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  -khtml-box-shadow: none !important;
+}

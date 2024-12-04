@@ -66,9 +66,7 @@ Note that I'm not using `#![allow(warnings)]`, because most warnings will actual
 
 One month later, I was able to finally compile [`tremor-runtime`](https://github.com/tremor-rs/tremor-runtime) with the initial prototype. This screenshot made my day, as simple as it may seem:
 
-<p>
-  <img src="compilation.png" alt="Compilation success" width="80%">
-</p>
+<img src="compilation.png" alt="Compilation success" width="80%">
 
 Afterwards, I removed these `allow` statements, ran `cargo fix && cargo fmt`, and cleaned up a bit. `cargo fix` is built-in, and will automatically take care of the trivial warnings, such as unused imports, saving _lots_ of time doing cumbersome work.
 
@@ -354,9 +352,7 @@ If this part of the project is important enough, or you consider that there's en
 
 The last idea I came up with was the easiest one: creating a copy of `Value` meant to be used _only_ for FFI communication, `PdkValue`:
 
-<p>
-  <img src="simplify.png" alt="runtime/plugin diagram" width="75%">
-</p>
+<img src="simplify.png" alt="runtime/plugin diagram" width="75%">
 
 Since it's a new type, we won't run into the breaking changes I showed in the [Avoid the type in the first place](#avoid) section, and it's quite easy to implement:
 
