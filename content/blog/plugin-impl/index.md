@@ -323,7 +323,7 @@ Even if I managed to fix the hash map mess, the same story repeats itself for `C
 There are a few possible ways to approach these kinds of issues:
 
 <a name="avoid"></a>
-### Avoid the type in the first place
+### Approach 1: Avoid the type in the first place
 
 As always, we'll try to follow the "just make it work" advice in here. It's a perfectly valid solution to just comment out the optimizations and add a `// TODO` above so that they can be reviewed later. You might be asking for too much complexity in your plugin system; limiting yourself to the functionality in `std` may be more than enough for now. You'll now see that it's always possible to fix this properly. It just might be too much effort at the moment.
 
@@ -334,21 +334,21 @@ These are **120** errors after attempting to remove the optimizations, most of t
 ![Compilation errors](errors.png)
 
 <a name="_implement_a_wrapper"></a>
-### Implement a wrapper
+### Approach 2: Implement a wrapper
 
 Another possibility is to write a _wrapper_ for {{< crate halfbrown >}}. Opaque types, for instance, may be used to wrap the functionality of an underlying type that's not FFI-safe, as I covered in previous articles. This is what {{< crate abi_stable >}} does in its `external_types` module for crates like {{< crate crossbeam >}} or {{< crate parking_lot >}}.
 
 However, as you may see with the [already existing examples](https://github.com/rodrimati1992/abi_stable_crates/tree/edfb2a97a7b5d7ecbc29c1f9f115f61e26f42da6/abi_stable/src/external_types), implementing wrappers can be quite a cumbersome task. And even after you're done you'll have to keep them up to date, so this will increase your maintainance burden. {{< crate halfbrown >}} and {{< crate beef >}} are somewhat complex libraries, so I decided this wasn't the best choice at that moment for `Value`. I did use this approach a lot in other cases, so I've included an example in a [later section](#opaque).
 
 <a name="_re_implement_with_reprc_from_scratch"></a>
-### Re-implement with `#[repr(C)]` from scratch
+### Approach 3: Re-implement with `#[repr(C)]` from scratch
 
 Similar to implementing a wrapper, but on steroids. It might seem like overkill, but as far as I know it's the only choice in some scenarios, because we can make sure the type is as performant as it can get. In ``Value``'s example, the problematic types are part of optimizations, so writing a wrapper for them may have a performance hit and render them useless (e.g., if we used opaque types we would introduce at least a mandatory pointer indirection).
 
 If this part of the project is important enough, or you consider that there's enough manpower, then it might not be such a bad idea to create a new implementation with your use-case in mind. It's actually why Tremor's `Value` was created in the first place; `simd_json::Value` wasn't flexible enough for them, so they decided to define their own version. Same thing could be applied for your plugin system.
 
 <a name="_simplifying_the_type_at_the_ffi_boundary"></a>
-### Simplifying the type at the FFI boundary
+### Approach 4: Simplifying the type at the FFI boundary
 
 The last idea I came up with was the easiest one: creating a copy of `Value` meant to be used _only_ for FFI communication, `PdkValue`:
 

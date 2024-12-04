@@ -148,9 +148,7 @@ You can configure whether you want asynchronous or blocking code by toggling the
 
 In fact, it worked so well that I made Rspotify _http-client agnostic_, which is even more flexible than being _async/sync agnostic_. This allows us to support multiple HTTP clients like {{< crate reqwest >}} and {{< crate ureq >}}, independently of whether the client is asynchronous or synchronous.
 
-Being _http-client agnostic_ is not that hard to implement if you have `maybe_async` around. You just need to define a trait for the [HTTP client](https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/common.rs#L46), and then implement it for each of the clients you want to support:
-
-.A snippet of code is worth a thousand words. (_You can find the full source for Rspotify's [``reqwest``'s client here](https://github.com/ramsayleung/rspotify/blob/master/rspotify-http/src/reqwest.rs#L97), and [``ureq``'s here](https://github.com/ramsayleung/rspotify/blob/master/rspotify-http/src/ureq.rs#L56)_)
+Being _http-client agnostic_ is not that hard to implement if you have `maybe_async` around. You just need to define a trait for the [HTTP client](https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/common.rs#L46), and then implement it for each of the clients you want to support. A snippet of code is worth a thousand words (_you can find the full source for Rspotify's [``reqwest``'s client here](https://github.com/ramsayleung/rspotify/blob/master/rspotify-http/src/reqwest.rs#L97), and [``ureq``'s here](https://github.com/ramsayleung/rspotify/blob/master/rspotify-http/src/ureq.rs#L56)_):
 ```rust
 #[maybe_async]
 trait HttpClient {

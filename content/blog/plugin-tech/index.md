@@ -235,7 +235,7 @@ So, more or less:
 <a name="wasm"></a>
 ### WebAssembly
 
-Now, this is what I wanted to emphasize in this article! Turns out WebAssembly isn't limited to web development anymore; it's slowly evolving into a portable binary-code format. As far as I know, this should be like a mix between [Dynamic Loading](#ffi) and [Scripting Languages](#scripting-langs), with a stronger focus in stability and portability. Here's what [Wikipedia](https://en.wikipedia.org/wiki/WebAssembly) has to say about it:
+Now, this is what I wanted to emphasize in this article! Turns out WebAssembly isn't limited to web development anymore; it's slowly evolving into a portable binary-code format. As far as I know, this should be like a mix between [Dynamic Loading](#ffi) and [Scripting Languages](#scripting-langs), with a stronger focus in stability and portability. Here's what [Wikipedia has to say about it](https://en.wikipedia.org/wiki/WebAssembly):
 
 >WebAssembly (sometimes abbreviated Wasm) is an open standard that defines a portable binary-code format for executable programs, and a corresponding textual assembly language, as well as interfaces for facilitating interactions between such programs and their host environment. The main goal of WebAssembly is to enable high-performance applications on web pages, <mark>but the format is designed to be executed and integrated in other environments as well, including standalone ones.</mark>
 

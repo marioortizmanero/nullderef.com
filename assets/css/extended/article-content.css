@@ -27,8 +27,15 @@ table {
 .post-content img, .post-content .highlight {
   margin-bottom: var(--content-gap) !important;
 }
-.post-content li > p {
-  margin-top: 5px;
+.post-content li > p, .post-content li > ul {
+  margin-top: 5px !important;
+  margin-bottom: 0px;
+}
+.post-content iframe {
+  margin-bottom: 8px;
+}
+.post-content code {
+  margin: 0;
 }
 
 /* Removing the shadow in the MathJax contextual menu */

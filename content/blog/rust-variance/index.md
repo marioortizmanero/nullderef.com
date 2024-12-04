@@ -145,24 +145,23 @@ Other traits like `PartialEq` also caused similar lifetime errors. I was able to
  }
 ```
 
-I suddenly got a bit of hope. But this could never work for `Ord`, which also failed. The `Ord` trait uses `Self` instead of another generic type, so I can't just introduce a new lifetime:
+I suddenly got a bit of hope. But this could never work for `Ord`, which also failed. The `Ord` trait uses `Self` for the `other` parameter, so I can't just introduce a new lifetime.
 
 ```rust
-impl<B: ?Sized> Ord for Cow<'_, B>
+impl<'a, B: ?Sized> Ord for RCow<'a, B>
 where
-    B: Ord + ToOwned,
+    B: Ord + BorrowOwned<'a>,
 {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         Ord::cmp(&**self, &**other)
     }
 }
-```
 
-```rust
-impl<'a, B: ?Sized> Ord for RCow<'a, B>
+// Implementation in the standard library:
+impl<B: ?Sized> Ord for Cow<'_, B>
 where
-    B: Ord + BorrowOwned<'a>,
+    B: Ord + ToOwned,
 {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
