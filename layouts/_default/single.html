@@ -15,9 +15,10 @@
       {{- end }}
     </h1>
     {{- if .Description }}
-    <div class="post-description">
+    {{- /* CUSTOM: justified description */ -}}
+    <p class="post-description">
       {{ .Description }}
-    </div>
+    </p>
     {{- end }}
     {{- if not (.Param "hideMeta") }}
     <div class="post-meta">

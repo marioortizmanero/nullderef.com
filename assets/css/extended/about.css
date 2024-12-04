@@ -9,6 +9,8 @@
   height: 214px;
   float: right;
   margin: 0px 0px 5px 15px;
+  margin-left: 15px !important;
+  margin-bottom: var(--content-gap) !important;
 }
 
 .projects {

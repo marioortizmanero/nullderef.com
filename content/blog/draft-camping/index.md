@@ -9,6 +9,6 @@ GHissueID: TODO
 draft: true
 ---
 
-== TODO
+## TODO
 
 Fee with regular card is 2.5%, with Wise it's 1%

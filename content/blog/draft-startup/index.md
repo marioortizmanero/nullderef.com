@@ -9,157 +9,93 @@ GHissueID: TODO
 draft: true
 ---
 
-_I'll preface this by saying that I have no idea what I'm talking about. The
-point, in fact, is to learn, think, and share my findings. This is a very
-personal life journey, but I'm sure everyone can relate to some parts and take
-something out of it._
-aas
+_I'll preface this by saying that I have no idea what I'm talking about. The point, in fact, is to learn, think, and share my findings. This is a very personal life journey, but I'm sure everyone can relate to some parts and take something out of it._
 
-== Not sucking...
+## Not sucking...
 
-I only use the term "not sucking" because setting a higher bar would be
-overreaching, given the complexity of the problem. Let's get into specifics:
+I only use the term "not sucking" because setting a higher bar would be overreaching, given the complexity of the problem. Let's get into specifics:
 
-=== from an ethical perspective
+### from an ethical perspective
 
-It's extremely objective to say how "good" or "bad" a company is. Of course, it
-should be at least "neutral" according to your beliefs. There must always be
-people keeping the world running, and one can find lots of personal satisfaction
-from a restaurant or even a SaaS.
+It's extremely objective to say how "good" or "bad" a company is. Of course, it should be at least "neutral" according to your beliefs. There must always be people keeping the world running, and one can find lots of personal satisfaction from a restaurant or even a SaaS.
 
-You could go a step further and try to directly improve the world! There are
-many things broken, so you'll have plenty to choose from. Try to find your most
-relevant one: plastic waste, ocean biodiversity, mental health... It doesn't
-even need to be a brilliant idea because there's so much missing execution out
-there.
+You could go a step further and try to directly improve the world! There are many things broken, so you'll have plenty to choose from. Try to find your most relevant one: plastic waste, ocean biodiversity, mental health... It doesn't even need to be a brilliant idea because there's so much missing execution out there.
 
-=== from an organizational perspective
+### from an organizational perspective
 
-An open question I have is whether scale eventually dehumanizes companies. Most
-examples I've found so far are smaller ones. How do you prevent all of this from
-fading away as it starts to grow? I don't think this is important at the very
-beginning, though.
+An open question I have is whether scale eventually dehumanizes companies. Most examples I've found so far are smaller ones. How do you prevent all of this from fading away as it starts to grow? I don't think this is important at the very beginning, though.
 
-=== from a personal perspective
+### from a personal perspective
 
-Starting a company sounds like something that could take over your life. Even if
-you're fulfilled by your work, you don't want to lose other aspirations, such as
-travelling, time with loved ones, or hobbies. I've personally seen way too many
-people trapped by their profession, bleeding into their own life, and others'.
+Starting a company sounds like something that could take over your life. Even if you're fulfilled by your work, you don't want to lose other aspirations, such as travelling, time with loved ones, or hobbies. I've personally seen way too many people trapped by their profession, bleeding into their own life, and others'.
 
-=== from a financial perspective
+### from a financial perspective
 
 Unfortunately, many major problems in the world aren't easy to fund.
 
-==== Startup accelerators
+#### Startup accelerators
 
-Programs like Y Combinator provide a service that sounds like a "startup
-school". You get some funding from them and a ton of resources to actually get
-started. They even support nonprofits!
+Programs like Y Combinator provide a service that sounds like a "startup school". You get some funding from them and a ton of resources to actually get started. They even support nonprofits!
 
-However, much of the work here is related to external investing. Asking for
-money will increase the pressure on you to provide greater returns, which
-doesn't help. It may make you more stressed, or make your company deviate from
-its original purpose.
+However, much of the work here is related to external investing. Asking for money will increase the pressure on you to provide greater returns, which doesn't help. It may make you more stressed, or make your company deviate from its original purpose.
 
-Although required in many capital-intensive companies, it shouldn't be the
-"default choice". Funding in this can be like strapping a rocket to your
-company; it will grow immensely and then crash when it runs out of fuel.
-Ideally, we'd like something more linear that grows over time sustainably.
+Although required in many capital-intensive companies, it shouldn't be the "default choice". Funding in this can be like strapping a rocket to your company; it will grow immensely and then crash when it runs out of fuel. Ideally, we'd like something more linear that grows over time sustainably.
 
-==== Nonprofits
+#### Nonprofits
 
-A nonprofit's objective is to provide a collective, public or social benefit, as
-opposed to an entity that operates as a business aiming to generate a profit for
-its owners.
+A nonprofit's objective is to provide a collective, public or social benefit, as opposed to an entity that operates as a business aiming to generate a profit for its owners.
 
-In the US, there are many kinds of nonprofits: Public Charities (501(c)(3)),
-Social Welfare Organizations (501(c)(4)), Labor/Agricultural Organizations
-(501(c)(5)), Business Leagues (501(c)(6)), and Social Clubs (501(c)(7)). I'll be
-mostly focusing on Private Foundations (501(c)(3)).
+In the US, there are many kinds of nonprofits: Public Charities (501(c)(3)), Social Welfare Organizations (501(c)(4)), Labor/Agricultural Organizations (501(c)(5)), Business Leagues (501(c)(6)), and Social Clubs (501(c)(7)). I'll be mostly focusing on Private Foundations (501(c)(3)).
 
-There's also the possibility of having a mixed structure like OpenAI's infamous
-one. They started as a 501(c)(3), but after only raising $150M out of their $1B
-goal, they switched to a "capped for-profit" structure. This introduced a new
-for-profit company that is fully owned by the non-profit, but that still can
-distribute equity. Investments whose returns exceed the 100x cap must be donated
-to their cause, which will supposedly be nothing compared to the profits an AGI
-would generate.
+There's also the possibility of having a mixed structure like OpenAI's infamous one. They started as a 501(c)(3), but after only raising $150M out of their $1B goal, they switched to a "capped for-profit" structure. This introduced a new for-profit company that is fully owned by the non-profit, but that still can distribute equity. Investments whose returns exceed the 100x cap must be donated to their cause, which will supposedly be nothing compared to the profits an AGI would generate.
 
-==== Crowdfunding
+#### Crowdfunding
 
-==== Social enterprises
+#### Social enterprises
 
-==== For-profits
+#### For-profits
 
-There are some ways in which a for-profit can try to prove they're sustainable.
-Some of these depend a lot on local laws, but I've included some examples from
-the US:
+There are some ways in which a for-profit can try to prove they're sustainable. Some of these depend a lot on local laws, but I've included some examples from the US:
 
-* The "B Corporation" certificate is granted only to for-profit companies with a
-  good enough social impact and environment performance. The commitments must be
-  integrated into stakeholders and company-governing documents, and an annual
-  fee based on annual sales must be paid. Re-certification is necessary every
-  three years.
+* The "B Corporation" certificate is granted only to for-profit companies with a good enough social impact and environment performance. The commitments must be integrated into stakeholders and company-governing documents, and an annual fee based on annual sales must be paid. Re-certification is necessary every three years.
 * A "[benefit corporation](https://en.wikipedia.org/wiki/Benefit_corporation)"
-* There's also "[low-profit limited liability
-  companies](https://en.wikipedia.org/wiki/Low-profit_limited_liability_company)"
-  (L3C).
+* There's also "[low-profit limited liability companies](https://en.wikipedia.org/wiki/Low-profit_limited_liability_company)" (L3C).
 * https://en.wikipedia.org/wiki/Social_purpose_corporation
 * https://en.wikipedia.org/wiki/Sustainable_business
 
-== My journey
+## My journey
 
-Software engineering has always brought me lots of joy from the technical
-standpoint. It's weird, but building and fixing systems is fun to me. Recently,
-though, I've started to have this itch that I need something which makes me
-proud of my work longer term. To me, working on your own thing is what really
-ensures you'll be proud of it, as you're not as controlled by other people's
-ideas. And sure, my systems are shiny and cool, but what's in it for the world?
+Software engineering has always brought me lots of joy from the technical standpoint. It's weird, but building and fixing systems is fun to me. Recently, though, I've started to have this itch that I need something which makes me proud of my work longer term. To me, working on your own thing is what really ensures you'll be proud of it, as you're not as controlled by other people's ideas. And sure, my systems are shiny and cool, but what's in it for the world?
 
-I'm lucky enough to believe I have the choice to do something about this. It
-feels like the hardest thing I'd do in my life and requires time and experience,
-though. So I need to take it slow, and continue to learn from working for
-others. In the meanwhile, I can try to learn a bit more about how I could ever
-do it.
+I'm lucky enough to believe I have the choice to do something about this. It feels like the hardest thing I'd do in my life and requires time and experience, though. So I need to take it slow, and continue to learn from working for others. In the meanwhile, I can try to learn a bit more about how I could ever do it.
 
-There's also paths to achieve this "long-term satisfaction about your work".
-It's important to consider them before, you know, incorporating a company.
+There's also paths to achieve this "long-term satisfaction about your work". It's important to consider them before, you know, incorporating a company.
 
-=== Side jobs
+### Side jobs
 
-One of my worries is forcing myself to a passion that's not really mine just for
-this. Becoming a CEO is something that technically attracts me less, and that I
-feel less talented for. In order to truly be effective, I need to find something
-that fully utilizes my resources.
+One of my worries is forcing myself to a passion that's not really mine just for this. Becoming a CEO is something that technically attracts me less, and that I feel less talented for. In order to truly be effective, I need to find something that fully utilizes my resources.
 
 Voluntary work.
 
-=== Effective altruism
+### Effective altruism
 
 Working on whatever and donating to a cause.
 
-There needs to be a combination of working on what you are most effective on,
-and doing so for a good cause. And sometimes, that just isn't there. TODO:
-example.
+There needs to be a combination of working on what you are most effective on, and doing so for a good cause. And sometimes, that just isn't there. TODO: example.
 
-== References
+## References
 
-=== Jen-Hsun Huang -- NVIDIA
+### Jen-Hsun Huang -- NVIDIA
 
 Original video: https://www.youtube.com/watch?v=Xn1EsFe7snQ
 
-- VC don't invest in business plans, it does in people and the market. The
-  latter isn't so important because it changes, and you need to reinvent
-  yourself. He started with $2M.
+- VC don't invest in business plans, it does in people and the market. The latter isn't so important because it changes, and you need to reinvent yourself. He started with $2M.
 - Initial plan was to build chips for 3D gaming; first in the market.
-- Perspective > vision. Everyone has it, just specific to yourself,
-  surroundings, tastes, etc. Perspective > ideas.
+- Perspective > vision. Everyone has it, just specific to yourself, surroundings, tastes, etc. Perspective > ideas.
 - What's the essence of your business? What makes it work?
 - Ignored customers for 5Y to create the industry.
 - Why do you want to build a company? I hope it's not money.
-- Company growth -> you have to take the initiative to cannibalize your own
-  products. Otherwise, someone else will.
+- Company growth -> you have to take the initiative to cannibalize your own products. Otherwise, someone else will.
 - Fail to learn, but fail quickly, "intellectual honesty".
 - CEO skill: Become comfortable with ambiguity
 - Started at 30yo, no business classes prior
@@ -167,16 +103,15 @@ Original video: https://www.youtube.com/watch?v=Xn1EsFe7snQ
 - Focus; do one thing well
 - Everything is torn apart & reinvented @ some point
 
-- Pending questions: relationships with kids, burnout, working too much?? He
-  only seems to work
+- Pending questions: relationships with kids, burnout, working too much?? He only seems to work
 
-=== Jason Fried -- 37 Signals (Basecamp)
+### Jason Fried -- 37 Signals (Basecamp)
 
 https://open.spotify.com/episode/2bOWmObaUPcx23lw0RDgs7?si=mj6KdaStRQ6COLkbEnLRgQ
 
 More info: https://37signals.com/
 
-Life motto: worry less 
+Life motto: worry less
 
 Made profit over 24y, over the last 10y $X0M, around 100k+ customers. 75 employees. Extremely opinionated towards efficiency and simplicity.
 
@@ -188,7 +123,7 @@ Efficiency
 - ShapeUp framework: New products built by 2 people, 1 programmer and 1 designer/product given 2-6 weeks. If it's more, give it 2 more days if almost there, or kill it. Long-term Business planning/promises is bad, such as "by EOY". You can't "Sprint" back to back (plus same thing all the time gets boring), so they do a 2w cool down cycle afterwards to freelance internally (fixing stuff, messing around with things, shaping up projects, etc).
 - Don't spend money on stuff you don't need.
 - success = wanting to do it again
-- not looking at profitability per product or more stats like OKR, growth targets, etc, just overall profitability 
+- not looking at profitability per product or more stats like OKR, growth targets, etc, just overall profitability
 - no investors, board, intentions to sell
 
 - intuition driven instead of data. Experience over data or charts.
@@ -205,11 +140,11 @@ Efficiency
 Once (idea, but not proven): non-SaaS products, you pay and install them, under $1000. No fees or subscription, and they still get updates and support. Costs are very low because there's no hosting. Opportunity: many alternatives for one product, by they still charge luxury prices.
 
 
-Recommended books: Finite and infinite games, several short sentences about writing, hell yeah or no, home-made contemporary Russian folk artifacts 
+Recommended books: Finite and infinite games, several short sentences about writing, hell yeah or no, home-made contemporary Russian folk artifacts
 
 * Remaining questions: personal life??
 
-=== It doesn't have to be crazy at work - Jason Fried
+### It doesn't have to be crazy at work - Jason Fried
 
 Basecamp. Intentional decisions to make a calm company. Meetings only as the last resort, no late working, reasonable expectations/deadlines, no unlimited growth, funding comes from customers rather than VC.
 
@@ -282,7 +217,7 @@ Open questions:
 - [Asked] You require people to spend a week working on a paid project before hiring them. What if they already have a job?
 - [Asked] How do you approach promotions and people only focusing on that (impact)? https://basecamp.com/handbook/making-a-career
 
-=== Links
+### Links
 
 - https://twitter.com/m_ou_se/status/1438946869447692297
 - https://www.reddit.com/r/rust/comments/pub2mq

@@ -3,7 +3,7 @@ title: NullDeref
 languageCode: en-us
 theme: "PaperMod"
 
-copyright: "See this site's source code [on GitHub](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3 ·"
+copyright: "See this site's source code [on GitHub](https://github.com/marioortizmanero/nullderef.com), licensed under GPLv3"
 
 enableInlineShortcodes: true
 enableRobotsTXT: true
@@ -15,11 +15,6 @@ pygmentsUseClasses: true
 googleAnalytics: G-MVVGNX70LX
 
 paginate: 50
-
-security:
-  exec:
-    allow:
-      - asciidoctor
 
 languages:
   en:
@@ -84,6 +79,21 @@ params:
       url: "https://nullderef.com/index.xml"
 
 markup:
+  goldmark:
+    extensions:
+      passthrough:
+        delimiters:
+          block:
+            - - \[
+              - \]
+          inline:
+            - - $
+              - $
+        enable: true
+    renderer:
+      unsafe: true
+    params:
+      math: true
   highlight:
     # Required to enable syntax highlighting
     noClasses: false
