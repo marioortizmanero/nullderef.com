@@ -611,6 +611,7 @@ Lots of love, \
 Mario
 
 [^gh-auth]: {{< gh issue "ramsayleung/rspotify" 173 "Restructure the authentication process" >}}
+[^gh-clients]: {{< gh pr "ramsayleung/rspotify" 129 "Multiple clients via features" >}}
 [^reddit-auth]: [Designing a new architecture for RSpotify based on trait inheritance, need opinions - Reddit](https://www.reddit.com/r/rust/comments/lkdw6o/designing_a_new_architecture_for_rspotify_based/)
 [^deref-antipattern]: [`Deref` polymorphism](https://github.com/rust-unofficial/patterns/blob/main/anti_patterns/deref.md)
 [^trait-ret-impl]: [Is it possible to use `impl Trait` as a function's return type in a trait definition? - StackOverFlow](https://stackoverflow.com/questions/39482131/is-it-possible-to-use-impl-trait-as-a-functions-return-type-in-a-trait-defini)
