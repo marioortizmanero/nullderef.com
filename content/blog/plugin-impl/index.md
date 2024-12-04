@@ -23,7 +23,7 @@ Before anything else, I'd like to give out some suggestions regarding refactorin
 <a name="_the_just_make_it_work_approach"></a>
 ### The "just make it work" approach
 
-What I personally struggled the most to get drilled into my head is not getting lost in the details. *First of all, we just want it to work*. I'll repeat. First of all, we just want it to *work*. As long as the plugin system runs, the
+What I personally struggled the most to get drilled into my head is not getting lost in the details. **First of all, we just want it to work**. I'll repeat. First of all, we just want it to **work**. As long as the plugin system runs, the
 following are completely fine:
 
 * Ugly code (non-idiomatic, repetitive, somewhat messy, etc)

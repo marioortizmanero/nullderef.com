@@ -187,7 +187,7 @@ When compiling the previous example with `dylib`, the resulting shared object fo
 <a name="_rlib_files"></a>
 ### `rlib` files
 
-`rlib` is another value for `crate-type` to generate Rust *static* libraries, which can then be imported with `extern crate crate_name`[^dylib]. But since `rlib` files are static libraries, they can't be loaded at runtime, so they're of no use in a plugin system.
+`rlib` is another value for `crate-type` to generate Rust **static** libraries, which can then be imported with `extern crate crate_name`[^dylib]. But since `rlib` files are static libraries, they can't be loaded at runtime, so they're of no use in a plugin system.
 
 Here's a crazy idea though: What if the `rlib` files were dynamically loaded as plugins with the help of [MIRI](https://github.com/rust-lang/miri)? I recently learned about it, and quoting its official documentation:
 
@@ -197,13 +197,13 @@ Here's a crazy idea though: What if the `rlib` files were dynamically loaded as 
 
 Hmm. Could it possibly be used to interpret Rust code? In some way this would be very similar to using WebAssembly, but theoretically with less friction, as MIR is specific to Rust and plugin development would be as easy as in the case of dynamic loading with Rust-to-Rust FFI. A few things to consider:
 
-1. *Is this even possible?*
+1. **Is this even possible?**
 
    The Rust compiler itself uses MIRI to evaluate constant expressions[^miri-compiler] via the [`rustc_mir` crate](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/index.html). But taking a quick look it seems to be created specifically for the compiler, at a very low level, and without that much documentation. Plus, it's nightly-only. It does seem possible, but I wasn't able to get a simple example working.
-2. *Is MIR stable?*
+2. **Is MIR stable?**
 
    MIR is unfortunately unstable[^miri-unstable], so we'd have the same incompatibility problems between plugins and the main binary.
-3. *Is the overhead of MIRI worth it?*
+3. **Is the overhead of MIRI worth it?**
 
    Considering the previous answers, no, but it was cool to consider and learn about :)
 
@@ -315,7 +315,7 @@ The WebAssembly specification only defines integers and floating point as its su
 
 [This proposal for WebAssembly](https://github.com/webassembly/interface-types) defines the binary format for encoding and decoding the newly supported types, and specifies a set of instructions to transform the data between WebAssembly and the outside world. Note that this proposal is not meant to define a fixed representation of e.g., a string in Wasm, it attempts to allow representation-agnostic high-level value types.
 
-These new _high-level value types_ are called *interface types*. The current proposal defines them as:
+These new _high-level value types_ are called **interface types**. The current proposal defines them as:
 
 * Floating point of 32 and 64 bits
 * Signed and unsigned integers of up to 64 bits

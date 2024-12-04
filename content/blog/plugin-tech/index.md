@@ -239,14 +239,14 @@ Now, this is what I wanted to emphasize in this article! Turns out WebAssembly i
 
 >WebAssembly (sometimes abbreviated Wasm) is an open standard that defines a portable binary-code format for executable programs, and a corresponding textual assembly language, as well as interfaces for facilitating interactions between such programs and their host environment. The main goal of WebAssembly is to enable high-performance applications on web pages, <mark>but the format is designed to be executed and integrated in other environments as well, including standalone ones.</mark>
 
-So to clear it up, *Wasm* is an _assembly language_, and [*WASI*](https://wasi.dev/) is a _system interface_ to run it outside the web. The latter is extremely well explained [in this article by Mozilla](https://hacks.mozilla.org/2019/03/standardizing-wasi-a-webassembly-system-interface/), I suggest giving it a read for more details. [This one](https://bytecodealliance.org/articles/announcing-the-bytecode-alliance) is also very nice to read and explains the isolation system it provides, specifically.
+So to clear it up, **Wasm** is an _assembly language_, and [**WASI**](https://wasi.dev/) is a _system interface_ to run it outside the web. The latter is extremely well explained [in this article by Mozilla](https://hacks.mozilla.org/2019/03/standardizing-wasi-a-webassembly-system-interface/), I suggest giving it a read for more details. [This one](https://bytecodealliance.org/articles/announcing-the-bytecode-alliance) is also very nice to read and explains the isolation system it provides, specifically.
 
 The two main points WebAssembly offers are, in a nutshell:
 
 * When compiled, it doesn't need to know what Operating System is being targeted. This is handled by the runtime, and the binary itself is fully portable.
 * In order to handle untrustworthy programs, it implements a sandbox. With that, the host can limit exactly what a program has access to.
 
-WASI is just a standard, so it has multiple runtimes available. The most popular ones are coincidentally written in Rust: [*wasmtime*](https://github.com/bytecodealliance/wasmtime) and [*wasmer*](https://github.com/wasmerio/wasmer). Both use the [Cranelift](https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md) backend to generate the WebAssembly machine code, though wasmer seems to also support LLVM and others. Then, the runtime can be used to run the generated `.wasm` binary as a CLI or a library. This also means that plugins could be written in any language that compiles to WebAssembly, though it is frequently harder than compiling to native code. Many Rust libraries don't support WebAssembly, so it could be tricky depending on the situation.
+WASI is just a standard, so it has multiple runtimes available. The most popular ones are coincidentally written in Rust: [**wasmtime**](https://github.com/bytecodealliance/wasmtime) and [**wasmer**](https://github.com/wasmerio/wasmer). Both use the [Cranelift](https://github.com/bytecodealliance/wasmtime/blob/main/cranelift/README.md) backend to generate the WebAssembly machine code, though wasmer seems to also support LLVM and others. Then, the runtime can be used to run the generated `.wasm` binary as a CLI or a library. This also means that plugins could be written in any language that compiles to WebAssembly, though it is frequently harder than compiling to native code. Many Rust libraries don't support WebAssembly, so it could be tricky depending on the situation.
 
 The differences between the two runtimes aren't that big. You can read [this wiki article for more details, including examples](https://wiki.alopex.li/ActuallyUsingWasm), but I particularly liked this quote:
 
@@ -293,7 +293,7 @@ Here's a list of some of the libraries I found with Plugin Systems, specifically
 <a name="_conclusion"></a>
 ## Conclusion
 
-This article has covered quite a few ways to approach a Plugin System. The final choice depends on what trade-offs the project wants to make. Most of them require sacrificing some level of performance for safety or usability. Here's a drawing that *_very roughly_* compares the main methods:
+This article has covered quite a few ways to approach a Plugin System. The final choice depends on what trade-offs the project wants to make. Most of them require sacrificing some level of performance for safety or usability. Here's a drawing that ***very roughly*** compares the main methods:
 
 <img src="triangle.svg" alt="Triangle Chart" width="70%">
 

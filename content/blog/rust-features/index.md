@@ -25,10 +25,10 @@ Originally, this was going to be a compile-time feature named `cached_token`. I 
 
 I later worked on another very similar feature, `refreshing_token`. When optionally enabled, the client would automatically refresh expired tokens. As this pattern appeared more and more in the library, I wanted to make sure its design was optimal. Once I took a deeper look, I began to find the many inconveniences of Cargo features:
 
-1. They're *inflexible*: you can't have a client with cached tokens and another without them in the same program. It's a library-wide thing, so you either enable them or you don't. Obviously, they're not configurable at runtime either; a user might want to choose what kind of behaviour to follow _while_ the program is running.
-2. They're *ugly*: writing `#[cfg(feature = "cached_token")]` is much more weird and verbose than a plain `if cached_token`.
-3. They're *messy*: features are hard to manage in the codebase. You can find yourself in the Rust equivalent of an [`#ifdef` hell](https://www.cqse.eu/en/news/blog/living-in-the-ifdef-hell/) very easily.
-4. They're *hard to document and test*: Rust doesn't provide a way to expose the features of a library. All you can do is list them manually in the main page of the docs. Testing is also harder because you have to figure out what combinations of features to use in order to cover the entire codebase, and apply them whenever you want to run the tests.
+1. They're **inflexible**: you can't have a client with cached tokens and another without them in the same program. It's a library-wide thing, so you either enable them or you don't. Obviously, they're not configurable at runtime either; a user might want to choose what kind of behaviour to follow _while_ the program is running.
+2. They're **ugly**: writing `#[cfg(feature = "cached_token")]` is much more weird and verbose than a plain `if cached_token`.
+3. They're **messy**: features are hard to manage in the codebase. You can find yourself in the Rust equivalent of an [`#ifdef` hell](https://www.cqse.eu/en/news/blog/living-in-the-ifdef-hell/) very easily.
+4. They're **hard to document and test**: Rust doesn't provide a way to expose the features of a library. All you can do is list them manually in the main page of the docs. Testing is also harder because you have to figure out what combinations of features to use in order to cover the entire codebase, and apply them whenever you want to run the tests.
 
 All of these are supposedly outweighed by just being guaranteed that the binary won't have code you don't need. But how true is that, really? And how important is it?
 

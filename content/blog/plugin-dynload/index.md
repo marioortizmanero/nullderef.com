@@ -304,7 +304,7 @@ The state is first created with a `new` function that initializes everything as 
 <a name="_generics_in_plugins"></a>
 ### Generics in plugins?
 
-In a regular Rust project we'd just make `Plugin::something` generic over a common trait that all states should implement. Unfortunately, generics in plugins are fundamentally impossible. In Rust, monomorphization turns generic code into specific code by filling in the concrete types that are used when *compiled*[^generics]. Plugins are loaded at runtime, so they may want to use types the compiler didn't generate code for.
+In a regular Rust project we'd just make `Plugin::something` generic over a common trait that all states should implement. Unfortunately, generics in plugins are fundamentally impossible. In Rust, monomorphization turns generic code into specific code by filling in the concrete types that are used when **compiled**[^generics]. Plugins are loaded at runtime, so they may want to use types the compiler didn't generate code for.
 
 It's really easy to prove in Rust with the following example. We'll try to _load_ an external function with generics:
 

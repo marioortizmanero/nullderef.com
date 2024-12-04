@@ -23,7 +23,7 @@ You decide to implement the library with async. Most of the work in your library
 
 A couple of days pass, and you get a new notification on GitHub. Someone opened an issue:
 
->*How can I use this library synchronously?*
+>**How can I use this library synchronously?**
 >
 >My project doesn't use async because it's overly complex for what I need. I wanted to try your new library, but I'm not sure how to do it easily. I would rather not fill my code with `block_on(endpoint())`. I've seen crates like {{< crate reqwest >}} exporting a [`blocking` module](https://docs.rs/reqwest/0.11.4/reqwest/blocking/index.html) with the exact same functionality, could you perhaps do that as well?
 
@@ -192,7 +192,7 @@ However, stop reading for a couple of minutes and try to figure out why you shou
 
 ![Picturing what this felt like](/blog/rust-async-sync/preview.jpg)
 
-Well, the thing is that features in Rust must be *additive*: "enabling a feature should not disable functionality, and it should usually be safe to enable any combination of features". Cargo may merge features of a crate when it's duplicated in the dependency tree in order to avoid compiling the same crate multiple times. [The reference explains this quite well, if you want more details](https://doc.rust-lang.org/cargo/reference/features.html#feature-unification).
+Well, the thing is that features in Rust must be **additive**: "enabling a feature should not disable functionality, and it should usually be safe to enable any combination of features". Cargo may merge features of a crate when it's duplicated in the dependency tree in order to avoid compiling the same crate multiple times. [The reference explains this quite well, if you want more details](https://doc.rust-lang.org/cargo/reference/features.html#feature-unification).
 
 This optimization means that mutually exclusive features may break a dependency tree. In our case, `maybe_async/is_sync` is a _toggle_ feature enabled by `client-ureq`. So if you try to compile it with `client-reqwest` also enabled, it will fail because `maybe_async` will be configured to generate synchronous function signatures instead. It's impossible to have a crate that depends on both sync and async Rspotify either directly or indirectly, and the whole concept of `maybe_async` is currently wrong according to the Cargo reference.
 
