@@ -20,6 +20,8 @@ Today, I want to convince you of how admirable my sister, Aroa, was. We lost her
       alt="Test file"
 >}}
 
+TODO: Mention astroboots?
+
 What you'd first appreciate when meeting Aroa is her irreverent style. Her most unusual clothing combinations somehow looked fabulous every single time. Cargo pants with a necktie? Slashing. Vans in different colors and bold pink glasses? Cool as hell. Her expressions and personality accompanied such a resourceful style:
 
 TODO: picture of cool outfit, or better, multiple clothes with addition signs (+) and the end result
@@ -115,6 +117,7 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
 A showcase of her persistency, or rather adventurousness, was how hard she tried to find a career. It was astronomy for a bit, and she even tried a semester of geology. She signed up for an automotive workshop and later gave a try to content creation for CBD companies. All while preparing cocktails in bars. Somewhere, a couple of people keep tattoos from when she got into that, too. We built her CV together, but we never managed to convince her to pursue arts! Just look:
 
 TODO: a few art pieces in here
+TODO: encontrar el video donde hace un truco con nata en el bar??
 
 Aroa showed me that people are much more than their career; you also need to find fulfillment beyond it. Explore, learn, create. When I moved to Munich because of work, I stopped writing here and didn't prioritize learning German. I was learning about my job but not about me.
 
@@ -158,7 +161,7 @@ After reuniting with my family, I couldn't comprehend what had happened. What wa
 
 A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive: I got ill and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My brain was ready to swim for kilometers, but frustratingly, my body refused.
 
-It's gotten much better through therapy, loved ones, and time. There are still shitty moments, and the story is ongoing. But I try to have a positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
+It's gotten much better through therapy, loved ones, and time. There are still crappy moments, and the story is ongoing. But I try to have a Stoic and positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
 
 At first, therapy may make things worse. It's like pulling all the shit out and mixing it together. But in the long term, you need it to heal. I thought of therapy as sitting in a white neat room with someone asking questions. The questions part remains true, but the environment in which they are asked can be quite flexible. Some find more comfort in sharing a beer with a laid-back therapist, while others prefer nature or among horses. This comes down to the fact that everyone deals with issues in their own way, and that's okay.
 
