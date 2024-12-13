@@ -120,55 +120,21 @@ Aroa showed me that people are much more than their career; you also need to fin
 
 TODO: picture
 
-When she was younger, Aroa got into anime and League of Legends and dyed her hair blue. Then, she learned to skate and later on how to kick ass boxing. All her life experiences brought her countless friends that loved her to no end. She even participated in First Dates on her birthday, but that's a (hilarious) story for another time.
+When she was younger, Aroa got into anime and League of Legends and dyed her hair blue. The pictures are hilarious --- she'd kill me for writing this. Then, she learned to skate and later on how to kick ass boxing. All her life experiences brought her countless friends that loved her to no end. She even participated in First Dates on her birthday, but that's a (very funny) story for another time. She sent me some recommendations, which I'm slowly watching:
 
 TODO: picture boxing
 
-<!--
-Movies:
-- Project X
-- How High
-- Colegas del Barrio (translation: Don't be a menace to South Central While Drinking your Juice in the Hood)
-- Fuga de Cerebros 1 (translation: Brain Drain)
-- Supersalidos (translation: Superbad)
-- Un espía y medio (translation: Central Intelligence)
-- Scary Movie (todas)
-- Scarface
--->
+Her cinephile side appeared more recently, featuring both cult movies like *Scarface* and absurd ones like *Don't be a Menace to South Central While Drinking your Juice in the Hood*. I kid you not, she knew *Ali-G* by heart. Every single line.
 
-Her cinephile side appeared more recently, featuring both cult movies like *Scarface* and absurd ones like *Superbad* or *Don't be a Menace to South Central While Drinking your Juice in the Hood*. I kid you not, she knew *Ali-G* by heart. Every single line.
+<img width="40%" src="movies.jpg" alt="Movie recommendations: Project X, How High, Colegas del Barrio (translation: Don't be a menace to South Central While Drinking your Juice in the Hood), Fuga de Cerebros (1 > 2, translation: Brain Drain), Un espía y medio (translation: Central Intelligence), Supersalidos (translation: Superbad), Scary Movie (todas)">
 
 TODO: historia de arbolito
 
 ## Mental health
 
-We had absolutely no clue what was going on, and it happened so fast. After several visits to emergency care in a disastrous health care system, doctors started to hint it *might* be "[Borderline Personality Disorder](https://en.wikipedia.org/wiki/Borderline_personality_disorder) (BPD)". My mother always had to wait for hours to get help only to not be given that much information, intensive care had a one-year waitlist, and Aroa being older than 18 limited our options.
+We had absolutely no clue what was going on, and it happened so fast. After several visits to emergency care in a disastrous health care system, doctors started to hint it *might* be "[Borderline Personality Disorder](https://en.wikipedia.org/wiki/Borderline_personality_disorder) (BPD)". My mother always spent hours to get help only to be given scarce information, told that intensive care had a one-year waitlist, and that Aroa being older than 18 limited our options.
 
-Mental health is a field that's been taken seriously only recently, so institutions and research around it are limited. Marsha Linehan argues that its cause is a combination of genetic vulnerability and environmental stressors. It's a complicated disorder, but with proper care it can be dealt with.
-
-If you ever have suicidal thoughts, please reach for help. This website contains some resources in [Spanish](https://ifdsurvive.com/) and this one in [English](TODO).
-
-## My experience
-
-My mother called me to tell me the news. The timing was extraordinary, as I was sitting in a plane two minutes away from its takeoff. My world fell apart: I couldn't stop crying. The attentive flight attendants took me to their reserved row at the front to calm my nerves. My sobbing worried them that I'd dehydrate or get a panic attack. So they asked me to take a tranquilizer... as a rectal suppository. For flight reasons, I suppose. I'm sure Aroa would have gotten a huuuuuge kick out of that. Man, I know she's still laughing somewhere.
-
-Being stuck for 4 hours in a flight, I thought of all the things that can be thought, and I felt all the feelings that can be felt. Not necessarily all of them being negative. I'll eternally be grateful to my mother for her instinct to immediately call me.
-
-When I reunited with my family, I couldn't comprehend what had happened. What I could definitely see, is how completely broken my loved ones were. Instinctively, I worried more for others than for myself at the beginning. This took time, but I've gotten better at it.
-
-A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health _is_ physical health. After the airplane call, my arms literally went numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive: I got ill and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My brain was ready to swim for kilometers, but frustratingly, my body refused.
-
-It's gotten much better through therapy, family, and time. There are still shitty moments, and the story is ongoing. But I try to have a positive outlook, and brag about how great Aroa was to this day.
-
-### Other stuff
-
-I'm not sure how much influence this had on me [quitting my job](/blog/quit-job-2024). The first thing therapists tell you is to not make life decisions based on events like this. So I waited and kept thinking. Building a company wasn't a new idea. If anything, losing Aroa was a reminder to make the best out of life. And it's a good thing I'm still young to do stupid things.
-
-My idea of therapy was sitting in a white neat room with someone asking you questions. While the questions part remains true, the environment in which they are asked is essential. Some can find more comfort in sharing a beer with a laid-back therapist, while others can open up easily in nature or among horses. If that's the only way the therapist has to have the patent stick to it, then it's better than nothing.
-
-At the beginning, therapy may make things worse. It's like getting all the shit outside and mixing it together. It stinks and makes you cry. But in the long term, you need it to heal.
-
-BP is a very tough mental disease that is definitely solvable. It needs specialists/experts and work for prevention.
+BPD is a tough mental disease that is definitely solvable with experts and work.
 
 About TLP:
 - Origen biosocial
@@ -176,9 +142,20 @@ About TLP:
 - https://ifdsurvive.com/
 - It's okay to mention that "she took her life", just not how
 
-More resources:
+Mental health is a field that's been taken seriously only recently, so institutions and research around it are limited. Marsha Linehan argues that its cause is a combination of genetic vulnerability and environmental stressors. It's a complicated disorder, but with proper care it can be dealt with.
 
-- https://en.m.wikipedia.org/wiki/Copycat_suicide
-- https://news.ycombinator.com/item?id=38935605
-- https://www.fortressofdoors.com/i-lost-my-son/
-- https://news.ycombinator.com/item?id=40521963
+If you ever have suicidal thoughts, please reach for help. This website contains some resources in [Spanish](https://ifdsurvive.com/) and this one in [English](TODO).
+
+## My experience
+
+My mother called me to tell me the news. The timing was extraordinary, as I was sitting in a plane two minutes away from its takeoff. My world fell apart: I couldn't stop crying. It was gut-wrenching to tell my father, too. The attentive flight attendants took me to their reserved row at the front to calm my nerves. My sobbing worried them that I'd dehydrate or get a panic attack. So they asked me to take a tranquilizer... as a rectal suppository. For flight reasons, I suppose. I'm sure Aroa would have gotten a huuuuuge kick out of that. Man, I know she's still laughing somewhere.
+
+Being stuck for 4 hours in a flight, I thought of all the things that can be thought, and I felt all the feelings that can be felt. Not necessarily all of them being negative. I'll eternally be grateful to my mother for her instinct to immediately call me.
+
+After reuniting with my family, I couldn't comprehend what had happened. What was obvious is how completely broken they were. Instinctively, I worried more for others than for myself at the beginning. This took time, but I've gotten better at it.
+
+A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive: I got ill and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My brain was ready to swim for kilometers, but frustratingly, my body refused.
+
+It's gotten much better through therapy, loved ones, and time. There are still shitty moments, and the story is ongoing. But I try to have a positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
+
+At first, therapy may make things worse. It's like pulling all the shit out and mixing it together. But in the long term, you need it to heal. I thought of therapy as sitting in a white neat room with someone asking questions. The questions part remains true, but the environment in which they are asked can be quite flexible. Some find more comfort in sharing a beer with a laid-back therapist, while others prefer nature or among horses. This comes down to the fact that everyone deals with issues in their own way, and that's okay.
