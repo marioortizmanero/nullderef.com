@@ -20,7 +20,7 @@ Today, I want to convince you of how admirable my sister, Aroa, was. We lost her
       alt="Test file"
 >}}
 
-TODO: Mention astroboots?
+TODO: Mention astroboots / big red boots?
 
 What you'd first appreciate when meeting Aroa is her irreverent style. Her most unusual clothing combinations somehow looked fabulous every single time. Cargo pants with a necktie? Slashing. Vans in different colors and bold pink glasses? Cool as hell. Her expressions and personality accompanied such a resourceful style:
 
