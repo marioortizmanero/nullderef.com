@@ -1,5 +1,5 @@
 ---
-title: "Aroa, I wish I could tell you how f*cking cool you are"
+title: "Aroa, I wish I could tell you how damn awesome you are"
 author: "Mario Ortiz Manero"
 images: ["TODO"]
 tags: [TODO]
@@ -142,6 +142,8 @@ About TLP:
 - https://ifdsurvive.com/
 - It's okay to mention that "she took her life", just not how
 
+TODO: link to donate?
+
 Mental health is a field that's been taken seriously only recently, so institutions and research around it are limited. Marsha Linehan argues that its cause is a combination of genetic vulnerability and environmental stressors. It's a complicated disorder, but with proper care it can be dealt with.
 
 If you ever have suicidal thoughts, please reach for help. This website contains some resources in [Spanish](https://ifdsurvive.com/) and this one in [English](TODO).
@@ -159,3 +161,5 @@ A shocking part was the physical reaction, as I didn't know the concept of "[som
 It's gotten much better through therapy, loved ones, and time. There are still shitty moments, and the story is ongoing. But I try to have a positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
 
 At first, therapy may make things worse. It's like pulling all the shit out and mixing it together. But in the long term, you need it to heal. I thought of therapy as sitting in a white neat room with someone asking questions. The questions part remains true, but the environment in which they are asked can be quite flexible. Some find more comfort in sharing a beer with a laid-back therapist, while others prefer nature or among horses. This comes down to the fact that everyone deals with issues in their own way, and that's okay.
+
+TODO: rest of pictures go here
