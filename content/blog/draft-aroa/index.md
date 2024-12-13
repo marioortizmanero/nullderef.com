@@ -8,77 +8,161 @@ GHissueID: TODO
 draft: true
 ---
 
+<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 {{< viz3d-setup >}}
 
 Today, I want to convince you of how admirable my sister, Aroa, was. We lost her in November 2023, so I wanted to condense her essence into a single post and talk about mental health.
 
+<!-- TODO: try to not make the width 100% because it makes it hard to scroll. Or not the full height of the phone's screen, so that there are gaps at the top and bottom. -->
 {{< viz3d
       src="/blog/draft-aroa/art/3d/test.glb"
       poster="/blog/draft-aroa/art/3d/test-poster.webp"
       alt="Test file"
 >}}
 
-My sister taught me a lot because of how different we were. For one, she seemingly gave no fucks. You could see her with the weirdest clothing combinations that somehow made her look fabulous. TODO with TODO? Slashing. TODO with TODO? Cool as hell. Her expressions and personality accompanied her resourceful style. She was like a pink dense cloud that absorbed and impressed everyone.
+What you'd first appreciate when meeting Aroa is her irreverent style. Her most unusual clothing combinations somehow looked fabulous every single time. Cargo pants with a necktie? Slashing. Vans in different colors and bold pink glasses? Cool as hell. Her expressions and personality accompanied such a resourceful style:
 
 TODO: picture of cool outfit, or better, multiple clothes with addition signs (+) and the end result
 
-I'm not sure she was aware of her coolness. Her artistic skills were amazing, particularly as she got started with 3D paintings. For example, here she cut off pictures from a magazine and glued more things on top:
+I don't think she was fully aware of her coolness. Another testament were her artistic skills, particularly as she got started with 3D paintings. For example, here she cut off pictures from a magazine and glued more things on top:
 
 TODO: picture of art in the home's office
 
-She always had a hard time finding a career that would fit her. It was astronomy for a bit, and she even tried a semester of geology. She signed up for an automotive workshop and later gave a try to content creation for CBD companies. We built her CV together, but we never managed to convince her to pursue arts! Just look:
-
-TODO: a few art pieces in here
-
-Aroa showed me that people are more than their career; you also need to find fulfillment outside of it. Explore, learn, create. When I moved to Munich because of work, I stopped writing on my blog. Learning German was important to me, but I thought it'd be too much. I was having fun in life and learning on my job, but I wasn't learning about me. Make sure you have unproductiveness in every day of your life and to embrace boredom when possible.
-
-My therapists always asked me for rituals to remember her. Going to a techno club in her memory is probably my favorite, and luckily, I live in Germany. Here are three playlists that define her best:
+My therapists always asked me for rituals to remember her. Going to a techno club in her memory is probably my favorite, and luckily, I live in Germany. Here are three playlists that define her best; you can leave one playing in the background for a full immersion while reading:
 
 <!-- TODO: make backups of these playlists as a simple list of song - author in this post -->
 
 <style>
-.albums {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 3px;
-  margin-bottom: var(--content-gap);
-}
-.albums iframe {
-  border-radius: 12px;
-  flex: 1 0 358px;
-  height: 352px;
-  margin-bottom: 0px;
+.sticky-iframe {
+  position: sticky;
+  top: 8px;
+  background-color: var(--theme);
+  outline: 8px solid var(--theme);
 }
 </style>
+<div id="spotify-iframe-1" spotify-id="6VJs3ySqejEfX9mhqRe02v" class="spotify-iframe"></div>
+<div id="spotify-iframe-2" spotify-id="1RY9QoO0tjUEDTgG6Qpqag" class="spotify-iframe"></div>
+<div id="spotify-iframe-3" spotify-id="2sNZ4yNFkk4j5FwmuIcQic" class="spotify-iframe"></div>
+<div style="margin-bottom: 8px;"></div>
 
-<div class="albums">
-  <iframe src="https://open.spotify.com/embed/playlist/6VJs3ySqejEfX9mhqRe02v?utm_source=generator" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-  <iframe src="https://open.spotify.com/embed/playlist/1RY9QoO0tjUEDTgG6Qpqag?utm_source=generator" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-  <iframe src="https://open.spotify.com/embed/playlist/2sNZ4yNFkk4j5FwmuIcQic?utm_source=generator" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-</div>
+<script>
+/* When the user starts to play music, we want to make the iframe sticky. This
+ * will make it easier to pause if necessary. Also, we only want one playlist
+ * playing at a time.
+ *
+ * Making the iframe sticky also fixes a bug. Whenever a new song in that
+ * playlist starts, there's a scroll event to focus the iframe. This doesn't
+ * allow the reader to scroll further while listening to the music. But if the
+ * iframe is sticky, it will always be in the screen and won't scroll!
+ */
 
-She also skated and did boxing
+window.onSpotifyIframeApiReady = (IFrameAPI) => {
+  const elements = [
+    document.getElementById('spotify-iframe-1'),
+    document.getElementById('spotify-iframe-2'),
+    document.getElementById('spotify-iframe-3')
+  ];
+  var embedControllers = [];
 
-And was passionate about cinema. Both in fan-favorite TODO and stupid ones like TODO or TODO. She literally knew Ali-G by heart. Every single line.
+  elements.forEach(element => {
+    const playlist_id = element.getAttribute('spotify-id');
+    const options = {
+      uri: `spotify:playlist:${playlist_id}`,
+      height: 80,
+    };
 
-She even participated in First Dates.
+    const callback = (EmbedController) => {
+      EmbedController.addListener('ready', () => {
+        embedControllers.push(EmbedController);
+      });
+
+      EmbedController.addListener('playback_update', ev => {
+        // The original element will have been replaced, so we need to find the
+        // new iframe.
+        const iframe = document.querySelector(`iframe[src*="${playlist_id}"]`);
+
+        // Toggle the sticky class
+        if (ev.data.isPaused) {
+          iframe.classList.remove("sticky-iframe");
+          console.log(`playlist ${playlist_id} is paused, so it's now non-sticky`);
+        } else {
+          iframe.classList.add("sticky-iframe");
+          console.log(`playlist ${playlist_id} playing, so it's now sticky`);
+
+          // Pause the other controllers. This is expected to raise some
+          // `PlaybackError` exceptions because the other playlists may not be
+          // loaded yet, but that's okay.
+          embedControllers.forEach(embedController => {
+            if (embedController === EmbedController) {
+              return;
+            }
+
+            embedController.pause();
+          });
+        }
+      });
+    };
+
+    // Replaces the element with the actual iframe.
+    IFrameAPI.createController(element, options, callback);
+    console.log(`Successfully set up ${element.id}`)
+  });
+};
+</script>
+
+<!-- TODO: did she tattoo foreigners? that'd be a better word than "people" -->
+
+A showcase of her persistency, or rather adventurousness, was how hard she tried to find a career. It was astronomy for a bit, and she even tried a semester of geology. She signed up for an automotive workshop and later gave a try to content creation for CBD companies. All while preparing cocktails in bars. Somewhere, a couple of people keep tattoos from when she got into that, too. We built her CV together, but we never managed to convince her to pursue arts! Just look:
+
+TODO: a few art pieces in here
+
+Aroa showed me that people are much more than their career; you also need to find fulfillment beyond it. Explore, learn, create. When I moved to Munich because of work, I stopped writing here and didn't prioritize learning German. I was learning about my job but not about me.
+
+TODO: picture
+
+When she was younger, Aroa got into anime and League of Legends and dyed her hair blue. Then, she learned to skate and later on how to kick ass boxing. All her life experiences brought her countless friends that loved her to no end. She even participated in First Dates on her birthday, but that's a (hilarious) story for another time.
+
+TODO: picture boxing
+
+<!--
+Movies:
+- Project X
+- How High
+- Colegas del Barrio (translation: Don't be a menace to South Central While Drinking your Juice in the Hood)
+- Fuga de Cerebros 1 (translation: Brain Drain)
+- Supersalidos (translation: Superbad)
+- Un espía y medio (translation: Central Intelligence)
+- Scary Movie (todas)
+- Scarface
+-->
+
+Her cinephile side appeared more recently, featuring both cult movies like *Scarface* and absurd ones like *Superbad* or *Don't be a Menace to South Central While Drinking your Juice in the Hood*. I kid you not, she knew *Ali-G* by heart. Every single line.
 
 TODO: historia de arbolito
 
-## How was it?
+## Mental health
 
-My mother called me to tell me the news. The timing was extraordinary, as I was a few minutes away from a flight taking off. My world fell apart: I couldn't stop crying. The attentive flight attendants took me to their reserved row at the front to calm my nerves. After crying for so long, they became worried I'd dehydrate or that it'd turn into a panic attack. So they asked me to take a tranquilizer... as a rectal suppository. For flight reasons, I suppose. I'm sure Aroa would have gotten a huuuuuge kick out of that. Man, I know she's still laughing somewhere.
+We had absolutely no clue what was going on, and it happened so fast. After several visits to emergency care in a disastrous health care system, doctors started to hint it *might* be "[Borderline Personality Disorder](https://en.wikipedia.org/wiki/Borderline_personality_disorder) (BPD)". My mother always had to wait for hours to get help only to not be given that much information, intensive care had a one-year waitlist, and Aroa being older than 18 limited our options.
 
-Being stuck for 4 hours in a flight, I thought of all the things that can be thought, and I felt all the feelings that can be felt. Not necessarily all of them being negative.
+Mental health is a field that's been taken seriously only recently, so institutions and research around it are limited. Marsha Linehan argues that its cause is a combination of genetic vulnerability and environmental stressors. It's a complicated disorder, but with proper care it can be dealt with.
+
+If you ever have suicidal thoughts, please reach for help. This website contains some resources in [Spanish](https://ifdsurvive.com/) and this one in [English](TODO).
+
+## My experience
+
+My mother called me to tell me the news. The timing was extraordinary, as I was sitting in a plane two minutes away from its takeoff. My world fell apart: I couldn't stop crying. The attentive flight attendants took me to their reserved row at the front to calm my nerves. My sobbing worried them that I'd dehydrate or get a panic attack. So they asked me to take a tranquilizer... as a rectal suppository. For flight reasons, I suppose. I'm sure Aroa would have gotten a huuuuuge kick out of that. Man, I know she's still laughing somewhere.
+
+Being stuck for 4 hours in a flight, I thought of all the things that can be thought, and I felt all the feelings that can be felt. Not necessarily all of them being negative. I'll eternally be grateful to my mother for her instinct to immediately call me.
 
 When I reunited with my family, I couldn't comprehend what had happened. What I could definitely see, is how completely broken my loved ones were. Instinctively, I worried more for others than for myself at the beginning. This took time, but I've gotten better at it.
 
-One particularly shocking part was the physical reaction --- I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health _is_ physical health. After the airplane call, my arms literally went numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive: I got ill and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My brain was ready to swim for kilometers, but frustratingly, my body refused.
+A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health _is_ physical health. After the airplane call, my arms literally went numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive: I got ill and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My brain was ready to swim for kilometers, but frustratingly, my body refused.
+
+It's gotten much better through therapy, family, and time. There are still shitty moments, and the story is ongoing. But I try to have a positive outlook, and brag about how great Aroa was to this day.
+
+### Other stuff
 
 I'm not sure how much influence this had on me [quitting my job](/blog/quit-job-2024). The first thing therapists tell you is to not make life decisions based on events like this. So I waited and kept thinking. Building a company wasn't a new idea. If anything, losing Aroa was a reminder to make the best out of life. And it's a good thing I'm still young to do stupid things.
-
-#### Therapy
 
 My idea of therapy was sitting in a white neat room with someone asking you questions. While the questions part remains true, the environment in which they are asked is essential. Some can find more comfort in sharing a beer with a laid-back therapist, while others can open up easily in nature or among horses. If that's the only way the therapist has to have the patent stick to it, then it's better than nothing.
 
@@ -91,20 +175,6 @@ About TLP:
 - Recursos que tienen que ver con Marsha Linehan y como lo aborda ella
 - https://ifdsurvive.com/
 - It's okay to mention that "she took her life", just not how
-
-<!-- ===== Care -->
-
-<!-- A surprising amount of urgent-care therapists showed a lack of care. -->
-<!-- Gut-wrenching stories of her being stuck for hours in a waiting room with -->
-<!-- suicidal intentions and screams. -->
-
-<!-- Importantly, this lack of care wasn't only towards the patient, but also for the -->
-<!-- family. None of us had absolutely any idea what we were getting into. Learning -->
-<!-- more about what she was going through was like trying to squeeze a drop of -->
-<!-- water from an empty bottle. No expectations whatsoever of how severe it was, nor -->
-<!-- indications of how to handle this at home. -->
-
-<!-- Even if the patient goes to therapy, most of their time is spent at home. -->
 
 More resources:
 
