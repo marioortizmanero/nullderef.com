@@ -123,11 +123,11 @@ Aroa showed me that people are much more than their career; you also need to fin
 
 TODO: picture
 
-When she was younger, Aroa got into anime and League of Legends and dyed her hair blue. The pictures are hilarious --- she'd kill me for writing this. Then, she learned to skate and later on how to kick ass boxing. All her life experiences brought her countless friends that loved her to no end. She even participated in First Dates on her birthday, but that's a (very funny) story for another time. She sent me some recommendations, which I'm slowly watching:
+When she was younger, Aroa got into anime and League of Legends and dyed her hair blue. The pictures are hilarious --- she'd kill me for writing this. Then, she learned to skate and later on how to kick ass in a boxing ring. All her life experiences brought her countless friends that loved her to no end. She even participated in First Dates on her birthday, but that's a (very funny) story for another time.
 
 TODO: picture boxing
 
-Her cinephile side appeared more recently, featuring both cult movies like *Scarface* and absurd ones like *Don't be a Menace to South Central While Drinking your Juice in the Hood*. I kid you not, she knew *Ali-G* by heart. Every single line.
+Her cinephile side appeared more recently, featuring both cult movies like *Scarface* and absurd ones like *Don't be a Menace to South Central While Drinking your Juice in the Hood*. I kid you not, she knew *Ali-G* by heart. Every single line. She sent me some recommendations, which I'm slowly watching:
 
 <img width="40%" src="movies.jpg" alt="Movie recommendations: Project X, How High, Colegas del Barrio (translation: Don't be a menace to South Central While Drinking your Juice in the Hood), Fuga de Cerebros (1 > 2, translation: Brain Drain), Un espía y medio (translation: Central Intelligence), Supersalidos (translation: Superbad), Scary Movie (todas)">
 
@@ -135,34 +135,24 @@ TODO: historia de arbolito
 
 ## Mental health
 
-We had absolutely no clue what was going on, and it happened so fast. After several visits to emergency care in a disastrous health care system, doctors started to hint it *might* be "[Borderline Personality Disorder](https://en.wikipedia.org/wiki/Borderline_personality_disorder) (BPD)". My mother always spent hours to get help only to be given scarce information, told that intensive care had a one-year waitlist, and that Aroa being older than 18 limited our options.
+We had absolutely no clue what was going on, and it happened so fast. After several visits to emergency care in a disastrous health care system, doctors started to hint it *might* be "[Borderline Personality Disorder](https://en.wikipedia.org/wiki/Borderline_personality_disorder) (BPD)". My mother always spent hours in hospitals only to be dismissed, told that intensive care had a one-year waitlist, and that Aroa being older than 18 limited our options.
 
-BPD is a tough mental disease that is definitely solvable with experts and work.
+Marsha Linehan argues that BPD is caused by both a genetic vulnerability and environmental stressors (*biosocial model*). The major symptoms are unstable relationships, a distorted sense of self, intense emotions, fear of abandonment, impulsivity, self-harm, and dissociation. This tough disorder may, however, improve significantly with consistent therapy and, in some cases, supplementary medication. Meeting more people who face it has been an honor --- they are truly the most compassionate!
 
-About TLP:
-- Origen biosocial
-- Recursos que tienen que ver con Marsha Linehan y como lo aborda ella
-- https://ifdsurvive.com/
-- It's okay to mention that "she took her life", just not how
-
-TODO: link to donate?
-
-Mental health is a field that's been taken seriously only recently, so institutions and research around it are limited. Marsha Linehan argues that its cause is a combination of genetic vulnerability and environmental stressors. It's a complicated disorder, but with proper care it can be dealt with.
-
-If you ever have suicidal thoughts, please reach for help. This website contains some resources in [Spanish](https://ifdsurvive.com/) and this one in [English](TODO).
+If you ever have suicidal thoughts, please reach for help. This website contains some resources in [Spanish](https://ifdsurvive.com/) and this one in [English](TODO). You can donate here or here. Caring for someone with BPD can also be challenging, sometimes making you feel like "walking on eggshells". But education and support groups help a lot to learn healthy boundaries and how to best support the person.
 
 ## My experience
 
-My mother called me to tell me the news. The timing was extraordinary, as I was sitting in a plane two minutes away from its takeoff. My world fell apart: I couldn't stop crying. It was gut-wrenching to tell my father, too. The attentive flight attendants took me to their reserved row at the front to calm my nerves. My sobbing worried them that I'd dehydrate or get a panic attack. So they asked me to take a tranquilizer... as a rectal suppository. For flight reasons, I suppose. I'm sure Aroa would have gotten a huuuuuge kick out of that. Man, I know she's still laughing somewhere.
+My mother called me to tell me the news. The timing was extraordinary, as I was sitting in a plane two minutes away from its takeoff. It was gut-wrenching to tell my father, too. The attentive flight attendants took me to their reserved row to calm my nerves after the departure. My constant sobbing worried them that I'd dehydrate or get a panic attack. So they asked me to take a tranquilizer... as a rectal suppository. For flight reasons, I suppose. I'm sure Aroa would have gotten a huuuuuge kick out of that. Man, I know she's still laughing somewhere.
 
-Being stuck for 4 hours in a flight, I thought of all the things that can be thought, and I felt all the feelings that can be felt. Not necessarily all of them being negative. I'll eternally be grateful to my mother for her instinct to immediately call me.
+Being stuck for 4 hours in a flight, I thought of all the things that can be thought, and I felt all the feelings that can be felt. Not necessarily all of them being negative --- I'll eternally be grateful to my mother for calling me immediately.
 
-After reuniting with my family, I couldn't comprehend what had happened. What was obvious is how completely broken they were. Instinctively, I worried more for others than for myself at the beginning. This took time, but I've gotten better at it.
+After reuniting with my family, I couldn't comprehend what had happened. What was obvious is how completely broken everyone was. Instinctively, I worried more for others than for myself at the beginning. This took time, but I've gotten better at it.
 
-A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive: I got ill and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My brain was ready to swim for kilometers, but frustratingly, my body refused.
+A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive: I got ill, and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My brain was ready to swim for kilometers, but frustratingly, my body refused.
 
 It's gotten much better through therapy, loved ones, and time. There are still crappy moments, and the story is ongoing. But I try to have a Stoic and positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
 
-At first, therapy may make things worse. It's like pulling all the shit out and mixing it together. But in the long term, you need it to heal. I thought of therapy as sitting in a white neat room with someone asking questions. The questions part remains true, but the environment in which they are asked can be quite flexible. Some find more comfort in sharing a beer with a laid-back therapist, while others prefer nature or among horses. This comes down to the fact that everyone deals with issues in their own way, and that's okay.
+At first, therapy may make things worse. It's like pulling all the shit out and mixing it together. But in the long term, you need it to heal. And it's more flexible than I thought: some find comfort in sharing a beer with a laid-back therapist, while others prefer nature or among horses. This comes down to the fact that everyone deals with issues in their own way, and that's okay.
 
 TODO: rest of pictures go here
