@@ -123,7 +123,7 @@ Aroa showed me that people are much more than their career; you also need to fin
 
 TODO: picture
 
-When she was younger, Aroa got into anime and League of Legends and dyed her hair blue. The pictures are hilarious --- she'd kill me for writing this. Then, she learned to skate and later on how to kick ass in a boxing ring. All her life experiences brought her countless friends that loved her to no end. She even participated in First Dates on her birthday, but that's a (very funny) story for another time.
+When she was younger, Aroa got into anime and League of Legends, and dyed her hair blue. The pictures are hilarious --- she'd kill me for writing this. Then, she learned to skate and later on how to kick ass in a boxing ring. All her life experiences brought her countless friends that loved her to no end. She even participated in First Dates on her birthday, but that's a (very funny) story for another time.
 
 TODO: picture boxing
 
