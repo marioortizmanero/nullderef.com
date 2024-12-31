@@ -1,0 +1,72 @@
+---
+title: About Me
+description: More about the author of this blog, Mario Ortiz Manero
+layout: layouts/base.liquid
+image: /me.jpg
+socials:
+  - GitHub
+  - LinkedIn
+  - Twitter
+  - Mastodon
+  - E-mail
+  - PGP Keys
+---
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">{{ title }}</h1>
+  </header>
+
+  <div class="post-content">
+    <div class="about-intro">
+    <img src="/me.jpg" alt="A picture of me"/>
+    <p>
+    My name is Mario. I love learning, tinkering with systems, and trying to explain them! I'm a big fan of adventures and nature, so Munich is an awesome place to live.
+    </p>
+    <p>
+    Currently, I work for Lyft as a backend engineer in the Routing team. Other noteworthy projects of mine include:
+    </p>
+    </div>
+
+    <div class="projects">
+      {% for project in metadata.author.projects %}
+        {% include "partials/project.liquid" %}
+      {% endfor %}
+    </div>
+
+    <p>
+    If you want to contact me, just <a href="https://calendar.app.google/L45TFdjwgqJZemxo7" target="_blank" rel="noopener noreferrer me">schedule a chat</a> or use any of these links:
+    </p>
+
+    <p style="text-align: center;">
+    {% for social in socials %}
+      <a href="{{ metadata.author.social[social] }}" target="_blank" rel="noopener noreferrer me">{{ social }}</a>
+      {% unless forloop.last %} · {% endunless %}
+    {% endfor %}
+    </p>
+
+    <i>
+    Note: “Ortiz Manero” are both surnames, not middle names! It's how we go in Spain: they come from my father and mother, respectively :)
+    </i>
+
+    <!-- WIP Some phrases that I stand for:
+
+    - Be bored
+    - If you want something, don't wait for it or have dependencies on others. You
+      never know how life changes. YOLO
+    - You are 2/3s of your closest loved ones
+    - Sleep on it (https://news.yale.edu/2024/08/14/sleep-it-how-brain-processes-many-experiences-even-when-offline)
+    -->
+
+    <h2>Other Cool Blogs</h2>
+
+    <p>Here are some people that inspire me:</p>
+
+    <ul>
+      {% for blog in metadata.relatedBlogs %}
+        <li><p><a href="{{ blog.url }}" target="_blank" rel="noopener noreferrer me"><strong>{{ blog.name }}</strong></a>: {{ blog.description }}</p></li>
+      {% endfor %}
+    </ul>
+  </div>
+
+</article>

@@ -1,14 +1,16 @@
 ---
 title: "Why you shouldn't obsess about Rust \"features\""
 description: "Friendly reminder: you might not need conditional compilation"
-author: "Mario Ortiz Manero"
-images: ["/blog/rust-features/compiler-explorer.png"]
+image: "/blog/rust-features/compiler-explorer.png"
+imageAlt: "Preview image, with a screenshot of Godbolt's compiler explorer"
 tags: ["tech", "programming", "rust", "beginners"]
 keywords: ["tech", "programming", "rust", "rustlang", "guide", "beginners", "cargo", "conditional compilation", "cargo features"]
-series: ["rspotify"]
+series: "rspotify"
 date: 2021-07-06
 GHissueID: 6
 ---
+
+[[toc]]
 
 Rust makes it very easy to express conditional compilation, especially thanks to Cargo ["features"](https://doc.rust-lang.org/cargo/reference/features.html). They're well integrated into the language and are very easy to use. But one thing I've learned by maintaining [RSpotify](https://github.com/ramsayleung/rspotify) (a library for the Spotify API) is that one shouldn't obsess over them. Conditional compilation should be used when it's _the only way_ to solve the problem, for a number of reasons I'll explain in this article.
 
@@ -141,6 +143,8 @@ Neither `cached_token` nor `refreshing_token` follow the usual reasoning as to w
 In order to avoid this, perhaps the naming for features could have been different? Enabling support for cached tokens certainly sounds like a "feature", while OS-specific code doesn't really seem like one. I also find it confusing sometimes, and Google agrees with me in this one. Looking for information related to Rust features might return completely unrelated stuff just because the result has the word "feature" but meaning "an attribute or aspect of the program". Kind of like how you have to google "golang X" instead of "go X" because otherwise it doesn't make sense. But whatever, it's too late for my opinion anyway.
 
 Anyhow, I hope you learned something new, or that this was at least a good reminder! If you have any suggestions please leave them in the section below :)
+
+{% include "partials/subscribe.liquid" %}
 
 [^cargo-release]: https://doc.rust-lang.org/cargo/reference/profiles.html#release
 [^rust-const]: https://doc.rust-lang.org/std/keyword.const.html

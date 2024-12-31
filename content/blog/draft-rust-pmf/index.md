@@ -1,9 +1,10 @@
 ---
 title: "Rust is only useful if you already have Product Market Fit"
 description: "TODO"
-author: "Mario Ortiz Manero"
-images: ["TODO"]
+image: "/TODO.jpg"
+imageAlt: TODO
 tags: ["tech", "programming"]
+keywords: [TODO]
 date: 2022-01-29
 GHissueID: TODO
 draft: true

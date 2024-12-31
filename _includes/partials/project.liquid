@@ -1,0 +1,21 @@
+<div class="project-entry">
+  <div class="project-header">
+    <a href="{{ project.site }}" target="_blank" rel="noopener noreferrer me"><h3>{{ project.name }}</h3></a>
+    <p>{{ project.position }}</p>
+  </div>
+
+  <img class="project-logo" loading="lazy" src="{{ project.logo }}" alt="Logo of {{ project.name | escape }}" eleventy:widths="100">
+
+  <div class="project-content">
+    <p>{{ project.description }}</p>
+  </div>
+
+  {% comment %} TODO: simplify this {% endcomment %}
+  {% if project.nullderef_series %}
+  <div class="project-links">
+      <div>
+        <i><a href="/series/{{ project.nullderef_series }}" target="_blank" rel="noopener noreferrer me">Read its series on NullDeref</a></i>
+      </div>
+  </div>
+  {% endif %}
+</div>

@@ -1,13 +1,15 @@
 ---
 title: "Optional parameters in Rust"
 description: "Analyzing different approaches for optional parameters in Rust"
-author: "Mario Ortiz Manero"
-images: ["/blog/rust-parameters/ferris.jpg"]
+image: "/blog/rust-parameters/ferris.jpg"
+imageAlt: "Preview image, with Ferris and a question mark"
 tags: ["tech", "programming", "rust", "beginners"]
 keywords: ["tech", "programming", "rust", "rustlang", "guide", "beginners", "generics", "optional parameters", "default parameters", "api client", "optional params", "default params", "client architecture"]
 date: 2020-10-10
 GHissueID: 7
 ---
+
+[[toc]]
 
 Optional or default parameters are a very interesting feature of some languages
 that Rust specifically doesn't cover (and looks like it won't [anytime
@@ -494,3 +496,5 @@ thread](https://www.reddit.com/r/rust/comments/j8p6fx/optional_parameters_in_rus
 
 *Disclaimer: this post was originally in
 https://vidify.org/blog/rust-parameters/. I've moved it to my personal blog.*
+
+{% include "partials/subscribe.liquid" %}

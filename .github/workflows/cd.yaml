@@ -1,3 +1,5 @@
+# More information:
+# https://www.11ty.dev/docs/deployment/#deploy-an-eleventy-project-to-github-pages
 name: GitHub Pages Upload
 
 on:
@@ -8,32 +10,37 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          # Fetch Hugo themes (true OR recursive)
-          submodules: true
-          # Fetch all history for .GitInfo and .Lastmod
-          fetch-depth: 0
+          node-version: '20'
 
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v3
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Cache npm
+        uses: actions/cache@v3
         with:
-          ruby-version: 3.2
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
 
-      - run: gem install asciidoctor
+      - name: Cache Eleventy .cache
+        uses: actions/cache@v3
+        with:
+          path: ./.cache
+          key: ${{ runner.os }}-eleventy-fetch-cache
 
-      - name: Run Hugo
-        run: |
-          alias asciidoctor="asciidoctor --attribute=experimental=true --attribute=icons=font"
-          hugo --minify --logLevel=info --gc
+      - run: npm install
+      - run: npm run build-ghpages
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/master'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          publish_dir: ./_site
           cname: nullderef.com

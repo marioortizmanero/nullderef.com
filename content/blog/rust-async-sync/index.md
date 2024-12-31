@@ -1,18 +1,16 @@
 ---
 title: "The bane of my existence: Supporting both async and sync code in Rust"
-description: "Sit beside me and hear this crazy old man's tale of when I asked
-Rust for too much"
-summary: "My journey trying to support both asynchronous and blocking code in
-the Rspotify library. I got it working in the end, but Cargo didn't quite like
-it."
-images: ["/blog/rust-async-sync/preview.jpg"]
-author: "Mario Ortiz Manero"
-tags: ["tech", "programming", "rust", "open source"]
+description: "Sit beside me and hear this crazy old man's tale of when I asked Rust for too much"
+image: "/blog/rust-async-sync/preview.jpg"
+imageAlt: "Preview image, with Ferris lost in complicated Rust errors"
+tags: ["tech", "programming", "rust", "open-source"]
 keywords: ["tech", "programming", "rust", "rustlang", "async", "sync", "macros", "procedural macros", "rspotify", "synchronous", "asynchronous", "blocking", "tokio", "abstraction"]
-series: ["rspotify"]
+series: "rspotify"
 date: 2024-01-14
 GHissueID: 4
 ---
+
+[[toc]]
 
 <a name="_introduction"></a>
 ## Introduction
@@ -25,11 +23,11 @@ A couple of days pass, and you get a new notification on GitHub. Someone opened 
 
 >**How can I use this library synchronously?**
 >
->My project doesn't use async because it's overly complex for what I need. I wanted to try your new library, but I'm not sure how to do it easily. I would rather not fill my code with `block_on(endpoint())`. I've seen crates like {{< crate reqwest >}} exporting a [`blocking` module](https://docs.rs/reqwest/0.11.4/reqwest/blocking/index.html) with the exact same functionality, could you perhaps do that as well?
+>My project doesn't use async because it's overly complex for what I need. I wanted to try your new library, but I'm not sure how to do it easily. I would rather not fill my code with `block_on(endpoint())`. I've seen crates like {% crate "reqwest" %} exporting a [`blocking` module](https://docs.rs/reqwest/0.11.4/reqwest/blocking/index.html) with the exact same functionality, could you perhaps do that as well?
 
-Low-level wise, that sounds like a very complicated task. Having a common interface for both async code --- which requires a runtime like {{< crate tokio >}}, awaiting futures, pinning, etc --- and regular sync code? I mean, they asked nicely, so maybe we can try. After all, the only difference in the code would be the occurrences of the `async` and `await` keywords because you aren't doing anything fancy.
+Low-level wise, that sounds like a very complicated task. Having a common interface for both async code --- which requires a runtime like {% crate "tokio" %}, awaiting futures, pinning, etc --- and regular sync code? I mean, they asked nicely, so maybe we can try. After all, the only difference in the code would be the occurrences of the `async` and `await` keywords because you aren't doing anything fancy.
 
-Well, this is _more or less_ what happened with the crate {{< crate rspotify >}}, which I used to maintain along with its creator [Ramsay](https://github.com/ramsayleung/). For those who don't know, it's a wrapper for the Spotify Web API. To clarify, I did get this working in the end, although not as cleanly as I was hoping; I'll try to explain the situation in this new article of the [Rspotify series](https://nullderef.com/series/rspotify).
+Well, this is _more or less_ what happened with the crate {% crate "rspotify" %}, which I used to maintain along with its creator [Ramsay](https://github.com/ramsayleung/). For those who don't know, it's a wrapper for the Spotify Web API. To clarify, I did get this working in the end, although not as cleanly as I was hoping; I'll try to explain the situation in this new article of the [Rspotify series](https://nullderef.com/series/rspotify).
 
 <a name="_the_first_approaches"></a>
 ## The first approaches
@@ -109,11 +107,11 @@ fn endpoint(&self, param: String) -> SpotifyResult<String> {
 }
 ```
 
-While the handle does make our blocking client faster[^block-on-perf], there is an even more performant way to do it. This is what {{< crate reqwest >}} itself does, in case you're interested. In short, it spawns a thread that calls `block_on` waiting on a channel with jobs[^block-on-channels][^block-on-reqwest].
+While the handle does make our blocking client faster[^block-on-perf], there is an even more performant way to do it. This is what {% crate "reqwest" %} itself does, in case you're interested. In short, it spawns a thread that calls `block_on` waiting on a channel with jobs[^block-on-channels][^block-on-reqwest].
 
 Unfortunately, this solution still has quite the overhead. You pull in large dependencies like `futures` or `tokio`, and include them in your binary. All of that, in order to... actually end up writing blocking code. So not only is it a cost at runtime, but also at compile time. It just feels wrong to me.
 
-And you still have a good amount of duplicate code, even if it's just definitions, which can sum up. {{< crate reqwest >}} is a huge project and can probably afford this for their `blocking` module. But for a less popular crate like `rspotify`, this is harder to pull off.
+And you still have a good amount of duplicate code, even if it's just definitions, which can sum up. {% crate "reqwest" %} is a huge project and can probably afford this for their `blocking` module. But for a less popular crate like `rspotify`, this is harder to pull off.
 
 <a name="_duplicating_the_crate"></a>
 ### Duplicating the crate
@@ -125,7 +123,7 @@ With this idea we can't even use procedural macros because you can't just create
 <a name="_what_ended_up_working_the_maybe_async_crate"></a>
 ## What ended up "working": the `maybe_async` crate
 
-[The third attempt](https://github.com/ramsayleung/rspotify/pull/129) is based on a crate called {{< crate maybe_async >}}. I remember foolishly thinking it was the perfect solution back when I discovered it.
+[The third attempt](https://github.com/ramsayleung/rspotify/pull/129) is based on a crate called {% crate "maybe_async" %}. I remember foolishly thinking it was the perfect solution back when I discovered it.
 
 Anyway, the idea is that with this crate you can automatically remove the `async` and `.await` occurrences in your code with a procedural macro, essentially automating the copy-pasting approach. For example:
 
@@ -146,7 +144,7 @@ fn endpoint() { /* stuff with `.await` removed */ }
 
 You can configure whether you want asynchronous or blocking code by toggling the `maybe_async/is_sync` feature when compiling the crate. The macro works for functions, traits and `impl` blocks. If one conversion isn't as easy as removing `async` and `.await`, you can specify custom implementations with the `async_impl` and `sync_impl` procedural macros. It does this wonderfully, and we've already been using it for Rspotify for a while now.
 
-In fact, it worked so well that I made Rspotify _http-client agnostic_, which is even more flexible than being _async/sync agnostic_. This allows us to support multiple HTTP clients like {{< crate reqwest >}} and {{< crate ureq >}}, independently of whether the client is asynchronous or synchronous.
+In fact, it worked so well that I made Rspotify _http-client agnostic_, which is even more flexible than being _async/sync agnostic_. This allows us to support multiple HTTP clients like {% crate "reqwest" %} and {% crate "ureq" %}, independently of whether the client is asynchronous or synchronous.
 
 Being _http-client agnostic_ is not that hard to implement if you have `maybe_async` around. You just need to define a trait for the [HTTP client](https://github.com/ramsayleung/rspotify/blob/89b37219a2230cdcf08c4cfd2ebe46d64902f03d/rspotify-http/src/common.rs#L46), and then implement it for each of the clients you want to support. A snippet of code is worth a thousand words (_you can find the full source for Rspotify's [``reqwest``'s client here](https://github.com/ramsayleung/rspotify/blob/master/rspotify-http/src/reqwest.rs#L97), and [``ureq``'s here](https://github.com/ramsayleung/rspotify/blob/master/rspotify-http/src/ureq.rs#L56)_):
 ```rust
@@ -210,9 +208,9 @@ Just in case, I tried to reproduce this myself, and it did work as I expected. [
 
 There were a few crates that also had this problem:
 
-* {{< crate arangors >}} and {{< crate aragog >}}: wrappers for ArangoDB. Both use `maybe_async` to switch between async and sync (``arangors``'s author is the same person, in fact)[^arangors-error][^aragog-error].
-* {{< crate inkwell >}}: a wrapper for LLVM. It supports multiple versions of LLVM, which are not compatible with eachother[^inkwell-error].
-* {{< crate k8s-openapi >}}: a wrapper for Kubernetes, with the same issue as `inkwell`[^k8s-error].
+* {% crate "arangors" %} and {% crate "aragog" %}: wrappers for ArangoDB. Both use `maybe_async` to switch between async and sync (``arangors``'s author is the same person, in fact)[^arangors-error][^aragog-error].
+* {% crate "inkwell" %}: a wrapper for LLVM. It supports multiple versions of LLVM, which are not compatible with eachother[^inkwell-error].
+* {% crate k8s-openapi %}: a wrapper for Kubernetes, with the same issue as `inkwell`[^k8s-error].
 
 <a name="_fixing_maybe_async"></a>
 ### Fixing `maybe_async`
@@ -220,7 +218,7 @@ There were a few crates that also had this problem:
 Once the crate started to gain popularity, this issue was opened in `maybe_async`, which explains the situation and showcases a fix:
 
 <p style="text-align:center;">
-  {{< gh issue "fMeow/maybe-async-rs" 6 "async and sync in the same program" >}}
+  {% gh "issue" "fMeow/maybe-async-rs" 6 "async and sync in the same program" %}
 </p>
 
 `maybe_async` would now have two feature flags: `is_sync` and `is_async`. The crate would generate the functions in the same way, but with a `_sync` or `_async` suffix appended to the identifier so that they wouldn't be conflicting. For example:
@@ -272,7 +270,7 @@ We currently have a choice to make between:
 
   I know this is a problem that I've imposed to myself. We could just say "No. We only support async" or "No. We only support sync". While there are users interested in being able to use both, sometimes you just have to say no. If such a feature becomes so complicated to deal with that your entire codebase becomes a mess, and you don't have the engineering power to maintain it, then it's your only choice. If someone cared enough, they could just fork the crate and convert it to synchronous for their own usage.
 
-  After all, most API wrappers and the like only support either asynchronous or blocking code. {{< crate serenity >}} (Discord API), {{< crate sqlx >}} (SQL toolkit) and {{< crate teloxide >}} (Telegram API) are async-only, for example, and they're quite popular.
+  After all, most API wrappers and the like only support either asynchronous or blocking code. {% crate "serenity" %} (Discord API), {% crate "sqlx" %} (SQL toolkit) and {% crate "teloxide" %} (Telegram API) are async-only, for example, and they're quite popular.
 
 Even though it was quite frustrating at times, I don't really regret spending so much time walking in circles trying to get both async and sync to work. I was contributing to Rspotify in the first place just to _learn_. I had no deadlines and no stress, I just wanted to try to improve a library in Rust in my free time. And I _have_ learned a lot; hopefully you too, after reading this.
 
@@ -280,11 +278,13 @@ Perhaps the lesson today is that we should remember that Rust is a low level lan
 
 So what do you think? What would you do if you were a maintainer of Rspotify? You can leave a comment below if you like.
 
-[^block-on-perf]: {{< gh issue-comment "ramsayleung/rspotify" "112#issuecomment-683266508" "Cleaning up the `blocking` module" >}}
+{% include "partials/subscribe.liquid" %}
+
+[^block-on-perf]: {% gh "issue-comment" "ramsayleung/rspotify" "112#issuecomment-683266508" "Cleaning up the `blocking` module" %}
 [^block-on-channels]: [reqwest/src/blocking/client.rs @ line 757 --- GitHub](https://github.com/seanmonstar/reqwest/blob/0.10.x/src/blocking/client.rs#L757)
-[^block-on-reqwest]: {{< gh issue-comment "ramsayleung/rspotify" "112#issuecomment-683249563" "Cleaning up the `blocking` module" >}}
+[^block-on-reqwest]: {% gh "issue-comment" "ramsayleung/rspotify" "112#issuecomment-683249563" "Cleaning up the `blocking` module" %}
 [^features-additive]: [Cargo's Documentation, "Feature unification"](https://github.com/rust-lang/cargo/blob/master/src/doc/src/reference/features.md#feature-unification)
-[^arangors-error]: {{< gh issue "fMeow/arangors" 37 "Proposal: Move `sync` and `async` features into seperate modules" >}}
+[^arangors-error]: {% gh "issue" "fMeow/arangors" 37 "Proposal: Move `sync` and `async` features into seperate modules" %}
 [^aragog-error]: [aragog/src/lib.rs @ line 488 --- GitLab](https://gitlab.com/qonfucius/aragog/-/blob/0.140.0/src/lib.rs#L488)
 [^inkwell-error]: [inkwell/src/lib.rs @ line 107 --- GitHub](https://github.com/TheDan64/inkwell/blob/bfb0e32bc329fd35f6c5a529a1a6209936a147f8/src/lib.rs#L107)
 [^k8s-error]: [k8s-openapi/build.rs @ line 31 --- GitHub](https://github.com/Arnavion/k8s-openapi/blob/v0.13.0/build.rs#L31)

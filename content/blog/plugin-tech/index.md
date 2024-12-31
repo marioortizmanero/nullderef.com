@@ -1,14 +1,16 @@
 ---
 title: "Plugins in Rust: The Technologies"
 description: "A more in-depth look at Rust plugin systems"
-author: "Mario Ortiz Manero"
-images: ["/blog/plugin-tech/technologies.jpg"]
-tags: ["tech", "programming", "rust", "open source"]
+image: "/blog/plugin-tech/technologies.jpg"
+imageAlt: "Preview image, with the logos of Lua, Wasm, Python, eBPF, and more"
+tags: ["tech", "programming", "rust", "open-source"]
 keywords: ["tech", "programming", "rust", "rustlang", "dynamic loading", "ffi", "plugin", "wasm", "webassembly", "ipc", "scripting"]
-series: ["rust-plugins"]
+series: "rust-plugins"
 date: 2021-05-17
 GHissueID: 9
 ---
+
+[[toc]]
 
 <style>
 /* Basic colors: https://en.wikipedia.org/wiki/Web_colors#HTML_color_names */
@@ -16,6 +18,12 @@ GHissueID: 9
 .olive { color: olive; }
 .green { color: green; }
 .white-background { background-color: white; }
+.txt-round {
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+.txt-margin-right { margin-right: 5px; }
+.txt-margin-left { margin-left: 5px; }
 </style>
 
 Welcome to the ["Plugins in Rust" series](https://nullderef.com/series/rust-plugins/)! During the next months I'll be involved in a project with [Tremor](https://www.tremor.rs/), for which I need to implement a Plugin System. The goal is to maximize modularity and reduce Rust’s wild compilation times. The implementation will end up being done with dynamic loading, but I will cover all the alternatives first to make sure it's the best approach for my use-case.
@@ -301,6 +309,8 @@ There's never a single answer in programming: how much performance are you willi
 
 You can join the discussion at [Reddit](https://www.reddit.com/r/rust/comments/nenql8/plugins_in_rust_the_technologies_nullderefcom/?) if you have any additional suggestions or comments, or leave a comment below.
 
+{% include "partials/subscribe.liquid" %}
+
 [^npm-trust-1]: [How to build an npm worm --- Jamie Kyle](https://jamie.build/how-to-build-an-npm-worm)
 [^npm-trust-2]: [Yet another malicious package found in npm, targeting cryptocurrency wallets --- snyk](https://snyk.io/blog/yet-another-malicious-package-found-in-npm-targeting-cryptocurrency-wallets/)
 [^swift-abi]: [How Swift Achieved Dynamic Linking Where Rust Couldn't --- Alexis Beingessner](https://gankra.github.io/blah/swift-abi/)
@@ -314,6 +324,6 @@ You can join the discussion at [Reddit](https://www.reddit.com/r/rust/comments/n
 [^ffi-caveat-2]: [`papyrus/src/compile/execute.rs` --- GitHub kurtlawrence/papyrus](https://github.com/kurtlawrence/papyrus/blob/1c7f0a669fed59d220bdefb161c568072126d3d5/src/compile/execute.rs#L36)
 [^ffi-cross-platform]: [Thread-safety --- libloading v0.7.0](https://docs.rs/libloading/0.7.0/libloading/struct.Library.html#thread-safety)
 [^ffi-dlopen-safety]: [Safety --- dlopen v0.1.8](https://docs.rs/dlopen/0.1.8/dlopen/#safety)
-[^amethyst-fail]: {{< gh issue "amethyst/amethyst" 1729 "[NEW FEATURE] WebAssembly scripting system" >}}
+[^amethyst-fail]: {% gh "issue" "amethyst/amethyst" 1729 "[NEW FEATURE] WebAssembly scripting system" %}
 [^wasmer-types]: [`Val` --- Wasmer v2.0.0](https://docs.rs/wasmer/2.0.0/wasmer/type.Val.html)
 [^eclipse]: [Notes on the Eclipse Plug-in Architecture - Eclipse](https://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html)

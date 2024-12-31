@@ -1,14 +1,16 @@
 ---
 title: "Plugins in Rust: Diving into Dynamic Loading"
 description: "A closer look at dynamic loading in Rust"
-author: "Mario Ortiz Manero"
-images: ["/blog/plugin-dynload/diving.jpg"]
-tags: ["tech", "programming", "rust", "open source"]
+image: "/blog/plugin-dynload/diving.jpg"
+imageAlt: "Preview image, with a diver finding Ferris deep under the water"
+tags: ["tech", "programming", "rust", "open-source"]
 keywords: ["tech", "programming", "rust", "rustlang", "dynamic loading", "plugin", "ffi", "abi", "abi_stable", "bpf", "ebpf"]
-series: ["rust-plugins"]
+series: "rust-plugins"
 date: 2021-10-05
 GHissueID: 3
 ---
+
+[[toc]]
 
 In the [last article](https://nullderef.com/blog/plugin-start/) of this [series](https://nullderef.com/series/rust-plugins/) I wrote some simple experiments of plugins both with WebAssembly and dynamic loading. After discarding Wasm for this specific plugin system, I wanted to try to get a more realistic example with dynamic loading and work towards the final implementation.
 
@@ -50,9 +52,9 @@ The thing is that some onramps may not only want to receive from external system
 
 Basically, [connectors](https://github.com/tremor-rs/tremor-rfcs/blob/connectors-n-streams/text/0000-connectors-streams.md) are just a way to abstract over both onramps and offramps under the same concept, including linked transports. As the time of writing this article they're still being implemented by Matthias in the [`connectors` branch](https://github.com/tremor-rs/tremor-runtime/tree/connectors) of [tremor-rs/tremor-runtime](https://github.com/tremor-rs/tremor-runtime), but their interface, defined with the [`Connector` trait](https://github.com/tremor-rs/tremor-runtime/blob/883f13e29b4c6ec7b6703f2487aac321c738e7c8/src/connectors.rs#L739), is somewhat stable.
 
-It's important to keep the plugin interface as simple as possible. The communication details should be left to the runtime, so that the plugin can be simplified to just exporting a number of synchronous functions. With this we can avoid passing some complex types (`async`, channels, etc) between the runtime and plugin, which can be impossible if you have to maintain ABI stability ({{< crate abi_stable >}} doesn't even support `async`).
+It's important to keep the plugin interface as simple as possible. The communication details should be left to the runtime, so that the plugin can be simplified to just exporting a number of synchronous functions. With this we can avoid passing some complex types (`async`, channels, etc) between the runtime and plugin, which can be impossible if you have to maintain ABI stability ({% crate "abi_stable" %} doesn't even support `async`).
 
-Once this lean plugin interface is defined, we can create some kind of wrapper in the runtime (a _manager_, in Tremor terms) that handles communication and other similar tasks. This exact same thing is done by other crates such as {{< crate rdkafka >}}, which is based on the C library {{< crate rdkafka-sys >}}, and implements a higher-level asynchronous interface on top of it.
+Once this lean plugin interface is defined, we can create some kind of wrapper in the runtime (a _manager_, in Tremor terms) that handles communication and other similar tasks. This exact same thing is done by other crates such as {% crate "rdkafka" %}, which is based on the C library {% crate "rdkafka-sys" %}, and implements a higher-level asynchronous interface on top of it.
 
 <a name="_about_tremor"></a>
 ## About Tremor
@@ -118,7 +120,7 @@ I jumped into the codebase of [`tremor/tremor-runtime`](https://github.com/tremo
 
 >[The actor model treats the] actor as the universal primitive of concurrent computation. In response to a message it receives, an actor can: make local decisions, create more actors, send more messages, and determine how to respond to the next message received. Actors may modify their own private state, but can only affect each other indirectly through messaging (removing the need for lock-based synchronization).
 
-It doesn't use a language (e.g., Erlang) or framework (e.g., {{< crate bastion >}}, maybe in the future) that strictly follows the actor model, but it often re-implements the same patterns manually. Tremor is currently implemented with [asynchronous programming](https://en.wikipedia.org/wiki/Asynchrony_(computer_programming)), which means that instead of threads we'll be working with _tasks_, a higher level concept. From [the {{< crate async-std >}} documentation](https://docs.rs/async-std/1.10.0/async_std/task/index.html):
+It doesn't use a language (e.g., Erlang) or framework (e.g., {% crate "bastion" %}, maybe in the future) that strictly follows the actor model, but it often re-implements the same patterns manually. Tremor is currently implemented with [asynchronous programming](https://en.wikipedia.org/wiki/Asynchrony_(computer_programming)), which means that instead of threads we'll be working with _tasks_, a higher level concept. From [the {% crate "async-std" %} documentation](https://docs.rs/async-std/1.10.0/async_std/task/index.html):
 
 >An executing asynchronous Rust program consists of a collection of native OS threads, on top of which multiple stackless coroutines are multiplexed. We refer to these as “tasks”. Tasks can be named, and provide some built-in support for synchronization.
 
@@ -167,7 +169,7 @@ Both of these are relatively simple and will be helpful to benchmark the plugin 
 
 In the previous articles I mostly considered using either WebAssembly or Dynamic Loading. What I didn't even know about is [eBPF](https://ebpf.io/), "a revolutionary technology with origins in the Linux kernel that can run sandboxed programs in an operating system kernel". However, similarly to WebAssembly, its usage has been expanded to user-space applications. eBPF defines a set of bytecode instructions that may be ran by a virtual machine anywhere, similarly to how Wasm works.
 
-There are multiple active crates for eBPF in Rust. {{< crate libbpf_rs >}}, {{< crate redbpf >}} and {{< crate aya >}} are specific to the Linux Kernel. {{< crate solana_rbpf >}} is a virtual machine, so it only works for user-space. The maintainers of the latter use it to [safely run apps on the blockchain](https://solana.com/), and their crate seems to be a fork of the now abandoned (?) {{< crate rbpf >}}. [This recent talk at LPC 2021](https://www.youtube.com/watch?v=xj0PBFjLm1U&t=8701s) explains the situation of eBPF in Rust quite well (mainly for Aya, so it's mostly related to the Linux Kernel).
+There are multiple active crates for eBPF in Rust. {% crate "libbpf_rs" %}, {% crate "redbpf" %} and {% crate "aya" %} are specific to the Linux Kernel. {% crate "solana_rbpf" %} is a virtual machine, so it only works for user-space. The maintainers of the latter use it to [safely run apps on the blockchain](https://solana.com/), and their crate seems to be a fork of the now abandoned (?) {% crate "rbpf" %}. [This recent talk at LPC 2021](https://www.youtube.com/watch?v=xj0PBFjLm1U&t=8701s) explains the situation of eBPF in Rust quite well (mainly for Aya, so it's mostly related to the Linux Kernel).
 
 Unlike WebAssembly, you don't necessarily need to serialize or write to an intermediate memory. Since you fully control how the virtual machine works, the runtime could implement a custom sandbox that simply checks for the read/written addresses in the plugins to make sure they aren't out of bounds, while still sharing the same memory space. So in terms of performance, Tremor itself _could_ use it --- though there's still the penalty of interpreting plugins instead of running them natively.
 
@@ -286,7 +288,7 @@ However, these extensions are just conventions; we could just enforce a single e
 Additionally, the Tremor plugin system requires that plugins can be loaded _both at initialization time and at runtime_. There is a decision to be made in here about how the latter should work:
 
 * Manually: after adding the new plugin to the configured directories (or specifying its full path), the user would input in some way that it should be loaded (for example with the CLI tool).
-* Automatically: the runtime could detect whenever a new plugin is added to the list with a crate like {{< crate notify >}}. Most Operating Systems have some way to get a notification whenever a file or directory changes. In case a new file was added to any of the configured directories, the runtime could try to load it. This way, it'd work with no user interaction, other than adding the file to one of the directories.
+* Automatically: the runtime could detect whenever a new plugin is added to the list with a crate like {% crate "notify" %}. Most Operating Systems have some way to get a notification whenever a file or directory changes. In case a new file was added to any of the configured directories, the runtime could try to load it. This way, it'd work with no user interaction, other than adding the file to one of the directories.
 * A combination of both: if the directories configured to look for plugins can't be changed at runtime it might be interesting to also let the user manually load plugins in specific paths.
 
 <a name="_handling_state"></a>
@@ -484,7 +486,7 @@ int main() {
 
 The main difference in the code is the new base class `plugin_base_t`. It defines a single function `print` that should be implemented by its children, and it could also include other fields that would be inherited. Casting between `base_state_t` and `plugin_base_t` is explicitly allowed by the C standard as long as the base class is the first member in the struct, so this is sound.
 
-This covers all of our necessities. The only remaining problem is that it's still quite unsafe to use. Thankfully, we can avoid most user errors by using the crate {{< crate thin_trait_object >}}, which provides a very flexible procedural macro to automatically write all the necessary boilerplate in Rust.
+This covers all of our necessities. The only remaining problem is that it's still quite unsafe to use. Thankfully, we can avoid most user errors by using the crate {% crate "thin_trait_object" %}, which provides a very flexible procedural macro to automatically write all the necessary boilerplate in Rust.
 
 <!-- https://adventures.michaelfbryan.com/posts/ffi-safe-polymorphism-in-rust/ -->
 <!-- https://www.youtube.com/watch?v=xcygqF5LVmM&feature=emb_title -->
@@ -594,6 +596,8 @@ Apart from the examples listed in the ["Error Handling"](#error_handling) sectio
 This article has covered a lot of questions that one may encounter when trying to use dynamic loading for a plugin system. It's definitely a complicated task with lots of decisions to make, and plenty of pitfalls. This is why I'd love to try `abi_stable` in detail, which would let us do the same things but without a line of `unsafe`.
 
 In my opinion, although `abi_stable` is a very large crate and somewhat hard to learn, most of the problems this post exposes are greatly simplified thanks to it. In the next article I'll see the differences between both approaches.
+
+{% include "partials/subscribe.liquid" %}
 
 [^florentin-1]: [Pluginized Protocols](https://pluginized-protocols.org/)
 [^florentin-2]: [Pluginized QUIC](https://pquic.org/)

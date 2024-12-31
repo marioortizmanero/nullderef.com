@@ -1,14 +1,16 @@
 ---
 title: "Plugins in Rust: Getting Started"
 description: "My first steps trying to implement the plugin system"
-author: "Mario Ortiz Manero"
-images: ["/blog/plugin-start/thinking.jpg"]
-tags: ["tech", "programming", "rust", "open source"]
+image: "/blog/plugin-start/thinking.jpg"
+imageAlt: "Preview image, with Ferris reading various books and a question mark on top of it"
+tags: ["tech", "programming", "rust", "open-source"]
 keywords: ["tech", "rust", "rustlang", "dynamic loading", "plugin", "ffi", "abi"]
-series: ["rust-plugins"]
+series: "rust-plugins"
 date: 2021-09-05
 GHissueID: 5
 ---
+
+[[toc]]
 
 Welcome to the second article of my ["Plugins in Rust" series](https://nullderef.com/series/rust-plugins/)! Here I will try to actually write some simple code of what a plugin system might look like, and try to answer any questions that may arise while doing so.
 
@@ -92,7 +94,7 @@ But turns out that the ABI may not only break between compiler versions, but als
 
 Props to the devs at the `#black-magic` channel in [Rust's Discord server](https://discord.com/invite/rust), who helped me understand this. Specially Yandros and Kixiron, both of them very respectable contributors to the Rust compiler/community.
 
-This basically means that we are _forced_ to stick to the C ABI with `#[repr(C)]`, and that we should use {{< crate abi_stable >}} in order to have access to a stable `std` library as well, instead of re-implementing everything ourselves from scratch. On the positive side, it means that plugins could be implemented in any language, but that wasn't important for Tremor's case since the beginning anyway.
+This basically means that we are _forced_ to stick to the C ABI with `#[repr(C)]`, and that we should use {% crate "abi_stable" %} in order to have access to a stable `std` library as well, instead of re-implementing everything ourselves from scratch. On the positive side, it means that plugins could be implemented in any language, but that wasn't important for Tremor's case since the beginning anyway.
 
 <a name="_getting_a_simple_example_running"></a>
 ### Getting a simple example running
@@ -118,7 +120,7 @@ pub extern fn min(a: i32, b: i32) -> i32 {
 }
 ```
 
-Finally, the main binary can load the library with {{< crate libloading >}}, which requires a bit of `unsafe`. I was looking forward to using a different library because of how easy it seems to end up with undefined behaviour in that case. I found out {{< crate sharedlib >}} was abandoned, as no commits had been made since 2017, leaving {{< crate dlopen >}} as the only alternative. Which was updated two years ago as well, but their GitHub repo seemed somewhat active in comparison.
+Finally, the main binary can load the library with {% crate "libloading" %}, which requires a bit of `unsafe`. I was looking forward to using a different library because of how easy it seems to end up with undefined behaviour in that case. I found out {% crate "sharedlib" %} was abandoned, as no commits had been made since 2017, leaving {% crate "dlopen" %} as the only alternative. Which was updated two years ago as well, but their GitHub repo seemed somewhat active in comparison.
 
 For now, I'll just use `libloading` for being the most popular crate, and perhaps I'll consider using `dlopen` in the future. In terms of relevant features and performance they're pretty close anyway[^dynload-comp]. Here's what the code looks like:
 
@@ -167,8 +169,8 @@ The public interface for the plugins can be written either in Rust (thanks to `e
 
 Some examples of its usage:
 
-* {{< crate hyper >}} is a crate completely written in Rust that exposes C headers for compatibility, so it uses `cbindgen` to generate them automatically.
-* {{< crate pipewire_rs >}} exposes the interface of [PipeWire](https://pipewire.org/), written in C, so that it's also available from Rust, thanks to `rust-bindgen`.
+* {% crate "hyper" %} is a crate completely written in Rust that exposes C headers for compatibility, so it uses `cbindgen` to generate them automatically.
+* {% crate "pipewire_rs" %} exposes the interface of [PipeWire](https://pipewire.org/), written in C, so that it's also available from Rust, thanks to `rust-bindgen`.
 
 Since we're going to write the plugin system in Rust, the most appropiate choice would be to use Rust for the interface as well. And if we wanted to make the plugin interface available to other languages --- which is not a concern right now --- it'd be as "easy" as setting up `cbindgen`.
 
@@ -344,8 +346,8 @@ Please refer to the [proposal itself](https://github.com/WebAssembly/interface-t
 
 The main problem is that this proposal is still at [Phase 1](https://github.com/WebAssembly/proposals#phase-1---feature-proposal-cg). It's still actively being worked on, and its specification is far from stable.
 
-* At the plugin level the {{< crate wasm_bindgen >}} crate seems to be ideal, and it already works well. It's a very simple procedural macro that can be added to the exported functions in the plugin in order to automatically add support for Interface Types.
-* The {{< crate wiggle >}} crate can be used to generate Rust code from `witx` files. For the previous snippet of code, wiggle's macro will generate a `Calculator` trait and the defined types in another module named `types`.
+* At the plugin level the {% crate "wasm_bindgen" %} crate seems to be ideal, and it already works well. It's a very simple procedural macro that can be added to the exported functions in the plugin in order to automatically add support for Interface Types.
+* The {% crate "wiggle" %} crate can be used to generate Rust code from `witx` files. For the previous snippet of code, wiggle's macro will generate a `Calculator` trait and the defined types in another module named `types`.
 * The runtimes, however, don't work with Interface types:
   * Wasmtime did support this in the past until their implementation was removed after being considered outdated. As [this issue indicates](https://github.com/bytecodealliance/wasmtime/issues/677), it still hasn't been updated.
   * Wasmer has the [`wasmer_interface_types`](https://docs.rs/wasmer-interface-types/) crate, but with a similar story; it's outdated. There's [this issue](https://github.com/wasmerio/wasmer/issues/2480) as a continuation of Wasmtime's, which explains the situation.
@@ -357,7 +359,7 @@ In the end I wasn't able to get Interface Types working, nor I considered them w
 
 Via pointers and a shared [memory](https://docs.wasmer.io/integrations/examples/memory). The user has to first construct and serialize the complex types, and then save them into Wasm's memory, which can be accessed directly by the runtime or the plugin with [pointers](https://docs.wasmer.io/integrations/examples/memory-pointers). This is what [Feather](https://github.com/feather-rs/feather/tree/main/quill) or [Veloren](https://book.veloren.net/contributors/developers/codebase-structure.html#plugins) do, in case you want more details.
 
-Not only does this require a serialization and deserialization step and writing/reading all the data from memory, but also it's very cumbersome to use and easy to mess up. It's somewhat trivial though, so a procedural macro like the now outdated {{< crate wasmer-plugin >}} could simplify it. For now, {{< crate bincode >}} can be used for the serialization steps manually.
+Not only does this require a serialization and deserialization step and writing/reading all the data from memory, but also it's very cumbersome to use and easy to mess up. It's somewhat trivial though, so a procedural macro like the now outdated {% crate "wasmer-plugin" %} could simplify it. For now, {% crate "bincode" %} can be used for the serialization steps manually.
 
 I did try this and got it working by following [Free Masen's guide](https://freemasen.com/blog/wasmer-plugin-pt-1/), but it wasn't worth exploring in depth because it requires a [de]serialization step Tremor can't afford.
 
@@ -389,6 +391,8 @@ test test::wasmtime_setup ... bench:     988,500 ns/iter (+/- 363,244)
 ```
 
 I hope you enjoyed reading this post and that you learned something from it! You can leave any suggestions in the comments below.
+
+{% include "partials/subscribe.liquid" %}
 
 [^extern]: [Keyword extern --- doc.rust-lang.org](https://doc.rust-lang.org/std/keyword.extern.html)
 [^dynload-comp]: [Compare with other libraries ---  GitHub szymonwieloch/rust-dlopen](https://github.com/szymonwieloch/rust-dlopen#compare-with-other-libraries)

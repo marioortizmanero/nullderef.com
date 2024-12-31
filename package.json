@@ -1,0 +1,42 @@
+{
+  "name": "nullderef.com",
+  "version": "1.0.0",
+  "description": "This repository contains the source code needed to build the [nullderef](https://nullderef.com) website, my personal blog.",
+  "type": "module",
+  "scripts": {
+    "build": "npx @11ty/eleventy",
+    "build-ghpages": "npx @11ty/eleventy --pathprefix=/eleventy-base-blog/",
+    "start": "npx @11ty/eleventy --serve --quiet"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marioortizmanero/nullderef.com.git"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Mario Ortiz Manero",
+    "email": "marioortizmanero@gmail.com",
+    "url": "https://nullderef.com/"
+  },
+  "license": "GPLv3",
+  "engines": {
+    "node": ">=18"
+  },
+  "bugs": {
+    "url": "https://github.com/marioortizmanero/nullderef.com/issues"
+  },
+  "homepage": "https://github.com/marioortizmanero/nullderef.com#readme",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "@11ty/eleventy-img": "^5.0.0",
+    "@11ty/eleventy-plugin-rss": "^2.0.2",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.0",
+    "fuse.js": "^7.0.0",
+    "html-minifier-terser": "^7.2.0",
+    "markdown-it-anchor": "^9.2.0",
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-table-of-contents": "^0.8.0",
+    "zod": "^3.23.8",
+    "zod-validation-error": "^3.3.1"
+  }
+}

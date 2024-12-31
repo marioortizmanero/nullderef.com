@@ -1,0 +1,65 @@
+/* Custom CSS for the "About" page */
+
+.about-intro {
+  margin-bottom: 15px;
+}
+.about-intro img {
+  width: 150px;
+  height: 214px;
+  float: right;
+  margin: 0px 0px 5px 15px;
+  margin-left: 15px !important;
+  margin-bottom: var(--content-gap) !important;
+}
+
+.projects {
+  display: flex;
+  width: 100%;
+  overflow: auto;
+  margin-bottom: var(--content-gap);
+}
+.projects p,
+.projects h3,
+.project-links div,
+.project-footer {
+  text-align: center;
+  hyphens: none;
+}
+.project-entry {
+  flex: 0 0 40%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  margin: 5px;
+  padding: 10px;
+  background: var(--entry);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+/* Previews are annoying in small screens */
+@media only screen and (max-width: 500px) {
+  .project-entry {
+    flex: 0 0 70%;
+  }
+}
+.project-entry .project-header h3 {
+  margin-bottom: 0;
+  margin-top: 5px;
+}
+.project-entry .project-header p {
+  font-style: italic;
+  font-size: 15px;
+}
+.project-entry .project-logo {
+  margin: 0 auto var(--content-gap) auto;
+}
+.project-entry .project-links {
+  margin-bottom: var(--content-gap);
+}
+.project-entry .project-footer {
+  font-style: italic;
+  color: var(--secondary);
+  font-size: 13px;
+}

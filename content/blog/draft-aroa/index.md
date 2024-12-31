@@ -1,24 +1,31 @@
 ---
 title: "Aroa, I wish I could tell you how damn awesome you are"
-author: "Mario Ortiz Manero"
-images: ["TODO"]
+description: TODO
+image: "/TODO.jpg"
+imageAlt: TODO
 tags: [TODO]
+keywords: [TODO]
 date: 2024-01-14
 GHissueID: TODO
 draft: true
 ---
 
-<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
-{{< viz3d-setup >}}
+{% block head %}
+  {{ super }}
+  <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+{% endblock %}
+
+[[toc]]
 
 Today, I want to convince you of how admirable my sister, Aroa, was. We lost her in November 2023, so I wanted to condense her essence into a single post and talk about mental health.
 
 <!-- TODO: try to not make the width 100% because it makes it hard to scroll. Or not the full height of the phone's screen, so that there are gaps at the top and bottom. -->
-{{< viz3d
+{% include "viz3d.liquid"
       src="/blog/draft-aroa/art/3d/test.glb"
       poster="/blog/draft-aroa/art/3d/test-poster.webp"
       alt="Test file"
->}}
+%}
 
 TODO: Mention astroboots / big red boots?
 

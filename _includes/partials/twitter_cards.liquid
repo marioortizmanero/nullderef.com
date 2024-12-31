@@ -1,0 +1,12 @@
+{% if image %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{ metadata.url }}/{{ image }}">
+<meta name="twitter:image:alt" content="{{ imageAlt }}">
+{% else %}
+<meta name="twitter:card" content="summary">
+{% endif %}
+
+<meta name="twitter:title" content="{{ title | escape | assertLengthUnder: 70 }}">
+<meta name="twitter:description" content="{{ description | markdownify | strip_html | escape | assertLengthUnder: 200 }}">
+
+<meta name="twitter:site" content="@{{ metadata.author.social._twitterHandle }}">

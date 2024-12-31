@@ -1,11 +1,11 @@
 ---
 title: "[Talk] Rust, the best and worst thing to happen to Tremor"
 description: "The talk I submitted for TremorCon 2022"
-author: "Mario Ortiz Manero"
-images: ["/blog/tremorcon22/party.jpg"]
-tags: ["tech", "programming", "rust", "talk", "open source"]
+image: "/blog/tremorcon22/party.jpg"
+imageAlt: "Preview image, with multiple stickmen and Ferris partying"
+tags: ["tech", "programming", "rust", "talk", "open-source"]
 keywords: ["tech", "programming", "rust", "rustlang", "tremor", "talk"]
-series: ["rust-plugins"]
+series: "rust-plugins"
 date: 2022-10-18
 GHissueID: 12
 ---
@@ -17,3 +17,5 @@ Hello! I've recently had the pleasure of giving a talk at this year's [TremorCon
 You can also find the slides here in [`pdf`](/blog/tremorcon22/TremorCon22_MarioOrtizManero.pdf) or in [`pptx`](/blog/tremorcon22/TremorCon22_MarioOrtizManero.pptx).
 
 If you want to learn about new events I'm involved in, like this one, you can follow me on [Twitter](https://twitter.com/null_deref) or [LinkedIn](https://www.linkedin.com/in/marioortizmanero/). Don't forget to also give [Tremor](https://twitter.com/TremorDebs) a follow, and to check out [the rest of the conference](https://www.youtube.com/watch?v=og3kIey0X5E&list=PLNTN4J6tdf22rEnqZlVRWHjiDyRBNy3Iw)!
+
+{% include "partials/subscribe.liquid" %}

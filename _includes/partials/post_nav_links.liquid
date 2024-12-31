@@ -1,0 +1,32 @@
+<div class="post-tags">
+  {% assign postTags = tags | getTagsInPost %}
+  {% for tag in postTags %}<a href="/tags/{{ tag }}">#{{ tag }}</a>{% endfor %}
+</div>
+
+{% if series %}
+  {% assign seriesData = collections.series | getSeries: series %}
+  {% if seriesData.data.isFinished %}
+    {% assign msg = ", which is now finished:" %}
+  {% else %}
+    {% assign msg = ", which I'm still writing:" %}
+  {% endif %}
+  <p>This post is part of the series “<a href="{{ seriesData.url }}">{{ seriesData.data.title }}</a>”{{ msg }}</p>
+  {% assign postsInSeries = collections.posts | getPostsInSeries: series %}
+  <ol>
+  {% for post in postsInSeries %}
+    {% if page.fileSlug == post.fileSlug %}
+    <li><i><a href="{{ post.url }}">{{ post.data.title }}</a> ← you're here!</i></li>
+    {% else %}
+    <li><a href="{{ post.url }}">{{ post.data.title }}</a></li>
+    {% endif %}
+  {% endfor %}
+  </ol>
+{% else %}
+  <p>You might also like other recent posts:</p>
+  {% assign recentPosts = collections.posts | recentPosts %}
+  <ul>
+    {% for post in recentPosts %}
+      <li><a href="{{ post.url }}">{{ post.data.title }}</a>&nbsp;&nbsp;·&nbsp;&nbsp;<i>{{ post.data.date | readableDateShort }}</i></li>
+    {% endfor %}
+  </ul>
+{% endif %}

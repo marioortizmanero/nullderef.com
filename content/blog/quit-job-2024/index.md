@@ -1,11 +1,11 @@
 ---
 title: "I've quit my job to get you off your phone"
-description: ""
-author: "Mario Ortiz Manero"
-images: ["/blog/quit-job-2024/preview.jpg"]
-tags: ["tech", "entrepreneurship", "personal", "phone dependency"]
+description: "Why I quit and what my plans are"
+image: "/blog/quit-job-2024/preview.jpg"
+imageAlt: "Preview image, with an astronaut lost in space"
+tags: ["tech", "entrepreneurship", "personal", "phone-dependency"]
 keywords: ["tech", "career", "phone dependency", "phone addiction", "quitting a job", "entrepreneurship"]
-series: ["dont-use-this-phone"]
+series: "dont-use-this-phone"
 date: 2024-10-14
 GHissueID: 15
 ---
@@ -40,6 +40,8 @@ Yet, it's such a huge issue that I'm confident I can build something valuable. Y
     marginwidth="0">Loading…</iframe>
 </p>
 
-If this is interesting to you in any way, please reach out! [Schedule a chat with me](https://calendar.app.google/L45TFdjwgqJZemxo7) or send me a message on {{< social-media "LinkedIn" >}}, {{< social-media "X" >}}, {{< social-media "Mastodon" >}}, or by [email](mailto:marioortizmanero@gmail.com). You can vent about how much your phone controls you, share someone you know, or we could work together. Even catching up is a good reason :)
+If this is interesting to you in any way, please reach out! [Schedule a chat with me](https://calendar.app.google/L45TFdjwgqJZemxo7) or send me a message on [LinkedIn]({{ metadata.author.social.LinkedIn }}), [X]({{ metadata.author.social.Twitter }}), [Mastodon]({{ metadata.author.social.Mastodon }}), or by [email](mailto:marioortizmanero@gmail.com). You can vent about how much your phone controls you, share someone you know, or we could work together. Even catching up is a good reason :)
 
 I feel extremely lucky to be in a position to make this decision. Thank you to everyone for your support!
+
+{% include "partials/subscribe.liquid" %}

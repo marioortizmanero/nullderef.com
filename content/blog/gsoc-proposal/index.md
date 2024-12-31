@@ -1,16 +1,16 @@
 ---
 title: "GSoC Proposal: Implementing a Plugin Development Kit for Tremor"
 description: "My proposal for 2021's GSoC"
-author: "Mario Ortiz Manero"
-images: ["/blog/gsoc-proposal/logo.png"]
+image: "/blog/gsoc-proposal/logo.png"
+imageAlt: "Preview image, with the Google Summer of Code logo"
+eleventyExcludeFromCollections: true
 # tags: ["tech", "programming", "rust", "open source"]
 # keywords: ["tech", "programming", "rust", "rustlang", "dynamic loading", "google summer of code"]
-hidden: true
-Sitemap:
-  Disable: true
 date: 2021-04-13
 GHissueID: 8
 ---
+
+[[toc]]
 
 <a name="_abstract"></a>
 ## Abstract
@@ -92,7 +92,7 @@ After defining its interfaces and implementing the architecture, these features 
 The requirements also list a few optional targets, which can be implemented if there's remaining time after the main goals are fully finished:
 
 1. Implement connectors RFC (pre-requirement for connector plugins).
-2. Contribute to and finalize {{< gh pr "tremor-rs/tremor-rfcs" 32 "Connectors and Streams" >}}.
+2. Contribute to and finalize {% gh "pr" "tremor-rs/tremor-rfcs" 32 "Connectors and Streams" %}.
 3. Add source, sink, and peering connectors to pluggable artefacts.
 4. Add a TCK (test compatibility kit) that asserts plugin invariants and provides testing mechanisms for plugin developers.
 5. Consider plugin documentation generation and another tooling for better developer convenience and usability.
@@ -150,6 +150,8 @@ So far I've been interested in Software Development, but I recently learned more
 * I'm also very interested in Hackathons, having participated in [Hacktoberfest](https://hacktoberfest.digitalocean.com/) for two years in a row, [Google's Hashcode 2019](https://codingcompetitions.withgoogle.com/hashcode/), [Adidas uCode 2019](https://www.ucode.es/) and [NASA's SpaceApps 2019](https://www.spaceappschallenge.org/).
 
 You can contact me at marioortizmanero _at_ gmail _dot_ com, or via Discord as Glow#5433.
+
+{% include "partials/subscribe.liquid" %}
 
 [^resources]: As described in detail in its [issue on Tremor's repository](https://github.com/tremor-rs/tremor-runtime/issues/791) or its [RFC](https://www.tremor.rs/rfc/accepted/plugin-development-kit/).
 [^stable-abi]: See [rust-lang/rfcs/#600](https://github.com/rust-lang/rfcs/issues/600)

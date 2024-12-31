@@ -1,0 +1,64 @@
+---
+layout: layouts/base.liquid
+---
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">
+      {{ title }}{% if draft %}<i>(draft)</i>{% endif %}
+    </h1>
+    <div class="post-meta">
+      <time datetime="{{ date }}">{{ date | readableDateLong }}</time>
+      &nbsp;·&nbsp;
+      <a href="/about">{{ author | default: metadata.author.name }}</a>
+      {% if series %}
+        &nbsp;·&nbsp;
+        {% assign seriesData = collections.series | getSeries: series %}
+        From the series <a href="/series/{{ seriesData }}">“{{ seriesData.data.title }}”</a>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if content %}
+  <div class="post-content">
+    {{ content }}
+  </div>
+  {% endif %}
+
+  <hr class="post-footer-separator">
+
+  <footer class="post-footer">
+    {% include "partials/post_nav_links.liquid" %}
+
+    {% if GHissueID %}
+      {% include "partials/comments.liquid" %}
+    {% endif %}
+  </footer>
+
+  {% if hasMath %}
+    {% include "partials/math_support.liquid" %}
+  {% endif %}
+</article>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "name": "{{ title | escape }}",
+  "image": "{{ metadata.url }}/{{ image }}",
+  "author": "{{ author | default: metadata.author }}",
+  "url": "{{ page.url }}",
+  "datePublished": "{{ date | iso8601Date }}",
+  "dateModified": "{{ page.inputPath | lastModified | iso8601Date }}",
+  "mainEntityOfPage": "{{ page.url }}",
+  "description": "{{ description | markdownify | strip_html | escape }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ metadata.title }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ metadata.url }}/favicon.ico"
+    }
+  },
+}
+</script>

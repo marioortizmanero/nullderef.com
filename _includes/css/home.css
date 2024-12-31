@@ -1,0 +1,45 @@
+.home-info {
+    flex-direction: column;
+    justify-content: center;
+    margin: var(--gap) 0 calc(var(--gap) * 2) 0;
+}
+.home-info h1 {
+    font-size: 32px;
+    margin: 14px 0;
+    font-weight: normal;
+}
+.home-info footer {
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* Social media icons and subscribe hyperlink */
+.social-icons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.social-icons .subscribe-msg {
+  font-size: 17px;
+  padding: 0px;
+}
+.social-icons .subscribe-word {
+  padding: 0px;
+  font-weight: bold;
+  box-shadow: 0 1px 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  font-size: 17px;
+}
+.social-icons a {
+    display: inline-flex;
+    padding: 10px;
+}
+.social-icons a svg {
+    height: 26px;
+    width: 26px;
+    color: var(--primary);
+}
+.social-icons span {
+    color: var(--primary);
+}

@@ -8,9 +8,5 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.md,*.adoc]
-trim_trailing_whitespace = false
-max_line_length = 80
-
-[*.py]
+[*.py,*.liquid]
 indent_size = 4

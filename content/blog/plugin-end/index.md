@@ -1,15 +1,16 @@
 ---
 title: "Plugins in Rust: Wrapping Up"
-description: "The last finishing touches and ideas before our plugin system
-reaches production."
-author: "Mario Ortiz Manero"
-images: ["/blog/plugin-end/wrap.jpg"]
-tags: ["tech", "programming", "rust", "open source"]
+description: "The last finishing touches before our plugin system reaches production."
+image: "/blog/plugin-end/wrap.jpg"
+imageAlt: "Preview image, with various burritos that contain Ferris inside of them"
+tags: ["tech", "programming", "rust", "open-source"]
 keywords: ["tech", "programming", "rust", "rustlang", "plugin", "benchmarking", "testing", "deployment"]
-series: ["rust-plugins"]
+series: "rust-plugins"
 date: 2022-07-26
 GHissueID: 11
 ---
+
+[[toc]]
 
 Welcome to the final article of this [series](https://nullderef.com/series/rust-plugins/)! Here I'll showcase some clean-ups and optimizations I may or may not have performed yet, so that our plugin system can get closer to production. I will also run benchmarks for some of these to ensure that the changes are actually worth it.
 
@@ -96,7 +97,7 @@ Relative throughput comparison (higher is better):
 
 This showcases one of my initial mistakes. My comparison only used the `passthrough` benchmark, which simply forwards all input events to the output. For a more realistic use-case, I should've also tried with other configurations, which may include different payloads or event processing logic. In retrospect, these results should be taken with a grain of salt.
 
-Anyway, it all makes sense to some degree. Converting `Value` to an FFI-safe type requires using, among others, `RHashMap` instead of `HashMap` internally. Tremor's original `HashMap` was taken from the {{< crate halfbrown >}} crate, which was more performant than the standard library version, and even more than ``abi_stable``'s. Converting between types temporarily for the FFI interface might actually be faster than using less performant types everywhere.
+Anyway, it all makes sense to some degree. Converting `Value` to an FFI-safe type requires using, among others, `RHashMap` instead of `HashMap` internally. Tremor's original `HashMap` was taken from the {% crate "halfbrown" %} crate, which was more performant than the standard library version, and even more than ``abi_stable``'s. Converting between types temporarily for the FFI interface might actually be faster than using less performant types everywhere.
 
 <a name="_double_box"></a>
 ### Double `Box`
@@ -195,7 +196,7 @@ Relative performance for number of events processed per second (higher is better
 |**Throughput Logging MsgPack** |100 |66.66 |65.52 |70.69 |
 |**Average** |100 |69.99 |69.02 |69.88|
 
-They seem to point out that, with the plugin system, {{< crate hashbrown >}} (the standard hash table) might actually be better than `halfbrown`. The JSON optimization I mentioned could possibly be worth removing now. But it's really hard to make a decision just out of this set of benchmarks because of the complexity of the change.
+They seem to point out that, with the plugin system, {% crate "hashbrown" %} (the standard hash table) might actually be better than `halfbrown`. The JSON optimization I mentioned could possibly be worth removing now. But it's really hard to make a decision just out of this set of benchmarks because of the complexity of the change.
 
 This time, the experiment is only done for investigation. These results must only be taken as an indicator of something worth investigating more in depth; it would be premature to make assumptions so early and remove `halfbrown`. We would need to also analyze the impact of using `hashbrown` without the plugin system, and understand _why this happens_. For example, taking a look at the flamegraphs could help in figuring out the underlying reasoning.
 
@@ -276,14 +277,14 @@ The problem is that, even though wrappers reduce the much dreaded boilerplate, t
 
 As far as I understand, the runtime and the plugins don't share the same async runtime state. Every binary has its own thread pool and works independently. It would be best to share everything between runtime and plugins, though it sounds incredibly complicated, and it would most likely require contributions to the async runtimes themselves.
 
-I also wonder what happens when the runtime and the plugin use different async runtimes, even if they are independent in the binaries. Tremor's core is implemented with {{< crate async_std >}}, but an external plugin could freely use {{< crate tokio >}}, for example. I've heard that this could break in many ways, since async runtimes heavily rely on global state.
+I also wonder what happens when the runtime and the plugin use different async runtimes, even if they are independent in the binaries. Tremor's core is implemented with {% crate "async_std" %}, but an external plugin could freely use {% crate "tokio" %}, for example. I've heard that this could break in many ways, since async runtimes heavily rely on global state.
 
 Testing different async runtimes should be easy, so it should at least be done before reaching production just to document the behavior. What I'm not so sure about is how to avoid the conflict, in case it was problematic. The fix would probably be hacky, as this is a somewhat obscure problem.
 
 <a name="_benchmark_async_ffi"></a>
 ### Benchmark `async_ffi`
 
-Checking how much of a performance impact {{< crate async_ffi >}} causes sounds like a good idea. It's actually a quite simple library; all it really does is implement opaque wrappers for the async-related types. But it's used so often (once per call), that it may end up being noticeable.
+Checking how much of a performance impact {% crate "async_ffi" %} causes sounds like a good idea. It's actually a quite simple library; all it really does is implement opaque wrappers for the async-related types. But it's used so often (once per call), that it may end up being noticeable.
 
 I'm sure that if `async_ffi` ended up being an issue, it could be optimized internally in various ways. Furthermore, we currently use `async` very liberally. Only using it when strictly necessary could also help reduce the overhead.
 
@@ -366,7 +367,7 @@ pub async extern "C" fn work(arg: u32) -> u32 {
 I already opened an issue about this with more details for whoever wants to give it a try:
 
 <div style="text-align:center;">
-  {{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" >}}
+  {% gh "issue" "oxalica/async-ffi" 12 "Procedural macro for boilerplate" %}
 </div>
 
 <a name="_improve_cross_platform_support"></a>
@@ -374,7 +375,7 @@ I already opened an issue about this with more details for whoever wants to give
 
 As I mentioned in earlier articles, our plugin system will only work on Windows, macOS, and Linux[^thread-safe]. It will still compile on other platforms, but possibly with data races in the dynamic linking internals.
 
-Specifically, {{< crate libloading >}}, which is used by `abi_stable`, states that its error handling isn't fully thread-safe on some platforms[^libloading-threadsafe], such as `dlerror` on FreeBSD. Its only consequence should be garbage error messages, but I still wouldn't risk it. There are two ways to approach this:
+Specifically, {% crate "libloading" %}, which is used by `abi_stable`, states that its error handling isn't fully thread-safe on some platforms[^libloading-threadsafe], such as `dlerror` on FreeBSD. Its only consequence should be garbage error messages, but I still wouldn't risk it. There are two ways to approach this:
 
 1. **Quick fix**: add a compile-time error for any platform that isn't explicitly supported. Before adding support for a new platform, we will have to manually ensure that its error handling for dynamic loading is thread-safe.
 
@@ -386,7 +387,7 @@ Specifically, {{< crate libloading >}}, which is used by `abi_stable`, states th
        "This platform isn't currently supported. Please open a ticket on GitHub."
    );
    ```
-2. **Proper fix**: fix the data races upstream with an internal mutex. This is what the alternative {{< crate dlopen >}} does, though in their case they _always_ have the mutex, which is unnecessary in some platforms[^dlopen-mutex].
+2. **Proper fix**: fix the data races upstream with an internal mutex. This is what the alternative {% crate "dlopen" %} does, though in their case they _always_ have the mutex, which is unnecessary in some platforms[^dlopen-mutex].
 
 <a name="_performance_impact_of_panic_handling"></a>
 ### Performance impact of panic handling
@@ -414,7 +415,7 @@ Tremor's Continuous Integration tests could be run with `-Z randomize-layout` to
 <a name="_try_raw_dynamic_loading"></a>
 ### Try raw dynamic loading
 
-What I didn't know at the beginning of this journey is that the hardest part would be making everything `#[repr(C)]`. Using {{< crate abi_stable >}} is certainly very useful for types like `RVec` and to create custom types, but at times I find the library too much.
+What I didn't know at the beginning of this journey is that the hardest part would be making everything `#[repr(C)]`. Using {% crate "abi_stable" %} is certainly very useful for types like `RVec` and to create custom types, but at times I find the library too much.
 
 A few developers, including myself, think that it would be best to have separate libraries for all the utilities `abi_stable` provides, rather than bundling everything in there. If they became modularized, making it the "community standard" would be easier, and we could have compatible alternatives for different preferences.
 
@@ -464,7 +465,7 @@ Please [leave a comment below](#comments) for any questions or suggestions you m
 [^try-trait]: [Try trait v2 --- The Rust RFC Book](https://rust-lang.github.io/rfcs/3058-try-trait-v2.html)
 [^thread-safe]: [Thread safety --- Plugins in Rust: Reducing the Pain with Dependencies, NullDeref](https://nullderef.com/blog/plugin-abi-stable/#_thread_safety)
 [^libloading-threadsafe]: [Thread-safety --- `libloading` v0.7.3 docs](https://docs.rs/libloading/0.7.3/libloading/struct.Library.html#thread-safety)
-[^dlopen-mutex]: {{< gh issue "szymonwieloch/rust-dlopen" 42 "`dlerror` *is* thread-safe on some platforms" >}}
+[^dlopen-mutex]: {% gh "issue" "szymonwieloch/rust-dlopen" 42 "`dlerror` *is* thread-safe on some platforms" %}
 [^panic-1]: [Panicking --- Plugins in Rust: Reducing the Pain with Dependencies, NullDeref](https://nullderef.com/blog/plugin-abi-stable/#_panicking)
 [^panic-2]: [Panicking --- Plugins in Rust: Diving into Dynamic Loading, NullDeref](https://nullderef.com/blog/plugin-dynload/#_panicking)
 [^panic-abort]: [Unwinding the Stack or Aborting in Response to a Panic --- The Rust Programming Language](https://doc.rust-lang.org/book/ch09-01-unrecoverable-errors-with-panic.html#unwinding-the-stack-or-aborting-in-response-to-a-panic)
@@ -484,39 +485,39 @@ One of my favorite parts of the project has been contributing so much to all kin
 
 These include repositories not directly related to Tremor:
 
-1. {{< gh issue "rust-lang/nomicon" 338 "Subtyping and Variance - Trait variance not covered" >}}
-2. {{< gh issue "szymonwieloch/rust-dlopen" 42 "`dlerror` *is* thread-safe on some platforms" >}}
-3. {{< gh issue "wasmerio/wasmer" 2539 "Add deprecation notice to the crate `wasmer-runtime`" >}}
-4. {{< gh pr "oxalica/async-ffi" 10 "Support for `abi_stable`" >}}
-5. {{< gh pr "oxalica/async-ffi" 11 "Cbindgen support" >}}
-6. {{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" >}}
-7. {{< gh issue "rodrimati1992/abi_stable_crates" 52 "Generating C bindings" >}}
-8. {{< gh issue "rodrimati1992/abi_stable_crates" 60 "Stable ABI for floating point numbers" >}}
-9. {{< gh pr "rodrimati1992/abi_stable_crates" 55 "Fix 'carte' typo" >}}
-10. {{< gh pr "rodrimati1992/abi_stable_crates" 57 "Fix some more typos" >}}
-11. {{< gh pr "rodrimati1992/abi_stable_crates" 58 "Add support for .keys() and .values() in RHashMap" >}}
-12. {{< gh pr "rodrimati1992/abi_stable_crates" 59 "Implement `Index` for slices and vectors" >}}
-13. {{< gh pr "rodrimati1992/abi_stable_crates" 61 "Support for `f32` and `f64`" >}}
-14. {{< gh pr "rodrimati1992/abi_stable_crates" 68 "Implement `ROption::as_deref`" >}}
-15. {{< gh pr "rodrimati1992/abi_stable_crates" 70 "Implement `RVec::append`" >}}
-16. {{< gh pr "rodrimati1992/abi_stable_crates" 76 "Fix `R*` lifetimes" >}}
-17. {{< gh pr "rodrimati1992/abi_stable_crates" 77 "Fix inconsistencies with `RVec` in respect to `Vec`" >}}
-18. {{< gh pr "rodrimati1992/abi_stable_crates" 82 "Implement `ROption::{ok_or,ok_or_else}`" >}}
-19. {{< gh pr "rodrimati1992/abi_stable_crates" 83 "`RHashMap::raw_entry[_mut]` support" >}}
-20. {{< gh pr "rodrimati1992/abi_stable_crates" 85 "Fix hasher" >}}
-21. {{< gh pr "rodrimati1992/abi_stable_crates" 88 "Only implement `Default` once" >}}
-22. {{< gh pr "simd-lite/simd-json-derive" 9 "Support for `abi_stable`" >}}
-23. {{< gh issue "simd-lite/simd-json-derive" 10 "No docs for v0.3.0" >}}
-24. {{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" >}}
-25. {{< gh pr "simd-lite/value-trait" 16 "User friendliness for the win! (close #15)" >}}
-26. {{< gh pr "simd-lite/value-trait" 18 "Update abi_stable after upstreamed changes" >}}
-27. {{< gh pr "nagisa/rust_libloading" 94 "Small typo" >}}
-28. {{< gh pr "szymonwieloch/rust-dlopen" 40 "Fix typo" >}}
-29. {{< gh pr "Licenser/halfbrown" 13 "Implement `remove_entry`" >}}
-30. {{< gh pr "Licenser/halfbrown" 14 "Implement `Clone` and `Debug` for `Iter`" >}}
-31. {{< gh pr "Licenser/halfbrown" 16 "Relax constraints" >}}
-32. {{< gh pr "Licenser/halfbrown" 17 "Same `Default` constraints" >}}
-33. {{< gh pr "Licenser/halfbrown" 18 "Fix `Clone` requirements for `Iter`" >}}
+1. {% gh "issue" "rust-lang/nomicon" 338 "Subtyping and Variance - Trait variance not covered" %}
+2. {% gh "issue" "szymonwieloch/rust-dlopen" 42 "`dlerror` *is* thread-safe on some platforms" %}
+3. {% gh "issue" "wasmerio/wasmer" 2539 "Add deprecation notice to the crate `wasmer-runtime`" %}
+4. {% gh "pr" "oxalica/async-ffi" 10 "Support for `abi_stable`" %}
+5. {% gh "pr" "oxalica/async-ffi" 11 "Cbindgen support" %}
+6. {% gh "issue" "oxalica/async-ffi" 12 "Procedural macro for boilerplate" %}
+7. {% gh "issue" "rodrimati1992/abi_stable_crates" 52 "Generating C bindings" %}
+8. {% gh "issue" "rodrimati1992/abi_stable_crates" 60 "Stable ABI for floating point numbers" %}
+9. {% gh "pr" "rodrimati1992/abi_stable_crates" 55 "Fix 'carte' typo" %}
+10. {% gh "pr" "rodrimati1992/abi_stable_crates" 57 "Fix some more typos" %}
+11. {% gh "pr" "rodrimati1992/abi_stable_crates" 58 "Add support for .keys() and .values() in RHashMap" %}
+12. {% gh "pr" "rodrimati1992/abi_stable_crates" 59 "Implement `Index` for slices and vectors" %}
+13. {% gh "pr" "rodrimati1992/abi_stable_crates" 61 "Support for `f32` and `f64`" %}
+14. {% gh "pr" "rodrimati1992/abi_stable_crates" 68 "Implement `ROption::as_deref`" %}
+15. {% gh "pr" "rodrimati1992/abi_stable_crates" 70 "Implement `RVec::append`" %}
+16. {% gh "pr" "rodrimati1992/abi_stable_crates" 76 "Fix `R*` lifetimes" %}
+17. {% gh "pr" "rodrimati1992/abi_stable_crates" 77 "Fix inconsistencies with `RVec` in respect to `Vec`" %}
+18. {% gh "pr" "rodrimati1992/abi_stable_crates" 82 "Implement `ROption::{ok_or,ok_or_else}`" %}
+19. {% gh "pr" "rodrimati1992/abi_stable_crates" 83 "`RHashMap::raw_entry[_mut]` support" %}
+20. {% gh "pr" "rodrimati1992/abi_stable_crates" 85 "Fix hasher" %}
+21. {% gh "pr" "rodrimati1992/abi_stable_crates" 88 "Only implement `Default` once" %}
+22. {% gh "pr" "simd-lite/simd-json-derive" 9 "Support for `abi_stable`" %}
+23. {% gh "issue" "simd-lite/simd-json-derive" 10 "No docs for v0.3.0" %}
+24. {% gh "pr" "simd-lite/value-trait" 14 "Add support for StableAbi" %}
+25. {% gh "pr" "simd-lite/value-trait" 16 "User friendliness for the win! (close #15)" %}
+26. {% gh "pr" "simd-lite/value-trait" 18 "Update abi_stable after upstreamed changes" %}
+27. {% gh "pr" "nagisa/rust_libloading" 94 "Small typo" %}
+28. {% gh "pr" "szymonwieloch/rust-dlopen" 40 "Fix typo" %}
+29. {% gh "pr" "Licenser/halfbrown" 13 "Implement `remove_entry`" %}
+30. {% gh "pr" "Licenser/halfbrown" 14 "Implement `Clone` and `Debug` for `Iter`" %}
+31. {% gh "pr" "Licenser/halfbrown" 16 "Relax constraints" %}
+32. {% gh "pr" "Licenser/halfbrown" 17 "Same `Default` constraints" %}
+33. {% gh "pr" "Licenser/halfbrown" 18 "Fix `Clone` requirements for `Iter`" %}
 
 <a name="_internal_contributions"></a>
 ### Internal Contributions
@@ -524,21 +525,21 @@ These include repositories not directly related to Tremor:
 Here are the issues and pull requests created within Tremor's repositories,
 including those for the plugin system and other unrelated improvements:
 
-1. {{< gh pr "tremor-rs/tremor-runtime" 1434 "PDK support" >}}
-2. {{< gh pr "marioortizmanero/tremor-runtime" 11 "PDK with a single value" >}}
-3. {{< gh pr "tremor-rs/tremor-runtime" 1447 "Fix `makefile bench`" >}}
-4. {{< gh pr "marioortizmanero/tremor-runtime" 2 "Adding `abi_stable` support for `tremor-script`" >}} (second attempt)
-5. {{< gh pr "marioortizmanero/tremor-runtime" 1 "Adding `abi_stable` support for `tremor-runtime`" >}} (second attempt)
-6. {{< gh pr "tremor-rs/tremor-runtime" 1303 "Adding `abi_stable` support for `tremor-value`" >}} (second attempt)
-7. {{< gh pr "tremor-rs/tremor-runtime" 1287 "Plugin Development Kit: Connectors" >}} (first attempt)
-8. {{< gh issue "tremor-rs/tremor-runtime" 1353 "`deny` statemements in `lib.rs` should be enforced in the CI rather than in the code" >}}
-9. {{< gh issue "tremor-rs/tremor-runtime" 1812 "`KnownKey` relies on a deterministic hash builder" >}}
-10. {{< gh pr "tremor-rs/tremor-www" 72 "Fix wrong links in getting started" >}}
-11. {{< gh issue "tremor-rs/tremor-www" 73 "Redirect `docs.tremor.rs` to `www.tremor.rs/docs`" >}}
-12. {{< gh pr "tremor-rs/tremor-www" 186 "Links pinned to 0.12 don't work" >}}
-13. {{< gh pr "tremor-rs/tremor-www" 187 "Small fix in code snippet" >}}
-14. {{< gh issue "tremor-rs/tremor-www" 195 "No margins in benchmark page" >}}
-15. {{< gh pr "tremor-rs/tremor-www" 219 "Fix typos in benchmarks page" >}}
+1. {% gh "pr" "tremor-rs/tremor-runtime" 1434 "PDK support" %}
+2. {% gh "pr" "marioortizmanero/tremor-runtime" 11 "PDK with a single value" %}
+3. {% gh "pr" "tremor-rs/tremor-runtime" 1447 "Fix `makefile bench`" %}
+4. {% gh "pr" "marioortizmanero/tremor-runtime" 2 "Adding `abi_stable` support for `tremor-script`" %} (second attempt)
+5. {% gh "pr" "marioortizmanero/tremor-runtime" 1 "Adding `abi_stable` support for `tremor-runtime`" %} (second attempt)
+6. {% gh "pr" "tremor-rs/tremor-runtime" 1303 "Adding `abi_stable` support for `tremor-value`" %} (second attempt)
+7. {% gh "pr" "tremor-rs/tremor-runtime" 1287 "Plugin Development Kit: Connectors" %} (first attempt)
+8. {% gh "issue" "tremor-rs/tremor-runtime" 1353 "`deny` statemements in `lib.rs` should be enforced in the CI rather than in the code" %}
+9. {% gh "issue" "tremor-rs/tremor-runtime" 1812 "`KnownKey` relies on a deterministic hash builder" %}
+10. {% gh "pr" "tremor-rs/tremor-www" 72 "Fix wrong links in getting started" %}
+11. {% gh "issue" "tremor-rs/tremor-www" 73 "Redirect `docs.tremor.rs` to `www.tremor.rs/docs`" %}
+12. {% gh "pr" "tremor-rs/tremor-www" 186 "Links pinned to 0.12 don't work" %}
+13. {% gh "pr" "tremor-rs/tremor-www" 187 "Small fix in code snippet" %}
+14. {% gh "issue" "tremor-rs/tremor-www" 195 "No margins in benchmark page" %}
+15. {% gh "pr" "tremor-rs/tremor-www" 219 "Fix typos in benchmarks page" %}
 
 <a name="_other_achievements"></a>
 ## Appendix B: Other Achievements
@@ -570,3 +571,5 @@ Thanks to the Tremor team, I was also able to presentially attend [KubeCon + Clo
 Paella! [From my LinkedIn profile](https://www.linkedin.com/feed/update/urn:li:share:6934450596049539072):
 
 <img src="/blog/plugin-end/paella.jpg" width="50%" alt="Paella at KubeCon">
+
+{% include "partials/subscribe.liquid" %}

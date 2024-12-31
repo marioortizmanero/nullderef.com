@@ -1,0 +1,47 @@
+---
+layout: layouts/list.liquid
+---
+
+<header class="page-header">
+  <h1>{{ title }}</h1>
+
+  <p class="post-description post-content">
+    {{ description | markdownify }}
+  </p>
+
+  <p class="post-description post-content">
+  {% if isFinished %}
+    <i>This series is currently finished.</i>
+  {% else %}
+    <i>I'm still writing this series. <a href="/subscribe">Subscribe</a> to keep up to date!</i>
+  {% endif %}
+  </p>
+</header>
+
+{% assign postsInSeries = collections.posts | getPostsInSeries: name %}
+{% if postsInSeries.length == 0 %}
+  {{ "No posts for series: " | append: name | raiseError }}
+{% endif %}
+
+{% for post in postsInSeries %}
+<article class="post-entry">
+  <figure class="entry-preview">
+      <img loading="lazy" src="{{ post.data.image }}" alt="{{ post.data.imageAlt }}">
+  </figure>
+  <div class="entry-group">
+    <header class="entry-header">
+      <h2>
+        <span class="entry-number">{{ forloop.index }}.&nbsp;</span>
+        {{ post.data.title }} {% if post.data.draft %}<i>(draft)</i>{% endif %}
+      </h2>
+    </header>
+    <div class="entry-content">
+      <p>{{ post.content | strip_html | strip_whitespace | truncate: 250 }}</p>
+    </div>
+    <footer class="entry-footer">
+      <time datetime="{{ post.data.date }}">{{ post.data.date | readableDateShort }}</time>
+    </footer>
+    <a class="entry-link" aria-label="post link to: {{ post.data.title | escape }}" href="{{ post.url }}"></a>
+  </div>
+</article>
+{% endfor %}

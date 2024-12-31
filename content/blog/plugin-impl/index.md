@@ -1,19 +1,21 @@
 ---
 title: "Plugins in Rust: Getting our Hands Dirty"
 description: "Finally implementing the plugin system!"
-author: "Mario Ortiz Manero"
-images: ["/blog/plugin-impl/dirty.jpg"]
-tags: ["tech", "programming", "rust", "open source"]
+image: "/blog/plugin-impl/dirty.jpg"
+imageAlt: "Preview image, with two dirty hands being rubbed"
+tags: ["tech", "programming", "rust", "open-source"]
 keywords: ["tech", "programming", "rust", "rustlang", "dynamic loading", "plugin", "ffi", "abi", "abi_stable", "prototyping"]
-series: ["rust-plugins"]
+series: "rust-plugins"
 date: 2022-02-11
 GHissueID: 10
 hasMath: true
 ---
 
+[[toc]]
+
 Welcome to one of the last articles of [this series](https://nullderef.com/series/rust-plugins/)! [Previously](https://nullderef.com/blog/plugin-abi-stable), we covered how to use external dependencies to lessen the work necessary to implement our plugin system. Now that we know how to actually get started, we'll implement it once and for all.
 
-I will personally use the crate {{< crate abi_stable >}}, but the concepts should be roughly the same for any dynamic loading method. Similarly, some of my advice is related to modifying an already existing project of large size. If you're starting from scratch with a plugin system in mind, it should be the same, just easier in some aspects.
+I will personally use the crate {% crate "abi_stable" %}, but the concepts should be roughly the same for any dynamic loading method. Similarly, some of my advice is related to modifying an already existing project of large size. If you're starting from scratch with a plugin system in mind, it should be the same, just easier in some aspects.
 
 <a name="advice"></a>
 ## Some prototyping advice
@@ -116,7 +118,7 @@ This is harder to do if you're _removing_ `use` statements. But if you also foll
 
 The first step that we can do is define the interface of the plugin system, i.e., what a plugin binary must implement in order to be loadable by the runtime. If you're doing this over an already existing codebase, you'll probably get tons of errors. We'll ignore them for now; this is only our first sketch, and you'll end up changing it a thousand times anyway. Some types in the interface may not exist yet, or they may not be meant to be used for FFI. But it'll serve us as an initial list of things to work on.
 
-In my case, it first looked as follows. The specifics about how this works with {{< crate abi_stable >}} are explained in the [previous post](https://nullderef.com/blog/plugin-abi-stable/).
+In my case, it first looked as follows. The specifics about how this works with {% crate "abi_stable" %} are explained in the [previous post](https://nullderef.com/blog/plugin-abi-stable/).
 
 ```rust
 /// This type represents a connector plugin that has been loaded with
@@ -160,7 +162,7 @@ My task was to turn the `Connector` trait into a plugin. All the `Connector` imp
 
 For reference, when I first wrote `ConnectorMod`, `Value` wasn't even `#[repr(C)]`. I had also added the `#[sabi_trait]` attribute to the `RawConnector` trait declaration, but the types used there weren't `#[repr(C)]` either. So I had tons of errors everywhere, but that was OK. I would be working on them step by step until it compiled again.
 
-If you're using {{< crate libloading >}} directly then you would be implementing
+If you're using {% crate "libloading" %} directly then you would be implementing
 the interface via a struct with function pointers instead, and you'd need to
 store metadata about the plugin with constants. But in the end, it boils down to
 the same thing; just with different amounts of boilerplate.
@@ -170,7 +172,7 @@ the same thing; just with different amounts of boilerplate.
 
 Now, this is the actually complicated part. The previous step may have seemed simple, but you might find yourself falling into madness as you realize that you need to make all the types in your interface `#[repr(C)]`, and also all the fields each of these types hold, and so on...
 
-It's very likely that you'll eventually find types without an FFI alternative in {{< crate abi_stable >}}. These will most likely be external types, but things like async are a bit complicated to deal with as well. In the case of Tremor, the most problematic part was the `Value` type. It's used to represent a JSON-like payload; roughly defined as follows:
+It's very likely that you'll eventually find types without an FFI alternative in {% crate "abi_stable" %}. These will most likely be external types, but things like async are a bit complicated to deal with as well. In the case of Tremor, the most problematic part was the `Value` type. It's used to represent a JSON-like payload; roughly defined as follows:
 
 <a name="value_decl"></a>
 ```rust
@@ -207,7 +209,7 @@ pub enum Value {
 }
 ```
 
-The first problem arises in the `Static` variant: [`StaticNode`](https://docs.rs/value-trait/latest/value_trait/enum.StaticNode.html) is a `#[repr(Rust)]` _external_ type. It's from our {{< crate value_trait >}} dependency, and it may hold different basic types: numbers, booleans, or just nothing.
+The first problem arises in the `Static` variant: [`StaticNode`](https://docs.rs/value-trait/latest/value_trait/enum.StaticNode.html) is a `#[repr(Rust)]` _external_ type. It's from our {% crate "value_trait" %} dependency, and it may hold different basic types: numbers, booleans, or just nothing.
 
 ```rust
 pub enum StaticNode {
@@ -236,7 +238,7 @@ pub enum StaticNode {
 Since it's an external library, we'll have to make a Pull Request and hope that the author is okay with the changes. `abi_stable` should be optional so that this change is applied only to those that actually need `#[repr(C)]` in the library. You could also go a step further and differentiate between enabling `#[repr(C)]` and deriving `StableAbi` for those that don't need the latter.
 
 <p style="text-align:center;">
-  {{< gh pr "simd-lite/value-trait" 14 "Add support for StableAbi" >}}
+  {% gh "pr" "simd-lite/value-trait" 14 "Add support for StableAbi" %}
 </p>
 
 <a name="_overcoming_problems_with_reprc"></a>
@@ -249,7 +251,7 @@ Awesome. We got `Value` working now for FFI. Right? No? Oh. It seems like the co
 let value = Value::Array(Vec::new());
 ```
 
-That's the easiest one: we just need to change `Vec` to `RVec` and it should be fine. The types in {{< crate abi_stable >}} are meant to be a drop-in replacement for the ones in `std`:
+That's the easiest one: we just need to change `Vec` to `RVec` and it should be fine. The types in {% crate "abi_stable" %} are meant to be a drop-in replacement for the ones in `std`:
 
 ```rust
 let value = Value::Array(RVec::new());
@@ -284,41 +286,41 @@ I [already investigated in the past](https://nullderef.com/blog/plugin-abi-stabl
 <a name="_reaching_reprc_blockers"></a>
 ## Reaching `#[repr(C)]` blockers
 
-That was my first attempt at making `Value` FFI-compatible, and unfortunately, it didn't end there. Converting from `std` to {{< crate abi_stable >}} is a relatively painless experience; their usage intends to be the same. The only issue I found in that regard is that some methods from `std` weren't available in {{< crate abi_stable >}} yet because it's not updated as regularly. Usually, you can just copy-paste the implementation from `std` into {{< crate abi_stable >}}'s and create a new Pull Request, which is what I did a few times:
+That was my first attempt at making `Value` FFI-compatible, and unfortunately, it didn't end there. Converting from `std` to {% crate "abi_stable" %} is a relatively painless experience; their usage intends to be the same. The only issue I found in that regard is that some methods from `std` weren't available in {% crate "abi_stable" %} yet because it's not updated as regularly. Usually, you can just copy-paste the implementation from `std` into {% crate "abi_stable" %}'s and create a new Pull Request, which is what I did a few times:
 
 <p>
   <div style="text-align:center;">
-    {{< gh pr "rodrimati1992/abi_stable_crates" 58 "Add support for .keys() and .values() in RHashMap" >}}
+    {% gh "pr" "rodrimati1992/abi_stable_crates" 58 "Add support for .keys() and .values() in RHashMap" %}
   </div>
 
   <div style="text-align:center;">
-    {{< gh pr "rodrimati1992/abi_stable_crates" 59 "Implement `Index` for slices and vectors" >}}
+    {% gh "pr" "rodrimati1992/abi_stable_crates" 59 "Implement `Index` for slices and vectors" %}
   </div>
 
   <div style="text-align:center;">
-    {{< gh pr "rodrimati1992/abi_stable_crates" 61 "Support for `f32` and `f64`" >}}
+    {% gh "pr" "rodrimati1992/abi_stable_crates" 61 "Support for `f32` and `f64`" %}
   </div>
 
   <div style="text-align:center;">
-    {{< gh pr "rodrimati1992/abi_stable_crates" 68 "Implement `ROption::as_deref`" >}}
+    {% gh "pr" "rodrimati1992/abi_stable_crates" 68 "Implement `ROption::as_deref`" %}
   </div>
 
   <div style="text-align:center;">
-    {{< gh pr "rodrimati1992/abi_stable_crates" 70 "Implement RVec::append" >}}
+    {% gh "pr" "rodrimati1992/abi_stable_crates" 70 "Implement RVec::append" %}
   </div>
 
   <div style="text-align:center;">
-    {{< gh pr "rodrimati1992/abi_stable_crates" 82 "Implement `ROption::{ok_or,ok_or_else}`" >}}
+    {% gh "pr" "rodrimati1992/abi_stable_crates" 82 "Implement `ROption::{ok_or,ok_or_else}`" %}
   </div>
 </p>
 
-However, this stops being as "easy" when you have to convert from _an external library_ to {{< crate abi_stable >}}. I lied at the beginning of the article: the [declaration of `Value`](#value_decl) was an oversimplification. For performance reasons, Tremor actually uses {{< crate halfbrown >}}'s implementation of a hash map instead of `std::collections::HashMap`.
+However, this stops being as "easy" when you have to convert from _an external library_ to {% crate "abi_stable" %}. I lied at the beginning of the article: the [declaration of `Value`](#value_decl) was an oversimplification. For performance reasons, Tremor actually uses {% crate "halfbrown" %}'s implementation of a hash map instead of `std::collections::HashMap`.
 
-***NOTE**: {{< crate halfbrown >}} is based on {{< crate hashbrown >}}, which was, in fact, merged into the standard library at some point[^hashbrown-merge]. Although with this plugin system we're suffering the consequences of not having a stable ABI, seeing that it enables things like that makes me less bitter.*
+***NOTE**: {% crate "halfbrown" %} is based on {% crate "hashbrown" %}, which was, in fact, merged into the standard library at some point[^hashbrown-merge]. Although with this plugin system we're suffering the consequences of not having a stable ABI, seeing that it enables things like that makes me less bitter.*
 
-{{< crate halfbrown >}} has some additional functionality over ``std``'s implementation. Some of it is actually available on Nightly, but for that reason it's not meant to be in the stable `RHashMap` either. This extra functionality is used in Tremor for example with [`raw_entry`](https://doc.rust-lang.org/std/collections/hash_map/struct.HashMap.html#method.raw_entry). There is an optimization for JSON handling that consists on memoizing the hash of a known item in a map in order to access its value directly with it[^known-key]. After switching to `RHashMap`, this becomes an impossible task.
+{% crate "halfbrown" %} has some additional functionality over ``std``'s implementation. Some of it is actually available on Nightly, but for that reason it's not meant to be in the stable `RHashMap` either. This extra functionality is used in Tremor for example with [`raw_entry`](https://doc.rust-lang.org/std/collections/hash_map/struct.HashMap.html#method.raw_entry). There is an optimization for JSON handling that consists on memoizing the hash of a known item in a map in order to access its value directly with it[^known-key]. After switching to `RHashMap`, this becomes an impossible task.
 
-Even if I managed to fix the hash map mess, the same story repeats itself for `Cow`. Tremor uses {{< crate beef >}}'s [`Cow`](https://docs.rs/beef/latest/beef/generic/struct.Cow.html) instead of `std::borrow::Cow` because it's faster and more compact, at the cost of a slightly different usage.
+Even if I managed to fix the hash map mess, the same story repeats itself for `Cow`. Tremor uses {% crate "beef" %}'s [`Cow`](https://docs.rs/beef/latest/beef/generic/struct.Cow.html) instead of `std::borrow::Cow` because it's faster and more compact, at the cost of a slightly different usage.
 
 There are a few possible ways to approach these kinds of issues:
 
@@ -336,9 +338,9 @@ These are **120** errors after attempting to remove the optimizations, most of t
 <a name="_implement_a_wrapper"></a>
 ### Approach 2: Implement a wrapper
 
-Another possibility is to write a _wrapper_ for {{< crate halfbrown >}}. Opaque types, for instance, may be used to wrap the functionality of an underlying type that's not FFI-safe, as I covered in previous articles. This is what {{< crate abi_stable >}} does in its `external_types` module for crates like {{< crate crossbeam >}} or {{< crate parking_lot >}}.
+Another possibility is to write a _wrapper_ for {% crate "halfbrown" %}. Opaque types, for instance, may be used to wrap the functionality of an underlying type that's not FFI-safe, as I covered in previous articles. This is what {% crate "abi_stable" %} does in its `external_types` module for crates like {% crate "crossbeam" %} or {% crate "parking_lot" %}.
 
-However, as you may see with the [already existing examples](https://github.com/rodrimati1992/abi_stable_crates/tree/edfb2a97a7b5d7ecbc29c1f9f115f61e26f42da6/abi_stable/src/external_types), implementing wrappers can be quite a cumbersome task. And even after you're done you'll have to keep them up to date, so this will increase your maintainance burden. {{< crate halfbrown >}} and {{< crate beef >}} are somewhat complex libraries, so I decided this wasn't the best choice at that moment for `Value`. I did use this approach a lot in other cases, so I've included an example in a [later section](#opaque).
+However, as you may see with the [already existing examples](https://github.com/rodrimati1992/abi_stable_crates/tree/edfb2a97a7b5d7ecbc29c1f9f115f61e26f42da6/abi_stable/src/external_types), implementing wrappers can be quite a cumbersome task. And even after you're done you'll have to keep them up to date, so this will increase your maintainance burden. {% crate "halfbrown" %} and {% crate "beef" %} are somewhat complex libraries, so I decided this wasn't the best choice at that moment for `Value`. I did use this approach a lot in other cases, so I've included an example in a [later section](#opaque).
 
 <a name="_re_implement_with_reprc_from_scratch"></a>
 ### Approach 3: Re-implement with `#[repr(C)]` from scratch
@@ -460,7 +462,7 @@ For the first version of the plugin system, this is the solution that I ended up
 
 I've always wanted to avoid communication primitives between plugins and runtime other than plain synchronous calls. But this might be inevitable if your program uses asynchronous programming heavily, which is the case of Tremor. Anyhow, turns out that using `async` in FFI isn't that complicated!
 
-In the previous post I introduced the {{< crate async_ffi >}} crate, which exports FFI-compatible ``Future``s. It's quite easy to use; here's an example from the docs:
+In the previous post I introduced the {% crate "async_ffi" %} crate, which exports FFI-compatible ``Future``s. It's quite easy to use; here's an example from the docs:
 
 ```rust
 use async_ffi::{FfiFuture, FutureExt};
@@ -476,18 +478,18 @@ pub extern "C" fn work(arg: u32) -> FfiFuture<u32> {
 }
 ```
 
-The types in {{< crate async_ffi >}} implement `Future`, so invoking that function is as easy as usual: just adding `.await` after the function call.
+The types in {% crate "async_ffi" %} implement `Future`, so invoking that function is as easy as usual: just adding `.await` after the function call.
 
 It's admittedly a bit ugly to use `async move { }.into_ffi()` everywhere, specially because it increases the indentation in one level. But that's something that can be fixed with a procedural macro in the future:
 
 <p style="text-align:center;">
-  {{< gh issue "oxalica/async-ffi" 12 "Procedural macro for boilerplate" >}}
+  {% gh "issue" "oxalica/async-ffi" 12 "Procedural macro for boilerplate" %}
 </p>
 
-The only problem I found was that the futures didn't implement `StableAbi`, so it wasn't possible to use them with {{< crate abi_stable >}}. It took me a while to understand the crate, but it's nothing a Pull Request can't fix:
+The only problem I found was that the futures didn't implement `StableAbi`, so it wasn't possible to use them with {% crate "abi_stable" %}. It took me a while to understand the crate, but it's nothing a Pull Request can't fix:
 
 <p style="text-align:center;">
-  {{< gh pr "oxalica/async-ffi" 10 "Support for `abi_stable`" >}}
+  {% gh "pr" "oxalica/async-ffi" 10 "Support for `abi_stable`" %}
 </p>
 
 One concern here may be performance. I imagine that it's not a huge problem because the crate is actualy quite small and only introduces some pointer juggling. I will confirm this in the next post with some benchmarks, though.
@@ -502,7 +504,7 @@ We have three options here:
 <a name="_use_abi_stables_alternatives"></a>
 #### Option 1: Use ``abi_stable``'s alternatives
 
-Turns out `abi_stable` includes an FFI-safe wrapper for {{< crate crossbeam >}}. We could just switch the usage of `Sender<T>` to [`RSender<T>`](https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html) and that's it.
+Turns out `abi_stable` includes an FFI-safe wrapper for {% crate "crossbeam" %}. We could just switch the usage of `Sender<T>` to [`RSender<T>`](https://docs.rs/abi_stable/latest/abi_stable/external_types/crossbeam_channel/struct.RSender.html) and that's it.
 
 Problem: Tremor actually uses asynchronous channels, such as [`async_std::channel`](https://docs.rs/async-std/latest/async_std/channel/index.html), so it wasn't as easy as changing to `crossbeam`. We want to be able to poll for events without blocking the thread.
 
@@ -651,7 +653,7 @@ Loading plugins in the runtime was actually the easiest part. `abi_stable` takes
 
 In the case of Tremor, we wanted to make it possible to configure the directories where the plugins may be saved. Thus, I introduced a new environment variable `TREMOR_PLUGIN_PATH`. It's equivalent to `PATH` in the sense that the directories are separated by colons.
 
-Once the runtime has a list of what directories may contain plugins, it can look for them recursively with the crate {{< crate walkdir >}}. It's highly customizable and remarkably easy to use:
+Once the runtime has a list of what directories may contain plugins, it can look for them recursively with the crate {% crate "walkdir" %}. It's highly customizable and remarkably easy to use:
 
 ```rust
 /// Recursively finds all the connector plugins in a directory. It doesn't
@@ -735,18 +737,20 @@ This has been my road to implementing the first version of Tremor's plugin syste
 I will also work on properly making `Value` `#[repr(C)]`, instead of also having `PdkValue`. In retrospect, creating `PdkValue` was a great decision at that point: these 120 errors I got when trying to make `Value` `#[repr(C)]` were related to a nasty bug in ``RCow``'s implementation. Changing from `Cow` to `RCow` is broken in some cases because `RCow` is _invariant_. For those that don't know what that means, don't worry, as I will be releasing another article that explains everything once it's been fixed. If you're interested, you can follow this issue in the meanwhile, and hope that you don't run into it:
 
 <p style="text-align:center;">
-  {{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" >}}
+  {% gh "issue" "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" %}
 </p>
 
 After I'm fully done I will also reorganize this series a bit and make it an easier read. I have been writing these articles _as I learned how the plugin system could be implemented_, so there might be some outdated or repetitive statements in previous articles. If you have any suggestions you can leave them here:
 
 <p style="text-align:center;">
-  {{< gh issue "marioortizmanero/nullderef.com" 50 "Reorganize rust plugins series once I'm done" >}}
+  {% gh "issue" "marioortizmanero/nullderef.com" 50 "Reorganize rust plugins series once I'm done" %}
 </p>
 
 For those interested, I recently gave a quick talk about the whole project in the 2022 LFX Mentorship Showcase. Unfortunately, it was just a 15 minutes presentation, so I couldn't get into many technical details, but it covers how the whole experience has been so far, and what I've learned:
 
 <iframe width="1600" height="400" src="https://www.youtube.com/embed/htLCyqY0kt0?start=3166" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-[^hashbrown-merge]: {{< gh pr "rust-lang/rust" 58623 "Replace HashMap implementation with SwissTable (as an external crate)" >}}
+{% include "partials/subscribe.liquid" %}
+
+[^hashbrown-merge]: {% gh "pr" "rust-lang/rust" 58623 "Replace HashMap implementation with SwissTable (as an external crate)" %}
 [^known-key]: [JSON Key memoization in `tremor-runtime/tremor-value/src/known_key.rs`](https://github.com/tremor-rs/tremor-runtime/blob/87fb312395b8241e915f626dd3ac3a294515e8db/tremor-value/src/known_key.rs)
