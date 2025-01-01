@@ -572,7 +572,7 @@ example as of October 12, 2021:
 
 The Lines of Code in the old version were quite bloated because of the `blocking` module, which was a copy-paste of the async client. Still, these were lines that needed to be maintained, so they count just as much. On the other hand, we now have a much more extensive set of tests and new features that add up. In total, we have about 33% less lines to be maintained.
 
-The number of dependencies has decreased both by default and with all the features enabled. [We cleaned up a lot of them](https://github.com/ramsayleung/rspotify/issues/108) and tried to keep the defaults leaner. Since the new version adds more features such as PKCE, we even had to add new dependencies like {% crate sha2 %}, but it's still a clear win.
+The number of dependencies has decreased both by default and with all the features enabled. [We cleaned up a lot of them](https://github.com/ramsayleung/rspotify/issues/108) and tried to keep the defaults leaner. Since the new version adds more features such as PKCE, we even had to add new dependencies like {% crate "sha2" %}, but it's still a clear win.
 
 <a name="_execution_time"></a>
 ### Execution time

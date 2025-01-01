@@ -92,6 +92,8 @@ export default function(eleventyConfig) {
     $(".toc").remove();
     // https://github.com/cheeriojs/cheerio/issues/339
     $("style").remove();
+    // We assume JS loads by default
+    $("noscript").remove();
     const plain = $.text();
     return plain.replace(/[\r\n\t]/g, ' ').trim();
   });

@@ -210,7 +210,7 @@ There were a few crates that also had this problem:
 
 * {% crate "arangors" %} and {% crate "aragog" %}: wrappers for ArangoDB. Both use `maybe_async` to switch between async and sync (``arangors``'s author is the same person, in fact)[^arangors-error][^aragog-error].
 * {% crate "inkwell" %}: a wrapper for LLVM. It supports multiple versions of LLVM, which are not compatible with eachother[^inkwell-error].
-* {% crate k8s-openapi %}: a wrapper for Kubernetes, with the same issue as `inkwell`[^k8s-error].
+* {% crate "k8s-openapi" %}: a wrapper for Kubernetes, with the same issue as `inkwell`[^k8s-error].
 
 <a name="_fixing_maybe_async"></a>
 ### Fixing `maybe_async`

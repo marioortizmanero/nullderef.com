@@ -13,7 +13,7 @@ hasMath: true
 
 [[toc]]
 
-[Previously](https://nullderef.com/blog/plugin-dynload/) in this [series](https://nullderef.com/series/rust-plugins/), I covered how the plugin system could be implemented from scratch. This is a lot of work if you're dealing with a relatively large codebase and therefore a complex interface in your plugin system, so let's see how we can make our lives easier. I've been wanting to try {% crate abi_stable %} for this since the beginning, which was specifically created for plugins. But we aren't really locked to that crate, so I'll show other alternatives as well, which can even be combined to your liking.
+[Previously](https://nullderef.com/blog/plugin-dynload/) in this [series](https://nullderef.com/series/rust-plugins/), I covered how the plugin system could be implemented from scratch. This is a lot of work if you're dealing with a relatively large codebase and therefore a complex interface in your plugin system, so let's see how we can make our lives easier. I've been wanting to try {% crate "abi_stable" %} for this since the beginning, which was specifically created for plugins. But we aren't really locked to that crate, so I'll show other alternatives as well, which can even be combined to your liking.
 
 <a name="_handy_tools_for_our_plugin_system"></a>
 ## Handy tools for our Plugin System
@@ -23,7 +23,7 @@ hasMath: true
 
 In a previous post I mentioned that async was not supported in `abi_stable`. While this is true, because there is no FFI-safe `Future` in the crate, it's certainly possible, and it might be of interest later on.
 
-Matthias recently let me know about the {% crate async_ffi %} crate, which lets us do exactly that. It exports the type `FfiFuture<T>`, which provides the same functionality as `Box<dyn Future<Output = T> + Send>`:
+Matthias recently let me know about the {% crate "async_ffi" %} crate, which lets us do exactly that. It exports the type `FfiFuture<T>`, which provides the same functionality as `Box<dyn Future<Output = T> + Send>`:
 
 ```rust
 // This is how regular async works: the first function is practically equivalent
@@ -66,7 +66,7 @@ It's not too popular right now, and it's still Work In Progress, but it serves a
 <a name="_safer_ffi"></a>
 ### Safer FFI
 
-If you don't like any of the solutions listed in this article, and you're going to end up writing the plugin interfaces by hand, you might be interested in {% crate safer_ffi %}.
+If you don't like any of the solutions listed in this article, and you're going to end up writing the plugin interfaces by hand, you might be interested in {% crate "safer_ffi" %}.
 
 All this crate provides is a set of procedural macros to make FFI interfacing an easier and safer task. With it, you'll be able to get rid of lots of `extern "C"` and `unsafe` instances in your code, which can get out of hands in larger codebases. Its documentation is excellent, you can check out [its book](https://getditto.github.io/safer_ffi/) for more information.
 
@@ -75,7 +75,7 @@ All this crate provides is a set of procedural macros to make FFI interfacing an
 
 <!-- TODO: response to https://github.com/h33p/cglue/issues/3 -->
 
-In my last post, I was brought up the {% crate cglue %} crate [by its own creator](https://www.reddit.com/r/rust/comments/q2n6b8/plugins_in_rust_diving_into_dynamic_loading/hfmyn6o/). It takes a very interesting approach, achieving ABI stability through [_opaque types_](https://en.wikipedia.org/wiki/Opaque_data_type).
+In my last post, I was brought up the {% crate "cglue" %} crate [by its own creator](https://www.reddit.com/r/rust/comments/q2n6b8/plugins_in_rust_diving_into_dynamic_loading/hfmyn6o/). It takes a very interesting approach, achieving ABI stability through [_opaque types_](https://en.wikipedia.org/wiki/Opaque_data_type).
 
 An opaque type is simply one for which you don't know its concrete layout. There's no `#[repr(C)]` needed at all, because one can only interact with it via void pointers and its associated vtables.
 
@@ -129,12 +129,12 @@ Neither of these are particularly useful for my use-case, but if any of these fe
 
 [Miri](https://github.com/rust-lang/miri) is an interpreter for Rust's mid-level intermediate representation. This doesn't help us with the plugin system per se, but since it's very likely that we're going to end up writing unsafe code, it's good to know about it. That's exactly what Miri is used for: detecting undefined behavior, such as using uninitialized data or use-after-frees.
 
-I was going to use Miri from the beginning, but since I'll be using {% crate abi_stable %} for now, there will be no unsafe code involved. If I end up having to resort to it, I'll try to add Miri to Tremor's workflow (mainly their Continuous Integration).
+I was going to use Miri from the beginning, but since I'll be using {% crate "abi_stable" %} for now, there will be no unsafe code involved. If I end up having to resort to it, I'll try to add Miri to Tremor's workflow (mainly their Continuous Integration).
 
 <a name="_cbindgen"></a>
 ### cbindgen
 
-For the first steps with dynamic loading I think the C/C++ binding generator {% crate cbindgen %} will help us understand what's going on under the hood. We can take a look at the generated headers and see how it works internally. Unfortunately, it fails to run for the `abi_stable` crate:
+For the first steps with dynamic loading I think the C/C++ binding generator {% crate "cbindgen" %} will help us understand what's going on under the hood. We can take a look at the generated headers and see how it works internally. Unfortunately, it fails to run for the `abi_stable` crate:
 
 ```plain
 (...)
@@ -153,9 +153,9 @@ If you're using something else like `cglue`, this will work without issues. But 
 <a name="_working_with_abi_stable"></a>
 ## Working with `abi_stable`
 
-I will personally use {% crate abi_stable %} because it seems like the easiest choice for now, and the one that meets my needs best. Not only does it provide a standard library defined with the C ABI, but also lots of other macros and utilities specially useful for plugin systems. With it, I won't need a line of unsafe, and I'll avoid reinventing the wheel in many instances.
+I will personally use {% crate "abi_stable" %} because it seems like the easiest choice for now, and the one that meets my needs best. Not only does it provide a standard library defined with the C ABI, but also lots of other macros and utilities specially useful for plugin systems. With it, I won't need a line of unsafe, and I'll avoid reinventing the wheel in many instances.
 
-_Once the plugin system is fully functional with ``abi_stable``_, I might consider using something more hand-crafted. This switch won't be too complicated, since our interface will already be `#[repr(C)]`, which is the most troublesome part. All we'd have to do is remove a few procedural macros, switch the `abi_stable` types, and load the plugins manually with something like {% crate libloading %}. The only thing I want right now is a plugin system that works, and then we can maybe focus on trying to make it available in other languages, making it more performant, or whatever.
+_Once the plugin system is fully functional with ``abi_stable``_, I might consider using something more hand-crafted. This switch won't be too complicated, since our interface will already be `#[repr(C)]`, which is the most troublesome part. All we'd have to do is remove a few procedural macros, switch the `abi_stable` types, and load the plugins manually with something like {% crate "libloading" %}. The only thing I want right now is a plugin system that works, and then we can maybe focus on trying to make it available in other languages, making it more performant, or whatever.
 
 So let's start comparing `abi_stable` with my experiments in the previous post using raw dynamic linking. I've created the `abi-stable-simple` directory [in the pdk-experiments repository](https://github.com/marioortizmanero/pdk-experiments). I'll be taking a look at the already implemented [examples](https://github.com/rodrimati1992/abi_stable_crates/tree/master/examples) for `abi_stable` in order to make the learning experience smoother. The base structure for a plugin system with `abi_stable` is the same as always: a crate for the plugin, another for the runtime, and `common`, with the shared interface.
 
@@ -274,7 +274,7 @@ pub fn run_plugin(path: &str) -> Result<()> {
 
 Executing the `plugin-sample` implementation:
 
-```console
+```plain
 $ make debug-sample
 Loading plugin min
 initial state: State { counter: 0 }
@@ -355,7 +355,7 @@ As its documentation explains, this still has a limited number of possible super
 <a name="_error_handling"></a>
 ## Error handling
 
-`abi_stable` is just a wrapper over {% crate libloading %} after all. It doesn't include a sandbox, so if the plugin developer was a malicious actor, they'd have full access to the computer the runtime is being executed on. Other popular plugin systems such as [nginx's](https://www.nginx.com/resources/wiki/extending/) or [apache's](https://httpd.apache.org/docs/2.4/dso.html) suffer from the same issues, for reference.
+`abi_stable` is just a wrapper over {% crate "libloading" %} after all. It doesn't include a sandbox, so if the plugin developer was a malicious actor, they'd have full access to the computer the runtime is being executed on. Other popular plugin systems such as [nginx's](https://www.nginx.com/resources/wiki/extending/) or [apache's](https://httpd.apache.org/docs/2.4/dso.html) suffer from the same issues, for reference.
 
 However, I think it's not so bad to assume that no bad actors will be involved here. A sandbox would be mandatory if we were working on something like [Solana](https://solana.com/) (one of the main users of eBPF in Rust), which basically executes random code from the internet. But with Tremor we can assume that the plugins come from trusted sources because they're installed and configured manually by the user.
 
@@ -371,7 +371,7 @@ The full source for the example that's supported to work is [here](https://githu
 The versions of the `common` library are checked automatically. In case there's a mismatch in those considered incompatible (changes in `x.0.0` or `0.x.0`), this is what will show up. [See the full code here](https://github.com/marioortizmanero/pdk-experiments/tree/master/abi-stable-simple/plugin-versionmismatch).
 
 
-```console
+```plain
 $ make debug-versionmismatch
 Error when running the plugin:
 
@@ -391,7 +391,7 @@ We can absolutely catch this error gracefully and continue with the execution of
 
 The layout of every type is recursively checked before trying to use them to make sure they are compatible. Unlike raw dynamic loading, these errors can be caught gracefully, which is a huge plus (it used to segfault). [See the full code here](https://github.com/marioortizmanero/pdk-experiments/tree/master/abi-stable-simple/plugin-wrongtype).
 
-```console
+```plain
 $ make debug-wrongtype
 Error when running the plugin:
 Compared <this>:
@@ -431,7 +431,7 @@ The error message is way too long to show here, but it basically shows the entir
 Panicking trough the FFI boundary is _undefined behaviour_; we aren't guaranteed that the plugin will abort. It may just continue its execution in a completely invalid state, which is scary. But turns out `abi_stable` properly handles this for us! It will use what it calls an `AbortBomb` to even print out the line and file where it happened. This is publicly available through the macro [`extern_fn_panic_handling`](https://docs.rs/abi_stable/latest/abi_stable/macro.extern_fn_panic_handling.html). [See the full code here](https://github.com/marioortizmanero/pdk-experiments/tree/master/abi-stable-simple/plugin-panic).
 
 
-```console
+```plain
 $ make debug-panic
 Loading plugin min
 initial state: State { counter: 0 }
@@ -485,7 +485,7 @@ Let's see what else can we do about panicking:
 
 The simplest way to do it would be to just configure plugins to abort on panic instead of unwinding. This is possible with the `panic = "abort" option in the plugin's `Cargo.toml`. It will still show the panic message, but the execution will be completely stopped by an abort:
 
-```console
+```plain
 $ cargo r -q
 thread 'main' panicked at 'Oh no!', src/main.rs:2:5
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
@@ -555,7 +555,7 @@ fn plugin_stuff() -> MayPanic<Whatever> {
 }
 ```
 
-Ideally, `MayPanic` could be accompanied by a `#[may_panic]` procedural macro that adds this boilerplate automatically to the function it's attached to. Additionally, it could come with a `#[may_not_panic]` variant that attaches the `#[no_panic]` macro from the {% crate no-panic %} crate to make sure the statement is true at compile time. However, `no-panic` isn't too reliable, so perhaps it could be opt-in with something like `#[may_not_panic(enforce)]`.
+Ideally, `MayPanic` could be accompanied by a `#[may_panic]` procedural macro that adds this boilerplate automatically to the function it's attached to. Additionally, it could come with a `#[may_not_panic]` variant that attaches the `#[no_panic]` macro from the {% crate "no-panic" %} crate to make sure the statement is true at compile time. However, `no-panic` isn't too reliable, so perhaps it could be opt-in with something like `#[may_not_panic(enforce)]`.
 
 Something that complicates this whole thing considerably is the concept of _exception safety_. Unfortunately, `catch_unwind` isn't as easy to use as just slapping your code into its closure/function, as there are some types that aren't considered unwind safe. You can read more about that [here](https://doc.rust-lang.org/stable/std/panic/trait.UnwindSafe.html), but I won't get into more details because we aren't going to use `MayPanic` in our own plugin system anyway.
 
@@ -630,7 +630,7 @@ However, for the first version of our system this won't be a problem at all. For
 <a name="_performance"></a>
 ## Performance
 
-I first tried to write these benchmarks with [cargo nightly's implementation](https://doc.rust-lang.org/nightly/cargo/commands/cargo-bench.html?highlight=feature). However, since it's so basic, not updated regularly, and requires nightly, I moved to {% crate criterion %}, which I quite liked after using it for [another post](https://nullderef.com/blog/web-api-client/).
+I first tried to write these benchmarks with [cargo nightly's implementation](https://doc.rust-lang.org/nightly/cargo/commands/cargo-bench.html?highlight=feature). However, since it's so basic, not updated regularly, and requires nightly, I moved to {% crate "criterion" %}, which I quite liked after using it for [another post](https://nullderef.com/blog/web-api-client/).
 
 First, we can take a look at already implemented plugin systems in order to have an idea of the performance hit we'll experience in Tremor. This is what we should expect once our system is polished and ready for deployment:
 

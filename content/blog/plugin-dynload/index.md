@@ -504,7 +504,7 @@ The full source for the example that's supported to work is [here](https://githu
 
 The `plugin-missing` directory contains an empty plugin. It doesn't export any fields at all, like the name or the version. This one is already handled by `libloading`, actually. When using `library.get("name")`, if "name" is not exported by the shared object, the following error will show up. [See the full code here](https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-missing).
 
-```console
+```plain
 $ make debug-missing
 Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.so: undefined symbol: get_name
 ```
@@ -514,7 +514,7 @@ Error when setting up the plugin: plugin-missing/target/debug/libplugin_missing.
 
 After implementing the versioning system, we can see how these kinds of errors can be caught safely. [See the full code here](https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-versionmismatch).
 
-```console
+```plain
 $ make debug-versionmismatch
 Initializing plugin versionmismatch
 Version mismatch. Aborting.
@@ -530,7 +530,7 @@ Libloading assumes the type that's being loaded is correct. If for example the p
 
 Ignoring this will cause an unavoidable segfault. [See the full code here](https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongtype).
 
-```console
+```plain
 $ make debug-wrongtype
 Segmentation fault (core dumped)
 ```
@@ -540,7 +540,7 @@ Segmentation fault (core dumped)
 
 Unfortunately, there's not much we can do about out of bounds pointers. If the plugin exports, e.g., the name with a null pointer, we'll just get a segmentation fault. [See the full code here](https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-wrongaddress).
 
-```console
+```plain
 $ make debug-wrongaddress
 Segmentation fault (core dumped)
 ```
@@ -554,7 +554,7 @@ In order to avoid this, the runtime could manually check that the pointer isn't 
 
 Panicking is not supported in the C ABI; it's considered undefined behaviour[^panic-ffi]. If a plugin panics, the entire program will most likely abort. Plugin developers should wrap every single exported function in [`catch_unwind`](https://doc.rust-lang.org/std/panic/fn.catch_unwind.html) in order to not crash the entire runtime when something goes wrong. [See the full code here](https://github.com/marioortizmanero/pdk-experiments/tree/master/dynamic-connectors/plugin-panic).
 
-```console
+```plain
 $ make debug-panic
 Segmentation fault (core dumped)
 ```

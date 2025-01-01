@@ -262,9 +262,9 @@ Note: this is assuming the client contains necessary information to make the req
 * Still relatively verbose, might not be compatible with some APIs.
 * Slight builder pattern overhead, and can also fail to construct the value.
 
-## F) Hybrid derive pattern Back to the client-oriented API.
+## F) Hybrid derive pattern
 
-We can remove some disadvantages of the builder pattern by using a different approach and possibly a custom implementation instead of just using `derive_builder`.
+Back to the client-oriented API. We can remove some disadvantages of the builder pattern by using a different approach and possibly a custom implementation instead of just using `derive_builder`.
 
 The client will now have a method that calls `ApproachBuilder::default()` and whatever is necessary to start building the endpoint. Mandatory parameters are added to that function's signature, so that the build can never fail. This also avoids passing the client in `call(&api)`, since we can do that inside the method. This is how it would look like:
 

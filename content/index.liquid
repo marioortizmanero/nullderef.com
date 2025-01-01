@@ -43,8 +43,8 @@ NOTE: no pagination is supported for simplicity
       </div>
       <footer class="entry-footer">
         <time datetime="{{ post.data.date }}">{{ post.data.date | readableDateShort }}</time>
-        &nbsp;·&nbsp;
         {% if post.data.series %}
+        &nbsp;·&nbsp;
           {% assign seriesData = collections.series | getSeries: post.data.series %}
           From “{{ seriesData.data.title }}”
         {% endif %}

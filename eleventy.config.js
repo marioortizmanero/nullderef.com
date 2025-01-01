@@ -1,4 +1,3 @@
-import { IdAttributePlugin } from "@11ty/eleventy";
 import { feedPlugin } from "@11ty/eleventy-plugin-rss";
 import pluginSyntaxHighlight from "@11ty/eleventy-plugin-syntaxhighlight";
 import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
@@ -34,7 +33,7 @@ export default async function(eleventyConfig) {
 
   // Official plugins
   eleventyConfig.addPlugin(pluginSyntaxHighlight, {
-    errorOnInvalidLanguage: false,
+    errorOnInvalidLanguage: true,
   });
 
   eleventyConfig.addPlugin(feedPlugin, {
@@ -77,9 +76,11 @@ export default async function(eleventyConfig) {
   const markdown = markdownIt({
       html: true,  // Embedding raw HTML
       typographer: true,  // Replacing characters like arrows or dashes
+      linkify: true,  // Creates <a> for links automatically
     })
     .use(markdownItFootnote)
     .use(markdownItAnchor, {
+      slugify: eleventyConfig.getFilter("slugify"),
       permalink: markdownItAnchor.permalink.ariaHidden({
         placement: 'after',
       }),

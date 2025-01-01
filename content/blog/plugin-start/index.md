@@ -142,7 +142,7 @@ fn run_plugin(path: &str) -> Result<(), libloading::Error> {
 
 We can run it with the following commands (though the `Makefile` in the repo will do everything for you):
 
-```console
+```plain
 $ cd plugin-sample
 $ cargo build --release
 $ cd ..
@@ -189,7 +189,7 @@ When compiling the previous example with `dylib`, the resulting shared object fo
 <a name="_rlib_files"></a>
 ### `rlib` files
 
-`rlib` is another value for `crate-type` to generate Rust **static** libraries, which can then be imported with `extern crate crate_name`[^dylib]. But since `rlib` files are static libraries, they can't be loaded at runtime, so they're of no use in a plugin system.
+`rlib` is another value for `crate-type` to generate Rust **static** libraries, which can then be imported with `extern crate crate_name`. But since `rlib` files are static libraries, they can't be loaded at runtime, so they're of no use in a plugin system.
 
 Here's a crazy idea though: What if the `rlib` files were dynamically loaded as plugins with the help of [MIRI](https://github.com/rust-lang/miri)? I recently learned about it, and quoting its official documentation:
 
@@ -271,7 +271,7 @@ pub fn run_plugin(path: &str) -> Result<(), Box<dyn Error>> {
 
 For a simple example they're pretty much the same. Running them:
 
-```console
+```plain
 $ rustup target add wasm32-wasi
 $ cd plugin-simple
 $ cargo build --target wasm32-wasi --release
