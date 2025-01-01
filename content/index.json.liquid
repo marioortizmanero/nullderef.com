@@ -8,7 +8,7 @@ layout: false
   {% for post in collections.posts %}
   {
     "title": {{ post.data.title | default: "" | json }},
-    "content": {{ post.content | strip_html | strip_whitespace | default: "" | json }},
+    "content": {{ post.content | plainifyHtml | default: "" | json }},
     "description": {{ post.data.description | default: "" | json }},
     "keywords": {{ post.data.keywords | join: " " | default: "" | json }},
     "tags": {{ post.data.tags | join: " " | default: "" | json }},

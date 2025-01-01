@@ -245,7 +245,7 @@ Specifically, the type used to export the version has to be:
 * **Stable**. `abi_stable::RStr` won't work either because the versions for `abi_stable` might mismatch, since we're reading the symbol before knowing that. Its layout must be _always_ the same.
 * **Thread-safe** (implement `Sync`). If we wanted to use something like `*const c_char`, the compiler would throw the following error, because it's a pointer:
 
-  ```text
+  ```plain
   error[E0277]: `*const i8` cannot be shared between threads safely
    --> src/lib.rs:4:1
     |
@@ -318,7 +318,7 @@ extern "C" {
 
 This results in the following error:
 
-```text
+```plain
 error[E0044]: foreign items may not have type parameters
  --> src/lib.rs:2:5
   |
@@ -364,7 +364,7 @@ pub extern fn foo<T>(_: &dyn PluginState) {}
 
 Compiling...
 
-```text
+```plain
 warning: `extern` fn uses type `dyn PluginState`, which is not FFI-safe
  --> src/lib.rs:2:25
   |

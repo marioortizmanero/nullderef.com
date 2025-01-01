@@ -136,7 +136,7 @@ I was going to use Miri from the beginning, but since I'll be using {% crate abi
 
 For the first steps with dynamic loading I think the C/C++ binding generator {% crate cbindgen %} will help us understand what's going on under the hood. We can take a look at the generated headers and see how it works internally. Unfortunately, it fails to run for the `abi_stable` crate:
 
-```text
+```plain
 (...)
 WARN: Skip abi_stable::CONST - (...)
 
@@ -639,7 +639,7 @@ First, we can take a look at already implemented plugin systems in order to have
 
 These are the results of the benchmarks I wrote, on my not-so-fast laptop:
 
-```text
+```plain
 dynamic setup           time:   [652.53 ns 654.72 ns 657.34 ns]
 Found 7 outliers among 100 measurements (7.00%)
   3 (3.00%) high mild

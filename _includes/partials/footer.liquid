@@ -1,9 +1,5 @@
 <footer class="footer">
-  <span>See this site's source code <a href="{{ metadata.github }}" rel="noopener noreferrer" target="_blank">on GitHub</a>, licensed under GPLv3
-     ·
-        Powered by
-        <a href="https://www.11ty.dev/" rel="noopener noreferrer" target="_blank">11ty</a>
-    </span>
+  <span>See this site's source code <a href="{{ metadata.github }}" rel="noopener noreferrer" target="_blank">on GitHub</a>, licensed under GPLv3. Powered by <a href="https://www.11ty.dev/" rel="noopener noreferrer" target="_blank">11ty</a></span>
 </footer>
 
 <a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
@@ -18,3 +14,10 @@
 <script>
 {% include "js/copyCode.js" %}
 </script>
+<script>
+{% include "js/theme.js" %}
+</script>
+
+
+{% block footer %}
+{% endblock %}

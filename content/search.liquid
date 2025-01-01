@@ -4,11 +4,12 @@ description: Look for articles and browse popular tags.
 layout: layouts/base.liquid
 ---
 
-{% comment %} TODO: only load this in the search page {% endcomment %}
-{% comment %} TODO: integrity attribute?{% endcomment %}
 {% block head %}
-<link crossorigin="anonymous" rel="preload" as="fetch" href="../index.json">
+<link crossorigin="anonymous" rel="preload" as="fetch" href="/index.json">
 <script defer crossorigin="anonymous" src="/js/fuse.js"></script>
+{% endblock %}
+
+{% block footer %}
 <script>
 {% include "js/search.js" %}
 </script>
@@ -31,7 +32,7 @@ layout: layouts/base.liquid
 </div>
 
 <header class="page-header">
-    <h1>Tags</h1>
+    <h2>Tags</h2>
 </header>
 
 <ul class="terms-tags">

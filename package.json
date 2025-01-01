@@ -31,6 +31,7 @@
     "@11ty/eleventy-img": "^5.0.0",
     "@11ty/eleventy-plugin-rss": "^2.0.2",
     "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.0",
+    "cheerio": "^1.0.0",
     "fuse.js": "^7.0.0",
     "html-minifier-terser": "^7.2.0",
     "markdown-it-anchor": "^9.2.0",

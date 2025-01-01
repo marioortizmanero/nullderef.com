@@ -34,6 +34,7 @@ function loadComments(commentsDiv) {
 
   var id = commentsDiv.getAttribute("gh-issue");
   if (!id) {
+    console.error("No GitHub issue ID found");
     return;
   }
 

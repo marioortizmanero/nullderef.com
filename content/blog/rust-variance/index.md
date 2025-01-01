@@ -66,7 +66,7 @@ fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
 
 It failed to compile with the following error, which didn't help much. In Rust 1.62.0, they actually improved it to explain what's going on (shown at the end of the article):
 
-```text
+```plain
 $ cargo b
    Compiling repro v0.1.0 (/home/mario/Downloads/repro)
 error[E0623]: lifetime mismatch
@@ -321,7 +321,7 @@ This showcased two gaps in the language:
 
 So it's amazing to hear that starting in Rust 1.62.0, you're even taken to the documentation. It will still be hard to understand the whole topic, but at least you know where to start!
 
-```text
+```plain
 error: lifetime may not live long enough
   --> src/main.rs:55:5
    |

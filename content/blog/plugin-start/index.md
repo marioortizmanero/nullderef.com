@@ -384,7 +384,7 @@ In the next post, I will try to get a more advanced example of a plugin system w
 
 I did write a few benchmarks for the examples provided in this article, but they aren't fair at all nor representative of a real-life situation. They simply load the plugin and run the `min` function once, or in the case of dynamic loading twice (one with `static` and another with `extern`). And since they're very simple examples, the Wasm ones don't include the [de]serialization part that may introduce even more overhead. Knowing that, the results are the following, which is more or less what I was expecting:
 
-```text
+```plain
 test test::dynamic_simple ... bench:     139,702 ns/iter (+/- 34,699)
 test test::wasmer_setup   ... bench:     967,633 ns/iter (+/- 203,933)
 test test::wasmtime_setup ... bench:     988,500 ns/iter (+/- 363,244)

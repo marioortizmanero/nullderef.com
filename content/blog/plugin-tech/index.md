@@ -144,7 +144,7 @@ Another possibility for plugins is to define a protocol for Inter-Process Commun
 
 There are three ways to do IPC, which I'll briefly list below. Performance-wise, this graph shows a comparison of the overhead of each of them[^ipc-wisc]:
 
-<img alt="IPC comparison" src="ipc-comparison.png" width="60%">
+<img alt="IPC comparison" src="ipc-comparison.png" style="padding: 0 20%;">
 
 <a name="sockets"></a>
 #### Option 1: Based on Sockets
@@ -303,7 +303,7 @@ Here's a list of some of the libraries I found with Plugin Systems, specifically
 
 This article has covered quite a few ways to approach a Plugin System. The final choice depends on what trade-offs the project wants to make. Most of them require sacrificing some level of performance for safety or usability. Here's a drawing that ***very roughly*** compares the main methods:
 
-<img src="triangle.svg" alt="Triangle Chart" width="70%">
+<img src="triangle.jpeg" alt="Triangle Chart" eleventy:widths="500">
 
 There's never a single answer in programming: how much performance are you willing to lose in exchange for safety and usability? Is that performance actually measurable, or is it just hypothetical? Don't forget that this depends on the use case, so make sure you run a couple benchmarks if the resulting overhead may be important for your program.
 
@@ -317,7 +317,7 @@ You can join the discussion at [Reddit](https://www.reddit.com/r/rust/comments/n
 [^lua-wiki]: [About Lua --- lua.org](https://www.lua.org/about.html#why)
 [^lua-sandbox]: [Sand Boxes --- lua-users](http://lua-users.org/wiki/SandBoxes)
 [^ipc-wisc]: [Evaluation of Inter-Process Communication Mechanisms (paper)](https://pages.cs.wisc.edu/~adityav/Evaluation_of_Inter_Process_Communication_Mechanisms.pdf)
-[^protobuf-perf]: [C++ Benchmarks --- FlatBuffers ](https://google.github.io/flatbuffers/flatbuffers_benchmarks.html)
+[^protobuf-perf]: [C++ Benchmarks --- FlatBuffers](https://google.github.io/flatbuffers/flatbuffers_benchmarks.html)
 [^memory-share-so]: [Performance difference between IPC shared memory and threads memory --- StackOverflow](https://stackoverflow.com/a/14512554/11488352)
 [^ffi-comparison]: [Compare with other libraries --- dlopen v0.1.8](https://docs.rs/dlopen/0.1.8/dlopen/#compare-with-other-libraries)
 [^ffi-caveat-1]: [Idiomatic Rust plugin system --- StackOverflow](https://stackoverflow.com/a/46249019/11488352)

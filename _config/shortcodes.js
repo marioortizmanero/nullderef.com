@@ -39,6 +39,6 @@ export default function(eleventyConfig) {
 
     let titleHtml = markdownIt.renderInline(title);
 
-    return `<span class="gh-reference">${icon}<a class="gh-title" href="https://github.com/${repo}/${url_type}/${reference}" style="text-decoration: none;">${titleHtml}<span class="gh-number">${repo}#${reference}${comment}</span></a></span>`
+    return `<span class="gh-reference">${icon}<a class="gh-title" href="https://github.com/${repo}/${url_type}/${reference}" style="text-decoration: none;">${titleHtml} <span class="gh-number">${repo}#${reference}${comment}</span></a></span>`
   });
 };

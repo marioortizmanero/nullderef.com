@@ -29,14 +29,6 @@
     --border: rgb(51, 51, 51);
 }
 
-.list {
-    background: var(--code-bg);
-}
-
-.dark.list {
-    background: var(--theme);
-}
-
 @media screen and (max-width: 768px) {
     :root {
         --gap: 14px;

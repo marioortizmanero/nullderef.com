@@ -7,13 +7,7 @@
     {% include "partials/head.liquid" %}
 </head>
 
-{% comment %}
-TODO: this used to be:
-{{- if (or (ne .Kind `page` ) (eq .Layout `search`)) -}}
-
-As in, it should have `list` when it's listing content (search, tags, series, home) but not in content itself (about, or a post)
-{% endcomment %}
-<body id="top" {% if page.url == "/search" %}class="list"{% endif %}>
+<body id="top" class="dark">
     {% include "partials/header.liquid" %}
 
     <main class="main">

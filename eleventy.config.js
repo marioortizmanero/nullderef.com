@@ -14,65 +14,65 @@ import pluginTransforms from "./_config/transforms.js";
 import metadata from "./_data/metadata.js";
 
 export default async function(eleventyConfig) {
-	// Drafts, see also _data/eleventyDataSchema.js
-	eleventyConfig.addPreprocessor("drafts", "*", (data, content) => {
-		if (data.draft && process.env.ELEVENTY_RUN_MODE === "build") {
-			return false;
-		}
-	});
+  // Drafts, see also _data/eleventyDataSchema.js
+  eleventyConfig.addPreprocessor("drafts", "*", (data, content) => {
+    if (data.draft && process.env.ELEVENTY_RUN_MODE === "build") {
+      return false;
+    }
+  });
 
   // The `public` directory is passed through to the output directory.
-	eleventyConfig
-		.addPassthroughCopy({
+  eleventyConfig
+    .addPassthroughCopy({
       "./public/": "/",
       "node_modules/fuse.js/dist/fuse.basic.min.js": "/js/fuse.js"
-		})
+    })
     // TODO: add XSL to have styling even without RSS plugins
-		// .addPassthroughCopy("./content/feed/pretty-atom-feed.xsl");
+    // .addPassthroughCopy("./content/feed/pretty-atom-feed.xsl");
   // We need to manually watch the images due to the processing pipeline.
-	eleventyConfig.addWatchTarget("content/**/*.{svg,webp,png,jpeg,avif,webp}");
+  eleventyConfig.addWatchTarget("content/**/*.{svg,webp,png,jpeg,avif,webp}");
 
-	// Official plugins
+  // Official plugins
   eleventyConfig.addPlugin(pluginSyntaxHighlight, {
     errorOnInvalidLanguage: false,
   });
 
-	eleventyConfig.addPlugin(feedPlugin, {
-		type: "atom",
-		outputPath: "/index.xml",
+  eleventyConfig.addPlugin(feedPlugin, {
+    type: "atom",
+    outputPath: "/index.xml",
     // TODO: add XSL
-		// stylesheet: "pretty-atom-feed.xsl",
-		collection: {
-			name: "posts",
-			limit: 0,
-		},
-		metadata: {
-			title: metadata.title,
-			subtitle: metadata.description,
-			language: metadata.language,
-			base: metadata.url,
-			author: {
-				name: metadata.author.name,
+    // stylesheet: "pretty-atom-feed.xsl",
+    collection: {
+      name: "posts",
+      limit: 0,
+    },
+    metadata: {
+      title: metadata.title,
+      subtitle: metadata.description,
+      language: metadata.language,
+      base: metadata.url,
+      author: {
+        name: metadata.author.name,
         email: metadata.author.email
-			}
-		}
-	});
+      }
+    }
+  });
 
-	// Image optimization:
+  // Image optimization:
   // https://www.11ty.dev/docs/plugins/image/#eleventy-transform
-	eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
-		extensions: "html",
-		formats: ["avif", "webp", "auto"],
-		defaultAttributes: {
-			loading: "lazy",
-			decoding: "async",
-		}
-	});
+  eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
+    extensions: "html",
+    formats: ["avif", "webp", "auto"],
+    defaultAttributes: {
+      loading: "lazy",
+      decoding: "async",
+    }
+  });
 
   // Custom filters and shortcodes
-	eleventyConfig.addPlugin(pluginFilters);
-	eleventyConfig.addPlugin(pluginShortcodes);
-	eleventyConfig.addPlugin(pluginTransforms);
+  eleventyConfig.addPlugin(pluginFilters);
+  eleventyConfig.addPlugin(pluginShortcodes);
+  eleventyConfig.addPlugin(pluginTransforms);
 
   const markdown = markdownIt({
       html: true,  // Embedding raw HTML
@@ -106,18 +106,18 @@ export default async function(eleventyConfig) {
 };
 
 export const config = {
-	templateFormats: [
-		"md",
-		"html",
-		"liquid",
-		"json",
-		"njk",  // Plugins like RSS need this
-	],
+  templateFormats: [
+    "md",
+    "html",
+    "liquid",
+    "json",
+    "njk",  // Plugins like RSS need this
+  ],
 
-	dir: {
-		input: "content",
+  dir: {
+    input: "content",
     includes: "../_includes",
     data: "../_data",
-		output: "_site"
-	},
+    output: "_site"
+  },
 };

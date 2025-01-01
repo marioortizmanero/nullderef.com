@@ -1,9 +1,16 @@
 import MarkdownIt from "markdown-it";
 import fs from "fs";
+import * as cheerio from 'cheerio';
+
+import metadata from "../_data/metadata.js";
 
 const markdownIt = new MarkdownIt();
 
 export default function(eleventyConfig) {
+	eleventyConfig.addFilter("absUrl", (relUrl) => {
+    return new URL(relUrl, metadata.url).href;
+  });
+
 	eleventyConfig.addFilter("readableDateShort", (dateString) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("en-US", {
@@ -74,6 +81,19 @@ export default function(eleventyConfig) {
 
 	eleventyConfig.addFilter("strip_whitespace", (str) => {
     return str.replace(/[\r\n\t]/g, ' ').trim();
+  });
+
+  // Better than `strip_html` because it also removes unnecessary elements and
+  // trims the whitespace.
+  eleventyConfig.addFilter("plainifyHtml", (html) => {
+    const $ = cheerio.load(html);
+    // The table of contents is a Markdown plugin, so it's actually part of the
+    // content.
+    $(".toc").remove();
+    // https://github.com/cheeriojs/cheerio/issues/339
+    $("style").remove();
+    const plain = $.text();
+    return plain.replace(/[\r\n\t]/g, ' ').trim();
   });
 
 	eleventyConfig.addFilter("log", (obj) => {

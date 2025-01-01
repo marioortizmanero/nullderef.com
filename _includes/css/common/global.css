@@ -22,13 +22,6 @@ body {
   color: var(--theme);
 }
 
-/* No need to move the scroll to top button to the top when on mobile */
-@media screen and (max-width: 900px) {
-    .list .top-link {
-        transform: none;
-    }
-}
-
 /* Underline for menu items, too */
 #menu a span {
   box-shadow: 0 1px 0;
@@ -46,15 +39,12 @@ body {
   font-weight: bold;
 }
 
-/* No animations for: terms, profile-mode, post-single, post-entry, post-entry, search */
 @media (prefers-reduced-motion) {
-    /*  */
-    .terms-tags a:active,
-    .button:active,
-    .post-entry:active,
-    .top-link,
-    #searchResults .focus,
-    #searchResults li:active {
-        transform: none;
-    }
+  .terms-tags a:active,
+  .post-entry:active,
+  .top-link,
+  #searchResults .focus,
+  #searchResults li:active {
+    transform: none;
+  }
 }

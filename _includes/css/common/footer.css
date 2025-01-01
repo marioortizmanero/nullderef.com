@@ -51,11 +51,6 @@
 #theme-toggle:focus {
     outline: 0;
 }
-@media screen and (max-width: 900px) {
-    .list .top-link {
-        transform: translateY(-5rem);
-    }
-}
 @media screen and (max-width: 768px) {
     .footer {
         padding: calc((var(--footer-height) - var(--gap) - 10px) / 2) var(--gap);

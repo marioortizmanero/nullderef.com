@@ -1,6 +1,6 @@
 ---
-layout: layouts/list.liquid
 title: Series
+layout: layouts/base.liquid
 description: "all the series in the site"
 ---
 
@@ -21,7 +21,7 @@ description: "all the series in the site"
         </h2>
       </header>
       <div class="entry-content">
-        <p>{{ series.data.description | markdownify | strip_html }}</p>
+        <p>{{ series.data.description | markdownify | plainifyHtml }}</p>
       </div>
       <footer class="entry-footer">
         {{ postsInSeries.length }} posts

@@ -25,7 +25,7 @@ const eleventyComputed = {
 {% for post in collections[tag] reversed %}
 <article class="post-entry">
   <figure class="entry-preview">
-      <img loading="lazy" src="{{ post.data.image }}" alt="{{ post.data.imageAlt | escape}}" eleventy:widths="300">
+      <img loading="lazy" src="{{ post.data.image }}" alt="{{ post.data.imageAlt | escape }}" eleventy:widths="300">
   </figure>
   <div class="entry-group">
     <header class="entry-header">
@@ -34,7 +34,7 @@ const eleventyComputed = {
       </h2>
     </header>
     <div class="entry-content">
-      <p>{{ post.content | strip_html | strip_whitespace | truncate: 550 }}</p>
+      <p>{{ post.content | plainifyHtml | truncate: 250 }}</p>
     </div>
     <footer class="entry-footer">
       <time datetime="{{ post.data.date }}">{{ post.data.date | readableDateShort }}</time>

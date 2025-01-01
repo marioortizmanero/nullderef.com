@@ -45,19 +45,19 @@ layout: layouts/base.liquid
   "@context": "https://schema.org",
   "@type": "Article",
   "name": "{{ title | escape }}",
-  "image": "{{ metadata.url }}/{{ image }}",
+  "image": "{{ image | absUrl }}",
   "author": "{{ author | default: metadata.author }}",
   "url": "{{ page.url }}",
   "datePublished": "{{ date | iso8601Date }}",
   "dateModified": "{{ page.inputPath | lastModified | iso8601Date }}",
   "mainEntityOfPage": "{{ page.url }}",
-  "description": "{{ description | markdownify | strip_html | escape }}",
+  "description": "{{ description | markdownify | plainifyHtml | escape }}",
   "publisher": {
     "@type": "Organization",
     "name": "{{ metadata.title }}",
     "logo": {
       "@type": "ImageObject",
-      "url": "{{ metadata.url }}/favicon.ico"
+      "url": "{{ 'favicon.ico' | absUrl }}"
     }
   },
 }
