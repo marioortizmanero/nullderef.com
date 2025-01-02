@@ -1,6 +1,6 @@
 .page-header,
 .post-header {
-    margin: 24px auto var(--content-gap) auto;
+  margin: 24px auto var(--content-gap) auto;
 }
 
 .post-meta {
@@ -20,46 +20,46 @@
 }
 
 .post-single {
-    color: var(--content);
+  color: var(--content);
 }
 
 .post-single h3,
 .post-single h4,
 .post-single h5,
 .post-single h6 {
-    margin: 24px 0 16px;
+  margin: 24px 0 16px;
 }
 
 .post-single h1 {
-    margin: 40px auto 2px;
-    font-size: 40px;
+  margin: 40px auto 2px;
+  font-size: 40px;
 }
 .post-single h2 {
-    margin: 32px auto 24px;
-    font-size: 32px;
+  margin: 32px auto 24px;
+  font-size: 32px;
 }
 .post-single h3 {
-    font-size: 24px;
+  font-size: 24px;
 }
 .post-single h4 {
-    font-size: 18px;
+  font-size: 18px;
 }
 .post-single h5 {
-    font-size: 18px;
+  font-size: 18px;
 }
 .post-single h6 {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 .post-single a,
 .toc a:hover {
-    box-shadow: 0 1px 0;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
+  box-shadow: 0 1px 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .post-single del {
-    text-decoration: line-through;
+  text-decoration: line-through;
 }
 
 .post-single dl,
@@ -67,19 +67,19 @@
 .post-single p,
 .post-single figure,
 .post-single ul {
-    margin-bottom: var(--content-gap);
+  margin-bottom: var(--content-gap);
 }
 
 .post-single ol,
 .post-single ul {
-    padding-inline-start: 20px;
+  padding-inline-start: 20px;
 }
 
 .post-single li {
-    margin-top: 5px;
+  margin-top: 5px;
 }
 .post-single li p {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 .post-single li > p,
 .post-single li > ul {
@@ -88,188 +88,188 @@
 }
 
 .post-single dl {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
 }
 
 .post-single dt {
-    width: 25%;
-    font-weight: 700;
+  width: 25%;
+  font-weight: 700;
 }
 
 .post-single dd {
-    width: 75%;
-    margin-inline-start: 0;
-    padding-inline-start: 10px;
+  width: 75%;
+  margin-inline-start: 0;
+  padding-inline-start: 10px;
 }
 
 .post-single dd ~ dd,
 .post-single dt ~ dt {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 .post-single table {
-    display: table;
-    margin-bottom: var(--content-gap);
+  display: table;
+  margin-bottom: var(--content-gap);
 }
 .post-single table th,
 .post-single table td {
-    min-width: 80px;
-    padding: 8px 5px;
-    line-height: 1.5;
-    border-bottom: 1px solid var(--border);
+  min-width: 80px;
+  padding: 8px 5px;
+  line-height: 1.5;
+  border-bottom: 1px solid var(--border);
 }
 .post-single table th {
-    text-align: start;
+  text-align: start;
 }
 
 /* Inline code */
 .post-single :not(pre) > code {
-    padding: 4px 6px;
-    font-size: 0.8em;
-    background: var(--code-bg);
-    border-radius: 2px;
-    margin: 0;
+  padding: 4px 6px;
+  font-size: 0.8em;
+  background: var(--code-bg);
+  border-radius: 2px;
+  margin: 0;
 }
 
 /* Code blocks */
 .post-single pre[class*="language-"] {
-    padding: 10px !important;
-    border-radius: var(--radius);
-    /* We need to override the theme here */
-    margin-bottom: var(--content-gap) !important;
+  padding: 10px !important;
+  border-radius: var(--radius);
+  /* We need to override the theme here */
+  margin-bottom: var(--content-gap) !important;
 }
 .post-single pre[class*="language-"],
 .post-single code[class*="language-"] {
-    font-size: 0.9em;
-    color: rgb(213, 213, 214);
+  font-size: 0.9em;
+  color: rgb(213, 213, 214);
 }
 .post-content a code {
-    box-shadow: 0 -1px 0 var(--primary)inset;
+  box-shadow: 0 -1px 0 var(--primary)inset;
 }
 .post-single .inserted-sign {
-    background-color: #304e38;
+  background-color: #304e38;
 }
 .post-single .deleted-sign {
-    background-color: #482c2c;
+  background-color: #482c2c;
 }
 
 /* Support for copying code in code blocks */
 .post-single pre {
-    position: relative;
+  position: relative;
 }
 .copy-code {
-    display: none;
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    color: rgba(255, 255, 255, 0.8);
-    background: rgba(78, 78, 78, 0.8);
-    border-radius: var(--radius);
-    padding: 0 5px;
-    font-size: 14px;
-    user-select: none;
+  display: none;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(78, 78, 78, 0.8);
+  border-radius: var(--radius);
+  padding: 0 5px;
+  font-size: 14px;
+  user-select: none;
 }
 pre:hover .copy-code {
-    display: block;
+  display: block;
 }
 
 .post-single blockquote {
-    margin: 20px 0;
-    padding: 0 14px;
-    border-inline-start: 3px solid var(--primary);
+  margin: 20px 0;
+  padding: 0 14px;
+  border-inline-start: 3px solid var(--primary);
 }
 
 .post-single hr {
-    margin: 30px 0;
-    height: 2px;
-    background: var(--tertiary);
-    border: 0;
+  margin: 30px 0;
+  height: 2px;
+  background: var(--tertiary);
+  border: 0;
 }
 .post-single iframe {
-    max-width: 100%;
-    margin-bottom: 8px;
+  max-width: 100%;
+  margin-bottom: 8px;
 }
 .post-single img {
-    border-radius: 4px;
-    margin: 0 auto var(--content-gap) auto;
+  border-radius: 4px;
+  margin: 0 auto var(--content-gap) auto;
 }
 
 /* Header at the very top */
 .post-header {
-    text-align: center;
-    width: 100%;
+  text-align: center;
+  width: 100%;
 }
 .post-header p {
-    margin-top: 10px;
-    margin-bottom: 5px;
+  margin-top: 10px;
+  margin-bottom: 5px;
 }
 
 /* Table of Contents */
 .toc {
-    margin: 0 2px 40px 2px;
-    border: 1px solid var(--border);
-    background: var(--code-bg);
-    border-radius: var(--radius);
-    padding: 0.4em;
+  margin: 0 2px 40px 2px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  border-radius: var(--radius);
+  padding: 0.4em;
 }
 .dark .toc {
-    background: var(--entry);
+  background: var(--entry);
 }
 .toc summary {
-    cursor: zoom-in;
-    margin-inline-start: 10px;
-    user-select: none;
+  cursor: zoom-in;
+  margin-inline-start: 10px;
+  user-select: none;
 }
 .toc[open] summary {
-    cursor: zoom-out;
+  cursor: zoom-out;
 }
 .toc li {
-    margin: 5px 20px 0;
-    padding: 0 10px;
-    opacity: 0.9;
+  margin: 5px 20px 0;
+  padding: 0 10px;
+  opacity: 0.9;
 }
 .toc li ul {
-    margin-inline-start: var(--gap);
+  margin-inline-start: var(--gap);
 }
 .toc summary:focus {
-    outline: 0;
+  outline: 0;
 }
 
 /* Spacer between post content and the footer */
 .post-footer-separator {
-    margin: 40px 0;
+  margin: 40px 0;
 }
 
 /* The `#` anchors next to the headers */
 .header-anchor {
-    font-weight: normal;
-    opacity: 0.3;
+  font-weight: normal;
+  opacity: 0.3;
 }
 .header-anchor:hover {
-    opacity: 1;
+  opacity: 1;
 }
 
 /* Tags in the footer */
 .post-tags {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: var(--content-gap);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: var(--content-gap);
 }
 .post-tags a {
-    display: block;
-    border-radius: var(--radius);
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    padding: 0 14px;
-    line-height: 34px;
-    background: var(--code-bg);
+  display: block;
+  border-radius: var(--radius);
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  padding: 0 14px;
+  line-height: 34px;
+  background: var(--code-bg);
 }
 .post-tags a:hover {
-    background: var(--border);
+  background: var(--border);
 }
 
 /* Better formatting for footnotes, taken from

@@ -1,71 +1,71 @@
 .nav {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    max-width: calc(var(--nav-width) + var(--gap) * 2);
-    margin-inline-start: auto;
-    margin-inline-end: auto;
-    line-height: var(--header-height);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: calc(var(--nav-width) + var(--gap) * 2);
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+  line-height: var(--header-height);
 }
 .nav a {
-    display: block;
+  display: block;
 }
 
 .logo,
 #menu {
-    display: flex;
-    margin: auto var(--gap);
+  display: flex;
+  margin: auto var(--gap);
 }
 .logo {
-    flex-wrap: inherit;
+  flex-wrap: inherit;
 }
 .logo a {
-    font-size: 24px;
-    font-weight: 700;
+  font-size: 24px;
+  font-weight: 700;
 }
 .logo a img, .logo a svg {
-    display: inline;
-    vertical-align: middle;
-    pointer-events: none;
-    transform: translate(0, -10%);
-    border-radius: 6px;
-    margin-inline-end: 8px;
+  display: inline;
+  vertical-align: middle;
+  pointer-events: none;
+  transform: translate(0, -10%);
+  border-radius: 6px;
+  margin-inline-end: 8px;
 }
 
 .logo-switches {
-    display: inline-flex;
-    margin: auto 4px;
+  display: inline-flex;
+  margin: auto 4px;
 }
 
 button#theme-toggle {
-    font-size: 26px;
-    margin: auto 4px;
+  font-size: 26px;
+  margin: auto 4px;
 }
 
 body.dark #moon {
-    vertical-align: middle;
-    display: none;
+  vertical-align: middle;
+  display: none;
 }
 body:not(.dark) #sun {
-    display: none;
+  display: none;
 }
 
 #menu {
-    list-style: none;
-    word-break: keep-all;
-    overflow-x: auto;
-    white-space: nowrap;
+  list-style: none;
+  word-break: keep-all;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 #menu li + li {
-    margin-inline-start: var(--gap);
+  margin-inline-start: var(--gap);
 }
 #menu a span {
-    font-size: 16px;
-    box-shadow: 0 1px 0;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
+  font-size: 16px;
+  box-shadow: 0 1px 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 #menu [aria-current="page"] {
-    font-weight: bold;
-    border-bottom: 2px solid currentColor;
+  font-weight: bold;
+  border-bottom: 2px solid currentColor;
 }
