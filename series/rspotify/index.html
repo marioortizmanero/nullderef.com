@@ -9,8 +9,8 @@
 <meta name="robots" content="index, follow">
 <meta name="generator" content="Eleventy v3.0.0">
 <meta name="referrer" content="no-referrer-when-downgrade">
-<link rel="preload" href="/eleventy-base-blog/eleventy-base-blog/fonts/merriweather-regular-webfont.woff2" as="font" type="font/woff2" crossorigin="">
-<link rel="alternate" href="/eleventy-base-blog/eleventy-base-blog/index.xml" type="application/atom+xml" title="NullDeref">
+<link rel="preload" href="/fonts/merriweather-regular-webfont.woff2" as="font" type="font/woff2" crossorigin="">
+<link rel="alternate" href="/index.xml" type="application/atom+xml" title="NullDeref">
 <title>Maintaining RSpotify | NullDeref</title>
 <meta name="keywords" content="tech,programming,rust,rustlang,spotify,rspotify,open source,contributor,web api,rest,client">
 <meta name="description" content="I sharpened my Rust skills by maintaining RSpotify, a crate providing complete bindings for Spotify&#39;s Web API. My work includes reducing bloat, adding features and improving its performance.">
@@ -23,11 +23,11 @@
  * Some interesting fonts: Merriweather, Literata, Noto Serif.
  */@font-face{font-family:Merriweather;src:url("../../fonts/merriweather-blackitalic-webfont.woff2") format("woff2"),url("../../fonts/merriweather-blackitalic-webfont.woff") format("woff");font-weight:700;font-style:italic;font-display:swap}@font-face{font-family:Merriweather;src:url("../../fonts/merriweather-black-webfont.woff2") format("woff2"),url("../../fonts/merriweather-black-webfont.woff") format("woff");font-weight:700;font-style:normal;font-display:swap}@font-face{font-family:Merriweather;src:url("../../fonts/merriweather-italic-webfont.woff2") format("woff2"),url("../../fonts/merriweather-italic-webfont.woff") format("woff");font-weight:400;font-style:italic;font-display:swap}@font-face{font-family:Merriweather;src:url("../../fonts/merriweather-regular-webfont.woff2") format("woff2"),url("../../fonts/merriweather-regular-webfont.woff") format("woff");font-weight:400;font-style:normal;font-display:swap}.gh-reference{white-space:nowrap;word-wrap:break-word}.gh-icon{display:inline-block;vertical-align:text-bottom;margin-right:4px!important;fill:#57ab5a;overflow:visible}.gh-title{white-space:normal}.gh-number{font-weight:400;opacity:70%}.ios-icon{fill:var(--primary)}.app-inline{white-space:nowrap}.viz-3d{border:1px;border-style:solid;border-color:var(--primary);width:90%;height:30em;margin:0 auto}code[class*=language-],pre[class*=language-]{background:#272b33;color:#aab1bf;text-shadow:0 1px rgba(0,0,0,.3);font-family:"Fira Code","Fira Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;direction:ltr;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;line-height:1.5;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}code[class*=language-] ::-moz-selection,code[class*=language-]::-moz-selection,pre[class*=language-] ::-moz-selection{background:#3e4450;color:inherit;text-shadow:none}code[class*=language-] ::selection,code[class*=language-]::selection,pre[class*=language-] ::selection{background:#3e4450;color:inherit;text-shadow:none}pre[class*=language-]{padding:1em;margin:.5em 0;overflow:auto;border-radius:.3em}:not(pre)>code[class*=language-]{padding:.2em .3em;border-radius:.3em;white-space:normal}@media print{code[class*=language-],pre[class*=language-]{text-shadow:none}}.token.cdata,.token.comment,.token.prolog{color:#5b6270}.token.doctype,.token.entity,.token.punctuation{color:#aab1bf}.token.atrule,.token.attr-name,.token.boolean,.token.class-name,.token.constant,.token.number{color:#d19965}.token.keyword{color:#c578dd}.token.deleted,.token.important,.token.property,.token.symbol,.token.tag{color:#df6b75}.token.attr-value,.token.attr-value>.token.punctuation,.token.builtin,.token.char,.token.inserted,.token.regex,.token.selector,.token.string{color:#97c279}.token.function,.token.operator,.token.variable{color:#61afef}.token.url{color:#56b5c2}.token.attr-value>.token.punctuation.attr-equals,.token.special-attr>.token.attr-value>.token.value.css{color:#aab1bf}.language-css .token.selector{color:#df6b75}.language-css .token.property{color:#aab1bf}.language-css .token.function,.language-css .token.url>.token.function{color:#56b5c2}.language-css .token.url>.token.string.url{color:#97c279}.language-css .token.atrule .token.rule,.language-css .token.important{color:#c578dd}.language-javascript .token.operator{color:#c578dd}.language-javascript .token.template-string>.token.interpolation>.token.interpolation-punctuation.punctuation{color:#be5046}.language-json .token.operator{color:#aab1bf}.language-json .token.null.keyword{color:#d19965}.language-markdown .token.url,.language-markdown .token.url-reference.url>.token.string,.language-markdown .token.url>.token.operator{color:#aab1bf}.language-markdown .token.url>.token.content{color:#61afef}.language-markdown .token.url-reference.url,.language-markdown .token.url>.token.url{color:#56b5c2}.language-markdown .token.blockquote.punctuation,.language-markdown .token.hr.punctuation{color:#5b6270;font-style:italic}.language-markdown .token.code-snippet{color:#97c279}.language-markdown .token.bold .token.content{color:#d19965}.language-markdown .token.italic .token.content{color:#c578dd}.language-markdown .token.list.punctuation,.language-markdown .token.strike .token.content,.language-markdown .token.strike .token.punctuation,.language-markdown .token.title.important>.token.punctuation{color:#df6b75}.token.bold{font-weight:700}.token.comment,.token.italic{font-style:italic}.token.entity{cursor:help}.token.namespace{opacity:.8}.token.token.cr:before,.token.token.lf:before,.token.token.space:before,.token.token.tab:not(:empty):before{color:hsla(220,14%,71%,.15);text-shadow:none}div.code-toolbar>.toolbar.toolbar>.toolbar-item{margin-right:.4em}div.code-toolbar>.toolbar.toolbar>.toolbar-item>a,div.code-toolbar>.toolbar.toolbar>.toolbar-item>button,div.code-toolbar>.toolbar.toolbar>.toolbar-item>span{background:#393f4a;color:#818896;padding:.1em .4em;border-radius:.3em}div.code-toolbar>.toolbar.toolbar>.toolbar-item>a:focus,div.code-toolbar>.toolbar.toolbar>.toolbar-item>a:hover,div.code-toolbar>.toolbar.toolbar>.toolbar-item>button:focus,div.code-toolbar>.toolbar.toolbar>.toolbar-item>button:hover,div.code-toolbar>.toolbar.toolbar>.toolbar-item>span:focus,div.code-toolbar>.toolbar.toolbar>.toolbar-item>span:hover{background:#3e4450;color:#aab1bf}.line-highlight.line-highlight{background:hsla(220,100%,80%,.04)}.line-highlight.line-highlight:before,.line-highlight.line-highlight[data-end]:after{background:#393f4a;color:#aab1bf;padding:.1em .6em;border-radius:.3em;box-shadow:0 2px 0 0 rgba(0,0,0,.2)}pre[id].linkable-line-numbers.linkable-line-numbers span.line-numbers-rows>span:hover:before{background-color:hsla(220,100%,80%,.04)}.command-line .command-line-prompt,.line-numbers.line-numbers .line-numbers-rows{border-right-color:hsla(220,14%,71%,.15)}.command-line .command-line-prompt>span:before,.line-numbers .line-numbers-rows>span:before{color:#626d82}.rainbow-braces .token.token.punctuation.brace-level-1,.rainbow-braces .token.token.punctuation.brace-level-5,.rainbow-braces .token.token.punctuation.brace-level-9{color:#df6b75}.rainbow-braces .token.token.punctuation.brace-level-10,.rainbow-braces .token.token.punctuation.brace-level-2,.rainbow-braces .token.token.punctuation.brace-level-6{color:#97c279}.rainbow-braces .token.token.punctuation.brace-level-11,.rainbow-braces .token.token.punctuation.brace-level-3,.rainbow-braces .token.token.punctuation.brace-level-7{color:#61afef}.rainbow-braces .token.token.punctuation.brace-level-12,.rainbow-braces .token.token.punctuation.brace-level-4,.rainbow-braces .token.token.punctuation.brace-level-8{color:#c578dd}pre.diff-highlight>code .token.token.deleted:not(.prefix),pre>code.diff-highlight .token.token.deleted:not(.prefix){background-color:hsla(353,100%,66%,.15)}pre.diff-highlight>code .token.token.deleted:not(.prefix) ::-moz-selection,pre.diff-highlight>code .token.token.deleted:not(.prefix)::-moz-selection,pre>code.diff-highlight .token.token.deleted:not(.prefix) ::-moz-selection,pre>code.diff-highlight .token.token.deleted:not(.prefix)::-moz-selection{background-color:hsla(353,95%,66%,.25)}pre.diff-highlight>code .token.token.deleted:not(.prefix) ::selection,pre.diff-highlight>code .token.token.deleted:not(.prefix)::selection,pre>code.diff-highlight .token.token.deleted:not(.prefix) ::selection,pre>code.diff-highlight .token.token.deleted:not(.prefix)::selection{background-color:hsla(353,95%,66%,.25)}pre.diff-highlight>code .token.token.inserted:not(.prefix),pre>code.diff-highlight .token.token.inserted:not(.prefix){background-color:hsla(137,100%,55%,.15)}pre.diff-highlight>code .token.token.inserted:not(.prefix) ::-moz-selection,pre.diff-highlight>code .token.token.inserted:not(.prefix)::-moz-selection,pre>code.diff-highlight .token.token.inserted:not(.prefix) ::-moz-selection,pre>code.diff-highlight .token.token.inserted:not(.prefix)::-moz-selection{background-color:hsla(135,73%,55%,.25)}pre.diff-highlight>code .token.token.inserted:not(.prefix) ::selection,pre.diff-highlight>code .token.token.inserted:not(.prefix)::selection,pre>code.diff-highlight .token.token.inserted:not(.prefix) ::selection,pre>code.diff-highlight .token.token.inserted:not(.prefix)::selection{background-color:hsla(135,73%,55%,.25)}.prism-previewer-gradient.prism-previewer-gradient div,.prism-previewer.prism-previewer:before{border-color:#252830}.prism-previewer-color.prism-previewer-color:before,.prism-previewer-easing.prism-previewer-easing:before,.prism-previewer-gradient.prism-previewer-gradient div{border-radius:.3em}.prism-previewer.prism-previewer:after{border-top-color:#252830}.prism-previewer-flipped.prism-previewer-flipped.after{border-bottom-color:#252830}.prism-previewer-angle.prism-previewer-angle:before,.prism-previewer-easing.prism-previewer-easing,.prism-previewer-time.prism-previewer-time:before{background:#30353f}.prism-previewer-angle.prism-previewer-angle circle,.prism-previewer-time.prism-previewer-time circle{stroke:hsl(220,14%,71%);stroke-opacity:1}.prism-previewer-easing.prism-previewer-easing circle,.prism-previewer-easing.prism-previewer-easing line,.prism-previewer-easing.prism-previewer-easing path{stroke:hsl(220,14%,71%)}.prism-previewer-easing.prism-previewer-easing circle{fill:transparent}.home-info{flex-direction:column;justify-content:center;margin:var(--gap) 0 calc(var(--gap) * 2) 0}.home-info h1{font-size:32px;margin:14px 0;font-weight:400}.home-info footer{font-size:14px;font-style:italic}.social-icons{display:flex;align-items:center;justify-content:flex-end}.social-icons .subscribe-msg{font-size:17px;padding:0}.social-icons .subscribe-word{padding:0;font-weight:700;text-decoration:underline;font-size:17px}.social-icons a{display:inline-flex;padding:10px}.social-icons a svg{height:26px;width:26px;color:var(--primary)}.social-icons span{color:var(--primary)}.about-intro{margin-bottom:15px}.about-intro img{width:150px;height:214px;float:right;margin:0 0 5px 15px;margin-left:15px!important;margin-bottom:var(--content-gap)!important}.projects{display:flex;width:100%;overflow:auto;margin-bottom:var(--content-gap)}.project-footer,.project-links,.projects h3,.projects p{text-align:center;hyphens:none}.project-entry{flex:0 0 40%;display:flex;flex-direction:column;justify-content:space-between;margin:5px;padding:10px;background:var(--entry);border-radius:var(--radius);border:1px solid var(--border)}@media only screen and (max-width:500px){.project-entry{flex:0 0 70%}}.project-entry .project-header h3{margin-bottom:0;margin-top:5px}.project-entry .project-header p{font-style:italic;font-size:15px}.project-entry .project-logo{margin:0 auto var(--content-gap) auto}.project-entry .project-links{margin-bottom:var(--content-gap)}.project-entry .project-footer{font-style:italic;color:var(--secondary);font-size:13px}.not-found{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center;height:80%;font-size:160px;font-weight:700}#searchbox input{padding:4px 10px;width:100%;color:var(--primary);font-weight:700;border:2px solid var(--tertiary);border-radius:var(--radius)}#searchbox input:focus{border-color:var(--secondary)}#searchResults li{list-style:none;border-radius:var(--radius);padding:10px;margin:10px 0;position:relative;font-weight:500}#searchResults{margin:10px 0;width:100%}#searchResults li:active{transition:transform .1s;transform:scale(.98)}#searchResults a{position:absolute;width:100%;height:100%;top:0;left:0;outline:0}#searchResults .focus{transform:scale(.98);border:2px solid var(--tertiary)}.terms-tags li{display:inline-block;margin:10px;font-weight:500}.terms-tags a{display:block;padding:3px 10px;background:var(--tertiary);border-radius:6px;transition:transform .1s}.terms-tags a:active{background:var(--tertiary);transform:scale(.96)}</style>
 
-<link rel="icon" href="/eleventy-base-blog/eleventy-base-blog/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/eleventy-base-blog/eleventy-base-blog/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/eleventy-base-blog/eleventy-base-blog/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/eleventy-base-blog/eleventy-base-blog/apple-touch-icon.png">
-<link rel="mask-icon" href="/eleventy-base-blog/eleventy-base-blog/safari-pinned-tab.svg">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
 
@@ -61,7 +61,7 @@
     <header class="header">
   <nav class="nav">
     <div class="logo">
-      <a href="/eleventy-base-blog/" accesskey="h" title="NullDeref (Alt + H)">NullDeref</a>
+      <a href="/" accesskey="h" title="NullDeref (Alt + H)">NullDeref</a>
       <div class="logo-switches">
         <button id="theme-toggle" accesskey="t" title="(Alt + T)">
           <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -72,17 +72,17 @@
 
     <ul id="menu">
       <li>
-        <a href="/eleventy-base-blog/eleventy-base-blog/about" title="About">
+        <a href="/about" title="About">
           <span>About</span>
         </a>
       </li>
       <li>
-        <a href="/eleventy-base-blog/eleventy-base-blog/series" title="Series">
+        <a href="/series" title="Series">
           <span>Series</span>
         </a>
       </li>
       <li>
-        <a href="/eleventy-base-blog/eleventy-base-blog/search" title="Search (Alt + /)" accesskey="/">
+        <a href="/search" title="Search (Alt + /)" accesskey="/">
           <span>Search</span>
         </a>
       </li>
@@ -117,7 +117,7 @@
 </header>
 <article class="post-entry">
   <figure class="entry-preview">
-    <picture><source type="image/avif" srcset="/eleventy-base-blog/eleventy-base-blog/img/XuSVtGqvgn-1116.avif 1116w"><source type="image/webp" srcset="/eleventy-base-blog/eleventy-base-blog/img/XuSVtGqvgn-1116.webp 1116w"><img loading="lazy" decoding="async" src="/eleventy-base-blog/eleventy-base-blog/img/XuSVtGqvgn-1116.png" alt="Preview image, with a screenshot of Godbolt&#39;s compiler explorer" width="1116" height="750"></picture>
+    <picture><source type="image/avif" srcset="/img/XuSVtGqvgn-1116.avif 1116w"><source type="image/webp" srcset="/img/XuSVtGqvgn-1116.webp 1116w"><img loading="lazy" decoding="async" src="/img/XuSVtGqvgn-1116.png" alt="Preview image, with a screenshot of Godbolt&#39;s compiler explorer" width="1116" height="750"></picture>
   </figure>
   <div class="entry-group">
     <header class="entry-header">
@@ -132,12 +132,12 @@
     <footer class="entry-footer">
       <time datetime="Tue Jul 06 2021 00:00:00 GMT+0000 (Coordinated Universal Time)">Jul 2021</time>
     </footer>
-    <a class="entry-link" aria-label="post link to: Why you shouldn&#39;t obsess about Rust &#34;features&#34;" href="/eleventy-base-blog/eleventy-base-blog/blog/rust-features/"></a>
+    <a class="entry-link" aria-label="post link to: Why you shouldn&#39;t obsess about Rust &#34;features&#34;" href="/blog/rust-features/"></a>
   </div>
 </article>
 <article class="post-entry">
   <figure class="entry-preview">
-    <picture><source type="image/avif" srcset="/eleventy-base-blog/eleventy-base-blog/img/UI3WHhY_Kk-530.avif 530w"><source type="image/webp" srcset="/eleventy-base-blog/eleventy-base-blog/img/UI3WHhY_Kk-530.webp 530w"><img loading="lazy" decoding="async" src="/eleventy-base-blog/eleventy-base-blog/img/UI3WHhY_Kk-530.png" alt="Preview image, with a diagram of rspotify&#39;s architecture" width="530" height="246"></picture>
+    <picture><source type="image/avif" srcset="/img/UI3WHhY_Kk-530.avif 530w"><source type="image/webp" srcset="/img/UI3WHhY_Kk-530.webp 530w"><img loading="lazy" decoding="async" src="/img/UI3WHhY_Kk-530.png" alt="Preview image, with a diagram of rspotify&#39;s architecture" width="530" height="246"></picture>
   </figure>
   <div class="entry-group">
     <header class="entry-header">
@@ -152,12 +152,12 @@
     <footer class="entry-footer">
       <time datetime="Wed Oct 13 2021 00:00:00 GMT+0000 (Coordinated Universal Time)">Oct 2021</time>
     </footer>
-    <a class="entry-link" aria-label="post link to: Designing an API Client in Rust: New RSpotify Version a Year Later" href="/eleventy-base-blog/eleventy-base-blog/blog/web-api-client/"></a>
+    <a class="entry-link" aria-label="post link to: Designing an API Client in Rust: New RSpotify Version a Year Later" href="/blog/web-api-client/"></a>
   </div>
 </article>
 <article class="post-entry">
   <figure class="entry-preview">
-    <picture><source type="image/avif" srcset="/eleventy-base-blog/eleventy-base-blog/img/ZAe2iuAK29-1000.avif 1000w"><source type="image/webp" srcset="/eleventy-base-blog/eleventy-base-blog/img/ZAe2iuAK29-1000.webp 1000w"><img loading="lazy" decoding="async" src="/eleventy-base-blog/eleventy-base-blog/img/ZAe2iuAK29-1000.jpeg" alt="Preview image, with Ferris lost in complicated Rust errors" width="1000" height="567"></picture>
+    <picture><source type="image/avif" srcset="/img/ZAe2iuAK29-1000.avif 1000w"><source type="image/webp" srcset="/img/ZAe2iuAK29-1000.webp 1000w"><img loading="lazy" decoding="async" src="/img/ZAe2iuAK29-1000.jpeg" alt="Preview image, with Ferris lost in complicated Rust errors" width="1000" height="567"></picture>
   </figure>
   <div class="entry-group">
     <header class="entry-header">
@@ -172,7 +172,7 @@
     <footer class="entry-footer">
       <time datetime="Sun Jan 14 2024 00:00:00 GMT+0000 (Coordinated Universal Time)">Jan 2024</time>
     </footer>
-    <a class="entry-link" aria-label="post link to: The bane of my existence: Supporting both async and sync code in Rust" href="/eleventy-base-blog/eleventy-base-blog/blog/rust-async-sync/"></a>
+    <a class="entry-link" aria-label="post link to: The bane of my existence: Supporting both async and sync code in Rust" href="/blog/rust-async-sync/"></a>
   </div>
 </article>
 

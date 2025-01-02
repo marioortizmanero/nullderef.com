@@ -9,8 +9,8 @@
 <meta name="robots" content="index, follow">
 <meta name="generator" content="Eleventy v3.0.0">
 <meta name="referrer" content="no-referrer-when-downgrade">
-<link rel="preload" href="/eleventy-base-blog/eleventy-base-blog/fonts/merriweather-regular-webfont.woff2" as="font" type="font/woff2" crossorigin="">
-<link rel="alternate" href="/eleventy-base-blog/eleventy-base-blog/index.xml" type="application/atom+xml" title="NullDeref">
+<link rel="preload" href="/fonts/merriweather-regular-webfont.woff2" as="font" type="font/woff2" crossorigin="">
+<link rel="alternate" href="/index.xml" type="application/atom+xml" title="NullDeref">
 <title>Plugins in Rust: Diving into Dynamic Loading | NullDeref</title>
 <meta name="keywords" content="tech,programming,rust,rustlang,dynamic loading,plugin,ffi,abi,abi_stable,bpf,ebpf">
 <meta name="description" content="A closer look at dynamic loading in Rust">
@@ -23,11 +23,11 @@
  * Some interesting fonts: Merriweather, Literata, Noto Serif.
  */@font-face{font-family:Merriweather;src:url("../../fonts/merriweather-blackitalic-webfont.woff2") format("woff2"),url("../../fonts/merriweather-blackitalic-webfont.woff") format("woff");font-weight:700;font-style:italic;font-display:swap}@font-face{font-family:Merriweather;src:url("../../fonts/merriweather-black-webfont.woff2") format("woff2"),url("../../fonts/merriweather-black-webfont.woff") format("woff");font-weight:700;font-style:normal;font-display:swap}@font-face{font-family:Merriweather;src:url("../../fonts/merriweather-italic-webfont.woff2") format("woff2"),url("../../fonts/merriweather-italic-webfont.woff") format("woff");font-weight:400;font-style:italic;font-display:swap}@font-face{font-family:Merriweather;src:url("../../fonts/merriweather-regular-webfont.woff2") format("woff2"),url("../../fonts/merriweather-regular-webfont.woff") format("woff");font-weight:400;font-style:normal;font-display:swap}.gh-reference{white-space:nowrap;word-wrap:break-word}.gh-icon{display:inline-block;vertical-align:text-bottom;margin-right:4px!important;fill:#57ab5a;overflow:visible}.gh-title{white-space:normal}.gh-number{font-weight:400;opacity:70%}.ios-icon{fill:var(--primary)}.app-inline{white-space:nowrap}.viz-3d{border:1px;border-style:solid;border-color:var(--primary);width:90%;height:30em;margin:0 auto}code[class*=language-],pre[class*=language-]{background:#272b33;color:#aab1bf;text-shadow:0 1px rgba(0,0,0,.3);font-family:"Fira Code","Fira Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;direction:ltr;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;line-height:1.5;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}code[class*=language-] ::-moz-selection,code[class*=language-]::-moz-selection,pre[class*=language-] ::-moz-selection{background:#3e4450;color:inherit;text-shadow:none}code[class*=language-] ::selection,code[class*=language-]::selection,pre[class*=language-] ::selection{background:#3e4450;color:inherit;text-shadow:none}pre[class*=language-]{padding:1em;margin:.5em 0;overflow:auto;border-radius:.3em}:not(pre)>code[class*=language-]{padding:.2em .3em;border-radius:.3em;white-space:normal}@media print{code[class*=language-],pre[class*=language-]{text-shadow:none}}.token.cdata,.token.comment,.token.prolog{color:#5b6270}.token.doctype,.token.entity,.token.punctuation{color:#aab1bf}.token.atrule,.token.attr-name,.token.boolean,.token.class-name,.token.constant,.token.number{color:#d19965}.token.keyword{color:#c578dd}.token.deleted,.token.important,.token.property,.token.symbol,.token.tag{color:#df6b75}.token.attr-value,.token.attr-value>.token.punctuation,.token.builtin,.token.char,.token.inserted,.token.regex,.token.selector,.token.string{color:#97c279}.token.function,.token.operator,.token.variable{color:#61afef}.token.url{color:#56b5c2}.token.attr-value>.token.punctuation.attr-equals,.token.special-attr>.token.attr-value>.token.value.css{color:#aab1bf}.language-css .token.selector{color:#df6b75}.language-css .token.property{color:#aab1bf}.language-css .token.function,.language-css .token.url>.token.function{color:#56b5c2}.language-css .token.url>.token.string.url{color:#97c279}.language-css .token.atrule .token.rule,.language-css .token.important{color:#c578dd}.language-javascript .token.operator{color:#c578dd}.language-javascript .token.template-string>.token.interpolation>.token.interpolation-punctuation.punctuation{color:#be5046}.language-json .token.operator{color:#aab1bf}.language-json .token.null.keyword{color:#d19965}.language-markdown .token.url,.language-markdown .token.url-reference.url>.token.string,.language-markdown .token.url>.token.operator{color:#aab1bf}.language-markdown .token.url>.token.content{color:#61afef}.language-markdown .token.url-reference.url,.language-markdown .token.url>.token.url{color:#56b5c2}.language-markdown .token.blockquote.punctuation,.language-markdown .token.hr.punctuation{color:#5b6270;font-style:italic}.language-markdown .token.code-snippet{color:#97c279}.language-markdown .token.bold .token.content{color:#d19965}.language-markdown .token.italic .token.content{color:#c578dd}.language-markdown .token.list.punctuation,.language-markdown .token.strike .token.content,.language-markdown .token.strike .token.punctuation,.language-markdown .token.title.important>.token.punctuation{color:#df6b75}.token.bold{font-weight:700}.token.comment,.token.italic{font-style:italic}.token.entity{cursor:help}.token.namespace{opacity:.8}.token.token.cr:before,.token.token.lf:before,.token.token.space:before,.token.token.tab:not(:empty):before{color:hsla(220,14%,71%,.15);text-shadow:none}div.code-toolbar>.toolbar.toolbar>.toolbar-item{margin-right:.4em}div.code-toolbar>.toolbar.toolbar>.toolbar-item>a,div.code-toolbar>.toolbar.toolbar>.toolbar-item>button,div.code-toolbar>.toolbar.toolbar>.toolbar-item>span{background:#393f4a;color:#818896;padding:.1em .4em;border-radius:.3em}div.code-toolbar>.toolbar.toolbar>.toolbar-item>a:focus,div.code-toolbar>.toolbar.toolbar>.toolbar-item>a:hover,div.code-toolbar>.toolbar.toolbar>.toolbar-item>button:focus,div.code-toolbar>.toolbar.toolbar>.toolbar-item>button:hover,div.code-toolbar>.toolbar.toolbar>.toolbar-item>span:focus,div.code-toolbar>.toolbar.toolbar>.toolbar-item>span:hover{background:#3e4450;color:#aab1bf}.line-highlight.line-highlight{background:hsla(220,100%,80%,.04)}.line-highlight.line-highlight:before,.line-highlight.line-highlight[data-end]:after{background:#393f4a;color:#aab1bf;padding:.1em .6em;border-radius:.3em;box-shadow:0 2px 0 0 rgba(0,0,0,.2)}pre[id].linkable-line-numbers.linkable-line-numbers span.line-numbers-rows>span:hover:before{background-color:hsla(220,100%,80%,.04)}.command-line .command-line-prompt,.line-numbers.line-numbers .line-numbers-rows{border-right-color:hsla(220,14%,71%,.15)}.command-line .command-line-prompt>span:before,.line-numbers .line-numbers-rows>span:before{color:#626d82}.rainbow-braces .token.token.punctuation.brace-level-1,.rainbow-braces .token.token.punctuation.brace-level-5,.rainbow-braces .token.token.punctuation.brace-level-9{color:#df6b75}.rainbow-braces .token.token.punctuation.brace-level-10,.rainbow-braces .token.token.punctuation.brace-level-2,.rainbow-braces .token.token.punctuation.brace-level-6{color:#97c279}.rainbow-braces .token.token.punctuation.brace-level-11,.rainbow-braces .token.token.punctuation.brace-level-3,.rainbow-braces .token.token.punctuation.brace-level-7{color:#61afef}.rainbow-braces .token.token.punctuation.brace-level-12,.rainbow-braces .token.token.punctuation.brace-level-4,.rainbow-braces .token.token.punctuation.brace-level-8{color:#c578dd}pre.diff-highlight>code .token.token.deleted:not(.prefix),pre>code.diff-highlight .token.token.deleted:not(.prefix){background-color:hsla(353,100%,66%,.15)}pre.diff-highlight>code .token.token.deleted:not(.prefix) ::-moz-selection,pre.diff-highlight>code .token.token.deleted:not(.prefix)::-moz-selection,pre>code.diff-highlight .token.token.deleted:not(.prefix) ::-moz-selection,pre>code.diff-highlight .token.token.deleted:not(.prefix)::-moz-selection{background-color:hsla(353,95%,66%,.25)}pre.diff-highlight>code .token.token.deleted:not(.prefix) ::selection,pre.diff-highlight>code .token.token.deleted:not(.prefix)::selection,pre>code.diff-highlight .token.token.deleted:not(.prefix) ::selection,pre>code.diff-highlight .token.token.deleted:not(.prefix)::selection{background-color:hsla(353,95%,66%,.25)}pre.diff-highlight>code .token.token.inserted:not(.prefix),pre>code.diff-highlight .token.token.inserted:not(.prefix){background-color:hsla(137,100%,55%,.15)}pre.diff-highlight>code .token.token.inserted:not(.prefix) ::-moz-selection,pre.diff-highlight>code .token.token.inserted:not(.prefix)::-moz-selection,pre>code.diff-highlight .token.token.inserted:not(.prefix) ::-moz-selection,pre>code.diff-highlight .token.token.inserted:not(.prefix)::-moz-selection{background-color:hsla(135,73%,55%,.25)}pre.diff-highlight>code .token.token.inserted:not(.prefix) ::selection,pre.diff-highlight>code .token.token.inserted:not(.prefix)::selection,pre>code.diff-highlight .token.token.inserted:not(.prefix) ::selection,pre>code.diff-highlight .token.token.inserted:not(.prefix)::selection{background-color:hsla(135,73%,55%,.25)}.prism-previewer-gradient.prism-previewer-gradient div,.prism-previewer.prism-previewer:before{border-color:#252830}.prism-previewer-color.prism-previewer-color:before,.prism-previewer-easing.prism-previewer-easing:before,.prism-previewer-gradient.prism-previewer-gradient div{border-radius:.3em}.prism-previewer.prism-previewer:after{border-top-color:#252830}.prism-previewer-flipped.prism-previewer-flipped.after{border-bottom-color:#252830}.prism-previewer-angle.prism-previewer-angle:before,.prism-previewer-easing.prism-previewer-easing,.prism-previewer-time.prism-previewer-time:before{background:#30353f}.prism-previewer-angle.prism-previewer-angle circle,.prism-previewer-time.prism-previewer-time circle{stroke:hsl(220,14%,71%);stroke-opacity:1}.prism-previewer-easing.prism-previewer-easing circle,.prism-previewer-easing.prism-previewer-easing line,.prism-previewer-easing.prism-previewer-easing path{stroke:hsl(220,14%,71%)}.prism-previewer-easing.prism-previewer-easing circle{fill:transparent}.home-info{flex-direction:column;justify-content:center;margin:var(--gap) 0 calc(var(--gap) * 2) 0}.home-info h1{font-size:32px;margin:14px 0;font-weight:400}.home-info footer{font-size:14px;font-style:italic}.social-icons{display:flex;align-items:center;justify-content:flex-end}.social-icons .subscribe-msg{font-size:17px;padding:0}.social-icons .subscribe-word{padding:0;font-weight:700;text-decoration:underline;font-size:17px}.social-icons a{display:inline-flex;padding:10px}.social-icons a svg{height:26px;width:26px;color:var(--primary)}.social-icons span{color:var(--primary)}.about-intro{margin-bottom:15px}.about-intro img{width:150px;height:214px;float:right;margin:0 0 5px 15px;margin-left:15px!important;margin-bottom:var(--content-gap)!important}.projects{display:flex;width:100%;overflow:auto;margin-bottom:var(--content-gap)}.project-footer,.project-links,.projects h3,.projects p{text-align:center;hyphens:none}.project-entry{flex:0 0 40%;display:flex;flex-direction:column;justify-content:space-between;margin:5px;padding:10px;background:var(--entry);border-radius:var(--radius);border:1px solid var(--border)}@media only screen and (max-width:500px){.project-entry{flex:0 0 70%}}.project-entry .project-header h3{margin-bottom:0;margin-top:5px}.project-entry .project-header p{font-style:italic;font-size:15px}.project-entry .project-logo{margin:0 auto var(--content-gap) auto}.project-entry .project-links{margin-bottom:var(--content-gap)}.project-entry .project-footer{font-style:italic;color:var(--secondary);font-size:13px}.not-found{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center;height:80%;font-size:160px;font-weight:700}#searchbox input{padding:4px 10px;width:100%;color:var(--primary);font-weight:700;border:2px solid var(--tertiary);border-radius:var(--radius)}#searchbox input:focus{border-color:var(--secondary)}#searchResults li{list-style:none;border-radius:var(--radius);padding:10px;margin:10px 0;position:relative;font-weight:500}#searchResults{margin:10px 0;width:100%}#searchResults li:active{transition:transform .1s;transform:scale(.98)}#searchResults a{position:absolute;width:100%;height:100%;top:0;left:0;outline:0}#searchResults .focus{transform:scale(.98);border:2px solid var(--tertiary)}.terms-tags li{display:inline-block;margin:10px;font-weight:500}.terms-tags a{display:block;padding:3px 10px;background:var(--tertiary);border-radius:6px;transition:transform .1s}.terms-tags a:active{background:var(--tertiary);transform:scale(.96)}</style>
 
-<link rel="icon" href="/eleventy-base-blog/eleventy-base-blog/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/eleventy-base-blog/eleventy-base-blog/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/eleventy-base-blog/eleventy-base-blog/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/eleventy-base-blog/eleventy-base-blog/apple-touch-icon.png">
-<link rel="mask-icon" href="/eleventy-base-blog/eleventy-base-blog/safari-pinned-tab.svg">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
 
@@ -42,7 +42,7 @@
   <meta property="article:section" content="blog">
   <meta property="article:author" content="Mario Ortiz Manero">
   <meta property="article:published_time" content="2021-10-05T00:00:00.000Z">
-  <meta property="article:modified_time" content="2025-01-02T19:53:20.535Z">
+  <meta property="article:modified_time" content="2025-01-02T19:59:00.476Z">
         <meta property="og:see_also" content="https://nullderef.com/blog/plugin-tech/">
         <meta property="og:see_also" content="https://nullderef.com/blog/plugin-start/">
         <meta property="og:see_also" content="https://nullderef.com/blog/plugin-abi-stable/">
@@ -80,7 +80,7 @@
     <header class="header">
   <nav class="nav">
     <div class="logo">
-      <a href="/eleventy-base-blog/" accesskey="h" title="NullDeref (Alt + H)">NullDeref</a>
+      <a href="/" accesskey="h" title="NullDeref (Alt + H)">NullDeref</a>
       <div class="logo-switches">
         <button id="theme-toggle" accesskey="t" title="(Alt + T)">
           <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -91,17 +91,17 @@
 
     <ul id="menu">
       <li>
-        <a href="/eleventy-base-blog/eleventy-base-blog/about" title="About">
+        <a href="/about" title="About">
           <span>About</span>
         </a>
       </li>
       <li>
-        <a href="/eleventy-base-blog/eleventy-base-blog/series" title="Series">
+        <a href="/series" title="Series">
           <span>Series</span>
         </a>
       </li>
       <li>
-        <a href="/eleventy-base-blog/eleventy-base-blog/search" title="Search (Alt + /)" accesskey="/">
+        <a href="/search" title="Search (Alt + /)" accesskey="/">
           <span>Search</span>
         </a>
       </li>
@@ -129,9 +129,9 @@
     <div class="post-meta">
       <time datetime="Tue Oct 05 2021 00:00:00 GMT+0000 (Coordinated Universal Time)">October 5, 2021</time>
       &nbsp;·&nbsp;
-      <a href="/eleventy-base-blog/eleventy-base-blog/about">Mario Ortiz Manero</a>
+      <a href="/about">Mario Ortiz Manero</a>
         &nbsp;·&nbsp;
-        From the series “<a href="/eleventy-base-blog/eleventy-base-blog/series/rust-plugins/">A Plugin System in Rust</a>”
+        From the series “<a href="/series/rust-plugins/">A Plugin System in Rust</a>”
     </div>
   </header>
   <div class="post-content">
@@ -160,7 +160,7 @@
 <li>Filter, transform, and mix them up following the same structure.</li>
 <li>Send all the now structured logs to your database.</li>
 </ol>
-<p><picture><source type="image/avif" srcset="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/Dq4N7J1CYp-741.avif 741w"><source type="image/webp" srcset="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/Dq4N7J1CYp-741.webp 741w"><img loading="lazy" decoding="async" src="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/Dq4N7J1CYp-741.png" alt="Processing example diagram" width="741" height="321"></picture></p>
+<p><picture><source type="image/avif" srcset="/blog/plugin-dynload/Dq4N7J1CYp-741.avif 741w"><source type="image/webp" srcset="/blog/plugin-dynload/Dq4N7J1CYp-741.webp 741w"><img loading="lazy" decoding="async" src="/blog/plugin-dynload/Dq4N7J1CYp-741.png" alt="Processing example diagram" width="741" height="321"></picture></p>
 <p>This currently works with <a href="https://www.tremor.rs/docs/artefacts/onramps/">onramps/sources</a>, <a href="https://www.tremor.rs/docs/artefacts/offramps/">offramps/sinks</a> and pipelines:</p>
 <ul>
 <li>An onramp specifies how Tremor connects to the outside world (or pipeline) in order to <em>receive</em> from external systems, such as <a href="https://www.tremor.rs/docs/artefacts/onramps/#tcp">TCP</a>, <a href="https://www.tremor.rs/docs/artefacts/onramps/#metronome">periodically</a> or <a href="https://www.tremor.rs/docs/artefacts/onramps/#postgresql">PostgreSQL</a>.</li>
@@ -234,17 +234,17 @@
 <p>I’ll try to follow what Tremor does in order to get a connector running with the help of a few diagrams. The following diagram showcases what happens when a <code>World</code> is created. This introduces the concept of <em>Managers</em>, which simply are actors in the system that wrap up some functionality.</p>
 <p>Managers help decouple the communication and the implementation of the underlying functionality. They are also useful to remove some boilerplate when initializing the components, such as creating the communication channel or spawning the component in a separate task.</p>
 <p>Generally, there’s one manager per artefact type, which helps with their initialization process, and then there’s one manager per running instance, handling their communication details.</p>
-<p><picture><source type="image/avif" srcset="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/FfoOBjlG9F-731.avif 731w"><source type="image/webp" srcset="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/FfoOBjlG9F-731.webp 731w"><img loading="lazy" decoding="async" src="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/FfoOBjlG9F-731.png" alt="Registering diagram" width="731" height="541"></picture></p>
+<p><picture><source type="image/avif" srcset="/blog/plugin-dynload/FfoOBjlG9F-731.avif 731w"><source type="image/webp" srcset="/blog/plugin-dynload/FfoOBjlG9F-731.webp 731w"><img loading="lazy" decoding="async" src="/blog/plugin-dynload/FfoOBjlG9F-731.png" alt="Registering diagram" width="731" height="541"></picture></p>
 <p>Once all the managers are initialized, Tremor currently registers all the built-in artifacts in a “hardcoded” way with <code>register_builtin_types</code>. But after the plugin system is implemented, this will happen dynamically, i.e., Tremor will automatically look for DLL/SO files in its configured directory and try to register all the plugins it can find. The user may additionally request a specific plugin to be loaded while Tremor is running.</p>
 <p>Note that the initialization of the connectors is done in two steps: first they’re <em>registered</em>, which just means that the connector is now available for loading (they’re added to the <em>repository</em>). The connector doesn’t actually start running until a binding is created with it, for example with <code>launch_binding</code>, which will remove it from the repository and add it to the <em>registry</em>, with the currently running artifacts.</p>
 <p><code>connectors::Manager</code> contains all the connectors running in Tremor, which we’ll now try to understand:</p>
-<p><picture><source type="image/avif" srcset="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/8aUTfRIBFi-731.avif 731w"><source type="image/webp" srcset="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/8aUTfRIBFi-731.webp 731w"><img loading="lazy" decoding="async" src="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/8aUTfRIBFi-731.png" alt="Initialization diagram" width="731" height="541"></picture></p>
+<p><picture><source type="image/avif" srcset="/blog/plugin-dynload/8aUTfRIBFi-731.avif 731w"><source type="image/webp" srcset="/blog/plugin-dynload/8aUTfRIBFi-731.webp 731w"><img loading="lazy" decoding="async" src="/blog/plugin-dynload/8aUTfRIBFi-731.png" alt="Initialization diagram" width="731" height="541"></picture></p>
 <p>Since it’s a multistep process (it’s actually more complicated than registration + creation), the first part of it already provides the tools to initialize the connector (mainly the builder). When the connector needs to start running because it’s been added to a binding in the pipeline, the builder helps to construct it generically with the previously provided configuration details. Finally, it’s moved into a task of its own, so that it may communicate with other parts of Tremor.</p>
 <p>Now that we have a connector running, let’s see how it’s split up into the source and sink parts. In a very similar way, a builder is used to initialize the underlying source, sink, or both, and then a new task is spawned for them.</p>
 <p>A manager is also created for each instance of source/sink, which will handle the communication with other actors. This way, the source and sink interfaces can be kept as simple as possible. These managers will receive connection requests from the pipeline and then redirect or read from it.</p>
 <p>The main difference between sinks and sources currently is that the former can also reply to messages within the same connection. This is useful to acknowledge the package (“Ack”) or to notify something has failed in the sink (“Fail” for a specific event, “CircuitBreaker” to completely stop data from being
 sent).</p>
-<p><picture><source type="image/avif" srcset="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/RPubCh2GFi-811.avif 811w"><source type="image/webp" srcset="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/RPubCh2GFi-811.webp 811w"><img loading="lazy" decoding="async" src="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/RPubCh2GFi-811.png" alt="Setting up diagram" width="811" height="652"></picture></p>
+<p><picture><source type="image/avif" srcset="/blog/plugin-dynload/RPubCh2GFi-811.avif 811w"><source type="image/webp" srcset="/blog/plugin-dynload/RPubCh2GFi-811.webp 811w"><img loading="lazy" decoding="async" src="/blog/plugin-dynload/RPubCh2GFi-811.png" alt="Setting up diagram" width="811" height="652"></picture></p>
 <p>Codecs and preprocessors are involved here both at the source and sink levels. In the source part, the data is transformed or split up through a chain of preprocessors and then the codec is applied. For the sinks, the inverse process is followed: the data is first encoded into bytes with the codec, and then a series of post-processors are applied to the raw binary data.</p>
 <p>Some connectors are based on <em>streams</em>. They are equivalent for example to TCP streams, which help to group up messages and avoid mixing them up. They are manually started and ended via messages, and the manager saves their state in a field called <code>states</code> (since for instance preprocessors may need to keep a state). If a connector doesn’t need this, such as the <code>metronome</code>, it may simply specify <code>DEFAULT_STREAM_ID</code> as the stream ID always.</p>
 <p>After the full interface of connectors is done, I could implement the two following connector plugins:</p>
@@ -586,7 +586,7 @@ Segmentation fault (core dumped)</code></pre>
       </button>
     </div>
     <div class="formkit-guarantee" data-element="guarantee">
-      <p><em>Free and without spam. You can also use my <a href="/eleventy-base-blog/eleventy-base-blog/index.xml" target="_blank">RSS</a>, <a href="https://x.com/null_deref" target="_blank">X</a>, or <a href="https://mstdn.social/@nullderef" target="_blank">Mastodon</a> :)</em></p>
+      <p><em>Free and without spam. You can also use my <a href="/index.xml" target="_blank">RSS</a>, <a href="https://x.com/null_deref" target="_blank">X</a>, or <a href="https://mstdn.social/@nullderef" target="_blank">Mastodon</a> :)</em></p>
       <p style="opacity:.6"><em>Powered by <a href="https://convertkit.com/" target="_black">ConvertKit</a></em></p>
     </div>
   </div>
@@ -617,17 +617,17 @@ Segmentation fault (core dumped)</code></pre>
   <hr class="post-footer-separator">
 
   <footer class="post-footer">
-    <div class="post-tags"><a href="/eleventy-base-blog/eleventy-base-blog/tags/tech">#tech</a><a href="/eleventy-base-blog/eleventy-base-blog/tags/programming">#programming</a><a href="/eleventy-base-blog/eleventy-base-blog/tags/rust">#rust</a><a href="/eleventy-base-blog/eleventy-base-blog/tags/open-source">#open-source</a></div>
-  <p>This post is part of the series “<a href="/eleventy-base-blog/eleventy-base-blog/series/rust-plugins/">A Plugin System in Rust</a>”, which is now finished:</p>
+    <div class="post-tags"><a href="/tags/tech">#tech</a><a href="/tags/programming">#programming</a><a href="/tags/rust">#rust</a><a href="/tags/open-source">#open-source</a></div>
+  <p>This post is part of the series “<a href="/series/rust-plugins/">A Plugin System in Rust</a>”, which is now finished:</p>
   <ol>
-    <li><a href="/eleventy-base-blog/eleventy-base-blog/blog/plugin-tech/">Plugins in Rust: The Technologies</a></li>
-    <li><a href="/eleventy-base-blog/eleventy-base-blog/blog/plugin-start/">Plugins in Rust: Getting Started</a></li>
-    <li><i><a href="/eleventy-base-blog/eleventy-base-blog/blog/plugin-dynload/">Plugins in Rust: Diving into Dynamic Loading</a> ← you're here!</i></li>
-    <li><a href="/eleventy-base-blog/eleventy-base-blog/blog/plugin-abi-stable/">Plugins in Rust: Reducing the Pain with Dependencies</a></li>
-    <li><a href="/eleventy-base-blog/eleventy-base-blog/blog/plugin-impl/">Plugins in Rust: Getting our Hands Dirty</a></li>
-    <li><a href="/eleventy-base-blog/eleventy-base-blog/blog/plugin-end/">Plugins in Rust: Wrapping Up</a></li>
-    <li><a href="/eleventy-base-blog/eleventy-base-blog/blog/tremorcon22/">[Talk] Rust, the best and worst thing to happen to Tremor</a></li>
-    <li><a href="/eleventy-base-blog/eleventy-base-blog/blog/rust-variance/">Blindsided by Rust's Subtyping and Variance</a></li>
+    <li><a href="/blog/plugin-tech/">Plugins in Rust: The Technologies</a></li>
+    <li><a href="/blog/plugin-start/">Plugins in Rust: Getting Started</a></li>
+    <li><i><a href="/blog/plugin-dynload/">Plugins in Rust: Diving into Dynamic Loading</a> ← you're here!</i></li>
+    <li><a href="/blog/plugin-abi-stable/">Plugins in Rust: Reducing the Pain with Dependencies</a></li>
+    <li><a href="/blog/plugin-impl/">Plugins in Rust: Getting our Hands Dirty</a></li>
+    <li><a href="/blog/plugin-end/">Plugins in Rust: Wrapping Up</a></li>
+    <li><a href="/blog/tremorcon22/">[Talk] Rust, the best and worst thing to happen to Tremor</a></li>
+    <li><a href="/blog/rust-variance/">Blindsided by Rust's Subtyping and Variance</a></li>
   </ol>
 
       <script>document.addEventListener("DOMContentLoaded",(function(){const e=new IntersectionObserver((function(e,t){e.forEach((e=>{e.isIntersecting&&(loadComments(e.target),t.unobserve(e.target))}))}),{root:null,rootMargin:"0px",threshold:.1});var t=document.getElementById("comments");t&&e.observe(t)}));var loaded=!1;function loadComments(e){if(loaded)return void console.log("Already loaded comments");loaded=!0;var t=e.getAttribute("gh-issue");if(!t)return void console.error("No GitHub issue ID found");let n="https://api.github.com/repos/marioortizmanero/nullderef.com-comments/issues/".concat(t,"/comments"),o=new XMLHttpRequest;o.responseType="json",o.open("GET",n),o.setRequestHeader("Accept","application/vnd.github.v3.html+json"),o.send(),o.onload=function(){if(200!=o.status)return;let t=o.response,n=document.getElementById("comments-header");0!==t.length&&(n.innerHTML="Comments: ".concat(t.length)),t.forEach((function(t){let n=new Date(t.created_at),o=document.createElement("div");o.setAttribute("class","gh-comment"),o.innerHTML="".concat("<div class='gh-header'>","<img loading='lazy' alt='avatar of ",t.user.login,"' src='",t.user.avatar_url,"' />","<div style='margin:auto 0;'>","<b><a class='gh-username' href='",t.user.html_url,"'>",t.user.login,"</a></b>"," commented at <em>",n.toLocaleString(),"</em>","</div>","</div>","<div class='gh-body'>",t.body_html,"</div>"),e.appendChild(o)}))}}</script>
@@ -649,7 +649,7 @@ Segmentation fault (core dumped)</code></pre>
   "author": "Mario Ortiz Manero",
   "url": "/blog/plugin-dynload/",
   "datePublished": "2021-10-05T00:00:00.000Z",
-  "dateModified": "2025-01-02T19:53:20.535Z",
+  "dateModified": "2025-01-02T19:59:00.476Z",
   "mainEntityOfPage": "/blog/plugin-dynload/",
   "description": "A closer look at dynamic loading in Rust",
   "publisher": {
