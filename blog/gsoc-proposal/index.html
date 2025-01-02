@@ -45,7 +45,7 @@
   <meta property="article:section" content="blog">
   <meta property="article:author" content="Mario Ortiz Manero">
   <meta property="article:published_time" content="2021-04-13T00:00:00.000Z">
-  <meta property="article:modified_time" content="2025-01-02T20:46:52.292Z">
+  <meta property="article:modified_time" content="2025-01-02T21:03:40.717Z">
       <meta property="article:tag" content="posts">
 
 <meta property="og:url" content="https://nullderef.com/blog/gsoc-proposal/">
@@ -288,7 +288,6 @@
   </ul>
 
       <script>document.addEventListener("DOMContentLoaded",(function(){const e=new IntersectionObserver((function(e,t){e.forEach((e=>{e.isIntersecting&&(loadComments(e.target),t.unobserve(e.target))}))}),{root:null,rootMargin:"0px",threshold:.1});var t=document.getElementById("comments");t&&e.observe(t)}));var loaded=!1;function loadComments(e){if(loaded)return void console.log("Already loaded comments");loaded=!0;var t=e.getAttribute("gh-issue");if(!t)return void console.error("No GitHub issue ID found");let n="https://api.github.com/repos/marioortizmanero/nullderef.com-comments/issues/".concat(t,"/comments"),o=new XMLHttpRequest;o.responseType="json",o.open("GET",n),o.setRequestHeader("Accept","application/vnd.github.v3.html+json"),o.send(),o.onload=function(){if(200!=o.status)return;let t=o.response,n=document.getElementById("comments-header");0!==t.length&&(n.innerHTML="Comments: ".concat(t.length)),t.forEach((function(t){let n=new Date(t.created_at),o=document.createElement("div");o.setAttribute("class","gh-comment"),o.innerHTML="".concat("<div class='gh-header'>","<img loading='lazy' alt='avatar of ",t.user.login,"' src='",t.user.avatar_url,"' />","<div style='margin:auto 0;'>","<b><a class='gh-username' href='",t.user.html_url,"'>",t.user.login,"</a></b>"," commented at <em>",n.toLocaleString(),"</em>","</div>","</div>","<div class='gh-body'>",t.body_html,"</div>"),e.appendChild(o)}))}}</script>
-
 <h2 id="comments-header">No comments yet</h2>
 <p id="comments" gh-issue="8">
   Leave a comment for this article <a href="https://github.com/marioortizmanero/nullderef.com-comments/issues/8" target="_blank" rel="noopener noreferrer me">on GitHub</a>!
@@ -306,7 +305,7 @@
   "author": "Mario Ortiz Manero",
   "url": "/blog/gsoc-proposal/",
   "datePublished": "2021-04-13T00:00:00.000Z",
-  "dateModified": "2025-01-02T20:46:52.292Z",
+  "dateModified": "2025-01-02T21:03:40.717Z",
   "mainEntityOfPage": "/blog/gsoc-proposal/",
   "description": "My proposal for 2021&#39;s GSoC",
   "publisher": {
