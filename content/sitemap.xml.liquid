@@ -1,0 +1,24 @@
+---
+permalink: /sitemap.xml
+eleventyExcludeFromCollections: true
+title: SiteMap
+description: Standard XML file for web crawlers
+---
+<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {%- for page in collections.all %}
+    {%- unless page.url == "/index.xml" %}
+      <url>
+        <loc>{{ page.url | absUrl }}</loc>
+        <lastmod>{{ page.inputPath | lastModified | iso8601Date }}</lastmod>
+      </url>
+    {%- endunless %}
+  {%- endfor %}
+  {%- assign tags = collections | getTags %}
+  {%- for tag in tags %}
+    <url>
+      <loc>{{ '/tags/' | append: tag.name | absUrl }}</loc>
+      <lastmod>{{ tag.lastModified | iso8601Date }}</lastmod>
+    </url>
+  {%- endfor %}
+</urlset>
