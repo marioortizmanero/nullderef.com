@@ -750,7 +750,7 @@ For those interested, I recently gave a quick talk about the whole project in th
 
 <iframe width="1600" height="400" src="https://www.youtube.com/embed/htLCyqY0kt0?start=3166" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}
 
 [^hashbrown-merge]: {% gh "pr" "rust-lang/rust" 58623 "Replace HashMap implementation with SwissTable (as an external crate)" %}
 [^known-key]: [JSON Key memoization in `tremor-runtime/tremor-value/src/known_key.rs`](https://github.com/tremor-rs/tremor-runtime/blob/87fb312395b8241e915f626dd3ac3a294515e8db/tremor-value/src/known_key.rs)

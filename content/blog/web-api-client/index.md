@@ -612,7 +612,7 @@ I'm specially grateful towards Ramsay, who apart from contributing many of the f
 Lots of love, \
 Mario
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}
 
 [^gh-auth]: {% gh "issue" "ramsayleung/rspotify" 173 "Restructure the authentication process" %}
 [^gh-clients]: {% gh "pr" "ramsayleung/rspotify" 129 "Multiple clients via features" %}

@@ -151,7 +151,7 @@ So far I've been interested in Software Development, but I recently learned more
 
 You can contact me at marioortizmanero _at_ gmail _dot_ com, or via Discord as Glow#5433.
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}
 
 [^resources]: As described in detail in its [issue on Tremor's repository](https://github.com/tremor-rs/tremor-runtime/issues/791) or its [RFC](https://www.tremor.rs/rfc/accepted/plugin-development-kit/).
 [^stable-abi]: See [rust-lang/rfcs/#600](https://github.com/rust-lang/rfcs/issues/600)

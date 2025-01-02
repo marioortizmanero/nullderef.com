@@ -278,7 +278,7 @@ Perhaps the lesson today is that we should remember that Rust is a low level lan
 
 So what do you think? What would you do if you were a maintainer of Rspotify? You can leave a comment below if you like.
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}
 
 [^block-on-perf]: {% gh "issue-comment" "ramsayleung/rspotify" "112#issuecomment-683266508" "Cleaning up the `blocking` module" %}
 [^block-on-channels]: [reqwest/src/blocking/client.rs @ line 757 --- GitHub](https://github.com/seanmonstar/reqwest/blob/0.10.x/src/blocking/client.rs#L757)

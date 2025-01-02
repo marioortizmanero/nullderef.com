@@ -344,4 +344,4 @@ I was lucky to have such a great team at Tremor, and an OSS maintainer as helpfu
   {% gh "issue" "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" %}
 </p>
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}

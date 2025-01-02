@@ -30,7 +30,7 @@ socials:
 
     <div class="projects">
       {% for project in metadata.author.projects %}
-        {% include "partials/project.liquid" %}
+        {% render "partials/project.liquid" project: project %}
       {% endfor %}
     </div>
 

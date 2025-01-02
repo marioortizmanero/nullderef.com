@@ -16,7 +16,7 @@ socials:
         <div class="social-icons">
             {% for name in socials %}
             <a href="{{ metadata.author.social[name] }}" target="_blank" rel="noopener noreferrer me" title="{{ name }}">
-                {% include "partials/social_icons.liquid" %}
+                {% render "partials/social_icons.liquid" name: name %}
             </a>
             {% endfor %}
             <span class="subscribe-msg">or <a class="subscribe-word" href="/subscribe">subscribe</a></span>

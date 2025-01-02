@@ -20,29 +20,29 @@ Website information
 <title>{{ title }}{% if page.url != "/" %} | NullDeref{% endif %}</title>
 <meta name="keywords" content="{{ keywords | default: metadata.keywords | join: "," }}">
 <meta name="description" content="{{ description | markdownify | plainifyHtml | escape }}">
-<meta name="author" content="{{ author.name | default: metadata.author.name }}">
+<meta name="author" content="{{ author | default: metadata.author.name }}">
 <link rel="canonical" href="{{ page.url | absUrl }}">
 
 {% comment %}
 CSS style, which is bundled and minimized.
 {% endcomment %}
 <style>
-{% include "css/common/theme-vars.css" %}
-{% include "css/common/reset.css" %}
-{% include "css/common/footer.css" %}
-{% include "css/common/header.css" %}
-{% include "css/common/post-entry.css" %}
-{% include "css/common/post-single.css" %}
-{% include "css/common/post-comments.css" %}
-{% include "css/common/fonts.css" %}
-{% include "css/common/global.css" %}
-{% include "css/common/shortcodes.css" %}
-{% include "css/common/theme-one-dark.css" %}
+{% render "css/common/theme-vars.css" %}
+{% render "css/common/reset.css" %}
+{% render "css/common/footer.css" %}
+{% render "css/common/header.css" %}
+{% render "css/common/post-entry.css" %}
+{% render "css/common/post-single.css" %}
+{% render "css/common/post-comments.css" %}
+{% render "css/common/fonts.css" %}
+{% render "css/common/global.css" %}
+{% render "css/common/shortcodes.css" %}
+{% render "css/common/theme-one-dark.css" %}
 
-{% include "css/home.css" %}
-{% include "css/about.css" %}
-{% include "css/404.css" %}
-{% include "css/search.css" %}
+{% render "css/home.css" %}
+{% render "css/about.css" %}
+{% render "css/404.css" %}
+{% render "css/search.css" %}
 </style>
 
 <link rel="icon" href="/favicon.ico">
@@ -55,15 +55,31 @@ CSS style, which is bundled and minimized.
 
 <noscript>
   <style>
-    {% include "css/common/noscript.css" %}
+    {% render "css/common/noscript.css" %}
   </style>
 </noscript>
 
 {% if env.ELEVENTY_RUN_MODE == "build" %}
-  {% include "partials/google_analytics.liquid" %}
+  {% render "partials/google_analytics.liquid" metadata: metadata %}
 {% endif %}
-{% include "partials/opengraph.liquid" %}
-{% include "partials/twitter_cards.liquid" %}
+{% render "partials/opengraph.liquid"
+    author: author
+    collections: collections
+    date: date
+    description: description
+    image: image
+    layout: layout
+    metadata: metadata
+    page: page
+    series: series
+    tags: tags
+    title: title %}
+{% render "partials/twitter_cards.liquid"
+    description: description
+    image: image
+    imageAlt: imageAlt
+    metadata: metadata
+    title: title %}
 
 {% block head %}
 {% endblock %}

@@ -392,7 +392,7 @@ test test::wasmtime_setup ... bench:     988,500 ns/iter (+/- 363,244)
 
 I hope you enjoyed reading this post and that you learned something from it! You can leave any suggestions in the comments below.
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}
 
 [^extern]: [Keyword extern --- doc.rust-lang.org](https://doc.rust-lang.org/std/keyword.extern.html)
 [^dynload-comp]: [Compare with other libraries ---  GitHub szymonwieloch/rust-dlopen](https://github.com/szymonwieloch/rust-dlopen#compare-with-other-libraries)

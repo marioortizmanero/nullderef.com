@@ -28,15 +28,19 @@ layout: layouts/base.liquid
   <hr class="post-footer-separator">
 
   <footer class="post-footer">
-    {% include "partials/post_nav_links.liquid" %}
+    {% render "partials/post_nav_links.liquid"
+        collections: collections
+        page: page
+        series: series
+        tags: tags %}
 
     {% if GHissueID %}
-      {% include "partials/comments.liquid" %}
+      {% render "partials/comments.liquid" GHissueID: GHissueID %}
     {% endif %}
   </footer>
 
   {% if hasMath %}
-    {% include "partials/math_support.liquid" %}
+    {% render "partials/math_support.liquid" %}
   {% endif %}
 </article>
 

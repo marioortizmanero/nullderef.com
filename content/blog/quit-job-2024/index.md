@@ -44,4 +44,4 @@ If this is interesting to you in any way, please reach out! [Schedule a chat wit
 
 I feel extremely lucky to be in a position to make this decision. Thank you to everyone for your support!
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}

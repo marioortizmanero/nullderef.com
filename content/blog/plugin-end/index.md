@@ -572,4 +572,4 @@ Paella! [From my LinkedIn profile](https://www.linkedin.com/feed/update/urn:li:s
 
 <img src="/blog/plugin-end/paella.jpg" width="50%" alt="Paella at KubeCon">
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}

@@ -10,12 +10,14 @@
     <p>{{ project.description }}</p>
   </div>
 
-  {% comment %} TODO: simplify this {% endcomment %}
+  {% comment %} TODO: remove this comment and the empty <div>; also from
+    `about.css` the div in `.project-links div`; and add `margin-bottom: 32px;` to
+    `.formkit-form[data-uid="e8ac55b0d0"] .formkit-guarantee` {% endcomment %}
   {% if project.nullderef_series %}
   <div class="project-links">
-      <div>
-        <i><a href="/series/{{ project.nullderef_series }}" target="_blank" rel="noopener noreferrer me">Read its series on NullDeref</a></i>
-      </div>
+    <div>
+      <i><a href="/series/{{ project.nullderef_series }}" target="_blank" rel="noopener noreferrer me">Read its series on NullDeref</a></i>
+    </div>
   </div>
   {% endif %}
 </div>

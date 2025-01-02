@@ -309,7 +309,7 @@ There's never a single answer in programming: how much performance are you willi
 
 You can join the discussion at [Reddit](https://www.reddit.com/r/rust/comments/nenql8/plugins_in_rust_the_technologies_nullderefcom/?) if you have any additional suggestions or comments, or leave a comment below.
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}
 
 [^npm-trust-1]: [How to build an npm worm --- Jamie Kyle](https://jamie.build/how-to-build-an-npm-worm)
 [^npm-trust-2]: [Yet another malicious package found in npm, targeting cryptocurrency wallets --- snyk](https://snyk.io/blog/yet-another-malicious-package-found-in-npm-targeting-cryptocurrency-wallets/)

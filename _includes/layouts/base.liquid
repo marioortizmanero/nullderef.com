@@ -4,17 +4,34 @@
   ga-id="{{ metadata.googleanalytics }}" >
 
 <head>
-    {% include "partials/head.liquid" %}
+    {% render "partials/head.liquid"
+        author: author
+        collections: collections
+        date: date
+        description: description
+        eleventy: eleventy
+        env: env
+        image: image
+        imageAlt: imageAlt
+        keywords: keywords
+        layout: layout
+        metadata: metadata
+        page: page
+        series: series
+        tags: tags
+        title: title %}
 </head>
 
 <body id="top" class="dark">
-    {% include "partials/header.liquid" %}
+    {% render "partials/header.liquid"
+        metadata: metadata
+        page: page %}
 
     <main class="main">
         {{ content }}
     </main>
 
-    {% include "partials/footer.liquid" %}
+    {% render "partials/footer.liquid" metadata: metadata %}
 </body>
 
 </html>

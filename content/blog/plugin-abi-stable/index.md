@@ -684,7 +684,7 @@ Hopefully, the performance degradations we've found won't be as noticeable in th
 
 In the next article, I'll cover the different caveats I'm finding as I try to actually implement the plugin system on Tremor, and the different ways in which they can be approached.
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}
 
 [^cglue-vs-sabi]: {% gh "issue" "h33p/cglue" 3 "A few questions about the library" %}
 [^panic-ffi]: [FFI and panics --- Rustonomicon](https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-panics)

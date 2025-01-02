@@ -404,4 +404,4 @@ The code for the different approaches can be found [here](https://github.com/mar
 *Disclaimer: this post was originally in
 https://vidify.org/blog/rust-parameters/. I've moved it to my personal blog.*
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}

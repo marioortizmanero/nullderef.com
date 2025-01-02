@@ -597,7 +597,7 @@ This article has covered a lot of questions that one may encounter when trying t
 
 In my opinion, although `abi_stable` is a very large crate and somewhat hard to learn, most of the problems this post exposes are greatly simplified thanks to it. In the next article I'll see the differences between both approaches.
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}
 
 [^florentin-1]: [Pluginized Protocols](https://pluginized-protocols.org/)
 [^florentin-2]: [Pluginized QUIC](https://pquic.org/)

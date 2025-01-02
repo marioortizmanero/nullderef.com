@@ -144,7 +144,7 @@ In order to avoid this, perhaps the naming for features could have been differen
 
 Anyhow, I hope you learned something new, or that this was at least a good reminder! If you have any suggestions please leave them in the section below :)
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}
 
 [^cargo-release]: https://doc.rust-lang.org/cargo/reference/profiles.html#release
 [^rust-const]: https://doc.rust-lang.org/std/keyword.const.html

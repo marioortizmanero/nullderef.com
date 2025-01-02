@@ -18,4 +18,4 @@ You can also find the slides here in [`pdf`](/blog/tremorcon22/TremorCon22_Mario
 
 If you want to learn about new events I'm involved in, like this one, you can follow me on [Twitter](https://twitter.com/null_deref) or [LinkedIn](https://www.linkedin.com/in/marioortizmanero/). Don't forget to also give [Tremor](https://twitter.com/TremorDebs) a follow, and to check out [the rest of the conference](https://www.youtube.com/watch?v=og3kIey0X5E&list=PLNTN4J6tdf22rEnqZlVRWHjiDyRBNy3Iw)!
 
-{% include "partials/subscribe.liquid" %}
+{% render "partials/subscribe.liquid" metadata: metadata %}
