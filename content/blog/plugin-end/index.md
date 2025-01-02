@@ -45,9 +45,9 @@ I ended up developing [a custom script](https://nullderef.com/blog/plugin-end/be
 * It first validates the configuration, including what benchmarks to run and what binaries to compare. It was quite annoying to run into a typo 2 hours into the benchmarks...
 * It performs a few warmup rounds before the actual benchmarks. This was specially important when using my laptop, since it started to overheat after the first few rounds, degrading its performance.
 
-One way to ensure the variance isn't too high is to run the exact same benchmark twice. Here's a histogram for both machines. Unexpectedly, the server ended up having greater variance with this test, but it was good enough to continue anyway. Note that you can click on these images to zoom in.
+One way to ensure the variance isn't too high is to run the exact same benchmark twice. Here's a histogram for both machines. Unexpectedly, the server ended up having greater variance with this test, but it was good enough to continue anyway.
 
-[![Histogram](/blog/plugin-end/histogram_variance.png)](/blog/plugin-end/histogram_variance.png)
+<img alt="Histogram" src="/blog/plugin-end/histogram_variance.png" eleventy:widths="1200">
 
 I would strongly recommend anyone to get a separate machine to run benchmarks. Not only will they be more reliable, but also you will be able to continue working while the benchmarks run.
 
@@ -76,17 +76,17 @@ After the fix, I was able to investigate about the impact of these conversions w
 
 With both `Value` and `PdkValue` (highlighted in pink are the occurrences of `From`, `Into`, and `FromIterator`, which add up to 9.4% of all the calls in the execution):
 
-[![Flamegraph with Value and PdkValue](/blog/plugin-end/with_value_conv.png)](/blog/plugin-end/with_value_conv.png)
+<img alt="Flamegraph with Value and PdkValue" src="/blog/plugin-end/with_value_conv.png" eleventy:widths="1200">
 
 With a single `Value` (the conversion calls add up to 5.2% now, and the highlighted parts are much more sparse and harder to notice):
 
-[![Flamegraph with a single Value](/blog/plugin-end/without_value_conv.png)](/blog/plugin-end/without_value_conv.png)
+<img alt="Flamegraph with a single Value" src="/blog/plugin-end/without_value_conv.png" eleventy:widths="1200">
 
 The flamegraphs pointed out that Tremor was spending roughly 4.2% more of its execution time just converting between `Value` and `PdkValue`. This metric is tricky, though. Spending less time on type conversions doesn't mean that the overall program is faster. The percentages are relative to the specific execution, and it's possible that the rest of the program just got slower in the case of a single `Value`.
 
 By checking other metrics we discover that this is more or less the case. The histogram shows that while a single `Value` improves the latency, the overall throughput actually decreases. This compares a version without the plugin system (`connectors` branch) vs. first version vs. single `Value`.
 
-[![Histogram comparing plugin system versions](/blog/plugin-end/histogram_pdk.png)](/blog/plugin-end/histogram_pdk.png)
+<img alt="Histogram comparing plugin system versions" src="/blog/plugin-end/histogram_pdk.png" eleventy:widths="1200">
 
 Relative throughput comparison (higher is better):
 
@@ -119,7 +119,7 @@ Since `RHashMap` is an opaque type, it was already on the heap internally thanks
 
 The subsequent benchmarks showed a slight improvement in performance, though I was still only using the `passthrough` benchmark at this point. I kept the change because it didn't make much sense to leave the doubly boxed hash table, and because it slightly improved the readability of the code. Here's the histogram of a double box vs. a single box. Note that this histogram was recorded on the benchmarking server, while the previous one used my laptop. These tests aren't meant to be compared between different sections.
 
-[![Histogram comparing box versions](/blog/plugin-end/histogram_box.png)](/blog/plugin-end/histogram_box.png)
+<img alt="Histogram comparing box versions" src="/blog/plugin-end/histogram_box.png" eleventy:widths="1200">
 
 Relative throughput comparison (higher is better):
 
@@ -166,19 +166,19 @@ This time I did it right since the beginning and tried multiple benchmarks. The 
 
 Histogram for `passthrough`, which simply redirects input events from a single source to the output:
 
-[![Histogram for passthrough](/blog/plugin-end/histogram_pdk_v2_passthrough.png)](/blog/plugin-end/histogram_pdk_v2_passthrough.png)
+<img alt="Histogram for passthrough" src="/blog/plugin-end/histogram_pdk_v2_passthrough.png" eleventy:widths="1200">
 
 Histogram for `passthrough-two-inputs`, which redirects input events from two different sources to the output:
 
-[![Histogram for passthrough-two-inputs](/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png)](/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png)
+<img alt="Histogram for passthrough-two-inputs" src="/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png" eleventy:widths="1200">
 
 Histogram for `throughput-logging-json`, which also implements some event processing logic over JSON data:
 
-[![Histogram for throughput-logging-json](/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png)](/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png)
+<img alt="Histogram for throughput-logging-json" src="/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png" eleventy:widths="1200">
 
 Histogram for `throughput-logging-msgpack`, which also implements some event processing logic over [MessagePack](https://msgpack.org/index.html) data:
 
-[![Histogram for throughput-logging-msgpack](/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png)](/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png)
+<img alt="Histogram for throughput-logging-msgpack" src="/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png" eleventy:widths="1200">
 
 Relative performance for number of events processed per second (higher is better):
 
@@ -207,11 +207,12 @@ We can also take a look at the recurring occurrence of an experiment that isn't 
 
 After zooming into specific sections, we can see this overhead by ourselves in the call stack. Here's the flamegraph with ``abi_stable``'s complex destructors, shown in pink and zoomed in:
 
-[![Flamegraph zoomed in](/blog/plugin-end/with_destructor.png)](/blog/plugin-end/with_destructor.png)
+<img alt="Flamegraph zoomed in" src="/blog/plugin-end/with_destructor.png"
+eleventy:widths="1200">
 
 However, I overestimated the importance of this problem. Taking a look at the big picture, it's obvious that optimizing ``RBox``'s implementation of `Drop` isn't worth it yet. Here's the flamegraph with ``abi_stable``'s complex destructors, shown in pink and without zooming in:
 
-[![Flamegraph without zoom](/blog/plugin-end/with_destructor_globally.png)](/blog/plugin-end/with_destructor_globally.png)
+<img alt="Flamegraph without zoom" src="/blog/plugin-end/with_destructor_globally.png" eleventy:widths="1200">
 
 I'm definitely taking note of this idea in order to investigate about it in the future for further performance squeezing. But I currently have lots of other more impactful experiments in mind with a higher priority.
 
@@ -549,7 +550,7 @@ including those for the plugin system and other unrelated improvements:
 
 I also managed to break the Rust compiler while working on this plugin system. It may not be as rare as one would think, but for some reason I felt oddly proud to achieve it, so I'll share it here :)
 
-![Rustc breakage](/blog/plugin-end/rustc_crash.png)
+<img alt="Rustc breakage" src="/blog/plugin-end/rustc_crash.png" eleventy:widths="800">
 
 It's seemingly related to incremental compilation, and [someone had already reported it before](https://github.com/rust-lang/rust/issues/90608). It should be fixed in a future version, and I haven't come across it again.
 
