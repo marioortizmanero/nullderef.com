@@ -2,21 +2,23 @@
 title: "Designing an API Client in Rust: New RSpotify Version a Year Later"
 description: "Inspired by the RSpotify rewrite, a few tips on how to make a
 solid wrapper for most web API wrappers."
-author: "Mario Ortiz Manero"
-images: ["/blog/web-api-client/crate_hierarchy.png"]
-tags: ["tech", "programming", "rust", "open source"]
+image: "/blog/web-api-client/crate_hierarchy.png"
+imageAlt: "Preview image, with a diagram of rspotify's architecture"
+tags: ["tech", "programming", "rust", "open-source"]
 keywords: ["programming", "rust", "rustlang", "open source", "rspotify", "web api"]
 date: 2021-10-13
-series: ["rspotify"]
+series: "rspotify"
 GHissueID: 2
 ---
+
+[[toc]]
 
 This article in [the Rspotify series](https://nullderef.com/series/rspotify) describes my journey of basically rewriting the entirety of [this Rust library](https://github.com/ramsayleung/rspotify); around 13 months of work (in my free time), starting at September 2020, up until October 2021. I think this has given me enough experience for an article regarding API design on Rust, and perhaps those who attempt the same in the future can take some ideas and save time. Specially considering how much I've gone in circles and how much time I've "wasted" implementing things that ended up being discarded.
 
 <a name="_the_story"></a>
 ## The story
 
-If you don't care about RSpotify's specific story, you can jump to the "[Making the API HTTP-client agnostic](#actual_start)" section, but I think knowing a bit the motives for this rewrite is interesting for other open source maintainers in the same situation as me. This all started when I wanted to use a Rust Spotify API wrapper for one of my projects at that time, [Vidify](https://vidify.org/). I went to [crates.io](https://crates.io/) and looked for "Spotify", and all I found was {{< crate rspotify >}} (the most popular one), {{< crate aspotify >}} (an asynchronous-only alternative), and a bunch of other outdated or incomplete libraries.
+If you don't care about RSpotify's specific story, you can jump to the "[Making the API HTTP-client agnostic](#actual_start)" section, but I think knowing a bit the motives for this rewrite is interesting for other open source maintainers in the same situation as me. This all started when I wanted to use a Rust Spotify API wrapper for one of my projects at that time, [Vidify](https://vidify.org/). I went to [crates.io](https://crates.io/) and looked for "Spotify", and all I found was {% crate "rspotify" %} (the most popular one), {% crate "aspotify" %} (an asynchronous-only alternative), and a bunch of other outdated or incomplete libraries.
 
 The author of `aspotify` had made a brand-new library from scratch, because as he commented in [its release](https://www.reddit.com/r/rust/comments/ehz66s/aspotify_an_asynchronous_rust_spotify_web_api/), "[rspotify's] API in general I found hard to use and confusing". Honestly, depending on the state of the original library this is the easiest choice because you don't have to worry about backwards compatibility or old code.
 
@@ -39,9 +41,9 @@ Now that most of the stuff I talk about in this article is finished, you can rea
 <a name="actual_start"></a>
 ## Making the API HTTP-client agnostic
 
-RSpotify is now HTTP-client agnostic, which means that it can work with whichever HTTP library the user configures without adding much overhead. For now, we support {{< crate ureq >}} and {{< crate reqwest >}}[^gh-clients]. The non-trivial part about this is that the HTTP client can be either blocking (`ureq`) or asynchronous (`reqwest`).
+RSpotify is now HTTP-client agnostic, which means that it can work with whichever HTTP library the user configures without adding much overhead. For now, we support {% crate "ureq" %} and {% crate "reqwest" %}[^gh-clients]. The non-trivial part about this is that the HTTP client can be either blocking (`ureq`) or asynchronous (`reqwest`).
 
-While it's fully implemented in the new version, it's the only part that isn't finished yet and that's subject to change. This has to do with the way we support both async and sync HTTP clients under the same trait. In order to have a common interface for both kinds of programming, we use the {{< crate maybe_async >}} crate, which lets us switch between them with a feature.
+While it's fully implemented in the new version, it's the only part that isn't finished yet and that's subject to change. This has to do with the way we support both async and sync HTTP clients under the same trait. In order to have a common interface for both kinds of programming, we use the {% crate "maybe_async" %} crate, which lets us switch between them with a feature.
 
 The trait used as a base for any HTTP client is implemented with async. That way, if the `maybe_async/is_sync` feature is disabled in the `Cargo.toml`, the trait and its implementations remain the same, and if it's enabled, all the occurrences of `async` and `.await` are removed. It's also possible to add special cases where removing `async`/`.await` isn't enough. This works perfectly, but unfortunately breaks a rule in Cargo's feature system: features must be strictly additive, and ``maybe_async``'s feature is a _toggle_ -- you can't have both a sync and an async client at the same time.
 
@@ -224,7 +226,7 @@ impl AuthCodeSpotify {
 }
 ```
 
-The user can then write `spotify.base().endpoint1()` or `spotify.oauth().endpoint3()` to access the endpoints in their different groups. However, all of them have to share a single HTTP client and other information such as the config or the token, so we have to use something like `Rc`. We can improve this by taking ideas from {{< crate aspotify >}}, another popular crate for the Spotify API, which groups up the endpoints by categories. Their endpoint groups take a reference to the client itself instead, which is pretty neat and works just as well. Here is a simplified version of [this Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=6cce195451518fcf644e7506ca7b51b2):
+The user can then write `spotify.base().endpoint1()` or `spotify.oauth().endpoint3()` to access the endpoints in their different groups. However, all of them have to share a single HTTP client and other information such as the config or the token, so we have to use something like `Rc`. We can improve this by taking ideas from {% crate "aspotify" %}, another popular crate for the Spotify API, which groups up the endpoints by categories. Their endpoint groups take a reference to the client itself instead, which is pretty neat and works just as well. Here is a simplified version of [this Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=6cce195451518fcf644e7506ca7b51b2):
 
 ```rust
 pub trait Spotify {
@@ -297,7 +299,7 @@ impl EndpointsOAuth for AuthCodeSpotify {
 
 This way, as long as the user has these traits in scope, they can access the endpoints with just `spotify.endpoint1()`. We can make that easier by including a [prelude](https://stackoverflow.com/questions/36384840/what-is-the-prelude) in the library with these traits, so that all the user has to do is `use rspotify::prelude::*`. Another big advantage this provides is that it's extremely flexible. The user can declare their own client and implement its internal functionality themselves, while still having access to the endpoints, which is the boring task that probably doesn't need customization. And even if they wanted to, they could just override the trait implementation.
 
-The main issue with the trait-based solution is that you can't use `-> impl Trait` in trait methods as of Rust 1.55[^trait-ret-impl]. We unfortunately need these, specially with asynchronous clients, because async trait methods are `-> impl Future` after all. For now, we can work around it by erasing the types with the {{< crate async-trait >}} crate. Supposedly, this will be temporary until GATs are implemented, which isn't too far off[^gats].
+The main issue with the trait-based solution is that you can't use `-> impl Trait` in trait methods as of Rust 1.55[^trait-ret-impl]. We unfortunately need these, specially with asynchronous clients, because async trait methods are `-> impl Future` after all. For now, we can work around it by erasing the types with the {% crate "async-trait" %} crate. Supposedly, this will be temporary until GATs are implemented, which isn't too far off[^gats].
 
 Both of these solutions also make it hard to have private functions in the base client, because the shared parts are in a trait. We don't really want the user to have access to the methods `get` or `get_oauth`. It's defined in the client/trait because it's useful for every client, but for the end user it's just noise in the documentation. This isn't that much of a big deal because you can just declare the item with `#[doc(hidden)]` so that it doesn't appear in the documentation.
 
@@ -330,7 +332,7 @@ Turns out that both of these are usually compiled to the same machine code anywa
 
 Even though it's basic, I keep forgetting about this: don't get obsessed with performance. As you add new features to the crate, it's completely natural that some overheads are introduced here and there. And even then, they might not even be noticeable. First of all get that new feature working. Then, measure the real effect on performance. And finally, if it's more than you expected, then actually think about optimizing it.
 
-One correct usage would be our new `cli` feature. We have some utilities for command-line programs, such as prompting for the user's credentials. However, not everyone needs these, such as servers, and it introduced the {{< crate webbrowser >}} dependency and a few unnecessary functions. So we decided to move this into a separate feature for those interested, which is disabled by default.
+One correct usage would be our new `cli` feature. We have some utilities for command-line programs, such as prompting for the user's credentials. However, not everyone needs these, such as servers, and it introduced the {% crate "webbrowser" %} dependency and a few unnecessary functions. So we decided to move this into a separate feature for those interested, which is disabled by default.
 
 <a name="_sane_defaults"></a>
 ### Sane defaults
@@ -479,7 +481,7 @@ Cached tokens are automatically saved into a file, encoded for example in JSON, 
 Before making a request, self-refreshing tokens check if they are expired, and in that case perform the re-authorization process automatically.
 
 <div style="text-align:center;">
-    {{< gh issue "ramsayleung/rspotify" 223 "Implement cache token and refresh token" >}}
+    {% gh "issue" "ramsayleung/rspotify" 223 "Implement cache token and refresh token" %}
 </div>
 
 <a name="_type_safe_wrappers_for_id_types"></a>
@@ -492,9 +494,9 @@ Many endpoints previously took the URI parameters as a String. That meant we had
 Instead, we now have an `Id` trait and structs that implement it, like `ArtistId` or `TrackId`, keeping its type known at compile time and also at runtime with `dyn Id`. If you take a `TrackId` as a parameter, then you already know its type, and that its contents are valid, so you're ready to use it.
 
 <div style="text-align:center;">
-    {{< gh pr "ramsayleung/rspotify" 161 "Initial id type proposal" >}}
+    {% gh "pr" "ramsayleung/rspotify" 161 "Initial id type proposal" %}
     <br/>
-    {{< gh pr "ramsayleung/rspotify" 244 "Fix IDs v4" >}}
+    {% gh "pr" "ramsayleung/rspotify" 244 "Fix IDs v4" %}
 </div>
 
 <a name="_automatic_pagination"></a>
@@ -502,10 +504,10 @@ Instead, we now have an `Id` trait and structs that implement it, like `ArtistId
 
 Many API servers have paginated replies for large lists. Instead of sending a huge object, it splits it up into multiple packets, and sends them one by one along with an index to the position in the list. Then, the user can stop requesting them at any time and potentially only end up using a portion of that originally huge object.
 
-In Rust, this can be abstracted away very naturally with [iterators](https://doc.rust-lang.org/std/iter/trait.Iterator.html) in sync programs, and [streams](https://rust-lang.github.io/async-book/05_streams/01_chapter.html) for async. The latter can be implemented easily in your crate thanks to {{< crate async_stream >}}.
+In Rust, this can be abstracted away very naturally with [iterators](https://doc.rust-lang.org/std/iter/trait.Iterator.html) in sync programs, and [streams](https://rust-lang.github.io/async-book/05_streams/01_chapter.html) for async. The latter can be implemented easily in your crate thanks to {% crate "async_stream" %}.
 
 <div style="text-align:center;">
-    {{< gh issue "ramsayleung/rspotify" 124 "Add unlimited endpoints" >}}
+    {% gh "issue" "ramsayleung/rspotify" 124 "Add unlimited endpoints" %}
 </div>
 
 <a name="_simplify_wrapper_model_objects"></a>
@@ -524,7 +526,7 @@ Due to how JSON works, sometimes an object will always have a single field:
 }
 ```
 
-In that case, instead of just deserializing that object with {{< crate serde >}} and returning it to the user, you can just return that one field in the object:
+In that case, instead of just deserializing that object with {% crate "serde" %} and returning it to the user, you can just return that one field in the object:
 
 ```rust
 #[derive(Deserialize)]
@@ -546,7 +548,7 @@ fn endpoint() -> Result<Vec<Artists>> {
 ```
 
 <div style="text-align:center;">
-    {{< gh issue "ramsayleung/rspotify" 149 "The way to reduce wrapper object" >}}
+    {% gh "issue" "ramsayleung/rspotify" 149 "The way to reduce wrapper object" %}
 </div>
 
 <a name="_measuring_the_changes"></a>
@@ -570,7 +572,7 @@ example as of October 12, 2021:
 
 The Lines of Code in the old version were quite bloated because of the `blocking` module, which was a copy-paste of the async client. Still, these were lines that needed to be maintained, so they count just as much. On the other hand, we now have a much more extensive set of tests and new features that add up. In total, we have about 33% less lines to be maintained.
 
-The number of dependencies has decreased both by default and with all the features enabled. [We cleaned up a lot of them](https://github.com/ramsayleung/rspotify/issues/108) and tried to keep the defaults leaner. Since the new version adds more features such as PKCE, we even had to add new dependencies like {{< crate sha2 >}}, but it's still a clear win.
+The number of dependencies has decreased both by default and with all the features enabled. [We cleaned up a lot of them](https://github.com/ramsayleung/rspotify/issues/108) and tried to keep the defaults leaner. Since the new version adds more features such as PKCE, we even had to add new dependencies like {% crate "sha2" %}, but it's still a clear win.
 
 <a name="_execution_time"></a>
 ### Execution time
@@ -610,16 +612,18 @@ I'm specially grateful towards Ramsay, who apart from contributing many of the f
 Lots of love, \
 Mario
 
-[^gh-auth]: {{< gh issue "ramsayleung/rspotify" 173 "Restructure the authentication process" >}}
-[^gh-clients]: {{< gh pr "ramsayleung/rspotify" 129 "Multiple clients via features" >}}
+{% render "partials/subscribe.liquid" metadata: metadata %}
+
+[^gh-auth]: {% gh "issue" "ramsayleung/rspotify" 173 "Restructure the authentication process" %}
+[^gh-clients]: {% gh "pr" "ramsayleung/rspotify" 129 "Multiple clients via features" %}
 [^reddit-auth]: [Designing a new architecture for RSpotify based on trait inheritance, need opinions - Reddit](https://www.reddit.com/r/rust/comments/lkdw6o/designing_a_new_architecture_for_rspotify_based/)
 [^deref-antipattern]: [`Deref` polymorphism](https://github.com/rust-unofficial/patterns/blob/main/anti_patterns/deref.md)
 [^trait-ret-impl]: [Is it possible to use `impl Trait` as a function's return type in a trait definition? - StackOverFlow](https://stackoverflow.com/questions/39482131/is-it-possible-to-use-impl-trait-as-a-functions-return-type-in-a-trait-defini)
-[^gats]: {{< gh issue "rust-lang/rust" 4426 "Tracking issue for generic associated types (GAT)" >}}
+[^gats]: {% gh "issue" "rust-lang/rust" 4426 "Tracking issue for generic associated types (GAT)" %}
 [^str-param]: [String vs &str in Rust functions - hermanradtke.com](https://hermanradtke.com/2015/05/03/string-vs-str-in-rust-functions.html)
-[^gh-iterators]: {{< gh pr "ramsayleung/rspotify" 206 "Pass parameters by reference and use iterators wherever possible" >}}
-[^gh-optional-params]: {{< gh issue "ramsayleung/rspotify" 134 "Optional parameters" >}}
-[^gh-http-universal]: {{< gh issue "ramsayleung/rspotify" 234 "Use an external HTTP universal interface instead of `rspotify-http" >}}
-[^model-separation]: {{< gh pr "ramsayleung/rspotify" 191 "Move model into a separate rspotify-model crate" >}}
-[^gh-aspotify-share]: {{< gh issue "KaiJewson/aspotify" 14 "Sharing the model with rspotify-model" >}}
+[^gh-iterators]: {% gh "pr" "ramsayleung/rspotify" 206 "Pass parameters by reference and use iterators wherever possible" %}
+[^gh-optional-params]: {% gh "issue" "ramsayleung/rspotify" 134 "Optional parameters" %}
+[^gh-http-universal]: {% gh "issue" "ramsayleung/rspotify" 234 "Use an external HTTP universal interface instead of `rspotify-http`" %}
+[^model-separation]: {% gh "pr" "ramsayleung/rspotify" 191 "Move model into a separate rspotify-model crate" %}
+[^gh-aspotify-share]: {% gh "issue" "KaiJewson/aspotify" 14 "Sharing the model with rspotify-model" %}
 [^hashmap-new]: [New hashmap constructor - @gmattozzi, Twitter](https://twitter.com/mgattozzi/status/1447983152669020160?t=jAGevaOOh___cWGERcLLgQ)

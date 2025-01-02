@@ -2,14 +2,16 @@
 title: "Beyond Dumbphones: Building a Minimalist Yet Functional Phone"
 description: "Ever feel like your phone controls you? Can we design a smartphone
 that minimized how much you used it?"
-author: "Mario Ortiz Manero"
-images: ["/blog/phone-intro/cover.jpg"]
-tags: ["tech", "entrepreneurship", "research", "phone dependency"]
+image: "/blog/phone-intro/cover.jpg"
+imageAlt: "Preview image, with a phone telling the user to touch grass"
+tags: ["tech", "entrepreneurship", "research", "phone-dependency"]
 keywords: ["tech", "phone dependency", "phone addiction", "eink", "calm companies", "dumbphones", "design"]
-series: ["dont-use-this-phone"]
+series: "dont-use-this-phone"
 date: 2024-06-01
 GHissueID: 13
 ---
+
+[[toc]]
 
 What if there was a company selling phones that, against all odds, optimized how _little_ they were used? There's a lot of potential here, given that every company is trying to get you hooked on their app.
 
@@ -112,13 +114,13 @@ There are heaps of alternatives on the app marketplaces, although their source c
 - comprehensive statistics,
 - or having someone else to control your usage.
 
-Not everything is limited to blocking apps; there are also minimal app launchers[^launchers] or simple productivity timers[^timers]. {{< app name="minimalist phone" android="com.qqlabs.minimalistlauncher" >}} does well in the "seamless experience" department by filtering notifications and taking over your launcher to control how you open apps. I don't want to do an exhaustive analysis, but just searching "screentime" will already return many results on the app store. It's worth downloading a few until you find your favorite anyway.
+Not everything is limited to blocking apps; there are also minimal app launchers[^launchers] or simple productivity timers[^timers]. {% render "app" name: "minimalist phone" android: "com.qqlabs.minimalistlauncher" %} does well in the "seamless experience" department by filtering notifications and taking over your launcher to control how you open apps. I don't want to do an exhaustive analysis, but just searching "screentime" will already return many results on the app store. It's worth downloading a few until you find your favorite anyway.
 
-However, manufacturers have it much easier, given that they have full system access over your phone. For instance, the open-source app {{< app name="TimeLimit" android="io.timelimit.android.google.store" >}} is an even more configurable alternative to "Digital Wellbeing". But being external, it needs to start with a long (and worrying) step to grant permissions. This alone is one step too many to make it widespread --- I'd argue that even having to install an app is too much.
+However, manufacturers have it much easier, given that they have full system access over your phone. For instance, the open-source app {% render "app" name: "TimeLimit" android: "io.timelimit.android.google.store" %} is an even more configurable alternative to "Digital Wellbeing". But being external, it needs to start with a long (and worrying) step to grant permissions. This alone is one step too many to make it widespread --- I'd argue that even having to install an app is too much.
 
 To improve the user experience, some apps make emphasis on explaining how to use their features. Others avoid it by trying to be smarter; they have your current phone's usage data, so they already know which apps you use too much. One last approach is to be opinionated and only support a subset of features that may integrate better or have more impact. The Light Phone 2 does this by only providing their limited list of features; if you're missing one, maybe you'll get it, but maybe not.
 
-Something else raising the barrier of entry is monetization. Although necessary, some subscription models can be too much. A particularly creative app I liked was {{< app name="Digital Detox" android="com.urbandroid.ddc" >}}, which makes you pay $2 upon failing to meet your phone usage goals.
+Something else raising the barrier of entry is monetization. Although necessary, some subscription models can be too much. A particularly creative app I liked was {% render "app" name: "Digital Detox" android: "com.urbandroid.ddc" %}, which makes you pay $2 upon failing to meet your phone usage goals.
 
 It's just great to have so many options and not being locked in to any of them. Different solutions for different people.
 
@@ -165,6 +167,8 @@ More details about the design will come later in [the series](https://nullderef.
 
 _Disclaimer: I am not affiliated with any of the companies mentioned in this post. The opinions expressed are my own and are based on my personal experiences and research._
 
+{% render "partials/subscribe.liquid" metadata: metadata %}
+
 [^light-phone-v1]: [The high hopes of the low-tech phone --- The Verge](https://www.theverge.com/2019/9/4/20847717/light-phone-2-minimalist-features-design-keyboard-crowdfunding)
 [^parking]: [I have to use an app to open my apartment complex parking gate, the app is called Gatewise. My lease does not mention anything about needing a smartphone or the use of any apps for garage access. Street parking is not an option. I just want technological equity --- r/dumbphones](https://www.reddit.com/r/dumbphones/comments/sjtkm2/i_have_to_use_an_app_to_open_my_apartment_complex/)
 [^nosurf-resources]: [Digital Minimalism Reading List --- r/NoSurf](https://www.reddit.com/r/nosurf/comments/p73msh/digital_minimalism_reading_list/)
@@ -195,30 +199,75 @@ _Disclaimer: I am not affiliated with any of the companies mentioned in this pos
 [^mudita-funding]: [Mudita new technology company co-founder of CD Projekt --- eurogamer.pl (archive)](https://archive.ph/4FODk)
 [^openai]: [Our structure --- OpenAI](https://openai.com/our-structure/)
 [^apps]: Digital control:
-    {{< app name="AppBlock" android="cz.mobilesoft.appblock" >}},
-    {{< app name="Freedom" android="to.freedom.android2" ios="freedom-screen-time-control/id1269788228" >}},
-    {{< app name="YourHour" android="com.mindefy.phoneaddiction.mobilepe" >}},
-    {{< app name="Digital Detox" android="com.urbandroid.ddc" >}},
-    {{< app name="StayFree" android="com.burockgames.timeclocker" >}},
-    {{< app name="Stay Focused" android="com.stayfocused" >}},
-    {{< app name="StayOff" android="com.app.floatingapptimer.com" >}},
-    {{< app name="ActionDash" android="com.actiondash.playstore" >}},
-    {{< app name="ClearSpace" ios="clearspace-reduce-screen-time/id1572515807" >}},
-    {{< app name="Refocus" ios="refocus-app-website-blocker/id1645639057" >}},
-    {{< app name="Opal" ios="opal-screen-time-for-focus/id1497465230" >}},
-    {{< app name="Jomo" ios="jomo-screen-time-blocker/id1609960918" >}},
-    {{< app name="SocialFocus: Hide Distractions" ios=socialfocus-hide-distractions/id1661093205" >}},
-    {{< app name="UnTrap for YouTube" ios="untrap-for-youtube/id1637438059" >}},
-    {{< app name="BB - Screen Time & App Blocker" ios="bb-screen-time-app-blocker/id6443657745" >}}
+    {% render "app"
+          name: "AppBlock"
+          android: "cz.mobilesoft.appblock" %},
+    {% render "app"
+          name: "Freedom"
+          android: "to.freedom.android2"
+          ios: "freedom-screen-time-control/id1269788228" %},
+    {% render "app"
+          name: "YourHour"
+          android: "com.mindefy.phoneaddiction.mobilepe" %},
+    {% render "app"
+          name: "Digital Detox"
+          android: "com.urbandroid.ddc" %},
+    {% render "app"
+          name: "StayFree"
+          android: "com.burockgames.timeclocker" %},
+    {% render "app"
+          name: "Stay Focused"
+          android: "com.stayfocused" %},
+    {% render "app"
+          name: "StayOff"
+          android: "com.app.floatingapptimer.com" %},
+    {% render "app"
+          name: "ActionDash"
+          android: "com.actiondash.playstore" %},
+    {% render "app"
+          name: "ClearSpace"
+          ios: "clearspace-reduce-screen-time/id1572515807" %},
+    {% render "app"
+          name: "Refocus"
+          ios: "refocus-app-website-blocker/id1645639057" %},
+    {% render "app"
+          name: "Opal"
+          ios: "opal-screen-time-for-focus/id1497465230" %},
+    {% render "app"
+          name: "Jomo"
+          ios: "jomo-screen-time-blocker/id1609960918" %},
+    {% render "app"
+          name: "SocialFocus: Hide Distractions"
+          ios: socialfocus-hide-distractions/id1661093205" %},
+    {% render "app"
+          name: "UnTrap for YouTube"
+          ios: "untrap-for-youtube/id1637438059" %},
+    {% render "app"
+          name: "BB - Screen Time & App Blocker"
+          ios: "bb-screen-time-app-blocker/id6443657745" %}
 [^launchers]: Launchers:
-    {{< app name="Olauncher" android="app.olauncher" >}},
-    {{< app name="minimalist phone" android="com.qqlabs.minimalistlauncher" >}},
-    {{< app name="Indistract" android="com.indistractablelauncher.android" >}},
-    {{< app name="Blank Spaces" ios="blank-spaces-app/id1570856853" >}}
+    {% render "app"
+          name: "Olauncher"
+          android: "app.olauncher" %},
+    {% render "app"
+          name: "minimalist phone"
+          android: "com.qqlabs.minimalistlauncher" %},
+    {% render "app"
+          name: "Indistract"
+          android: "com.indistractablelauncher.android" %},
+    {% render "app"
+          name: "Blank Spaces"
+          ios: "blank-spaces-app/id1570856853" %}
 [^timers]: Productivity timers:
-    {{< app name="Forest" android="cc.forestapp" >}},
-    {{< app name="Flora" ios="flora-green-focus/id1225155794" >}},
-    {{< app name="Plantie" ios="plantie-stay-focused/id1135988868" >}}
+    {% render "app"
+          name: "Forest"
+          android: "cc.forestapp" %},
+    {% render "app"
+          name: "Flora"
+          ios: "flora-green-focus/id1225155794" %},
+    {% render "app"
+          name: "Plantie"
+          ios: "plantie-stay-focused/id1135988868" %}
 [^daylight-zdnet]: [ Daylight debuts world's first 'blue-light-free computer' with a 120Hz LivePaper display --- ZDNET](https://www.zdnet.com/article/daylight-debuts-worlds-first-blue-light-free-computer-with-a-120hz-livepaper-display/) (_Note: Daylight uses a mix between conventional electrophoretic e-paper and LCD. It feels slightly less like paper, but still improves refresh rate._)
 [^eink-glider]: ["Open-source Eink monitor with an emphasis on low latency" --- GitHub Modos-Labs/Glider](https://github.com/Modos-Labs/Glider)
 [^grayscale-attention]: [Will turning your phone to greyscale really do wonders for your attention? --- The Guardian](https://www.theguardian.com/technology/2017/jun/20/turning-smartphone-greyscale-attention-distraction-colour)

@@ -1,0 +1,41 @@
+/* Custom CSS for the integrated GitHub comments on articles */
+#comments .gh-comment {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: 15px;
+}
+
+#comments .gh-header {
+  border-radius: var(--radius) var(--radius) 0 0;
+  display: flex;
+  align-items: center;
+  background-color: var(--code-bg);
+  padding: 10px;
+  font-size: 85%;
+}
+
+#comments .gh-body {
+  padding: 10px 15px;
+}
+#comments .gh-body > div.highlight > pre {
+  background: var(--code-bg);
+  padding: 10px 20px;
+  font-size: 90%;
+  border-radius: 5px;
+}
+
+#comments .gh-comment p {
+  margin: 0px 0px 10px 0px;
+}
+#comments .gh-comment p:last-child {
+  margin: 0;
+}
+
+#comments .gh-header > img {
+  width: 35px;
+  height: 35px;
+  border: 1px solid var(--border);
+  border-radius: var(--code-bg);
+  margin: 0 10px 0 0;
+  vertical-align: middle;
+}

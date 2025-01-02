@@ -14,6 +14,7 @@ to see all the comments in the articles.
 - [ ] Run `tools/clean-imports.py`
 - [ ] Create an issue in `nullderef-comments` for comments
 - [ ] Verify entry in homepage: preview text and image
+- [ ] Verify that post has Table of Contents and Subscribe prompt
 - [ ] Mark series as finished (optional)
 - [ ] Verify RSS email being automatically sent for subscribers
 - [ ] Share on social media (those listed in the homepage)

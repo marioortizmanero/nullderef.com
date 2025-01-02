@@ -1,10 +1,11 @@
 ---
 title: "How your phone affects you"
 description: "TODO"
-author: "Mario Ortiz Manero"
-images: ["TODO"]
+image: "/TODO.jpg"
+imageAlt: TODO
 tags: ["tech"]
-series: ["dont-use-this-phone"]
+keywords: [TODO]
+series: "dont-use-this-phone"
 date: 2024-06-01
 GHissueID: TODO
 draft: true

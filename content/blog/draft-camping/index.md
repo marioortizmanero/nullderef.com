@@ -1,9 +1,10 @@
 ---
 title: "Camping"
 description: "TODO"
-author: "Mario Ortiz Manero"
-images: ["TODO"]
+image: "/TODO.jpg"
+imageAlt: TODO
 tags: [TODO]
+keywords: [TODO]
 date: 2024-01-07
 GHissueID: TODO
 draft: true

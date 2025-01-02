@@ -1,9 +1,10 @@
 ---
 title: "The Endless Pursuit of Building Companies that Don't Suck"
 description: "My research on founding startups in a sustainable way, from all the possible perspectives."
-author: "Mario Ortiz Manero"
-images: ["TODO"]
+image: "/TODO.jpg"
+imageAlt: TODO
 tags: ["tech"]
+keywords: [TODO]
 date: 2024-01-07
 GHissueID: TODO
 draft: true

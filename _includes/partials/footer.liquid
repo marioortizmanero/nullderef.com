@@ -1,0 +1,20 @@
+<footer class="footer">
+  <span>See this site’s source code <a href="{{ metadata.github }}" rel="noopener noreferrer" target="_blank">on GitHub</a>, licensed under GPLv3. Powered by <a href="https://www.11ty.dev/" rel="noopener noreferrer" target="_blank">11ty</a></span>
+</footer>
+
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z" /></svg>
+</a>
+
+<script>
+  {% render "js/scrollToTop.js" %}
+</script>
+<script>
+  {% render "js/copyCode.js" %}
+</script>
+<script>
+  {% render "js/theme.js" %}
+</script>
+
+{%- block footer %}
+{%- endblock %}

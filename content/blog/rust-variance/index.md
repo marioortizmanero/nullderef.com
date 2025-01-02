@@ -1,21 +1,23 @@
 ---
 title: "Blindsided by Rust's Subtyping and Variance"
 description: "One of the toughest bugs I've come across... Thanks to my good friends Subtyping and Variance."
-author: "Mario Ortiz Manero"
-images: ["/blog/rust-variance/preview.jpg"]
-tags: ["tech", "programming", "rust", "open source"]
+image: "/blog/rust-variance/preview.jpg"
+imageAlt: "Preview image, with Ferris watering plants in a garden and a thief overlooking it from behind a fence"
+tags: ["tech", "programming", "rust", "open-source"]
 keywords: ["tech", "programming", "rust", "rustlang", "variance", "subtyping", "invariant", "covariant", "abi_stable", "ffi"]
-series: ["rust-plugins"]
+series: "rust-plugins"
 date: 2024-09-14
 GHissueID: 14
 ---
+
+[[toc]]
 
 _Subtyping and variance_ is a concept that works in the background, making your life easier without you knowing about it. That is, until it starts making your life harder instead. It's a good idea to know about it, in case you end up being a fool like me. So let's take a look at what went wrong, and how it was resolved.
 
 <a name="_the_problem"></a>
 ## The problem
 
-As part of my [Plugin System in Rust](https://nullderef.com/series/rust-plugins/) series, I was making one of [Tremor](https://www.tremor.rs/)'s types FFI-compatible. Put simply, instead of using types from the standard library like `String`, we wanted custom types defined [with `#[repr(C)]`](https://doc.rust-lang.org/nomicon/other-reprs.html#reprc). The crate {{< crate abi_stable >}} exists for this exact purpose, with an equivalent for the most important types. Theoretically, the task should be as easy as changing the `std` types in our core `enum` with theirs:
+As part of my [Plugin System in Rust](https://nullderef.com/series/rust-plugins/) series, I was making one of [Tremor](https://www.tremor.rs/)'s types FFI-compatible. Put simply, instead of using types from the standard library like `String`, we wanted custom types defined [with `#[repr(C)]`](https://doc.rust-lang.org/nomicon/other-reprs.html#reprc). The crate {% crate "abi_stable" %} exists for this exact purpose, with an equivalent for the most important types. Theoretically, the task should be as easy as changing the `std` types in our core `enum` with theirs:
 
 ```rust
 // Before (simplified)
@@ -64,7 +66,7 @@ fn cmp_rcow<'a, 'b>(left: &RCow<'a, ()>, right: &RCow<'b, ()>) -> bool {
 
 It failed to compile with the following error, which didn't help much. In Rust 1.62.0, they actually improved it to explain what's going on (shown at the end of the article):
 
-```text
+```plain
 $ cargo b
    Compiling repro v0.1.0 (/home/mario/Downloads/repro)
 error[E0623]: lifetime mismatch
@@ -109,7 +111,7 @@ where
 }
 ```
 
-There are more libraries providing drop-in replacements for `Cow`. And for example, {{< crate "beef" >}} managed to get it right, somehow. I wasn't able to reproduce the issue with their version... but why?
+There are more libraries providing drop-in replacements for `Cow`. And for example, {% crate "beef" %} managed to get it right, somehow. I wasn't able to reproduce the issue with their version... but why?
 
 ```rust
 impl<A, B, U, V> PartialOrd<beef::Cow<'_, B, V>> for beef::Cow<'_, A, U>
@@ -131,7 +133,7 @@ where
 
 Other traits like `PartialEq` also caused similar lifetime errors. I was able to fix some by introducing a new lifetime `'b` into the trait implementation. This indicated the Rust compiler that comparing objects with different lifetimes is okay:
 
-```diff
+```diff-rust
 -impl<'a, B> PartialEq<RCow<'a, B>> for RCow<'a, B>
 +impl<'a, 'b, B, C> PartialEq<RCow<'b, C>> for RCow<'a, B>
  where
@@ -190,7 +192,7 @@ A couple blog posts take a more practical approach, like ["Rust Lifetime Subtype
 
 The difference between `RCow` and `Cow` was the `BorrowOwned<'a>` trait. For technical reasons, it was being used as a [subtrait](https://doc.rust-lang.org/rust-by-example/trait/supertraits.html) of `ToOwned`, and it had to bind to a lifetime `'a`. Ultimately, this made `RCow` _invariant_ over `'a`, while `Cow` was _covariant_. We want `RCow` to be _covariant_ for this to work.
 
-```diff
+```diff-rust
  impl<B: ?Sized> Ord for Cow<'a, B>
  where
 -    B: Ord + ToOwned,  // in Cow
@@ -277,7 +279,7 @@ impl ToOwned for RStr {
 }
 ```
 
-So instead of establishing this relationship through a trait, we can introduce a new generic paramter `O`. `B` would be the borrowed type, and `O` the owned one. This is similar to what the {{< crate "cervine" >}} crate does, which relaxes the constraints of `Cow`:
+So instead of establishing this relationship through a trait, we can introduce a new generic paramter `O`. `B` would be the borrowed type, and `O` the owned one. This is similar to what the {% crate "cervine" %} crate does, which relaxes the constraints of `Cow`:
 
 ```rust
 // Before:
@@ -319,7 +321,7 @@ This showcased two gaps in the language:
 
 So it's amazing to hear that starting in Rust 1.62.0, you're even taken to the documentation. It will still be hard to understand the whole topic, but at least you know where to start!
 
-```text
+```plain
 error: lifetime may not live long enough
   --> src/main.rs:55:5
    |
@@ -339,5 +341,7 @@ error: lifetime may not live long enough
 I was lucky to have such a great team at Tremor, and an OSS maintainer as helpful as Rodri. You can find all the details of the discussion in the original GitHub issue:
 
 <p style="text-align:center;">
-  {{< gh issue "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" >}}
+  {% gh "issue" "rodrimati1992/abi_stable_crates" 75 "lifetimes with R* types break compared to non R* types" %}
 </p>
+
+{% render "partials/subscribe.liquid" metadata: metadata %}

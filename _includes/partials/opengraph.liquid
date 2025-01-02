@@ -1,0 +1,33 @@
+{%- if layout == "layouts/post.liquid" %}
+  <meta property="og:og_type" content="article">
+  <meta property="article:section" content="blog">
+  <meta property="article:author" content="{{ author | default: metadata.author.name }}">
+  <meta property="article:published_time" content="{{ date | iso8601Date }}">
+  <meta property="article:modified_time" content="{{ page.inputPath | lastModified | iso8601Date }}">
+
+  {%- if series %}
+    {%- assign postsInSeries = collections.posts | getPostsInSeries: series %}
+    {%- for post in postsInSeries %}
+      {%- if post.url != page.url %}
+        <meta property="og:see_also" content="{{ post.url | absUrl }}">
+      {%- endif %}
+    {%- endfor %}
+  {%- endif %}
+
+  {%- if tags %}
+    {%- for tag in tags %}
+      <meta property="article:tag" content="{{ tag }}">
+    {%- endfor %}
+  {%- endif %}
+{%- else %}
+  <meta property="og:og_type" content="website">
+{%- endif %}
+
+<meta property="og:url" content="{{ page.url | absUrl }}">
+<meta property="og:site_name" content="{{ metadata.title | escape }}">
+<meta property="og:title" content="{{ title | default: metadata.title | escape }}">
+{%- if image %}
+  <meta property="og:image" content="{{ image | absUrl }}">
+{%- endif %}
+<meta property="og:description" content="{{ description | default: metadata.description | markdownify | plainifyHtml | escape }}">
+<meta property="og:locale" content="{{ metadata.language }}">

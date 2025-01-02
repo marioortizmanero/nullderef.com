@@ -1,0 +1,85 @@
+{%- comment %}
+Metadata and optimizations
+{%- endcomment %}
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<meta name="generator" content="{{ eleventy.generator }}">
+<meta name="referrer" content="no-referrer-when-downgrade">
+<link rel="preload" href="/fonts/merriweather-regular-webfont.woff2" as="font" type="font/woff2" crossorigin>
+
+{%- comment %}
+RSS autodiscovery
+{%- endcomment %}
+<link rel="alternate" href="/index.xml" type="application/atom+xml" title="NullDeref">
+
+{%- comment %}
+Website information
+{%- endcomment %}
+<title>{{ title }}{% if page.url != "/" %} | NullDeref{% endif %}</title>
+<meta name="keywords" content="{{ keywords | default: metadata.keywords | join: "," }}">
+<meta name="description" content="{{ description | markdownify | plainifyHtml | escape }}">
+<meta name="author" content="{{ author | default: metadata.author.name }}">
+<link rel="canonical" href="{{ page.url | absUrl }}">
+
+{%- comment %}
+CSS style, which is bundled and minimized.
+{%- endcomment %}
+<style>
+{% render "css/common/theme-vars.css" %}
+{% render "css/common/reset.css" %}
+{% render "css/common/global.css" %}
+{% render "css/common/footer.css" %}
+{% render "css/common/header.css" %}
+{% render "css/common/post-entry.css" %}
+{% render "css/common/post-single.css" %}
+{% render "css/common/post-comments.css" %}
+{% render "css/common/fonts.css" %}
+{% render "css/common/shortcodes.css" %}
+{% render "css/common/theme-one-dark.css" %}
+
+{% render "css/home.css" %}
+{% render "css/about.css" %}
+{% render "css/404.css" %}
+{% render "css/search.css" %}
+</style>
+
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+
+<noscript>
+  <style>
+    {% render "css/common/noscript.css" %}
+  </style>
+</noscript>
+
+{%- if env.ELEVENTY_RUN_MODE == "build" %}
+  {% render "partials/google_analytics.liquid" metadata: metadata %}
+{%- endif %}
+{% render "partials/opengraph.liquid"
+    author: author
+    collections: collections
+    date: date
+    description: description
+    image: image
+    layout: layout
+    metadata: metadata
+    page: page
+    series: series
+    tags: tags
+    title: title %}
+{% render "partials/twitter_cards.liquid"
+    description: description
+    image: image
+    imageAlt: imageAlt
+    metadata: metadata
+    title: title %}
+
+{%- block head %}
+{%- endblock %}

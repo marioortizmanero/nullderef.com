@@ -1,0 +1,46 @@
+---js
+const pagination = {
+  data: "collections.tags",
+  size: 1,
+  alias: "tag",
+};
+const eleventyExcludeFromCollections = true;
+const eleventyComputed = {
+  title: "Tagged #{{ tag.name }}",
+  layout: "layouts/base.liquid",
+  description: "All posts with the tag {{ tag.name }}",
+  permalink: function(data) {
+    return `/tags/{{ tag.name }}/`;
+  }
+};
+---
+
+<header class="post-header">
+  <h1 class="page-title">{{ title }}</h1>
+</header>
+
+{%- if collections[tag.name].length == 0 %}
+  {{ "No posts for tag: " | append: tag | raiseError }}
+{%- endif %}
+
+{%- for post in collections[tag.name] reversed %}
+<article class="post-entry">
+  <figure class="entry-preview">
+    <img loading="lazy" src="{{ post.data.image }}" alt="{{ post.data.imageAlt | escape }}" eleventy:widths="300">
+  </figure>
+  <div class="entry-group">
+    <header class="entry-header">
+      <h2>
+        {{ post.data.title }}{% if post.data.draft %}<i> (draft)</i>{% endif %}
+      </h2>
+    </header>
+    <div class="entry-content">
+      <p>{{ post.content | plainifyHtml | escapeHtmlTags | truncate: 250 }}</p>
+    </div>
+    <footer class="entry-footer">
+      <time datetime="{{ post.data.date }}">{{ post.data.date | readableDateShort }}</time>
+    </footer>
+    <a class="entry-link" aria-label="post link to: {{ post.data.title | escape }}" href="{{ post.url }}"></a>
+  </div>
+</article>
+{%- endfor %}

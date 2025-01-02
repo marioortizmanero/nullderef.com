@@ -1,7 +1,0 @@
-{{- $name := .Get 0 }}
-{{- $match := index (where $.Site.Params.socialIcons "name" $name) 0 }}
-{{- if eq $match nil }}
-  {{- errorf "Couldn't find social media with name `%s` (try with another casing)" $name }}
-{{- end -}}
-
-<a target="_blank" rel="noopener noreferrer" href={{ $match.url }}>{{ $name }}</a>{{- print "" -}}

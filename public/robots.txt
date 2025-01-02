@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://nullderef.com/sitemap.xml

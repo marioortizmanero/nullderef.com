@@ -1,2 +1,4 @@
-/public
-/.hugo_build.lock
+_site/
+node_modules/
+package-lock.json
+.cache

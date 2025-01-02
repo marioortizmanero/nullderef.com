@@ -1,24 +1,33 @@
 ---
 title: "Aroa, I wish I could tell you how damn awesome you are"
-author: "Mario Ortiz Manero"
-images: ["TODO"]
+description: TODO
+image: "/TODO.jpg"
+imageAlt: TODO
 tags: [TODO]
+keywords: [TODO]
 date: 2024-01-14
 GHissueID: TODO
 draft: true
 ---
 
-<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
-{{< viz3d-setup >}}
+TODO: Poner notice de "puede herir la sensibilidad"
+
+{%- block head %}
+  {{ super }}
+  <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+{%- endblock %}
+
+[[toc]]
 
 Today, I want to convince you of how admirable my sister, Aroa, was. We lost her in November 2023, so I wanted to condense her essence into a single post and talk about mental health.
 
 <!-- TODO: try to not make the width 100% because it makes it hard to scroll. Or not the full height of the phone's screen, so that there are gaps at the top and bottom. -->
-{{< viz3d
-      src="/blog/draft-aroa/art/3d/test.glb"
-      poster="/blog/draft-aroa/art/3d/test-poster.webp"
-      alt="Test file"
->}}
+{% render "viz3d.liquid",
+      src: "/blog/draft-aroa/art/3d/test.glb",
+      poster: "/blog/draft-aroa/art/3d/test-poster.webp",
+      alt: "Test file"
+%}
 
 TODO: Mention astroboots / big red boots?
 
@@ -123,6 +132,8 @@ Aroa showed me that people are much more than their career; you also need to fin
 
 TODO: picture
 
+TODO: more stuff she did was karate, taekwondo, guitarra, bajo, baile, baloncesto, *won a baking competition*, did an ad for Aragon TV skating, she has a song to her name ("Aroa's world", "Los mundos de Aroa", it's on Spotify)
+
 When she was younger, Aroa got into anime and League of Legends, and dyed her hair blue. The pictures are hilarious --- she'd kill me for writing this. Then, she learned to skate and later on how to kick ass in a boxing ring. All her life experiences brought her countless friends that loved her to no end. She even participated in First Dates on her birthday, but that's a (very funny) story for another time.
 
 TODO: picture boxing
@@ -149,7 +160,7 @@ Being stuck for 4 hours in a flight, I thought of all the things that can be tho
 
 After reuniting with my family, I couldn't comprehend what had happened. What was obvious is how completely broken everyone was. Instinctively, I worried more for others than for myself at the beginning. This took time, but I've gotten better at it.
 
-A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive: I got ill, and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My brain was ready to swim for kilometers, but frustratingly, my body refused.
+A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive: I got ill, and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My mind wanted to swim for kilometers, but frustratingly, my body refused.
 
 It's gotten much better through therapy, loved ones, and time. There are still crappy moments, and the story is ongoing. But I try to have a Stoic and positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
 

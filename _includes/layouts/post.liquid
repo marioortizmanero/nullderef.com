@@ -1,0 +1,68 @@
+---
+layout: layouts/base.liquid
+---
+
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">
+      {{ title }}{% if draft %}<i> (draft)</i>{% endif %}
+    </h1>
+    <div class="post-meta">
+      <time datetime="{{ date }}">{{ date | readableDateLong }}</time>
+      &nbsp;·&nbsp;
+      <a href="/about">{{ author | default: metadata.author.name }}</a>
+      {%- if series %}
+        &nbsp;·&nbsp;
+        {%- assign seriesData = collections.series | getSeries: series %}
+        From the series “<a href="{{ seriesData.url }}">{{ seriesData.data.title }}</a>”
+      {%- endif %}
+    </div>
+  </header>
+
+  {%- if content %}
+  <div class="post-content">
+    {{ content }}
+  </div>
+  {%- endif %}
+
+  <hr class="post-footer-separator">
+
+  <footer class="post-footer">
+    {% render "partials/post_nav_links.liquid"
+        collections: collections
+        page: page
+        series: series
+        tags: tags %}
+
+    {%- if GHissueID %}
+      {% render "partials/comments.liquid" GHissueID: GHissueID %}
+    {%- endif %}
+  </footer>
+
+  {%- if hasMath %}
+    {% render "partials/math_support.liquid" %}
+  {%- endif %}
+</article>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "name": "{{ title | escape }}",
+  "image": "{{ image | absUrl }}",
+  "author": "{{ author | default: metadata.author.name }}",
+  "url": "{{ page.url }}",
+  "datePublished": "{{ date | iso8601Date }}",
+  "dateModified": "{{ page.inputPath | lastModified | iso8601Date }}",
+  "mainEntityOfPage": "{{ page.url }}",
+  "description": "{{ description | markdownify | plainifyHtml | escape }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ metadata.title }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ 'favicon.ico' | absUrl }}"
+    }
+  },
+}
+</script>
