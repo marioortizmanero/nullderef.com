@@ -27,7 +27,7 @@
 <meta property="og:site_name" content="{{ metadata.title | escape }}">
 <meta property="og:title" content="{{ title | default: metadata.title | escape }}">
 {%- if image %}
-<meta property="og:image" content="{{ image | absUrl }}">
+  <meta property="og:image" content="{{ image | absUrl }}">
 {%- endif %}
 <meta property="og:description" content="{{ description | default: metadata.description | markdownify | plainifyHtml | escape }}">
 <meta property="og:locale" content="{{ metadata.language }}">

@@ -12,7 +12,7 @@ description: "all the series in the site"
   {%- assign lastPost = postsInSeries | first %}
   <article class="post-entry">
     <figure class="entry-preview">
-        <img loading="lazy" src="{{ firstPost.data.image }}" alt="{{ firstPost.data.imageAlt | escape }}" eleventy:widths="300">
+      <img loading="lazy" src="{{ firstPost.data.image }}" alt="{{ firstPost.data.imageAlt | escape }}" eleventy:widths="300">
     </figure>
     <div class="entry-group">
       <header class="entry-header">
