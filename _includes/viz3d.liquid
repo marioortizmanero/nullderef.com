@@ -1,4 +1,4 @@
-{% comment %}
+{%- comment %}
 NOTE: using this shortcode requires calling `viz3d-setup` once beforehand.
 
 TODO: experiment with
@@ -12,7 +12,7 @@ TODO: set width that works for both 3D version and noscript, and mobile & pc
 TODO: try to optimize the image sizes through different formats
 The poster can be generated with the following:
   https://modelviewer.dev/editor/
-{% endcomment %}
+{%- endcomment %}
 
 <p>
   <model-viewer class="viz-3d" alt="{{ alt | escape }}" src="{{ src }}" ar poster="{{ poster }}" shadow-intensity="1" camera-controls></model-viewer>

@@ -4,16 +4,16 @@ description: Look for articles and browse popular tags.
 layout: layouts/base.liquid
 ---
 
-{% block head %}
+{%- block head %}
 <link crossorigin="anonymous" rel="preload" as="fetch" href="/index.json">
 <script defer crossorigin="anonymous" src="/js/fuse.js"></script>
-{% endblock %}
+{%- endblock %}
 
-{% block footer %}
+{%- block footer %}
 <script>
 {% render "js/search.js" %}
 </script>
-{% endblock %}
+{%- endblock %}
 
 <header class="page-header">
     <h1>{{ title }}&nbsp;<svg
@@ -36,10 +36,10 @@ layout: layouts/base.liquid
 </header>
 
 <ul class="terms-tags">
-    {% assign tags = collections | getTags %}
-    {% for tag in tags %}
+    {%- assign tags = collections | getTags %}
+    {%- for tag in tags %}
     <li>
           <a href="/tags/{{ tag.name }}">#{{ tag.name }} <sup><strong><sup>{{ tag.count }}</sup></strong></sup> </a>
     </li>
-    {% endfor %}
+    {%- endfor %}
 </ul>

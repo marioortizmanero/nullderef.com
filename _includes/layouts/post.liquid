@@ -11,19 +11,19 @@ layout: layouts/base.liquid
       <time datetime="{{ date }}">{{ date | readableDateLong }}</time>
       &nbsp;·&nbsp;
       <a href="/about">{{ author | default: metadata.author.name }}</a>
-      {% if series %}
+      {%- if series %}
         &nbsp;·&nbsp;
-        {% assign seriesData = collections.series | getSeries: series %}
+        {%- assign seriesData = collections.series | getSeries: series %}
         From the series <a href="/series/{{ seriesData }}">“{{ seriesData.data.title }}”</a>
-      {% endif %}
+      {%- endif %}
     </div>
   </header>
 
-  {% if content %}
+  {%- if content %}
   <div class="post-content">
     {{ content }}
   </div>
-  {% endif %}
+  {%- endif %}
 
   <hr class="post-footer-separator">
 
@@ -34,14 +34,14 @@ layout: layouts/base.liquid
         series: series
         tags: tags %}
 
-    {% if GHissueID %}
+    {%- if GHissueID %}
       {% render "partials/comments.liquid" GHissueID: GHissueID %}
-    {% endif %}
+    {%- endif %}
   </footer>
 
-  {% if hasMath %}
+  {%- if hasMath %}
     {% render "partials/math_support.liquid" %}
-  {% endif %}
+  {%- endif %}
 </article>
 
 <script type="application/ld+json">

@@ -6,10 +6,10 @@ description: "all the series in the site"
 
 <header class="page-header"><h1>{{ title }}</h1></header>
 
-{% for series in collections.series %}
-  {% assign postsInSeries = collections.posts | getPostsInSeries: series.data.name %}
-  {% assign firstPost = postsInSeries | last %}
-  {% assign lastPost = postsInSeries | first %}
+{%- for series in collections.series %}
+  {%- assign postsInSeries = collections.posts | getPostsInSeries: series.data.name %}
+  {%- assign firstPost = postsInSeries | last %}
+  {%- assign lastPost = postsInSeries | first %}
   <article class="post-entry">
     <figure class="entry-preview">
         <img loading="lazy" src="{{ firstPost.data.image }}" alt="{{ firstPost.data.imageAlt | escape }}" eleventy:widths="300">
@@ -27,12 +27,12 @@ description: "all the series in the site"
         {{ postsInSeries.length }} posts
         &nbsp;·&nbsp;
         <time datetime="{{ firstPost.data.date }}">{{ firstPost.data.date | readableDateShort }}</time>
-        {% if firstPost != lastPost %}
+        {%- if firstPost != lastPost -%}
         –
         <time datetime="{{ lastPost.data.date }}">{{ lastPost.data.date | readableDateShort }}</time>
-        {% endif %}
+        {%- endif %}
       </footer>
       <a class="entry-link" aria-label="series link to: {{ series.data.title }}" href="{{ series.url }}"></a>
     </div>
   </article>
-{% endfor %}
+{%- endfor %}

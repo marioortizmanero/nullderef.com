@@ -29,9 +29,9 @@ socials:
     </div>
 
     <div class="projects">
-      {% for project in metadata.author.projects %}
+      {%- for project in metadata.author.projects %}
         {% render "partials/project.liquid" project: project %}
-      {% endfor %}
+      {%- endfor %}
     </div>
 
     <p>
@@ -39,10 +39,10 @@ socials:
     </p>
 
     <p style="text-align: center;">
-    {% for social in socials %}
+    {%- for social in socials -%}
       <a href="{{ metadata.author.social[social] }}" target="_blank" rel="noopener noreferrer me">{{ social }}</a>
-      {% unless forloop.last %} · {% endunless %}
-    {% endfor %}
+      {%- unless forloop.last %} · {% endunless -%}
+    {%- endfor -%}
     </p>
 
     <i>
@@ -63,9 +63,9 @@ socials:
     <p>Here are some people that inspire me:</p>
 
     <ul>
-      {% for blog in metadata.relatedBlogs %}
+      {%- for blog in metadata.relatedBlogs %}
         <li><p><a href="{{ blog.url }}" target="_blank" rel="noopener noreferrer me"><strong>{{ blog.name }}</strong></a>: {{ blog.description }}</p></li>
-      {% endfor %}
+      {%- endfor %}
     </ul>
   </div>
 

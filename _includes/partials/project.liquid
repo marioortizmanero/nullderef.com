@@ -10,9 +10,9 @@
     <p>{{ project.description }}</p>
   </div>
 
-  {% if project.nullderef_series %}
+  {%- if project.nullderef_series %}
   <div class="project-links">
     <i><a href="/series/{{ project.nullderef_series }}" target="_blank" rel="noopener noreferrer me">Read its series on NullDeref</a></i>
   </div>
-  {% endif %}
+  {%- endif %}
 </div>

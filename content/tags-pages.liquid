@@ -16,13 +16,13 @@ const eleventyComputed = {
 };
 ---
 
-{% assign data = collections[tag] %}
+{%- assign data = collections[tag] -%}
 
 <header class="page-header">
   <h1>{{ title }}</h1>
 </header>
 
-{% for post in collections[tag] reversed %}
+{%- for post in collections[tag] reversed %}
 <article class="post-entry">
   <figure class="entry-preview">
       <img loading="lazy" src="{{ post.data.image }}" alt="{{ post.data.imageAlt | escape }}" eleventy:widths="300">
@@ -42,4 +42,4 @@ const eleventyComputed = {
     <a class="entry-link" aria-label="post link to: {{ post.data.title | escape }}" href="{{ post.url }}"></a>
   </div>
 </article>
-{% endfor %}
+{%- endfor %}

@@ -5,7 +5,7 @@ permalink: /index.json
 layout: false
 ---
 [
-  {% for post in collections.posts %}
+  {%- for post in collections.posts %}
   {
     "title": {{ post.data.title | default: "" | json }},
     "content": {{ post.content | plainifyHtml | default: "" | json }},
@@ -13,6 +13,6 @@ layout: false
     "keywords": {{ post.data.keywords | join: " " | default: "" | json }},
     "tags": {{ post.data.tags | join: " " | default: "" | json }},
     "permalink": "{{ post.url }}"
-  }{% if forloop.last == false %},{% endif %}
-  {% endfor %}
+  }{% unless forloop.last %},{% endunless %}
+  {%- endfor %}
 ]

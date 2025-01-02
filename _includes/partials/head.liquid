@@ -1,6 +1,6 @@
-{% comment %}
+{%- comment %}
 Metadata and optimizations
-{% endcomment %}
+{%- endcomment %}
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -9,23 +9,23 @@ Metadata and optimizations
 <meta name="referrer" content="no-referrer-when-downgrade">
 <link rel="preload" href="/fonts/merriweather-regular-webfont.woff2" as="font" type="font/woff2" crossorigin>
 
-{% comment %}
+{%- comment %}
 RSS autodiscovery
-{% endcomment %}
+{%- endcomment %}
 <link rel="alternate" href="/index.xml" type="application/atom+xml" title="NullDeref">
 
-{% comment %}
+{%- comment %}
 Website information
-{% endcomment %}
+{%- endcomment %}
 <title>{{ title }}{% if page.url != "/" %} | NullDeref{% endif %}</title>
 <meta name="keywords" content="{{ keywords | default: metadata.keywords | join: "," }}">
 <meta name="description" content="{{ description | markdownify | plainifyHtml | escape }}">
 <meta name="author" content="{{ author | default: metadata.author.name }}">
 <link rel="canonical" href="{{ page.url | absUrl }}">
 
-{% comment %}
+{%- comment %}
 CSS style, which is bundled and minimized.
-{% endcomment %}
+{%- endcomment %}
 <style>
 {% render "css/common/theme-vars.css" %}
 {% render "css/common/reset.css" %}
@@ -59,9 +59,9 @@ CSS style, which is bundled and minimized.
   </style>
 </noscript>
 
-{% if env.ELEVENTY_RUN_MODE == "build" %}
+{%- if env.ELEVENTY_RUN_MODE == "build" %}
   {% render "partials/google_analytics.liquid" metadata: metadata %}
-{% endif %}
+{%- endif %}
 {% render "partials/opengraph.liquid"
     author: author
     collections: collections
@@ -81,5 +81,5 @@ CSS style, which is bundled and minimized.
     metadata: metadata
     title: title %}
 
-{% block head %}
-{% endblock %}
+{%- block head %}
+{%- endblock %}

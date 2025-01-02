@@ -12,11 +12,11 @@ draft: true
 
 TODO: Poner notice de "puede herir la sensibilidad"
 
-{% block head %}
+{%- block head %}
   {{ super }}
   <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
-{% endblock %}
+{%- endblock %}
 
 [[toc]]
 

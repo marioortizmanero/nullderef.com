@@ -10,20 +10,20 @@ layout: layouts/base.liquid
   </p>
 
   <p class="post-description post-content">
-  {% if isFinished %}
+  {%- if isFinished %}
     <i>This series is currently finished.</i>
-  {% else %}
+  {%- else %}
     <i>I'm still writing this series. <a href="/subscribe">Subscribe</a> to keep up to date!</i>
-  {% endif %}
+  {%- endif %}
   </p>
 </header>
 
-{% assign postsInSeries = collections.posts | getPostsInSeries: name %}
-{% if postsInSeries.length == 0 %}
+{%- assign postsInSeries = collections.posts | getPostsInSeries: name %}
+{%- if postsInSeries.length == 0 %}
   {{ "No posts for series: " | append: name | raiseError }}
-{% endif %}
+{%- endif %}
 
-{% for post in postsInSeries %}
+{%- for post in postsInSeries %}
 <article class="post-entry">
   <figure class="entry-preview">
       <img loading="lazy" src="{{ post.data.image }}" alt="{{ post.data.imageAlt | escape }}">
@@ -44,4 +44,4 @@ layout: layouts/base.liquid
     <a class="entry-link" aria-label="post link to: {{ post.data.title | escape }}" href="{{ post.url }}"></a>
   </div>
 </article>
-{% endfor %}
+{%- endfor %}
