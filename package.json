@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "npx @11ty/eleventy",
-    "build-ghpages": "npx @11ty/eleventy --pathprefix=/eleventy-base-blog/",
+    "build-ghpages": "npx @11ty/eleventy",
     "start": "npx @11ty/eleventy --serve --quiet"
   },
   "repository": {
