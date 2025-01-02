@@ -2,6 +2,11 @@
 {% render "js/githubComments.js" %}
 </script>
 
+{%- comment %}
+Comments are built using the GitHub API and a custom script. A perhaps more
+robust alternative would be https://giscus.app/, but this works just fine for my
+usage, too.
+{%- endcomment %}
 <h2 id="comments-header">No comments yet</h2>
 <p id="comments" gh-issue="{{ GHissueID }}">
   Leave a comment for this article <a href="https://github.com/marioortizmanero/nullderef.com-comments/issues/{{ GHissueID }}" target="_blank" rel="noopener noreferrer me">on GitHub</a>!
