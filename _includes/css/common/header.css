@@ -59,10 +59,13 @@ body:not(.dark) #sun {
 #menu li + li {
     margin-inline-start: var(--gap);
 }
-#menu a {
+#menu a span {
     font-size: 16px;
+    box-shadow: 0 1px 0;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
 }
-#menu .active {
-    font-weight: 500;
+#menu [aria-current="page"] {
+    font-weight: bold;
     border-bottom: 2px solid currentColor;
 }

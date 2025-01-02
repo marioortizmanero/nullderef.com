@@ -26,22 +26,20 @@
             </div>
         </div>
 
-        {% comment %} TODO: remove this comment {% endcomment %}
-        {% comment %} TODO: consider using CSS for `aria-current="page"` instead of having a custom class {% endcomment %}
         <ul id="menu">
             <li>
                 <a href="/about" title="About">
-                    <span {% if page.url == "/about/" %} aria-current="page" class="active" {% endif %}>About</span>
+                    <span {% if page.fileSlug == "about" %} aria-current="page" {% endif %}>About</span>
                 </a>
             </li>
             <li>
                 <a href="/series" title="Series">
-                    <span {% if page.url == "/series/" %} aria-current="page" class="active" {% endif %}>Series</span>
+                    <span {% if page.fileSlug == "series" %} aria-current="page" {% endif %}>Series</span>
                 </a>
             </li>
             <li>
                 <a href="/search" title="Search (Alt + /)" accesskey="/">
-                    <span {% if page.url == "/search/" %} aria-current="page" class="active" {% endif %}>Search</span>
+                    <span {% if page.fileSlug == "search" %} aria-current="page" {% endif %}>Search</span>
                 </a>
             </li>
             <li>

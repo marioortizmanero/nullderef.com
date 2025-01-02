@@ -33,7 +33,6 @@
 .entry-footer time,
 .entry-footer a {
     font-style: italic;
-    color: var(--primary);
     font-size: 13px;
 }
 

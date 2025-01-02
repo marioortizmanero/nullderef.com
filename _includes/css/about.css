@@ -20,7 +20,7 @@
 }
 .projects p,
 .projects h3,
-.project-links div,
+.project-links,
 .project-footer {
   text-align: center;
   hyphens: none;

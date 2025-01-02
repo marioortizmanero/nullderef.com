@@ -42,7 +42,7 @@ export default function(eleventyConfig) {
 		return Object.keys(tags)
       .filter(tag => !["all", "posts", "series"].includes(tag))
       .map(tag => ({ name: tag, count: tags[tag].length }))
-      .toSorted((a, b) => b.count - a.count);
+      .sort((t1, t2) => t2.count - t1.count);  // Descending
 	});
 
 	eleventyConfig.addFilter("getTagsInPost", (tags) => {
@@ -54,11 +54,15 @@ export default function(eleventyConfig) {
 	});
 
 	eleventyConfig.addFilter("getPostsInSeries", (posts, seriesName) => {
-    return posts.filter(s => s.data.series === seriesName);
+    return posts
+      .filter(s => s.data.series === seriesName)
+      .sort((p1, p2) => p1.data.date - p2.data.date);  // Ascending
 	});
 
   eleventyConfig.addFilter("recentPosts", function (posts) {
-    return posts.reverse().filter(p => p.url !== this.page.url).slice(0, 5);
+    return posts
+      .filter(p => p.url !== this.page.url).slice(0, 5)
+      .sort((p1, p2) => p2.data.date - p1.data.date);  // Descending
   });
 
 	eleventyConfig.addFilter("assertLengthUnder", (str, maxLength) => {
