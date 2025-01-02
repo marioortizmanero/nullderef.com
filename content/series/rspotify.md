@@ -4,5 +4,3 @@ description: "I sharpened my Rust skills by maintaining [RSpotify](https://githu
 isFinished: true
 keywords: ["tech", "programming", "rust", "rustlang", "spotify", "rspotify", "open source", "contributor", "web api", "rest", "client"]
 ---
-
-TODO: maybe assume that descriptions don't have Markdown. Instead, keep the description short and write something richer here.
