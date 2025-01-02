@@ -570,6 +570,6 @@ Thanks to the Tremor team, I was also able to presentially attend [KubeCon + Clo
 
 Paella! [From my LinkedIn profile](https://www.linkedin.com/feed/update/urn:li:share:6934450596049539072):
 
-<img src="/blog/plugin-end/paella.jpg" width="50%" alt="Paella at KubeCon">
+<img src="/blog/plugin-end/paella.jpg" eleventy:widths="500" alt="Paella at KubeCon">
 
 {% render "partials/subscribe.liquid" metadata: metadata %}
