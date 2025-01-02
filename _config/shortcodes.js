@@ -19,7 +19,6 @@ export default function(eleventyConfig) {
   eleventyConfig.addShortcode("gh", function(type, repo, reference, title) {
     let url_type = "";
     let icon = "";
-    let comment = "";
 
     if (type === "issue") {
       url_type = "issues";
@@ -27,20 +26,25 @@ export default function(eleventyConfig) {
     } else if (type === "issue-comment") {
       url_type = "issues";
       icon = GH_ICON_COMMENT;
-      comment = " <i>(comment)</i>";
     } else if (type === "pr") {
       url_type = "pull";
       icon = GH_ICON_PR;
     } else if (type === "pr-comment") {
       url_type = "pull";
       icon = GH_ICON_COMMENT;
-      comment = " <i>(comment)</i>";
     } else {
       throw new Error(`Invalid type (expected issue, issue-comment, pr, pr-comment): ${type}`);
     }
 
     let titleHtml = markdownIt.renderInline(title);
 
-    return `<span class="gh-reference">${icon}<a class="gh-title" href="https://github.com/${repo}/${url_type}/${reference}" style="text-decoration: none;">${titleHtml} <span class="gh-number">${repo}#${reference.toString().split('#')[0]}${comment}</span></a></span>`
+    return (
+      '<span class="gh-reference">'
+        + `${icon}&nbsp;`
+        + `<a class="gh-title" href="https://github.com/${repo}/${url_type}/${reference}">`
+          + `${titleHtml} <span class="gh-number">${repo}#${reference.toString().split('#')[0]}</span>`
+        + '</a>'
+      + '</span>'
+    );
   });
 };

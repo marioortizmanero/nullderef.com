@@ -14,8 +14,7 @@ description: Standard XML file for web crawlers
       </url>
     {%- endunless %}
   {%- endfor %}
-  {%- assign tags = collections | getTags %}
-  {%- for tag in tags %}
+  {%- for tag in collections.tags %}
     <url>
       <loc>{{ '/tags/' | append: tag.name | absUrl }}</loc>
       <lastmod>{{ tag.lastModified | iso8601Date }}</lastmod>

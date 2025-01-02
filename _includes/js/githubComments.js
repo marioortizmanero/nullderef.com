@@ -64,7 +64,6 @@ function loadComments(commentsDiv) {
       let commentContent = document.createElement("div");
 
       commentContent.setAttribute('class', 'gh-comment')
-      console.log(comment.user);
       commentContent.innerHTML = "".concat(
           "<div class='gh-header'>",
             "<img loading='lazy' alt='avatar of ", comment.user.login ,"' src='", comment.user.avatar_url, "' />",

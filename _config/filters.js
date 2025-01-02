@@ -39,20 +39,6 @@ export default function(eleventyConfig) {
     return stats.mtime;
   });
 
-  eleventyConfig.addFilter("getTags", (tags) => {
-    return Object.keys(tags)
-      .filter(tag => !["all", "posts", "series"].includes(tag))
-      .map(tag => ({
-          name: tag,
-          count: tags[tag].length,
-          lastModified: new Date(Math.max(
-            ...tags[tag].map(post => fs.statSync(post.inputPath).mtime)
-          ))
-      }))
-      .filter(tag => tag.count > 0)
-      .sort((t1, t2) => t2.count - t1.count);  // Descending
-  });
-
   eleventyConfig.addFilter("getTagsInPost", (tags) => {
     return tags.filter(tag => tag !== "posts");
   });

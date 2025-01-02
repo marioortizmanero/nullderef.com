@@ -5,7 +5,7 @@ export default {
   tags: [
     "posts",
   ],
-	layout: "layouts/post.liquid",
+  layout: "layouts/post.liquid",
   eleventyDataSchema: function(data) {
     let result = z.object({
       title: z.string(),

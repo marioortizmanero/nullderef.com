@@ -26,9 +26,7 @@
 .social-icons .subscribe-word {
   padding: 0px;
   font-weight: bold;
-  box-shadow: 0 1px 0;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+  text-decoration: underline;
   font-size: 17px;
 }
 .social-icons a {

@@ -4,7 +4,9 @@ layout: layouts/base.liquid
 description: "all the series in the site"
 ---
 
-<header class="page-header"><h1>{{ title }}</h1></header>
+<header class="post-header">
+  <h1 class="post-title">{{ title }}</h1>
+</header>
 
 {%- for series in collections.series %}
   {%- assign postsInSeries = collections.posts | getPostsInSeries: series.data.name %}

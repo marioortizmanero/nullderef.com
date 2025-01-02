@@ -14,7 +14,7 @@ layout: layouts/base.liquid
       {%- if series %}
         &nbsp;·&nbsp;
         {%- assign seriesData = collections.series | getSeries: series %}
-        From the series <a href="{{ seriesData.url }}">“{{ seriesData.data.title }}”</a>
+        From the series “<a href="{{ seriesData.url }}">{{ seriesData.data.title }}</a>”
       {%- endif %}
     </div>
   </header>

@@ -1,5 +1,5 @@
 import { minify } from "html-minifier-terser";
-import * as cheerio from 'cheerio';
+import memoize from "memoize";
 
 export default function(eleventyConfig) {
   // `text` code blocks won't have their HTML escaped, which can result in
@@ -17,12 +17,12 @@ export default function(eleventyConfig) {
     return content;
   });
 
-  eleventyConfig.addTransform("htmlmin", async (content, outputPath) => {
+  eleventyConfig.addTransform("htmlmin", memoize(async (content, outputPath) => {
     if (!outputPath || !outputPath.endsWith(".html")) {
       return content;
     }
 
-    const minified = await minify(content, {
+    return await minify(content, {
       removeComments: true,
       // Markdown rendering results in HTML such as:
       //   <a href="...">hey</a> there
@@ -39,7 +39,6 @@ export default function(eleventyConfig) {
         /<code[\s\S]*?>[\s\S]*?<\/code>/g,
       ],
     });
-    return minified;
-  });
+  }));
 };
 

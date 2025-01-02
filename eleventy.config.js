@@ -10,6 +10,7 @@ import markdownItToc from "markdown-it-table-of-contents";
 import pluginFilters from "./_config/filters.js";
 import pluginShortcodes from "./_config/shortcodes.js";
 import pluginTransforms from "./_config/transforms.js";
+import pluginCollections from "./_config/collections.js";
 import metadata from "./_data/metadata.js";
 
 export default async function(eleventyConfig) {
@@ -31,7 +32,6 @@ export default async function(eleventyConfig) {
   // We need to manually watch the images due to the processing pipeline.
   eleventyConfig.addWatchTarget("content/**/*.{svg,webp,png,jpeg,avif,webp}");
 
-  // Official plugins
   eleventyConfig.addPlugin(pluginSyntaxHighlight, {
     errorOnInvalidLanguage: true,
   });
@@ -68,10 +68,11 @@ export default async function(eleventyConfig) {
     }
   });
 
-  // Custom filters and shortcodes
+  // Custom plugins
   eleventyConfig.addPlugin(pluginFilters);
   eleventyConfig.addPlugin(pluginShortcodes);
   eleventyConfig.addPlugin(pluginTransforms);
+  eleventyConfig.addPlugin(pluginCollections);
 
   const markdown = markdownIt({
       html: true,  // Embedding raw HTML

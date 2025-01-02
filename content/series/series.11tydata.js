@@ -5,7 +5,7 @@ export default {
   tags: [
     "series",
   ],
-	layout: "layouts/series.liquid",
+  layout: "layouts/series.liquid",
   eleventyDataSchema: function(data) {
     let result = z.object({
       title: z.string(),
@@ -18,8 +18,8 @@ export default {
       throw fromZodError(result.error);
     }
   },
-	eleventyComputed: {
-		name: (data) => data.page.url.split("/")[2],
-	},
+  eleventyComputed: {
+    name: (data) => data.page.url.split("/")[2],
+  },
 };
 

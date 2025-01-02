@@ -15,30 +15,28 @@ layout: layouts/base.liquid
 </script>
 {%- endblock %}
 
-<header class="page-header">
-    <h1>{{ title }}&nbsp;<svg
-      xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="11" cy="11" r="8"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+<article class="post-single">
+  <header class="post-header">
+    <h1 class="post-title">
+      {{ title }}&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
     </h1>
-</header>
+  </header>
 
-<div id="searchbox">
-  <input id="searchInput" autofocus placeholder="Search ↵"
-    aria-label="search" type="search" autocomplete="off" maxlength="64">
-  <ul id="searchResults" aria-label="search results"></ul>
-</div>
+  <div class="post-content">
+    <div id="searchbox">
+      <input id="searchInput" autofocus placeholder="Search ↵"
+        aria-label="search" type="search" autocomplete="off" maxlength="64">
+      <ul id="searchResults" aria-label="search results"></ul>
+    </div>
 
-<header class="page-header">
-  <h2>Tags</h2>
-</header>
+    <h2>Tags</h2>
 
-<ul class="terms-tags">
-  {%- assign tags = collections | getTags %}
-  {%- for tag in tags %}
-  <li>
-    <a href="/tags/{{ tag.name }}">#{{ tag.name }} <sup><strong><sup>{{ tag.count }}</sup></strong></sup> </a>
-  </li>
-  {%- endfor %}
-</ul>
+    <ul class="terms-tags">
+      {%- for tag in collections.tags %}
+      <li>
+        <a href="/tags/{{ tag.name }}">#{{ tag.name }} <sup><strong><sup>{{ tag.count }}</sup></strong></sup></a>
+      </li>
+      {%- endfor %}
+    </ul>
+  </div>
+</article>
