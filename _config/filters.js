@@ -1,6 +1,7 @@
 import MarkdownIt from "markdown-it";
 import fs from "fs";
-import * as cheerio from 'cheerio';
+import * as cheerio from "cheerio";
+import memoize from "memoize";
 
 import metadata from "../_data/metadata.js";
 
@@ -96,7 +97,7 @@ export default function(eleventyConfig) {
 
   // Better than `strip_html` because it also removes unnecessary elements and
   // trims the whitespace.
-  eleventyConfig.addFilter("plainifyHtml", (html) => {
+  eleventyConfig.addFilter("plainifyHtml", memoize((html) => {
     const $ = cheerio.load(html);
     // The table of contents is a Markdown plugin, so it's actually part of the
     // content.
@@ -111,14 +112,13 @@ export default function(eleventyConfig) {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .trim();
-  });
+  }));
 
   eleventyConfig.addFilter("escapeHtmlTags", (html) => {
     return html
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
   });
-
 
   eleventyConfig.addFilter("log", (obj) => {
     console.log(obj);
