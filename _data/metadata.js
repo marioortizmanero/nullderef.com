@@ -1,8 +1,10 @@
 export default {
 	title: "NullDeref",
 	url: "https://nullderef.com",
+	domain: "nullderef.com",
 	language: "en",
 	description: "Mario Ortiz Manero's personal blog with his life learnings.",
+  keywords: ["tech", "programming", "entrepeneurship", "rust", "rustlang", "open source", "blog"],
 	author: {
 		name: "Mario Ortiz Manero",
 		email: "marioortizmanero@gmail.com",

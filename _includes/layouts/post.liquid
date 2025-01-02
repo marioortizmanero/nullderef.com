@@ -14,7 +14,7 @@ layout: layouts/base.liquid
       {%- if series %}
         &nbsp;·&nbsp;
         {%- assign seriesData = collections.series | getSeries: series %}
-        From the series <a href="/series/{{ seriesData }}">“{{ seriesData.data.title }}”</a>
+        From the series <a href="{{ seriesData.url }}">“{{ seriesData.data.title }}”</a>
       {%- endif %}
     </div>
   </header>
@@ -50,7 +50,7 @@ layout: layouts/base.liquid
   "@type": "Article",
   "name": "{{ title | escape }}",
   "image": "{{ image | absUrl }}",
-  "author": "{{ author | default: metadata.author }}",
+  "author": "{{ author | default: metadata.author.name }}",
   "url": "{{ page.url }}",
   "datePublished": "{{ date | iso8601Date }}",
   "dateModified": "{{ page.inputPath | lastModified | iso8601Date }}",

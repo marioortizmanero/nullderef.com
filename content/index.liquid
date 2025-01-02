@@ -39,7 +39,7 @@ NOTE: no pagination is supported for simplicity
         </h2>
       </header>
       <div class="entry-content">
-        <p>{{ post.content | plainifyHtml | truncate: 250 }}</p>
+        <p>{{ post.content | plainifyHtml | escapeHtmlTags | truncate: 250 }}</p>
       </div>
       <footer class="entry-footer">
         <time datetime="{{ post.data.date }}">{{ post.data.date | readableDateShort }}</time>

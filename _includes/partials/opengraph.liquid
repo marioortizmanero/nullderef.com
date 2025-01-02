@@ -1,7 +1,7 @@
 {%- if layout == "layouts/post.liquid" %}
   <meta property="og:og_type" content="article">
   <meta property="article:section" content="blog">
-  <meta property="article:author" content="{{ author }}">
+  <meta property="article:author" content="{{ author | default: metadata.author.name }}">
   <meta property="article:published_time" content="{{ date | iso8601Date }}">
   <meta property="article:modified_time" content="{{ page.inputPath | lastModified | iso8601Date }}">
 

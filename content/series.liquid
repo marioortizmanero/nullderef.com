@@ -21,7 +21,7 @@ description: "all the series in the site"
         </h2>
       </header>
       <div class="entry-content">
-        <p>{{ series.data.description | markdownify | plainifyHtml }}</p>
+        <p>{{ series.data.description | markdownify | plainifyHtml | escapeHtmlTags }}</p>
       </div>
       <footer class="entry-footer">
         {{ postsInSeries.length }} posts

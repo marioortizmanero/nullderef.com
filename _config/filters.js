@@ -99,8 +99,19 @@ export default function(eleventyConfig) {
     // We assume JS loads by default
     $("noscript").remove();
     const plain = $.text();
-    return plain.replace(/[\r\n\t]/g, ' ').trim();
+    return plain
+      .replace(/[\r\n\t]/g, ' ')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .trim();
   });
+
+  eleventyConfig.addFilter("escapeHtmlTags", (html) => {
+    return html
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  });
+
 
 	eleventyConfig.addFilter("log", (obj) => {
     console.log(obj);
