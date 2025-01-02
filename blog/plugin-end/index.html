@@ -45,7 +45,7 @@
   <meta property="article:section" content="blog">
   <meta property="article:author" content="Mario Ortiz Manero">
   <meta property="article:published_time" content="2022-07-26T00:00:00.000Z">
-  <meta property="article:modified_time" content="2025-01-02T20:29:52.512Z">
+  <meta property="article:modified_time" content="2025-01-02T20:46:52.356Z">
         <meta property="og:see_also" content="https://nullderef.com/blog/plugin-tech/">
         <meta property="og:see_also" content="https://nullderef.com/blog/plugin-start/">
         <meta property="og:see_also" content="https://nullderef.com/blog/plugin-dynload/">
@@ -193,8 +193,8 @@
 <li>It first validates the configuration, including what benchmarks to run and what binaries to compare. It was quite annoying to run into a typo 2 hours into the benchmarks…</li>
 <li>It performs a few warmup rounds before the actual benchmarks. This was specially important when using my laptop, since it started to overheat after the first few rounds, degrading its performance.</li>
 </ul>
-<p>One way to ensure the variance isn’t too high is to run the exact same benchmark twice. Here’s a histogram for both machines. Unexpectedly, the server ended up having greater variance with this test, but it was good enough to continue anyway. Note that you can click on these images to zoom in.</p>
-<p><a href="/blog/plugin-end/histogram_variance.png"><picture><source type="image/avif" srcset="/img/taj1FfFDzc-3488.avif 3488w"><source type="image/webp" srcset="/img/taj1FfFDzc-3488.webp 3488w"><img loading="lazy" decoding="async" src="/img/taj1FfFDzc-3488.png" alt="Histogram" width="3488" height="960"></picture></a></p>
+<p>One way to ensure the variance isn’t too high is to run the exact same benchmark twice. Here’s a histogram for both machines. Unexpectedly, the server ended up having greater variance with this test, but it was good enough to continue anyway.</p>
+<picture><source type="image/avif" srcset="/img/taj1FfFDzc-1200.avif 1200w"><source type="image/webp" srcset="/img/taj1FfFDzc-1200.webp 1200w"><img loading="lazy" decoding="async" alt="Histogram" src="/img/taj1FfFDzc-1200.png" width="1200" height="330"></picture>
 <p>I would strongly recommend anyone to get a separate machine to run benchmarks. Not only will they be more reliable, but also you will be able to continue working while the benchmarks run.</p>
 <p><em><strong>NOTE</strong>: The measurements in this article are performed with the new <code>#[repr(C)]</code> interface, but the plugins aren’t actually loaded dynamically yet. This is because, as the <a href="https://nullderef.com/blog/plugin-impl/#_separating_runtime_and_interface">planning</a> specifies, we are on a previous step to actually making the plugins external. The final performance will be slightly worse.</em></p>
 <p><a name="_experiments"></a></p>
@@ -212,12 +212,12 @@
 <p>An obvious experiment was to fix this problem properly by making <code>Value</code> FFI-safe and removing <code>PdkValue</code>. Unless the performance degraded considerably, this was always going to be a nice change because it would simplify the code.</p>
 <p>After the fix, I was able to investigate about the impact of these conversions with some flamegraphs:</p>
 <p>With both <code>Value</code> and <code>PdkValue</code> (highlighted in pink are the occurrences of <code>From</code>, <code>Into</code>, and <code>FromIterator</code>, which add up to 9.4% of all the calls in the execution):</p>
-<p><a href="/blog/plugin-end/with_value_conv.png"><picture><source type="image/avif" srcset="/img/1zVCvADAIa-1912.avif 1912w"><source type="image/webp" srcset="/img/1zVCvADAIa-1912.webp 1912w"><img loading="lazy" decoding="async" src="/img/1zVCvADAIa-1912.png" alt="Flamegraph with Value and PdkValue" width="1912" height="1080"></picture></a></p>
+<picture><source type="image/avif" srcset="/img/1zVCvADAIa-1200.avif 1200w"><source type="image/webp" srcset="/img/1zVCvADAIa-1200.webp 1200w"><img loading="lazy" decoding="async" alt="Flamegraph with Value and PdkValue" src="/img/1zVCvADAIa-1200.png" width="1200" height="677"></picture>
 <p>With a single <code>Value</code> (the conversion calls add up to 5.2% now, and the highlighted parts are much more sparse and harder to notice):</p>
-<p><a href="/blog/plugin-end/without_value_conv.png"><picture><source type="image/avif" srcset="/img/IoPUeTX7m_-1916.avif 1916w"><source type="image/webp" srcset="/img/IoPUeTX7m_-1916.webp 1916w"><img loading="lazy" decoding="async" src="/img/IoPUeTX7m_-1916.png" alt="Flamegraph with a single Value" width="1916" height="1077"></picture></a></p>
+<picture><source type="image/avif" srcset="/img/IoPUeTX7m_-1200.avif 1200w"><source type="image/webp" srcset="/img/IoPUeTX7m_-1200.webp 1200w"><img loading="lazy" decoding="async" alt="Flamegraph with a single Value" src="/img/IoPUeTX7m_-1200.png" width="1200" height="674"></picture>
 <p>The flamegraphs pointed out that Tremor was spending roughly 4.2% more of its execution time just converting between <code>Value</code> and <code>PdkValue</code>. This metric is tricky, though. Spending less time on type conversions doesn’t mean that the overall program is faster. The percentages are relative to the specific execution, and it’s possible that the rest of the program just got slower in the case of a single <code>Value</code>.</p>
 <p>By checking other metrics we discover that this is more or less the case. The histogram shows that while a single <code>Value</code> improves the latency, the overall throughput actually decreases. This compares a version without the plugin system (<code>connectors</code> branch) vs. first version vs. single <code>Value</code>.</p>
-<p><a href="/blog/plugin-end/histogram_pdk.png"><picture><source type="image/avif" srcset="/img/Z-GLwCigi2-3466.avif 3466w"><source type="image/webp" srcset="/img/Z-GLwCigi2-3466.webp 3466w"><img loading="lazy" decoding="async" src="/img/Z-GLwCigi2-3466.png" alt="Histogram comparing plugin system versions" width="3466" height="960"></picture></a></p>
+<picture><source type="image/avif" srcset="/img/Z-GLwCigi2-1200.avif 1200w"><source type="image/webp" srcset="/img/Z-GLwCigi2-1200.webp 1200w"><img loading="lazy" decoding="async" alt="Histogram comparing plugin system versions" src="/img/Z-GLwCigi2-1200.png" width="1200" height="332"></picture>
 <p>Relative throughput comparison (higher is better):</p>
 <table>
 <thead>
@@ -251,7 +251,7 @@
 <p>However, turns out that unlike <code>RString</code> or <code>RCow</code>, <code>RHashMap</code> isn’t a re-implementation of the underlying type. Writing a hash table from scratch is too complex, so the author just made it an opaque type that wraps the standard library version.</p>
 <p>Since <code>RHashMap</code> is an opaque type, it was already on the heap internally thanks to another <code>RBox</code>. Thus, the <code>Object</code> variant was boxed twice, which is unnecessary, since the size of <code>RHashMap</code> is already minimal. Having to allocate every hash table twice was probably costly, and fixing this counted as a clean-up, so it was worth trying.</p>
 <p>The subsequent benchmarks showed a slight improvement in performance, though I was still only using the <code>passthrough</code> benchmark at this point. I kept the change because it didn’t make much sense to leave the doubly boxed hash table, and because it slightly improved the readability of the code. Here’s the histogram of a double box vs. a single box. Note that this histogram was recorded on the benchmarking server, while the previous one used my laptop. These tests aren’t meant to be compared between different sections.</p>
-<p><a href="/blog/plugin-end/histogram_box.png"><picture><source type="image/avif" srcset="/img/eezPzOevaQ-3466.avif 3466w"><source type="image/webp" srcset="/img/eezPzOevaQ-3466.webp 3466w"><img loading="lazy" decoding="async" src="/img/eezPzOevaQ-3466.png" alt="Histogram comparing box versions" width="3466" height="960"></picture></a></p>
+<picture><source type="image/avif" srcset="/img/eezPzOevaQ-1200.avif 1200w"><source type="image/webp" srcset="/img/eezPzOevaQ-1200.webp 1200w"><img loading="lazy" decoding="async" alt="Histogram comparing box versions" src="/img/eezPzOevaQ-1200.png" width="1200" height="332"></picture>
 <p>Relative throughput comparison (higher is better):</p>
 <table>
 <thead>
@@ -293,13 +293,13 @@
 
 <p>This time I did it right since the beginning and tried multiple benchmarks. The results are much more varied now, and the efficiency can be analyzed from multiple points of view:</p>
 <p>Histogram for <code>passthrough</code>, which simply redirects input events from a single source to the output:</p>
-<p><a href="/blog/plugin-end/histogram_pdk_v2_passthrough.png"><picture><source type="image/avif" srcset="/img/UTAzov1I2c-3488.avif 3488w"><source type="image/webp" srcset="/img/UTAzov1I2c-3488.webp 3488w"><img loading="lazy" decoding="async" src="/img/UTAzov1I2c-3488.png" alt="Histogram for passthrough" width="3488" height="960"></picture></a></p>
+<picture><source type="image/avif" srcset="/img/UTAzov1I2c-1200.avif 1200w"><source type="image/webp" srcset="/img/UTAzov1I2c-1200.webp 1200w"><img loading="lazy" decoding="async" alt="Histogram for passthrough" src="/img/UTAzov1I2c-1200.png" width="1200" height="330"></picture>
 <p>Histogram for <code>passthrough-two-inputs</code>, which redirects input events from two different sources to the output:</p>
-<p><a href="/blog/plugin-end/histogram_pdk_v2_passthrough_two_inputs.png"><picture><source type="image/avif" srcset="/img/3gybgOtbyd-3488.avif 3488w"><source type="image/webp" srcset="/img/3gybgOtbyd-3488.webp 3488w"><img loading="lazy" decoding="async" src="/img/3gybgOtbyd-3488.png" alt="Histogram for passthrough-two-inputs" width="3488" height="960"></picture></a></p>
+<picture><source type="image/avif" srcset="/img/3gybgOtbyd-1200.avif 1200w"><source type="image/webp" srcset="/img/3gybgOtbyd-1200.webp 1200w"><img loading="lazy" decoding="async" alt="Histogram for passthrough-two-inputs" src="/img/3gybgOtbyd-1200.png" width="1200" height="330"></picture>
 <p>Histogram for <code>throughput-logging-json</code>, which also implements some event processing logic over JSON data:</p>
-<p><a href="/blog/plugin-end/histogram_pdk_v2_throughput_logging_json.png"><picture><source type="image/avif" srcset="/img/AZ90VDhm-c-3488.avif 3488w"><source type="image/webp" srcset="/img/AZ90VDhm-c-3488.webp 3488w"><img loading="lazy" decoding="async" src="/img/AZ90VDhm-c-3488.png" alt="Histogram for throughput-logging-json" width="3488" height="960"></picture></a></p>
+<picture><source type="image/avif" srcset="/img/AZ90VDhm-c-1200.avif 1200w"><source type="image/webp" srcset="/img/AZ90VDhm-c-1200.webp 1200w"><img loading="lazy" decoding="async" alt="Histogram for throughput-logging-json" src="/img/AZ90VDhm-c-1200.png" width="1200" height="330"></picture>
 <p>Histogram for <code>throughput-logging-msgpack</code>, which also implements some event processing logic over <a href="https://msgpack.org/index.html">MessagePack</a> data:</p>
-<p><a href="/blog/plugin-end/histogram_pdk_v2_throughput_logging_msgpack.png"><picture><source type="image/avif" srcset="/img/UpTzx6cL0y-3488.avif 3488w"><source type="image/webp" srcset="/img/UpTzx6cL0y-3488.webp 3488w"><img loading="lazy" decoding="async" src="/img/UpTzx6cL0y-3488.png" alt="Histogram for throughput-logging-msgpack" width="3488" height="960"></picture></a></p>
+<picture><source type="image/avif" srcset="/img/UpTzx6cL0y-1200.avif 1200w"><source type="image/webp" srcset="/img/UpTzx6cL0y-1200.webp 1200w"><img loading="lazy" decoding="async" alt="Histogram for throughput-logging-msgpack" src="/img/UpTzx6cL0y-1200.png" width="1200" height="330"></picture>
 <p>Relative performance for number of events processed per second (higher is better):</p>
 
 
@@ -360,9 +360,9 @@
 <h3 id="abi-stable" tabindex="-1"><code>abi_stable</code> <a class="header-anchor" href="#abi-stable" aria-hidden="true">#</a></h3>
 <p>We can also take a look at the recurring occurrence of an experiment that isn’t worth pursuing. <code>abi_stable</code> imposes all kinds of overheads, apart from the type validation step before loading a plugin. I wanted to learn more about the <code>Drop</code> implementations, which require accessing to a vtable, and in cases like <code>RBox</code>, dealing with additional logic to ensure everything is safe<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>.</p>
 <p>After zooming into specific sections, we can see this overhead by ourselves in the call stack. Here’s the flamegraph with <code>abi_stable</code>’s complex destructors, shown in pink and zoomed in:</p>
-<p><a href="/blog/plugin-end/with_destructor.png"><picture><source type="image/avif" srcset="/img/BGVwe4P8Fj-1906.avif 1906w"><source type="image/webp" srcset="/img/BGVwe4P8Fj-1906.webp 1906w"><img loading="lazy" decoding="async" src="/img/BGVwe4P8Fj-1906.png" alt="Flamegraph zoomed in" width="1906" height="545"></picture></a></p>
+<p><picture><source type="image/avif" srcset="/img/BGVwe4P8Fj-1200.avif 1200w"><source type="image/webp" srcset="/img/BGVwe4P8Fj-1200.webp 1200w"><img loading="lazy" decoding="async" alt="Flamegraph zoomed in" src="/img/BGVwe4P8Fj-1200.png" width="1200" height="343"></picture></p>
 <p>However, I overestimated the importance of this problem. Taking a look at the big picture, it’s obvious that optimizing <code>RBox</code>’s implementation of <code>Drop</code> isn’t worth it yet. Here’s the flamegraph with <code>abi_stable</code>’s complex destructors, shown in pink and without zooming in:</p>
-<p><a href="/blog/plugin-end/with_destructor_globally.png"><picture><source type="image/avif" srcset="/img/zpah3JXj6u-1905.avif 1905w"><source type="image/webp" srcset="/img/zpah3JXj6u-1905.webp 1905w"><img loading="lazy" decoding="async" src="/img/zpah3JXj6u-1905.png" alt="Flamegraph without zoom" width="1905" height="921"></picture></a></p>
+<picture><source type="image/avif" srcset="/img/zpah3JXj6u-1200.avif 1200w"><source type="image/webp" srcset="/img/zpah3JXj6u-1200.webp 1200w"><img loading="lazy" decoding="async" alt="Flamegraph without zoom" src="/img/zpah3JXj6u-1200.png" width="1200" height="580"></picture>
 <p>I’m definitely taking note of this idea in order to investigate about it in the future for further performance squeezing. But I currently have lots of other more impactful experiments in mind with a higher priority.</p>
 <p><a name="_unimplemented_ideas"></a></p>
 <h2 id="unimplemented-ideas" tabindex="-1">Unimplemented ideas <a class="header-anchor" href="#unimplemented-ideas" aria-hidden="true">#</a></h2>
@@ -607,7 +607,7 @@ including those for the plugin system and other unrelated improvements:</p>
 <p><a name="_breaking_the_compiler"></a></p>
 <h3 id="breaking-the-compiler" tabindex="-1">Breaking the Compiler <a class="header-anchor" href="#breaking-the-compiler" aria-hidden="true">#</a></h3>
 <p>I also managed to break the Rust compiler while working on this plugin system. It may not be as rare as one would think, but for some reason I felt oddly proud to achieve it, so I’ll share it here :)</p>
-<p><picture><source type="image/avif" srcset="/img/wVJHaXpmcX-1071.avif 1071w"><source type="image/webp" srcset="/img/wVJHaXpmcX-1071.webp 1071w"><img loading="lazy" decoding="async" src="/img/wVJHaXpmcX-1071.png" alt="Rustc breakage" width="1071" height="470"></picture></p>
+<picture><source type="image/avif" srcset="/img/wVJHaXpmcX-800.avif 800w"><source type="image/webp" srcset="/img/wVJHaXpmcX-800.webp 800w"><img loading="lazy" decoding="async" alt="Rustc breakage" src="/img/wVJHaXpmcX-800.png" width="800" height="351"></picture>
 <p>It’s seemingly related to incremental compilation, and <a href="https://github.com/rust-lang/rust/issues/90608">someone had already reported it before</a>. It should be fixed in a future version, and I haven’t come across it again.</p>
 <p><a name="_lfx_mentorship_showcase"></a></p>
 <h3 id="lfx-mentorship-showcase" tabindex="-1">LFX Mentorship Showcase <a class="header-anchor" href="#lfx-mentorship-showcase" aria-hidden="true">#</a></h3>
@@ -707,7 +707,7 @@ including those for the plugin system and other unrelated improvements:</p>
   "author": "Mario Ortiz Manero",
   "url": "/blog/plugin-end/",
   "datePublished": "2022-07-26T00:00:00.000Z",
-  "dateModified": "2025-01-02T20:29:52.512Z",
+  "dateModified": "2025-01-02T20:46:52.356Z",
   "mainEntityOfPage": "/blog/plugin-end/",
   "description": "The last finishing touches before our plugin system reaches production.",
   "publisher": {
