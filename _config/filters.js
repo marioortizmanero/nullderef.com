@@ -55,8 +55,9 @@ export default function(eleventyConfig) {
 
   eleventyConfig.addFilter("recentPosts", function (posts) {
     return posts
-      .filter(p => p.url !== this.page.url).slice(0, 5)
-      .sort((p1, p2) => p2.data.date - p1.data.date);  // Descending
+      .filter(p => p.url !== this.page.url)
+      .sort((p1, p2) => p2.data.date - p1.data.date)  // Descending
+      .slice(0, 5);
   });
 
   eleventyConfig.addFilter("assertLengthUnder", (str, maxLength) => {

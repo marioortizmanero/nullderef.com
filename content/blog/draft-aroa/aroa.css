@@ -1,0 +1,39 @@
+.gallery {
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 2px solid #abc;
+  margin-bottom: var(--content-gap);
+  gap: 4px;
+}
+.gallery img {
+  flex: 1;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0;
+  margin-bottom: 0;
+}
+
+.poem {
+  display: flex;
+}
+.poem img {
+
+}
+.poem .translation {
+  font-style: italic;
+
+}
+.poem .translation .author {
+  text-align: right;
+  display: inline-block;
+  width: 100%;
+}
+
+.sticky-iframe {
+  position: sticky;
+  top: 8px;
+  background-color: var(--theme);
+  outline: 8px solid var(--theme);
+}
