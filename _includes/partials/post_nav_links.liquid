@@ -1,9 +1,11 @@
+{%- if tags %}
 <div class="post-tags">
   {%- assign postTags = tags | getTagsInPost %}
   {%- for tag in postTags -%}
     <a href="/tags/{{ tag }}">#{{ tag }}</a>
   {%- endfor -%}
 </div>
+{%- endif %}
 
 {%- if series %}
   {%- assign seriesData = collections.series | getSeries: series %}

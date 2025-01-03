@@ -12,7 +12,8 @@ tmp_dir=/tmp/nullderef-review-html
 original_dir=$PWD
 
 echo ">> Building local site"
-hugo
+npm install
+npm run build
 
 echo ">> Building reference site"
 mkdir -p "$tmp_dir"
@@ -24,7 +25,8 @@ git checkout master
 git pull
 git submodule init
 git submodule update
-hugo
+npm install
+npm run build
 
 echo ">> Showing differences between $tmp_dir and $original_dir"
 diff \
@@ -33,6 +35,6 @@ diff \
   --no-dereference \
   --new-file \
   --no-ignore-file-name-case \
-  "${tmp_dir}/public" "${original_dir}/public" \
+  "${tmp_dir}/_site" "${original_dir}/_site" \
   | grep -v '^$' \
   | awk '{ print "git diff", $2, $4 }'

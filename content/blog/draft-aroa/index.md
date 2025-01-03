@@ -22,16 +22,37 @@ TODO: Poner notice de "puede herir la sensibilidad"
 
 Today, I want to convince you of how admirable my sister, Aroa, was. We lost her in November 2023, so I wanted to condense her essence into a single post and talk about mental health.
 
-<!-- TODO: try to not make the width 100% because it makes it hard to scroll. Or not the full height of the phone's screen, so that there are gaps at the top and bottom. -->
-{% render "viz3d.liquid",
-      src: "/blog/draft-aroa/art/3d/test.glb",
-      poster: "/blog/draft-aroa/art/3d/test-poster.webp",
-      alt: "Test file"
-%}
+TODO: do this in 3d
+
+![Painting she gifted to Luis, her therapist](/blog/draft-aroa/art/IMG-20231128-WA0001.jpg)
 
 TODO: Mention astroboots / big red boots?
 
 What you'd first appreciate when meeting Aroa is her irreverent style. Her most unusual clothing combinations somehow looked fabulous every single time. Cargo pants with a necktie? Slashing. Vans in different colors and bold pink glasses? Cool as hell. Her expressions and personality accompanied such a resourceful style:
+
+<style>
+.gallery {
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 2px solid #abc;
+  margin-bottom: var(--content-gap);
+}
+.gallery img {
+  flex: 1;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0;
+  margin-bottom: 0;
+}
+</style>
+
+<div class="gallery">
+  <img alt="TODO" src="/blog/draft-aroa/style/necktie1.jpg">
+  <img alt="TODO" src="/blog/draft-aroa/style/necktie2.jpg">
+  <img alt="TODO" src="/blog/draft-aroa/style/necktie3.jpg">
+</div>
 
 TODO: picture of cool outfit, or better, multiple clothes with addition signs (+) and the end result
 
@@ -167,3 +188,10 @@ It's gotten much better through therapy, loved ones, and time. There are still c
 At first, therapy may make things worse. It's like pulling all the shit out and mixing it together. But in the long term, you need it to heal. And it's more flexible than I thought: some find comfort in sharing a beer with a laid-back therapist, while others prefer nature or among horses. This comes down to the fact that everyone deals with issues in their own way, and that's okay.
 
 TODO: rest of pictures go here
+
+<!-- TODO: try to not make the width 100% because it makes it hard to scroll. Or not the full height of the phone's screen, so that there are gaps at the top and bottom. -->
+{% render "viz3d.liquid",
+      src: "/blog/draft-aroa/art/3d/test.glb",
+      poster: "/blog/draft-aroa/art/3d/test-poster.webp",
+      alt: "Test file"
+%}
