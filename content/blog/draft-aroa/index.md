@@ -10,8 +10,6 @@ GHissueID: TODO
 draft: true
 ---
 
-TODO: Poner notice de "puede herir la sensibilidad"
-
 TODO: escaneos 3d y mejor calidad de las 2d
 
 {%- block head %}
@@ -26,7 +24,11 @@ TODO: escaneos 3d y mejor calidad de las 2d
 
 [[toc]]
 
-Today, I want to convince you of how admirable my sister, Aroa, was. We lost her in November 2023, so I wanted to condense her essence into a single post and talk about mental health.
+<p class="content-warning">
+<i><strong>Note</strong>: This article contains themes that may be emotionally distressing for some readers. If you feel you may be vulnerable to such content, please consider your wellbeing before proceeding.</i>
+</p>
+
+Today, I want to convince you of how awesome my sister, Aroa, was. We lost her in November 2023, so I wanted to condense her essence into a single post and talk about mental health.
 
 ![Painting she gifted to Luis, her therapist](/blog/draft-aroa/art/IMG-20231128-WA0001.jpg)
 
@@ -61,7 +63,7 @@ TODO: make backups of these playlists as a simple list of song - author in this 
 
 <!-- TODO: did she tattoo foreigners? that'd be a better word than "people" -->
 
-A showcase of her persistency, or rather adventurousness, was how hard she tried to find a career. It was astronomy for a bit, and she even tried a semester of geology. She signed up for an automotive workshop and later gave a try to content creation for CBD companies. All while preparing cocktails in bars. Somewhere, a couple of people keep tattoos from when she got into that, too. We built her CV together, but we never managed to convince her to pursue arts! She argued she didn't want anyone telling her how to draw:
+A showcase of her persistency, or rather adventurousness, was how hard she tried to find a career. It was astronomy for a bit, and she even tried a semester of geology. She signed up for an automotive workshop and later gave a try to content creation for CBD companies. All while preparing cocktails in bars. Somewhere, a couple of people keep tattoos from when she got into that, too. I helped her build a CV, but we never managed to convince her to pursue arts! She argued she didn't want anyone telling her how to draw:
 
 TODO: coger fotos de "Nuestra Aroa" en Google Photos
 
@@ -83,10 +85,10 @@ Her cinephile side appeared more recently, featuring both cult movies like *Scar
 
 <img width="40%" src="movies.jpg" alt="Movie recommendations: Project X, How High, Colegas del Barrio (translation: Don't be a menace to South Central While Drinking your Juice in the Hood), Fuga de Cerebros (1 > 2, translation: Brain Drain), Un espía y medio (translation: Central Intelligence), Supersalidos (translation: Superbad), Scary Movie (todas)">
 
-She had countless many friends, and was dearly loved.
+She had countless friends, and was dearly loved. It was hard to keep track of them, my mother complains.
 
 <div class="poem">
-  <img alt="TODO" src="/blog/draft-aroa/art/arbolito.png">
+  <img alt="TODO" src="/blog/draft-aroa/art/arbolito.jpg">
   <div class="translation">
     Érase una vez un arbolito que vivía de puntillas sobre el suelo. Este árbol ponía una sonrisa en primavera cuando brotaban sus tallos, alegría en verano, y nostalgia en otoño cuando se iba quedando desnudo.<br>
     Un invierno, vinieron unos homes y lo cortaron.<br>
@@ -113,11 +115,13 @@ We had absolutely no clue what was going on, and it happened so fast. After seve
 
 ![](/blog/draft-aroa/art/20241228_181752.heic.jpg)
 
-Marsha Linehan argues that BPD is caused by both a genetic vulnerability and environmental stressors (*biosocial model*). The major symptoms are unstable relationships, a distorted sense of self, intense emotions, fear of abandonment, impulsivity, self-harm, and dissociation. This tough disorder may, however, improve significantly with consistent therapy and, in some cases, supplementary medication. Meeting more people who face it has been an honor --- they are truly the most compassionate!
+Marsha Linehan argues that BPD is caused by both a genetic vulnerability and environmental stressors (*biosocial model*). The major symptoms are unstable relationships, a distorted sense of self, intense emotions, fear of abandonment, impulsivity, self-harm, and dissociation. This tough disorder may, however, improve significantly with consistent therapy and, in some cases, supplementary medication. Meeting more people who face it has been an honor --- they are the most compassionate!
 
 ![](/blog/draft-aroa/art/20241228_181756.heic.jpg)
 
-If you ever have suicidal thoughts, please reach for help. This website contains some resources in [Spanish](https://ifdsurvive.com/) and this one in [English](TODO). You can donate here or here. Caring for someone with BPD can also be challenging, sometimes making you feel like "walking on eggshells". But education and support groups help a lot to learn healthy boundaries and how to best support the person.
+TODO: maybe use this lifeline instead: https://988lifeline.org/
+
+If you ever have suicidal thoughts, please reach for help. This website contains some resources in [Spanish](https://ifdsurvive.com/) and this one in [English](TODO). You can donate here or here. Caring for someone with BPD can also be challenging, making you feel like "walking on eggshells". Education and support groups help to learn healthy boundaries and how to best support the person.
 
 ![](/blog/draft-aroa/art/20231210_212726.heic.jpg)
 
@@ -125,7 +129,9 @@ If you ever have suicidal thoughts, please reach for help. This website contains
 
 My mother called me to tell me the news. The timing was extraordinary, as I was sitting in a plane two minutes away from its takeoff. It was gut-wrenching to tell my father, too. The attentive flight attendants took me to their reserved row to calm my nerves after the departure. My constant sobbing worried them that I'd dehydrate or get a panic attack. So they asked me to take a tranquilizer... as a rectal suppository. For flight reasons, I suppose. I'm sure Aroa would have gotten a huuuuuge kick out of that. Man, I know she's still laughing somewhere.
 
-Being stuck for 4 hours in a flight, I thought of all the things that can be thought, and I felt all the feelings that can be felt. Not necessarily all of them being negative --- I'll eternally be grateful to my mother for calling me immediately.
+Being stuck for 4 hours in a flight, I thought of all the things that can be thought, and I felt all the feelings that can be felt. Not all of them being negative --- I'll eternally be grateful to my mother for calling me immediately.
+
+NOTE: lyrics taken from the song "Ghostemane, Parv0•To Whom It May Concern"
 
 ![](/blog/draft-aroa/art/20241228_181805.heic.jpg)
 
@@ -133,15 +139,15 @@ After reuniting with my family, I couldn't comprehend what had happened. What wa
 
 ![](/blog/draft-aroa/art/20241228_181811.heic.jpg)
 
-A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive: I got ill, and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My mind wanted to swim for kilometers, but frustratingly, my body refused.
+A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive. I got ill, and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My mind wanted to swim for kilometers, but frustratingly, my body refused.
 
 It's gotten much better through therapy, loved ones, and time. There are still crappy moments, and the story is ongoing. But I try to have a Stoic and positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
 
-At first, therapy may make things worse. It's like pulling all the shit out and mixing it together. But in the long term, you need it to heal. And it's more flexible than I thought: some find comfort in sharing a beer with a laid-back therapist, while others prefer nature or among horses. This comes down to the fact that everyone deals with issues in their own way, and that's okay.
+At first, therapy makes things worse. It's like throwing all the shit into a pot and stirring it together. But in the long term, you need it to heal. Everyone deals with issues in their own way, and that's okay.
 
 TODO: rest of pictures go here
 
-<!-- TODO: try to not make the width 100% because it makes it hard to scroll. Or not the full height of the phone's screen, so that there are gaps at the top and bottom. -->
+<!-- TODO: try to not make the width 100% because it makes it hard to scroll. Or not the full height of the phone's screen, so that there are gaps at the top and bottom. Either that, or make 3d movements only with two fingers at once. -->
 {% render "viz3d.liquid"
       src: "/blog/draft-aroa/art/3d/test.glb"
       poster: "/blog/draft-aroa/art/3d/test-poster.webp"

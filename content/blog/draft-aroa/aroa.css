@@ -1,3 +1,7 @@
+.content-warning {
+  font-size: 14px;
+}
+
 .gallery {
   display: flex;
   justify-content: space-between;
