@@ -71,28 +71,30 @@ TODO: encontrar el video donde hace un truco con nata en el bar??
 
 ![](/blog/draft-aroa/art/IMG-20231130-WA0019.jpg)
 
-Aroa showed me that people are much more than their career; you also need to find fulfillment beyond it. Explore, learn, create. When I moved to Munich because of work, I stopped writing here and didn't prioritize learning German. I was learning about my job but not about me.
+Aroa showed me that people are much more than their career; you need to find fulfillment beyond it. Explore, learn, create. When I moved to Munich because of work, I stopped writing here and didn't prioritize learning German. I was learning about my job but not about me.
 
 TODO: foto de arte aqui
 
-TODO: more stuff she did was karate, taekwondo, guitarra, bajo, baile, baloncesto, *won a baking competition*, did an ad for Aragon TV skating, she has a song to her name ("Aroa's world", "Los mundos de Aroa", it's on Spotify)
+TODO: more stuff she did: karate and taekwondo, guitar and base, dance, basketball.
 
-When she was younger, Aroa got into anime and League of Legends, and dyed her hair blue. The pictures are hilarious --- she'd kill me for writing this. Then, she learned to skate and later on how to kick ass in a boxing ring. All her life experiences brought her countless friends that loved her to no end. She even participated in First Dates on her birthday, but that's a (very funny) story for another time.
+When she was younger, Aroa got into anime and League of Legends and dyed her hair blue. The pictures are hilarious --- she'd kill me for writing this. She tried dancing and playing basketball, but mostly kicked ass in a boxing ring. This legend even participated in First Dates on her birthday, but that's a (very funny) story for another time.
+
+My sister also appeared on TV after winning a baking competition, and in an ad for our local television network, where she skated. A little-known fact is that she has a song to her name, "[Los mundos de Aroa](https://open.spotify.com/track/2WOfcTp81iHvPljUNUmk1f?si=6373dc997aa941db)". One summer, we hiked to the Perdiguero, a 3,222m-high summit in the Pyrenees. She could both gracelessly pick up grasshoppers in the grass, and rapel down canyon walls after a course she took with my father.
 
 TODO: coger fotos de "Nuestra Aroa" en Google Photos
 
-Her cinephile side appeared more recently, featuring both cult movies like *Scarface* and absurd ones like *Don't be a Menace to South Central While Drinking your Juice in the Hood*. I kid you not, she knew *Ali-G* by heart. Every single line. She sent me some recommendations, which I'm slowly watching:
+Her cinephile side appeared more recently, combining cult movies like *Scarface* with absurd ones like *Don't be a Menace to South Central While Drinking your Juice in the Hood*. I kid you not, she knew *Ali-G* by heart. **Every single line**. She sent me some recommendations, which I'm slowly watching:
 
 <img width="40%" src="movies.jpg" alt="Movie recommendations: Project X, How High, Colegas del Barrio (translation: Don't be a menace to South Central While Drinking your Juice in the Hood), Fuga de Cerebros (1 > 2, translation: Brain Drain), Un espía y medio (translation: Central Intelligence), Supersalidos (translation: Superbad), Scary Movie (todas)">
 
-She had countless friends, and was dearly loved. It was hard to keep track of them, my mother complains.
+All her life experiences brought her countless friends that loved her to no end. It was hard to keep track of them, my mother complains.
 
 <div class="poem">
   <img alt="TODO" src="/blog/draft-aroa/art/arbolito.jpg">
   <div class="translation">
     Érase una vez un arbolito que vivía de puntillas sobre el suelo. Este árbol ponía una sonrisa en primavera cuando brotaban sus tallos, alegría en verano, y nostalgia en otoño cuando se iba quedando desnudo.<br>
-    Un invierno, vinieron unos homes y lo cortaron.<br>
-    El árbol vio cómo le arrancaba de aquel trozo de tierra y lo llevaron.<br>
+    Un invierno, vinieron unos hombres y lo cortaron.<br>
+    El árbol vio cómo le arrancaban de aquel trozo de tierra y lo llevaron.<br>
     Era un árbol fuerte y valiente, que resistió hasta su misma muerte, y es que sabía lo que es aguantar el azote de la arena que evaba el viento y el soplo helado de la noche que congelaba hasta la savia.<br>
     No dejó escapar una sola queja cuando lo cortaban, tan solo cayó una pequeña lágrima que fue a caer en el hueco que dejó la tierra.<br>
     Nadie se dio cuenta, pero con el paso del tiempo creció otro árbol que también era fuerte.<br>
@@ -119,6 +121,8 @@ Marsha Linehan argues that BPD is caused by both a genetic vulnerability and env
 
 ![](/blog/draft-aroa/art/20241228_181756.heic.jpg)
 
+She found art as a way to express her feelings through hardship. Disconnecting in a house away from the city also did her good. There, she spent time by the pool with our snarky-yet-loveable chihuaha, Berlin. I'm happy she came to Munich for a visit, too. We watched bangers from Martin Garrix live with my mother, and she saw my life here. Above all, her greatest help was her therapist, who put his soul and heart into it.
+
 TODO: maybe use this lifeline instead: https://988lifeline.org/
 
 If you ever have suicidal thoughts, please reach for help. This website contains some resources in [Spanish](https://ifdsurvive.com/) and this one in [English](TODO). You can donate here or here. Caring for someone with BPD can also be challenging, making you feel like "walking on eggshells". Education and support groups help to learn healthy boundaries and how to best support the person.
@@ -139,9 +143,9 @@ After reuniting with my family, I couldn't comprehend what had happened. What wa
 
 ![](/blog/draft-aroa/art/20241228_181811.heic.jpg)
 
-A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive. I got ill, and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. My mind wanted to swim for kilometers, but frustratingly, my body refused.
+A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive. I got ill, and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. Part of me wanted to swim for kilometers, but frustratingly, my body refused.
 
-It's gotten much better through therapy, loved ones, and time. There are still crappy moments, and the story is ongoing. But I try to have a Stoic and positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
+It's gotten much better through therapy, loved ones, and time. There are still crappy moments, and the story is ongoing. But I try to have a positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
 
 At first, therapy makes things worse. It's like throwing all the shit into a pot and stirring it together. But in the long term, you need it to heal. Everyone deals with issues in their own way, and that's okay.
 
