@@ -2,134 +2,134 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <url>
         <loc>https://nullderef.com/blog/rust-parameters/</loc>
-        <lastmod>2025-01-03T00:37:04.401Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.459Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/plugin-tech/</loc>
-        <lastmod>2025-01-03T00:37:04.381Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.439Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/rust-features/</loc>
-        <lastmod>2025-01-03T00:37:04.401Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.459Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/plugin-start/</loc>
-        <lastmod>2025-01-03T00:37:04.381Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.439Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/plugin-dynload/</loc>
-        <lastmod>2025-01-03T00:37:04.293Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.351Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/web-api-client/</loc>
-        <lastmod>2025-01-03T00:37:04.505Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.555Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/plugin-abi-stable/</loc>
-        <lastmod>2025-01-03T00:37:04.289Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.347Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/plugin-impl/</loc>
-        <lastmod>2025-01-03T00:37:04.381Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.439Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/plugin-end/</loc>
-        <lastmod>2025-01-03T00:37:04.317Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.375Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/tremorcon22/</loc>
-        <lastmod>2025-01-03T00:37:04.505Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.555Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/rust-async-sync/</loc>
-        <lastmod>2025-01-03T00:37:04.397Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.455Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/phone-intro/</loc>
-        <lastmod>2025-01-03T00:37:04.289Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.347Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/rust-variance/</loc>
-        <lastmod>2025-01-03T00:37:04.401Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.459Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/blog/quit-job-2024/</loc>
-        <lastmod>2025-01-03T00:37:04.385Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.443Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/404.html</loc>
-        <lastmod>2025-01-03T00:37:04.133Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.143Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/about/</loc>
-        <lastmod>2025-01-03T00:37:04.133Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.143Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/</loc>
-        <lastmod>2025-01-03T00:37:04.505Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.555Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/search/</loc>
-        <lastmod>2025-01-03T00:37:04.509Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.559Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/series/</loc>
-        <lastmod>2025-01-03T00:37:04.509Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.559Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/series/dont-use-this-phone/</loc>
-        <lastmod>2025-01-03T00:37:04.509Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.559Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/series/rspotify/</loc>
-        <lastmod>2025-01-03T00:37:04.509Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.559Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/series/rust-plugins/</loc>
-        <lastmod>2025-01-03T00:37:04.509Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.559Z</lastmod>
       </url>
       <url>
         <loc>https://nullderef.com/subscribe/</loc>
-        <lastmod>2025-01-03T00:37:04.509Z</lastmod>
+        <lastmod>2025-01-03T01:19:01.559Z</lastmod>
       </url>
     <url>
       <loc>https://nullderef.com/tags/tech</loc>
-      <lastmod>2025-01-03T00:37:04.505Z</lastmod>
+      <lastmod>2025-01-03T01:19:01.555Z</lastmod>
     </url>
     <url>
       <loc>https://nullderef.com/tags/programming</loc>
-      <lastmod>2025-01-03T00:37:04.505Z</lastmod>
+      <lastmod>2025-01-03T01:19:01.555Z</lastmod>
     </url>
     <url>
       <loc>https://nullderef.com/tags/rust</loc>
-      <lastmod>2025-01-03T00:37:04.505Z</lastmod>
+      <lastmod>2025-01-03T01:19:01.555Z</lastmod>
     </url>
     <url>
       <loc>https://nullderef.com/tags/open-source</loc>
-      <lastmod>2025-01-03T00:37:04.505Z</lastmod>
+      <lastmod>2025-01-03T01:19:01.555Z</lastmod>
     </url>
     <url>
       <loc>https://nullderef.com/tags/entrepreneurship</loc>
-      <lastmod>2025-01-03T00:37:04.385Z</lastmod>
+      <lastmod>2025-01-03T01:19:01.443Z</lastmod>
     </url>
     <url>
       <loc>https://nullderef.com/tags/phone-dependency</loc>
-      <lastmod>2025-01-03T00:37:04.385Z</lastmod>
+      <lastmod>2025-01-03T01:19:01.443Z</lastmod>
     </url>
     <url>
       <loc>https://nullderef.com/tags/beginners</loc>
-      <lastmod>2025-01-03T00:37:04.401Z</lastmod>
+      <lastmod>2025-01-03T01:19:01.459Z</lastmod>
     </url>
     <url>
       <loc>https://nullderef.com/tags/research</loc>
-      <lastmod>2025-01-03T00:37:04.289Z</lastmod>
+      <lastmod>2025-01-03T01:19:01.347Z</lastmod>
     </url>
     <url>
       <loc>https://nullderef.com/tags/personal</loc>
-      <lastmod>2025-01-03T00:37:04.385Z</lastmod>
+      <lastmod>2025-01-03T01:19:01.443Z</lastmod>
     </url>
     <url>
       <loc>https://nullderef.com/tags/talk</loc>
-      <lastmod>2025-01-03T00:37:04.505Z</lastmod>
+      <lastmod>2025-01-03T01:19:01.555Z</lastmod>
     </url>
 </urlset>
