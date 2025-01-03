@@ -61,7 +61,7 @@ TODO: make backups of these playlists as a simple list of song - author in this 
 
 <!-- TODO: did she tattoo foreigners? that'd be a better word than "people" -->
 
-A showcase of her persistency, or rather adventurousness, was how hard she tried to find a career. It was astronomy for a bit, and she even tried a semester of geology. She signed up for an automotive workshop and later gave a try to content creation for CBD companies. All while preparing cocktails in bars. Somewhere, a couple of people keep tattoos from when she got into that, too. We built her CV together, but we never managed to convince her to pursue arts! Just look:
+A showcase of her persistency, or rather adventurousness, was how hard she tried to find a career. It was astronomy for a bit, and she even tried a semester of geology. She signed up for an automotive workshop and later gave a try to content creation for CBD companies. All while preparing cocktails in bars. Somewhere, a couple of people keep tattoos from when she got into that, too. We built her CV together, but we never managed to convince her to pursue arts! She argued she didn't want anyone telling her how to draw:
 
 TODO: coger fotos de "Nuestra Aroa" en Google Photos
 
@@ -82,6 +82,8 @@ TODO: coger fotos de "Nuestra Aroa" en Google Photos
 Her cinephile side appeared more recently, featuring both cult movies like *Scarface* and absurd ones like *Don't be a Menace to South Central While Drinking your Juice in the Hood*. I kid you not, she knew *Ali-G* by heart. Every single line. She sent me some recommendations, which I'm slowly watching:
 
 <img width="40%" src="movies.jpg" alt="Movie recommendations: Project X, How High, Colegas del Barrio (translation: Don't be a menace to South Central While Drinking your Juice in the Hood), Fuga de Cerebros (1 > 2, translation: Brain Drain), Un espía y medio (translation: Central Intelligence), Supersalidos (translation: Superbad), Scary Movie (todas)">
+
+She had countless many friends, and was dearly loved.
 
 <div class="poem">
   <img alt="TODO" src="/blog/draft-aroa/art/arbolito.png">

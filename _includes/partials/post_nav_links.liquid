@@ -30,7 +30,7 @@
   {%- assign recentPosts = collections.posts | recentPosts %}
   <ul>
     {%- for post in recentPosts %}
-      <li><a href="{{ post.url }}">{{ post.data.title }}</a>&nbsp;&nbsp;·&nbsp;&nbsp;<i>{{ post.data.date | readableDateShort }}</i></li>
+      <li><a href="{{ post.url }}">{{ post.data.title }}</a>&nbsp;&nbsp;·&nbsp;&nbsp;<i>{{ post.data.date | readableDateShort | replace: " ", "&nbsp;" }}</i></li>
     {%- endfor %}
   </ul>
 {%- endif %}
