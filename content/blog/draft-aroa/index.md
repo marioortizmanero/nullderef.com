@@ -30,7 +30,17 @@ TODO: escaneos 3d y mejor calidad de las 2d
 
 Today, I want to convince you of how awesome my sister, Aroa, was. We lost her in November 2023, so I wanted to condense her essence into a single post and talk about mental health.
 
-![Painting she gifted to Luis, her therapist](/blog/draft-aroa/art/IMG-20231128-WA0001.jpg)
+<p>
+  <div class="art-container">
+    <img alt="TODO" src="/blog/draft-aroa/art/IMG-20231128-WA0001.jpg">
+    <details>
+      <summary>Details</summary>
+      <div class="art-description">
+        Aroa made this painting as a gift to Luis, her therapist.<br>
+      </div>
+    </details>
+  </div>
+</p>
 
 TODO: Mention astroboots / big red boots?
 
@@ -119,6 +129,8 @@ All her life experiences brought her countless friends that loved her to no end.
 ## Mental health
 
 We had absolutely no clue what was going on, and it happened so fast. After several visits to emergency care in a disastrous health care system, doctors started to hint it *might* be "[Borderline Personality Disorder](https://en.wikipedia.org/wiki/Borderline_personality_disorder) (BPD)". My mother always spent hours in hospitals only to be dismissed, told that intensive care had a one-year waitlist, and that Aroa being older than 18 limited our options.
+
+NOTE: lyrics taken from the song "Ghostemane, Parv0•To Whom It May Concern"
 
 ![](/blog/draft-aroa/art/20241228_181752.heic.jpg)
 
