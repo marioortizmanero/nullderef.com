@@ -19,17 +19,27 @@
   margin-bottom: 0;
 }
 
-.poem {
-  display: flex;
+.art-container img {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-bottom: 0;
 }
-.poem img {
-
+.art-container details {
+  background: var(--code-bg);
+  width: 100%;
+  border-bottom-right-radius: var(--radius);
+  border-bottom-left-radius: var(--radius);
 }
-.poem .translation {
+.art-container summary {
+  padding: 1rem;
+  cursor: pointer;
+}
+.art-description {
+  padding: 1rem;
+  border-top: 1px solid var(--tertiary);
   font-style: italic;
-
 }
-.poem .translation .author {
+.art-description .author {
   text-align: right;
   display: inline-block;
   width: 100%;
