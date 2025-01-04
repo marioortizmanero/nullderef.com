@@ -47,8 +47,7 @@
 .top-link:hover {
   color: var(--primary);
 }
-.top-link:focus,
-#theme-toggle:focus {
+.top-link:focus {
   outline: 0;
 }
 @media screen and (max-width: 768px) {

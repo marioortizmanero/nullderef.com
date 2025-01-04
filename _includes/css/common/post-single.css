@@ -200,9 +200,6 @@ pre:hover .copy-code {
   border-radius: var(--radius);
   padding: 0.4em;
 }
-.dark .toc {
-  background: var(--entry);
-}
 .toc summary {
   cursor: zoom-in;
   margin-inline-start: 10px;

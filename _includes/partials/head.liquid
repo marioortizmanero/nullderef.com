@@ -56,12 +56,6 @@ CSS style, which is bundled and minimized.
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
 
-<noscript>
-  <style>
-    {% render "css/common/noscript.css" %}
-  </style>
-</noscript>
-
 {%- if env.ELEVENTY_RUN_MODE == "build" %}
   {% render "partials/google_analytics.liquid" metadata: metadata %}
 {%- endif %}
