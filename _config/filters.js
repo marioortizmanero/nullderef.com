@@ -93,6 +93,8 @@ export default function(eleventyConfig) {
     $("style").remove();
     // We assume JS loads by default
     $("noscript").remove();
+    // No headers, only text
+    $("h2,h3,h4,h5,h6").remove();
     const plain = $.text();
     return plain
       .replace(/[\r\n\t]/g, ' ')
