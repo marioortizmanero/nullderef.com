@@ -8,21 +8,16 @@
   margin: auto;
   padding: calc((var(--footer-height) - var(--gap)) / 2) var(--gap);
   text-align: center;
-  line-height: 24px;
-}
-.footer span {
-  margin-inline-start: 1px;
-  margin-inline-end: 1px;
-}
-.footer span:last-child {
-  white-space: nowrap;
+  line-height: 1.4;
 }
 .footer a {
   color: inherit;
-  border-bottom: 1px solid var(--secondary);
+  text-decoration: underline;
 }
-.footer a:hover {
-  border-bottom: 1px solid var(--primary);
+@media screen and (max-width: 768px) {
+  .footer {
+    padding: calc((var(--footer-height) - var(--gap) - 10px) / 2) var(--gap);
+  }
 }
 
 /* Icon that's used to scroll to the top */
@@ -49,9 +44,4 @@
 }
 .top-link:focus {
   outline: 0;
-}
-@media screen and (max-width: 768px) {
-  .footer {
-    padding: calc((var(--footer-height) - var(--gap) - 10px) / 2) var(--gap);
-  }
 }
