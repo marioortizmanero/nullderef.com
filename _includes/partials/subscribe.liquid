@@ -19,7 +19,7 @@
       <h2>Want to receive an email when I post?</h2>
     </div>
     <ul class="formkit-alert formkit-alert-error" data-element="errors" data-group="alert"></ul>
-    <div data-element="fields" data-stacked="false" class="seva-fields formkit-fields">
+    <div data-element="fields" class="seva-fields formkit-fields">
       <div class="formkit-field">
         <input class="formkit-input" name="email_address" aria-label="Email Address" placeholder="Email Address" required="" type="email"></div>
       <button data-element="submit" class="formkit-submit" style="background-color: rgb(224, 108, 117); font-weight: 700;">
@@ -30,8 +30,8 @@
       {%- assign x_url = metadata.author.social["Twitter"] %}
       {%- assign rss_url = metadata.author.social["RSS"] %}
       {%- assign mastodon_url = metadata.author.social["Mastodon"] %}
-      <p><em>Free and without spam. You can also use my <a href="{{ rss_url }}" target="_blank">RSS</a>, <a href="{{ x_url }}" target="_blank">X</a>, or <a href="{{ mastodon_url }}" target="_blank">Mastodon</a> :)</em></p>
-      <p style="opacity: 0.6;"><em>Powered by <a href="https://kit.com/" target="_black">Kit</a></em></p>
+      <p><em>Free and without spam. You can also use my <a href="{{ rss_url }}" target="_blank">RSS</a>, <a href="{{ x_url }}" target="_blank">X</a>, or <a href="{{ mastodon_url }}" target="_blank">Mastodon</a>.</em></p>
+      <p style="opacity: 0.6; font-size: 16px;"><em>Powered by <a href="https://kit.com/" target="_black">Kit</a>.</em></p>
     </div>
   </div>
 
