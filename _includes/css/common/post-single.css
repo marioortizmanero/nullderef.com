@@ -199,20 +199,18 @@ pre:hover .copy-code {
   padding: 0.4em;
 }
 .toc summary {
-  cursor: zoom-in;
+  cursor: pointer;
   margin-inline-start: 10px;
   user-select: none;
 }
-.toc[open] summary {
-  cursor: zoom-out;
-}
 .toc li {
-  margin: 5px 20px 0;
-  padding: 0 10px;
-  opacity: 0.9;
+  margin-left: 20px;
 }
-.toc li ul {
-  margin-inline-start: var(--gap);
+.toc ul {
+  margin-bottom: 0;
+}
+.toc > ul {
+  padding-inline-end: 10px;
 }
 .toc summary:focus {
   outline: 0;
