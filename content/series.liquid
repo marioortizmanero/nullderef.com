@@ -10,8 +10,8 @@ description: "all the series in the site"
 
 {%- for series in collections.series %}
   {%- assign postsInSeries = collections.posts | getPostsInSeries: series.data.name %}
-  {%- assign firstPost = postsInSeries | last %}
-  {%- assign lastPost = postsInSeries | first %}
+  {%- assign firstPost = postsInSeries | first %}
+  {%- assign lastPost = postsInSeries | last %}
   <article class="post-entry">
     <figure class="entry-preview">
       <img loading="lazy" src="{{ firstPost.data.image }}" alt="{{ firstPost.data.imageAlt | escape }}" eleventy:widths="300">
