@@ -26,7 +26,7 @@ description: "all the series in the site"
         <p>{{ series.data.description | markdownify | plainifyHtml | escapeHtmlTags }}</p>
       </div>
       <footer class="entry-footer">
-        {{ postsInSeries.length }} post{% if postsInSeries > 1 %}s{% endif %}
+        {{ postsInSeries.length }} post{% if postsInSeries.length > 1 %}s{% endif %}
         &nbsp;·&nbsp;
         <time datetime="{{ firstPost.data.date }}">{{ firstPost.data.date | readableDateShort }}</time>
         {%- if firstPost != lastPost %}
