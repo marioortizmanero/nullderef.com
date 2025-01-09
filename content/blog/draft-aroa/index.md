@@ -184,6 +184,8 @@ After reuniting with my family, I couldn't comprehend what had happened. What wa
 
 A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive. I got ill, and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. Part of me wanted to swim for kilometers, but frustratingly, my body refused.
 
+![](/blog/draft-aroa/art/skate.jpg)
+
 It's gotten much better through therapy, loved ones, and time. There are still crappy moments, and the story is ongoing. But I try to have a positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
 
 At first, therapy makes things worse. It's like throwing all the shit into a pot and stirring it together. But in the long term, you need it to heal. Everyone deals with issues in their own way, and that's okay.
