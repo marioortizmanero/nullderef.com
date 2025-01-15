@@ -3,7 +3,7 @@ title: "Aroa, I wish I could tell you how damn awesome you are"
 description: TODO
 image: "/TODO.jpg"
 imageAlt: TODO
-tags: [TODO]
+tags: ["personal"]
 keywords: [TODO]
 date: 2024-01-14
 GHissueID: TODO

@@ -27,6 +27,10 @@ export default async function(eleventyConfig) {
       "./public/": "/",
       "node_modules/fuse.js/dist/fuse.basic.min.js": "/js/fuse.js"
     })
+    .addPassthroughCopy("./content/**/*.{svg,png,jpg,jpeg,webp,glb}") // images
+    .addPassthroughCopy("./content/**/*.{pdf,pptx}") // Documents
+    .addPassthroughCopy("./content/**/*.glb") // 3D files
+    .addPassthroughCopy("./content/**/*.sh") // Scripts
     // TODO: add XSL to have styling even without RSS plugins
     // .addPassthroughCopy("./content/feed/pretty-atom-feed.xsl");
   // We need to manually watch the images due to the processing pipeline.
