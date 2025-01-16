@@ -3,7 +3,6 @@ layout: layouts/base.liquid
 title: "SpeedBump Privacy Policy"
 description: "This Privacy Policy describes how we collect, use, and handle your information when you use our application."
 eleventyExcludeFromCollections: true
-draft: true
 ---
 
 <article class="post-single">
