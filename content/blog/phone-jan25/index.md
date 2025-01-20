@@ -29,3 +29,5 @@ Surprisingly, it's less stressful. I'm definitely speaking too early, given that
 Before committing to a bigger idea, I'm building a silly Android app. "SpeedBump" makes it annoying to use social media and other apps. After a few minutes, cookie banners, rain effects, cats, and more will get in your way. It's as stupid as it sounds, but also fun. **Google now requires developers to find 12 people to test the app, so [please opt in here to help me out](https://forms.gle/3p5mgZcAFJcwtcuh7)!**
 
 More serious stuff is coming soon, anyhow. I hope SpeedBump isn't the peak of my career.
+
+{% render "partials/subscribe.liquid" metadata: metadata %}
