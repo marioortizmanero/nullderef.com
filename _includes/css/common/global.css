@@ -21,12 +21,12 @@ body {
   color: var(--theme);
 }
 
-@media (prefers-reduced-motion) {
+@media (prefers-reduced-motion: reduce) {
   .terms-tags a:active,
   .post-entry:active,
   .top-link,
   #searchResults .focus,
   #searchResults li:active {
-    transform: none;
+    transform: none !important;
   }
 }
