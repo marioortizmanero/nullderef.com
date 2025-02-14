@@ -57,7 +57,7 @@ CSS style, which is bundled and minimized.
 <meta name="msapplication-TileColor" content="#2e2e33">
 
 {%- if env.ELEVENTY_RUN_MODE == "build" %}
-  {% render "partials/google_analytics.liquid" metadata: metadata %}
+  {% render "partials/analytics.liquid" metadata: metadata %}
 {%- endif %}
 {% render "partials/opengraph.liquid"
     author: author

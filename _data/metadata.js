@@ -21,5 +21,4 @@ export default {
     },
   },
   github: "https://github.com/marioortizmanero/nullderef.com",
-  googleAnalyticsId: "G-MVVGNX70LX",
 }
