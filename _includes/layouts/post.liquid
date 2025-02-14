@@ -19,7 +19,11 @@ layout: layouts/base.liquid
     </div>
   </header>
 
-  {%- if content %}
+  {%- if externalPost %}
+  <div class="post-content">
+    <p>This article was posted on <a href="{{ externalPost }}">another site</a>; please head there instead.</p>
+  </div>
+  {%- elsif content %}
   <div class="post-content">
     {{ content }}
   </div>

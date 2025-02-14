@@ -6,7 +6,6 @@ imageAlt: TODO
 tags: ["personal"]
 keywords: [TODO]
 date: 2024-01-14
-GHissueID: TODO
 draft: true
 ---
 

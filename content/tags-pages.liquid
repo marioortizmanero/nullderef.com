@@ -31,7 +31,7 @@ const eleventyComputed = {
   <div class="entry-group">
     <header class="entry-header">
       <h2>
-        {{ post.data.title }}{% if post.data.draft %}<i> (draft)</i>{% endif %}
+        {{ post.data.title }}{% if post.data.draft %}<i> (draft)</i>{% endif %}{% if post.data.externalPost %}&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path><path d="M15 3h6v6"></path><path d="M10 14L21 3"></path></svg>{% endif %}
       </h2>
     </header>
     <div class="entry-content">
@@ -40,7 +40,11 @@ const eleventyComputed = {
     <footer class="entry-footer">
       <time datetime="{{ post.data.date }}">{{ post.data.date | readableDateShort }}</time>
     </footer>
+    {%- if post.data.externalPost %}
+    <a class="entry-link" aria-label="post link to: {{ post.data.externalPost | escape }}" href="{{ post.data.externalPost }}" target="_blank"></a>
+    {%- else %}
     <a class="entry-link" aria-label="post link to: {{ post.data.title | escape }}" href="{{ post.url }}"></a>
+    {%- endif %}
   </div>
 </article>
 {%- endfor %}

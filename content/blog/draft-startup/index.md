@@ -6,7 +6,6 @@ imageAlt: TODO
 tags: ["tech"]
 keywords: [TODO]
 date: 2024-01-07
-GHissueID: TODO
 draft: true
 ---
 

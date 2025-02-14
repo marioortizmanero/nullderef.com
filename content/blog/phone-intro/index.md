@@ -4,7 +4,7 @@ description: "Ever feel like your phone controls you? Can we design a smartphone
 that minimized how much you used it?"
 image: "/blog/phone-intro/cover.jpg"
 imageAlt: "Preview image, with a phone telling the user to touch grass"
-tags: ["tech", "entrepreneurship", "research", "phone-dependency"]
+tags: ["tech", "entrepreneurship", "research"]
 keywords: ["tech", "phone dependency", "phone addiction", "eink", "calm companies", "dumbphones", "design"]
 series: "dont-use-this-phone"
 date: 2024-06-01

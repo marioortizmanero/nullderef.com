@@ -3,7 +3,7 @@ title: "I've quit my job to get you off your phone"
 description: "Why I quit and what my plans are"
 image: "/blog/quit-job-2024/preview.jpg"
 imageAlt: "Preview image, with an astronaut lost in space"
-tags: ["tech", "entrepreneurship", "personal", "phone-dependency"]
+tags: ["tech", "entrepreneurship", "personal"]
 keywords: ["tech", "career", "phone dependency", "phone addiction", "quitting a job", "entrepreneurship"]
 series: "dont-use-this-phone"
 date: 2024-10-14

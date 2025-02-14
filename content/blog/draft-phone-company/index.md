@@ -7,7 +7,6 @@ tags: ["tech"]
 keywords: [TODO]
 series: "dont-use-this-phone"
 date: 2024-06-01
-GHissueID: TODO
 draft: true
 ---
 
