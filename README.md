@@ -11,6 +11,7 @@ to see all the comments in the articles.
 
 ### Checklist to release a new article
 
+- [ ] Rename from `draft-*` (including the preview image and other links)
 - [ ] Run `tools/clean-imports.py`
 - [ ] Create an issue in `nullderef-comments` for comments
 - [ ] Verify entry in homepage: preview text and image

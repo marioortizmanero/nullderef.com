@@ -1,7 +1,7 @@
 ---
 title: "I blasted over a speed bump to create my landing page"
 description: "Fill out my survey! SpeedBump is now on the Play Store, iOS coming soon."
-image: "/blog/draft-speedbump-launch/preview.jpg"
+image: "/blog/speedbump-launch/preview.jpg"
 imageAlt: "Preview image, with an astronaut lost in space"
 tags: ["tech", "entrepreneurship", "personal"]
 keywords: ["tech", "entrepreneurship", "phone dependency", "phone addiction", "user research", "Android development"]
