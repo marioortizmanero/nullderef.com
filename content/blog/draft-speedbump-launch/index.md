@@ -8,5 +8,4 @@ keywords: ["tech", "entrepreneurship", "phone dependency", "phone addiction", "u
 series: "dont-use-this-phone"
 date: 2025-02-14
 externalPost: 'https://speedbumpapp.com/blog/launch/'
-draft: true
 ---
