@@ -27,7 +27,8 @@ export default async function(eleventyConfig) {
       "./public/": "/",
       "node_modules/fuse.js/dist/fuse.basic.min.js": "/js/fuse.js"
     })
-    .addPassthroughCopy("./content/**/*.{svg,png,jpg,jpeg,webp,glb}") // images
+    .addPassthroughCopy("./content/**/*.{svg,png,jpg,jpeg,webp}") // Images
+    .addPassthroughCopy("./content/**/*.{webm,mp4}") // Videos
     .addPassthroughCopy("./content/**/*.{pdf,pptx}") // Documents
     .addPassthroughCopy("./content/**/*.glb") // 3D files
     .addPassthroughCopy("./content/**/*.sh") // Scripts

@@ -5,7 +5,7 @@ image: "/TODO.jpg"
 imageAlt: TODO
 tags: ["personal"]
 keywords: [TODO]
-date: 2024-01-14
+date: 2025-02-14
 draft: true
 ---
 
@@ -24,7 +24,7 @@ TODO: escaneos 3d y mejor calidad de las 2d
 [[toc]]
 
 <p class="content-warning">
-<i><strong>Note</strong>: This article contains themes that may be emotionally distressing for some readers. If you feel you may be vulnerable to such content, please consider your wellbeing before proceeding.</i>
+<i><strong>Note</strong>: This article contains themes that may be emotionally distressing for some readers. If you feel you may be vulnerable, consider your wellbeing before proceeding.</i>
 </p>
 
 Today, I want to convince you of how awesome my sister, Aroa, was. We lost her in November 2023, so I wanted to condense her essence into a single post and talk about mental health.
@@ -55,7 +55,12 @@ TODO: picture of cool outfit, or maybe multiple clothes with addition signs (+) 
 
 I don't think she was fully aware of her coolness. Another testament were her artistic skills, particularly as she got started with 3D paintings. In this gift to me, she cut off pictures from a magazine and glued more things on top:
 
-![Painting she did for me](/blog/draft-aroa/art/office.jpg)
+<!-- ![Painting she did for me](/blog/draft-aroa/art/office.jpg) -->
+{% render "viz3d.liquid"
+      src: "/blog/draft-aroa/art/3d/renaissance.glb"
+      poster: "/blog/draft-aroa/art/3d/test-poster.webp"
+      alt: "Test file 2"
+%}
 
 My therapists always asked me for rituals to remember her. Going to a techno club in her memory is probably my favorite, and luckily, I live in Germany. Here are three playlists that define her best; you can leave one playing in the background for a full immersion while reading:
 
@@ -76,9 +81,46 @@ A showcase of her persistency, or rather adventurousness, was how hard she tried
 
 TODO: coger fotos de "Nuestra Aroa" en Google Photos
 
-TODO: encontrar el video donde hace un truco con nata en el bar??
+<!--
+Commands used to optimize the videos:
 
-![](/blog/draft-aroa/art/IMG-20231130-WA0019.jpg)
+ffmpeg \
+  -i nata-original.mp4 \
+  -vf "scale=650:-1,fps=15" \
+  -an \
+  -c:v libx264 \
+  -crf 34 \
+  -preset veryslow \
+  -profile:v high \
+  -level:v 4.1 \
+  -pix_fmt yuv420p \
+  -movflags +faststart \
+  nata.mp4
+
+ffmpeg \
+  -i nata-original.mp4 \
+  -vf "scale=650:-1,fps=15" \
+  -an \
+  -c:v libvpx-vp9 \
+  -b:v 0 \
+  -crf 50 \
+  -deadline best \
+  -cpu-used 0 \
+  -row-mt 1 \
+  -pix_fmt yuv420p \
+  -quality good \
+  -tile-columns 2 \
+  -auto-alt-ref 1 \
+  nata.webm
+-->
+
+<div class="gallery">
+  <video autoplay loop muted playsinline style="height: 20em; width: auto;">
+    <source src="/blog/draft-aroa/style/nata.webm" type="video/webm">
+    <source src="/blog/draft-aroa/style/nata.mp4" type="video/mp4">
+  </video>
+  <img alt="TODO" src="/blog/draft-aroa/art/IMG-20231130-WA0019.jpg" style="height: 20em; width: auto;">
+</div>
 
 Aroa showed me that people are much more than their career; you need to find fulfillment beyond it. Explore, learn, create. When I moved to Munich because of work, I stopped writing here and didn't prioritize learning German. I was learning about my job but not about me.
 
@@ -88,9 +130,19 @@ TODO: more stuff she did: karate and taekwondo, guitar and base, dance, basketba
 
 When she was younger, Aroa got into anime and League of Legends and dyed her hair blue. The pictures are hilarious --- she'd kill me for writing this. She tried dancing and playing basketball, but mostly kicked ass in a boxing ring. This legend even participated in First Dates on her birthday, but that's a (very funny) story for another time.
 
+<div class="gallery">
+  <img alt="TODO" src="/blog/draft-aroa/style/blue-hair.jpg" style="height: 20em; width: auto;">
+  <img alt="TODO" src="/blog/draft-aroa/style/boxing.jpg" style="height: 20em; width: auto;">
+  <img alt="TODO" src="/blog/draft-aroa/style/tattoos.jpg" style="height: 20em; width: auto;">
+</div>
+
 My sister also appeared on TV after winning a baking competition, and in an ad for our local television network, where she skated. A little-known fact is that she has a song to her name, "[Los mundos de Aroa](https://open.spotify.com/track/2WOfcTp81iHvPljUNUmk1f?si=6373dc997aa941db)". One summer, we hiked to the Perdiguero, a 3,222m-high summit in the Pyrenees. She could both gracelessly pick up grasshoppers in the tracks, and rapel down canyon walls after a course she took with my father.
 
 TODO: coger fotos de "Nuestra Aroa" en Google Photos
+
+<div class="gallery">
+  <img alt="TODO" src="/blog/draft-aroa/style/baking.jpg">
+</div>
 
 Her cinephile side appeared more recently, combining cult movies like *Scarface* with absurd ones like *Don't be a Menace to South Central While Drinking your Juice in the Hood*. I kid you not, she knew *Ali-G* by heart. **Every single line**. She sent me some recommendations, which I'm slowly watching:
 
@@ -183,7 +235,12 @@ After reuniting with my family, I couldn't comprehend what had happened. What wa
 
 A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive. I got ill, and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. Part of me wanted to swim for kilometers, but frustratingly, my body refused.
 
-![](/blog/draft-aroa/art/skate.jpg)
+<!-- ![](/blog/draft-aroa/art/skate.jpg) -->
+{% render "viz3d.liquid"
+      src: "/blog/draft-aroa/art/3d/skate-web.glb"
+      poster: "/blog/draft-aroa/art/3d/test-poster.webp"
+      alt: "Test file 1"
+%}
 
 It's gotten much better through therapy, loved ones, and time. There are still crappy moments, and the story is ongoing. But I try to have a positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
 
@@ -194,6 +251,11 @@ TODO: rest of pictures go here
 <!-- TODO: try to not make the width 100% because it makes it hard to scroll. Or not the full height of the phone's screen, so that there are gaps at the top and bottom. Either that, or make 3d movements only with two fingers at once. -->
 {% render "viz3d.liquid"
       src: "/blog/draft-aroa/art/3d/test.glb"
+      poster: "/blog/draft-aroa/art/3d/test-poster.webp"
+      alt: "Test file"
+%}
+{% render "viz3d.liquid"
+      src: "/blog/draft-aroa/art/3d/test2.glb"
       poster: "/blog/draft-aroa/art/3d/test-poster.webp"
       alt: "Test file"
 %}

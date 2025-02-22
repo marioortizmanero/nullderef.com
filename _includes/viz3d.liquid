@@ -1,6 +1,27 @@
 {%- comment %}
 NOTE: using this shortcode requires calling `viz3d-setup` once beforehand.
 
+To optimize the models for the web, the 3D scans were passed through Blender to apply the following transformations:
+
+1. Remove the background vertices (Tab and B or C)
+2. Optimize the vertex count
+  - Enter "Sculpt Mode" and use the Fill/Deepen tool to make parts more flat. It's the 11th from the left.
+  - TODO: "Smooth" tool to the left??
+  - TODO: Decimate modifier for planar mode, though not sure how to not remove vertices? the texture isn't updated
+  - TODO: other options with selection: Limited Dissolve (X), Merge by Distance (M). You can use the "Measure" tool to the left to figure out a distance.
+  Note: you can view the vertex count by enabling "Statistics" in the Viewport Overlays button at the top right. It's an icon with two circles overlapping.
+3. Create a new face for the rear unscanned part by selecting the edges and creating a new face (F)
+  TODO: try doing Alt+Click on one edge of the open border to select the entire loop
+4. Add a shadow effect with a new material (Bottom red circle at the bottom of the list of icons on the right)
+  - Surface > Base color: #000 (or use the color picker for more accuracy)
+  - Surface > Roughness: 1
+  - With the border & face selection, click "Assign"
+5. Export:
+  - Material > Images > JPEG (75% quality)
+  - Compression enabled (Draco)
+    - Float precision of 6
+  - Remove animation data
+
 TODO: experiment with
 - `ar ar-placement="wall"`
 - environment-image
