@@ -40,7 +40,7 @@ Yet, it's such a huge issue that I'm confident I can build something valuable. Y
     marginwidth="0">Loading…</iframe>
 </p>
 
-If this is interesting to you in any way, please reach out! [Schedule a chat with me](https://calendar.app.google/L45TFdjwgqJZemxo7) or send me a message on [LinkedIn]({{ metadata.author.social.LinkedIn }}), [X]({{ metadata.author.social.Twitter }}), [Mastodon]({{ metadata.author.social.Mastodon }}), or by [email](mailto:marioortizmanero@gmail.com). You can vent about how much your phone controls you, share someone you know, or we could work together. Even catching up is a good reason :)
+If this is interesting to you in any way, please reach out! [Schedule a chat with me](https://chat.nullderef.com) or send me a message on [LinkedIn]({{ metadata.author.social.LinkedIn }}), [X]({{ metadata.author.social.Twitter }}), [Mastodon]({{ metadata.author.social.Mastodon }}), or by [email](mailto:marioortizmanero@gmail.com). You can vent about how much your phone controls you, share someone you know, or we could work together. Even catching up is a good reason :)
 
 I feel extremely lucky to be in a position to make this decision. Thank you to everyone for your support!
 
