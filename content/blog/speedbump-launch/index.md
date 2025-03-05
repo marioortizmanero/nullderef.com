@@ -7,5 +7,5 @@ tags: ["tech", "entrepreneurship", "personal"]
 keywords: ["tech", "entrepreneurship", "phone dependency", "phone addiction", "user research", "Android development"]
 series: "dont-use-this-phone"
 date: 2025-02-14
-externalPost: 'https://speedbumpapp.com/blog/launch/'
+externalPost: 'https://speedbumpapp.com/en/blog/launch/'
 ---

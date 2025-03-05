@@ -7,5 +7,5 @@ tags: ["tech", "entrepreneurship", "personal"]
 keywords: ["tech", "entrepreneurship", "productivity app", "screen time", "user research"]
 series: "dont-use-this-phone"
 date: 2025-02-26
-externalPost: 'https://speedbumpapp.com/blog/v1/'
+externalPost: 'https://speedbumpapp.com/en/blog/v1/'
 ---

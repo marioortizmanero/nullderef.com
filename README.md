@@ -1,11 +1,8 @@
 # nullderef.com
 
-This repository contains the source code needed to build the
-[nullderef](https://nullderef.com) website, my personal blog.
+This repository contains the source code needed to build the [nullderef](https://nullderef.com) website, my personal blog.
 
-You can also visit
-[nullderef-comments](https://github.com/marioortizmanero/nullderef.com-comments)
-to see all the comments in the articles.
+You can also visit [nullderef-comments](https://github.com/marioortizmanero/nullderef.com-comments) to see all the comments in the articles.
 
 ## Development
 
