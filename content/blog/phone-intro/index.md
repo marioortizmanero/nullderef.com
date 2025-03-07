@@ -99,7 +99,7 @@ Firstly, they aren't well marketed; most people aren't aware of their existence.
 
 Secondly, they aren't first-party citizens; the tools are there, but they don't quite integrate seamlessly. The most powerful feature on Android is "modes", which allows you to switch settings for different situations. For example: when your GPS shows you're in the library, it can disable Instagram and set the screen to grayscale. Being so powerful, it's also complicated to configure (and to keep your setup up to date). If the company prioritized reducing screen time over ad revenue, we’d likely see more ideas to improve its adoption.
 
-There are heaps of alternatives on the app marketplaces, although their source code may not be available, and most have in-app payments or ads. Here are some cool features I've seen while trying out Android apps[^apps]:
+There are heaps of alternatives on the app marketplaces, although their source code may not be available, and most have in-app payments or ads. Here are some cool features I've seen while trying out Android apps[^apps][^apps2]:
 
 - fancy tutorials,
 - syncing across devices (including your laptop or tablet),
@@ -198,6 +198,7 @@ _Disclaimer: I am not affiliated with any of the companies mentioned in this pos
 [^remarkable-money]: [Remarkable raises $15 million to bring its e-paper tablets to more scribblers --- VentureBeat](https://venturebeat.com/media/remarkable-raises-15-million-to-bring-its-e-paper-tablets-to-more-scribblers/)
 [^mudita-funding]: [Mudita new technology company co-founder of CD Projekt --- eurogamer.pl (archive)](https://archive.ph/4FODk)
 [^openai]: [Our structure --- OpenAI](https://openai.com/our-structure/)
+[^apps2]: [How to add a timer to social media](https://speedbumpapp.com/en/blog/social-media-timer/)
 [^apps]: Digital control:
     {% render "app"
           name: "AppBlock"
