@@ -198,7 +198,7 @@ _Disclaimer: I am not affiliated with any of the companies mentioned in this pos
 [^remarkable-money]: [Remarkable raises $15 million to bring its e-paper tablets to more scribblers --- VentureBeat](https://venturebeat.com/media/remarkable-raises-15-million-to-bring-its-e-paper-tablets-to-more-scribblers/)
 [^mudita-funding]: [Mudita new technology company co-founder of CD Projekt --- eurogamer.pl (archive)](https://archive.ph/4FODk)
 [^openai]: [Our structure --- OpenAI](https://openai.com/our-structure/)
-[^apps2]: [How to add a timer to social media](https://speedbumpapp.com/en/blog/social-media-timer/)
+[^apps2]: [How to add a timer to social media](https://speedbumpapp.com/en/blog/social-media-timer/) ([Spanish](https://speedbumpapp.com/es/blog/social-media-timer/), [German](https://speedbumpapp.com/de/blog/social-media-timer/))
 [^apps]: Digital control:
     {% render "app"
           name: "AppBlock"
