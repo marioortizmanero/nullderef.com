@@ -103,12 +103,12 @@ relatedBlogs:
     </div>
 
     <p>
-    If you want to contact me, just <a href="https://chat.nullderef.com" target="_blank" rel="noopener noreferrer me">schedule a chat</a> or use any of these links:
+    If you want to contact me, just <a href="https://chat.nullderef.com" target="_blank" rel="noopener me">schedule a chat</a> or use any of these links:
     </p>
 
     <p style="text-align: center;">
     {%- for social in socials -%}
-      <a href="{{ metadata.author.social[social] }}" target="_blank" rel="noopener noreferrer me">{{ social }}</a>
+      <a href="{{ metadata.author.social[social] }}" target="_blank">{{ social }}</a>
       {%- unless forloop.last %} · {% endunless -%}
     {%- endfor -%}
     </p>
