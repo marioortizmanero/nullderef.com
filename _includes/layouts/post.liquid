@@ -54,7 +54,11 @@ layout: layouts/base.liquid
   "@type": "Article",
   "name": "{{ title | escape }}",
   "image": "{{ image | absUrl }}",
-  "author": "{{ author | default: metadata.author.name }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ author | default: metadata.author.name }}",
+    "url": "{{ metadata.url }}",
+  },
   "url": "{{ page.url }}",
   "datePublished": "{{ date | iso8601Date }}",
   "dateModified": "{{ page.inputPath | lastModified | iso8601Date }}",
