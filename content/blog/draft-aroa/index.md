@@ -27,7 +27,7 @@ TODO: escaneos 3d y mejor calidad de las 2d
 <i><strong>Note</strong>: This article contains themes that may be emotionally distressing for some readers. If you feel you may be vulnerable, consider your wellbeing before proceeding.</i>
 </p>
 
-Today, I want to convince you of how awesome my sister, Aroa, was. We lost her in November 2023, so I wanted to condense her essence into a single post and talk about mental health.
+Today, I want to convince you of how awesome my sister, Aroa, was. We lost her in November 2023, and I wanted to condense her essence into a single post and talk about mental health.
 
 <p>
   <div class="art-container">
@@ -53,7 +53,7 @@ TODO: picture of cool outfit, or maybe multiple clothes with addition signs (+) 
   <img alt="TODO" src="/blog/draft-aroa/style/necktie3.jpg">
 </div>
 
-I don't think she was fully aware of her coolness. Another testament were her artistic skills, particularly as she got started with 3D paintings. In this gift to me, she cut off pictures from a magazine and glued more things on top:
+I don't think she was fully aware of her coolness. Another testament were her artistic skills, especially as she got started with 3D paintings. In this gift to me, she cut off pictures from a magazine and glued more things on top:
 
 <!-- ![Painting she did for me](/blog/draft-aroa/art/office.jpg) -->
 {% render "viz3d.liquid"
@@ -62,7 +62,7 @@ I don't think she was fully aware of her coolness. Another testament were her ar
       alt: "Test file 2"
 %}
 
-My therapists always asked me for rituals to remember her. Going to a techno club in her memory is probably my favorite, and luckily, I live in Germany. Here are three playlists that define her best; you can leave one playing in the background for a full immersion while reading:
+I was asked in therapy what rituals help me remember her. Going to a techno club in her memory is probably my favorite. Here are three playlists that define her best; you can leave one playing in the background for a full immersion while reading:
 
 TODO: make backups of these playlists as a simple list of song - author in this post
 
@@ -77,7 +77,7 @@ TODO: make backups of these playlists as a simple list of song - author in this 
 
 <!-- TODO: did she tattoo foreigners? that'd be a better word than "people" -->
 
-A showcase of her persistency, or rather adventurousness, was how hard she tried to find a career. It was astronomy for a bit, and she even tried a semester of geology. She signed up for an automotive workshop and later gave a try to content creation for CBD companies. All while preparing cocktails in bars. Somewhere, a couple of people keep tattoos from when she got into that, too. I helped her build a CV, but we never managed to convince her to pursue arts! She argued she didn't want anyone telling her how to draw:
+A showcase of her persistency, or rather adventurousness, was how hard she tried to find a career. It was astronomy for a bit, and she even tried a semester of geology. She signed up for an automotive workshop and later gave a try to content creation for CBD companies. All while preparing cocktails in bars. A few random people keep tattoos from when she got into that, too. I helped her build a CV, but we never managed to convince her to pursue arts! She argued she didn't want anyone telling her how to draw:
 
 TODO: coger fotos de "Nuestra Aroa" en Google Photos
 
@@ -128,7 +128,7 @@ TODO: foto de arte aqui
 
 TODO: more stuff she did: karate and taekwondo, guitar and base, dance, basketball.
 
-When she was younger, Aroa got into anime and League of Legends and dyed her hair blue. The pictures are hilarious --- she'd kill me for writing this. She tried dancing and playing basketball, but mostly kicked ass in a boxing ring. This legend even participated in First Dates on her birthday, but that's a (very funny) story for another time.
+When she was younger, Aroa got into anime and League of Legends and dyed her hair blue. The pictures are hilarious -- she'd kill me for writing this. She tried dancing and playing basketball, but mostly kicked ass in a boxing ring. This legend even participated in First Dates on her birthday, but that's a (very funny) story for another time.
 
 <div class="gallery">
   <img alt="TODO" src="/blog/draft-aroa/style/blue-hair.jpg" style="height: 20em; width: auto;">
@@ -185,7 +185,17 @@ NOTE: lyrics taken from the song "Ghostemane, Parv0•To Whom It May Concern"
 
 ![](/blog/draft-aroa/art/20241228_181752.heic.jpg)
 
-Marsha Linehan argues that BPD is caused by both a genetic vulnerability and environmental stressors (*biosocial model*). The major symptoms are unstable relationships, a distorted sense of self, intense emotions, fear of abandonment, impulsivity, self-harm, and dissociation. This tough disorder may, however, improve significantly with consistent therapy and, in some cases, supplementary medication. Meeting more people who face it has been an honor --- they are the most compassionate!
+Marsha Linehan argues that BPD is caused by both a genetic vulnerability and environmental stressors (*biosocial model*). The major symptoms are
+
+- unstable relationships,
+- a distorted sense of self,
+- intense emotions,
+- fear of abandonment,
+- impulsivity,
+- self-harm,
+- and dissociation.
+
+This tough disorder may, however, improve significantly with consistent therapy and, in some cases, supplementary medication. Meeting more people who face it has been an honor --- they are the most compassionate!
 
 ![](/blog/draft-aroa/art/20241228_181756.heic.jpg)
 
@@ -193,13 +203,17 @@ She found art as a way to express her feelings through hardship. Disconnecting i
 
 TODO: maybe use this lifeline instead: https://988lifeline.org/
 
-If you ever have suicidal thoughts, please reach for help. This website contains some resources in [Spanish](https://ifdsurvive.com/) and this one in [English](TODO). You can donate here or here. Caring for someone with BPD can also be challenging, making you feel like "walking on eggshells". Education and support groups help to learn healthy boundaries and how to best support the person.
+If you ever have suicidal thoughts, please reach for help. This website contains some resources in [Spanish](https://ifdsurvive.com/) and this one in [English](TODO). You can donate here or here.
+
+Caring for someone with BPD can also be challenging, making you feel like "walking on eggshells". Education and support groups help to learn healthy boundaries and how to best support the person.
 
 ![](/blog/draft-aroa/art/20231210_212726.heic.jpg)
 
 ## My experience
 
-My mother called me to tell me the news. The timing was extraordinary, as I was sitting in a plane two minutes away from its takeoff. It was gut-wrenching to tell my father, too. The attentive flight attendants took me to their reserved row to calm my nerves after the departure. My constant sobbing worried them that I'd dehydrate or get a panic attack. So they asked me to take a tranquilizer... as a rectal suppository. For flight reasons, I suppose. I'm sure Aroa would have gotten a huuuuuge kick out of that. Man, I know she's still laughing somewhere.
+My mother called me to tell me the news. The timing was extraordinary, as I was sitting in a plane two minutes away from its takeoff. It was absolutely gut-wrenching to tell my father, too.
+
+The attentive flight attendants took me to their reserved row to calm my nerves after the departure. My constant, harsh sobbing worried them that I'd dehydrate or get a panic attack. So they asked me to take a tranquilizer... as a rectal suppository. For flight reasons, I suppose. I'm sure Aroa would have gotten a huuuuuge kick out of that. Man, I know she's still laughing somewhere.
 
 Being stuck for 4 hours in a flight, I thought of all the things that can be thought, and I felt all the feelings that can be felt. Not all of them being negative --- I'll eternally be grateful to my mother for calling me immediately.
 
@@ -233,7 +247,9 @@ After reuniting with my family, I couldn't comprehend what had happened. What wa
   </div>
 </p>
 
-A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming. My physical strength later took a nosedive. I got ill, and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. Part of me wanted to swim for kilometers, but frustratingly, my body refused.
+A shocking part was the physical reaction, as I didn't know the concept of "[somatization](https://en.wikipedia.org/wiki/Somatization)". Mental health ***is*** physical health. The airplane call made my arms literally numb for several minutes. It was completely disconcerting and alarming.
+
+My physical strength later took a nosedive. I got ill, and the worst back cramps of my life left me in bed for two days straight. The exhaustion lasted for weeks. Part of me wanted to swim for kilometers, but frustratingly, my body refused.
 
 <!-- ![](/blog/draft-aroa/art/skate.jpg) -->
 {% render "viz3d.liquid"
@@ -242,7 +258,7 @@ A shocking part was the physical reaction, as I didn't know the concept of "[som
       alt: "Test file 1"
 %}
 
-It's gotten much better through therapy, loved ones, and time. There are still crappy moments, and the story is ongoing. But I try to have a positive outlook, and brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this post helps!
+It's gotten much better through therapy, loved ones, and time. There are still crappy moments, and the story is ongoing. I try to brag about how great Aroa was to this day. She wanted to raise awareness about BPD, so I hope this helps!
 
 At first, therapy makes things worse. It's like throwing all the shit into a pot and stirring it together. But in the long term, you need it to heal. Everyone deals with issues in their own way, and that's okay.
 
