@@ -10,6 +10,8 @@ You can also visit [nullderef-comments](https://github.com/marioortizmanero/null
 
 - [ ] Rename from `draft-*` (including the preview image and other links)
 - [ ] Run `tools/clean-imports.py`
+- [ ] Clean up bibliography
+- [ ] Make sure it doesn't start with a section such as "Introduction", which messes up the post preview
 - [ ] Create an issue in `nullderef-comments` for comments
 - [ ] Verify entry in homepage: preview text and image
 - [ ] Verify that post has Table of Contents and Subscribe prompt
