@@ -7,7 +7,7 @@
   <img class="project-logo" loading="lazy" src="{{ project.logo }}" alt="Logo of {{ project.name | escape }}" eleventy:widths="100">
 
   <div class="project-content">
-    <p>{{ project.description }}</p>
+    <p>{{ project.description | markdownify }}</p>
   </div>
 
   {%- if project.nullderef_series %}
